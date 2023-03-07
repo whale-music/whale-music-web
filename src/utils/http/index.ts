@@ -80,15 +80,15 @@ class PureHttp {
               const data = getToken();
               if (data) {
                 const now = new Date().getTime();
-                const expired = parseInt(data.expires) - now <= 0;
+                const expired = parseInt(data.expiryTime) - now <= 0;
                 if (expired) {
                   if (!PureHttp.isRefreshing) {
                     PureHttp.isRefreshing = true;
                     // token过期刷新
                     useUserStoreHook()
-                      .handRefreshToken({ refreshToken: data.refreshToken })
+                      .handRefreshToken({ refreshToken: data.id })
                       .then(res => {
-                        const token = res.data.accessToken;
+                        const token = res.data.token;
                         config.headers["Authorization"] = formatToken(token);
                         PureHttp.requests.forEach(cb => cb(token));
                         PureHttp.requests = [];
@@ -99,9 +99,7 @@ class PureHttp {
                   }
                   resolve(PureHttp.retryOriginalRequest(config));
                 } else {
-                  config.headers["Authorization"] = formatToken(
-                    data.accessToken
-                  );
+                  config.headers["Authorization"] = formatToken(data.token);
                   resolve(config);
                 }
               } else {
@@ -161,6 +159,7 @@ class PureHttp {
 
     // 单独处理自定义请求/响应回掉
     return new Promise((resolve, reject) => {
+      config.url = "/api" + config.url;
       PureHttp.axiosInstance
         .request(config)
         .then((response: undefined) => {

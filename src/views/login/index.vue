@@ -50,20 +50,28 @@ const onLogin = async (formEl: FormInstance | undefined) => {
   await formEl.validate((valid, fields) => {
     if (valid) {
       useUserStoreHook()
-        .loginByUsername({ username: ruleForm.username, password: "admin123" })
+        .loginByUsername({
+          username: ruleForm.username,
+          password: ruleForm.password
+        })
         .then(res => {
-          if (res.success) {
+          if (res.code === "200") {
             // 获取后端路由
             initRouter().then(() => {
               router.push("/");
               message("登录成功", { type: "success" });
             });
+          } else {
+            loading.value = false;
+            message(res.message, { type: "error" });
           }
         });
     } else {
       loading.value = false;
       return fields;
     }
+    loading.value = false;
+    return fields;
   });
 };
 
@@ -86,7 +94,7 @@ onBeforeUnmount(() => {
 <template>
   <div class="select-none">
     <img :src="bg" class="wave" />
-    <div class="flex-c absolute right-5 top-3">
+    <div class="absolute flex-c right-5 top-3">
       <!-- 主题 -->
       <el-switch
         v-model="dataTheme"

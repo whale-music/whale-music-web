@@ -31,10 +31,12 @@ export const useUserStore = defineStore({
     async loginByUsername(data) {
       return new Promise<UserResult>((resolve, reject) => {
         getLogin(data)
-          .then(data => {
-            if (data) {
-              setToken(data.data);
-              resolve(data);
+          .then(res => {
+            if (res.code === "200") {
+              setToken(res.data);
+              resolve(res);
+            } else {
+              resolve(res);
             }
           })
           .catch(error => {
@@ -55,10 +57,10 @@ export const useUserStore = defineStore({
     async handRefreshToken(data) {
       return new Promise<RefreshTokenResult>((resolve, reject) => {
         refreshTokenApi(data)
-          .then(data => {
-            if (data) {
-              setToken(data.data);
-              resolve(data);
+          .then(res => {
+            if (res) {
+              setToken(res.data);
+              resolve(res);
             }
           })
           .catch(error => {
