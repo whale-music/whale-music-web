@@ -10,6 +10,7 @@ import { getParentPaths, findRouteByPath } from "@/router/utils";
 import { useTranslationLang } from "../../hooks/useTranslationLang";
 import { usePermissionStoreHook } from "@/store/modules/permission";
 import globalization from "@/assets/svg/globalization.svg?component";
+import user from "@/assets/svg/user.svg?component";
 import LogoutCircleRLine from "@iconify-icons/ri/logout-circle-r-line";
 import Setting from "@iconify-icons/ri/settings-3-line";
 import Check from "@iconify-icons/ep/check";
@@ -133,11 +134,8 @@ watch(
       </el-dropdown>
       <!-- 退出登录 -->
       <el-dropdown trigger="click">
-        <span class="el-dropdown-link navbar-bg-hover select-none">
-          <img
-            src="https://avatars.githubusercontent.com/u/44761321?v=4"
-            :style="avatarsStyle"
-          />
+        <span class="select-none el-dropdown-link navbar-bg-hover">
+          <user :style="avatarsStyle" />
           <p v-if="username" class="dark:text-white">{{ username }}</p>
         </span>
         <template #dropdown>
