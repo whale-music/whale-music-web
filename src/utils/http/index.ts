@@ -89,7 +89,8 @@ class PureHttp {
                       .handRefreshToken({ refreshToken: data.id })
                       .then(res => {
                         const token = res.data.token;
-                        config.headers["Authorization"] = formatToken(token);
+                        // config.headers["Authorization"] = formatToken(token);
+                        config.headers["token"] = token;
                         PureHttp.requests.forEach(cb => cb(token));
                         PureHttp.requests = [];
                       })
@@ -99,7 +100,8 @@ class PureHttp {
                   }
                   resolve(PureHttp.retryOriginalRequest(config));
                 } else {
-                  config.headers["Authorization"] = formatToken(data.token);
+                  config.headers["token"] = data.token;
+                  // config.headers["Authorization"] = formatToken(data.token);
                   resolve(config);
                 }
               } else {
@@ -130,6 +132,11 @@ class PureHttp {
           PureHttp.initConfig.beforeResponseCallback(response);
           return response.data;
         }
+
+        // 如果没有登录或者token过期直接跳转login
+        // if (response.status === 200 && response.data.code === "10005") {
+
+        // }
         return response.data;
       },
       (error: PureHttpError) => {
