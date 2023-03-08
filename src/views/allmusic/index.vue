@@ -51,7 +51,7 @@ const dateTimeRange = ref<[Date, Date]>([
 ]);
 
 const tableData = ref();
-
+const tableLoading = ref<boolean>();
 // const toggleSelection = rows => {
 //   if (rows) {
 //     rows.forEach(row => {
@@ -66,16 +66,23 @@ const handleSelectionChange = val => {
 };
 
 function getMusicList(param) {
-  getAllMusicList(param).then(res => {
-    if (res.code === "200") {
-      tableData.value = res.data.records;
-      pageConfig.total = res.data.total;
-      pageConfig.pageSize = res.data.size;
-      pageConfig.pageIndex = res.data.current;
-    } else {
-      message(res.message, { type: "error" });
-    }
-  });
+  tableLoading.value = true;
+  getAllMusicList(param)
+    .then(res => {
+      tableLoading.value = false;
+      if (res.code === "200") {
+        tableData.value = res.data.records;
+        pageConfig.total = res.data.total;
+        pageConfig.pageSize = res.data.size;
+        pageConfig.pageIndex = res.data.current;
+      } else {
+        message(res.message, { type: "error" });
+      }
+    })
+    .catch(res => {
+      tableLoading.value = false;
+      message(res, { type: "error" });
+    });
 }
 
 const formInline = reactive({
@@ -243,6 +250,7 @@ const rowDoubleClick = data => {
       <el-table
         ref="multipleTableRef"
         :data="tableData"
+        v-loading="tableLoading"
         highlight-current-row
         @selection-change="handleSelectionChange"
         :cell-style="cellStyle"
