@@ -37,6 +37,7 @@ specifiers:
   eslint: ^8.8.0
   eslint-plugin-prettier: ^4.0.0
   eslint-plugin-vue: ^9.9.0
+  howler: ^2.2.3
   husky: ^7.0.4
   js-cookie: ^3.0.1
   lint-staged: 11.1.2
@@ -94,6 +95,7 @@ dependencies:
   echarts: 5.4.1
   element-plus: 2.2.32_vue@3.2.47
   element-resize-detector: 1.2.4
+  howler: 2.2.3
   js-cookie: 3.0.1
   mitt: 3.0.0
   mockjs: 1.1.0
@@ -4427,6 +4429,13 @@ packages:
     dependencies:
       lru-cache: 6.0.0
     dev: true
+
+  /howler/2.2.3:
+    resolution:
+      {
+        integrity: sha512-QM0FFkw0LRX1PR8pNzJVAY25JhIWvbKMBFM4gqk+QdV+kPXOhleWGCB6AiAF/goGjIHK2e/nIElplvjQwhr0jg==
+      }
+    dev: false
 
   /html-tags/3.2.0:
     resolution:

@@ -86,9 +86,22 @@ export interface MusicUrlList {
   updateTime: string;
 }
 
-/** 刷新token */
+/** 获取全部歌曲信息 */
 export const getAllMusicList = (data?: MusicSearchReq) => {
   return http.request<R<MusicSearchPageRes>>("post", "/admin/playlist/page", {
     data
   });
+};
+
+export interface MusicUrlInfo {
+  id: string;
+  size: number;
+  level: string;
+  md5: string;
+  rawUrl: string;
+  exists: boolean;
+}
+// 获取歌曲地址URL
+export const getMusicUrl = (musicId?: string) => {
+  return http.request<R<MusicUrlInfo[]>>("get", "/admin/music/get/" + musicId);
 };

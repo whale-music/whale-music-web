@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getAllMusicList, MusicSearchReq } from "@/api/allmusic";
+import { getAllMusicList, MusicSearchReq, getMusicUrl } from "@/api/allmusic";
 import DownloadIcon from "./components/download.vue";
 import MusicPlay from "./components/music.play.vue";
 import { ref, reactive, onMounted } from "vue";
@@ -34,6 +34,13 @@ const sortData = reactive([
     label: "歌曲ID排序"
   }
 ]);
+
+const musicPlayConfig = reactive({
+  url: "",
+  totalTime: 0,
+  isPlay: true,
+  isDisplay: false
+});
 
 const sortConfig = ref("sort");
 
@@ -88,10 +95,12 @@ const search = reactive<MusicSearchReq>({
   pageNum: pageConfig.pageSize
 });
 
+// 点击按钮查询
 const onSubmit = () => {
   getMusicList(search);
 };
 
+// 生命周期挂载
 onMounted(() => {
   // 查询表格
   onSubmit();
@@ -123,6 +132,14 @@ const cellStyle = ({ columnIndex }) => {
 
 const rowDoubleClick = data => {
   console.log(data);
+  musicPlayConfig.isDisplay = false;
+  getMusicUrl(data.id).then(res => {
+    musicPlayConfig.url = res.data[0].rawUrl;
+    console.log(musicPlayConfig);
+    musicPlayConfig.isDisplay = true;
+  });
+  musicPlayConfig.totalTime = data.timeLength;
+  musicPlayConfig.isPlay = true;
 };
 </script>
 
@@ -131,7 +148,16 @@ const rowDoubleClick = data => {
     <div class="search">
       <div>
         <div class="data">
-          <div class="play music"><MusicPlay /></div>
+          <div
+            class="play music animate__animated animate__fadeIn"
+            v-if="musicPlayConfig.isDisplay"
+          >
+            <MusicPlay
+              :url="musicPlayConfig.url"
+              :totalTime="musicPlayConfig.totalTime"
+              :isPlay="musicPlayConfig.isPlay"
+            />
+          </div>
         </div>
         <div class="data">
           <el-form :inline="true" :model="formInline" class="demo-form-inline">
@@ -280,7 +306,10 @@ $searchHeight: 90%;
       justify-content: center;
 
       .play.music {
-        margin: 1rem;
+        position: absolute;
+        z-index: 100;
+        bottom: 0;
+        margin: 4rem;
       }
     }
   }
