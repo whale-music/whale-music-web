@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { getAllMusicList, MusicSearchReq } from "@/api/allmusic";
-import DownloadIcon from "./components/index.vue";
+import DownloadIcon from "./components/download.vue";
+import MusicPlay from "./components/music.play.vue";
 import { ref, reactive, onMounted } from "vue";
 import { message } from "@/utils/message";
 
@@ -88,22 +89,12 @@ const search = reactive<MusicSearchReq>({
 });
 
 const onSubmit = () => {
-  console.log(pageConfig);
   getMusicList(search);
 };
 
-// 表格高度
-const adaptation = 180;
-let maxheight = window.innerHeight - adaptation;
-
 onMounted(() => {
+  // 查询表格
   onSubmit();
-
-  window.onresize = () => {
-    return (() => {
-      maxheight = window.innerHeight - adaptation;
-    })();
-  };
 });
 
 const handleSizeChange = val => {
@@ -136,9 +127,12 @@ const rowDoubleClick = data => {
 </script>
 
 <template>
-  <div class="absolute-container">
+  <div class="overflow-x-scroll absolute-container">
     <div class="search">
       <div>
+        <div class="data">
+          <div class="play music"><MusicPlay /></div>
+        </div>
         <div class="data">
           <el-form :inline="true" :model="formInline" class="demo-form-inline">
             <el-form-item label="音乐">
@@ -224,11 +218,9 @@ const rowDoubleClick = data => {
         highlight-current-row
         @selection-change="handleSelectionChange"
         :cell-style="cellStyle"
-        :max-height="maxheight"
         @row-dblclick="rowDoubleClick"
       >
         <el-table-column fixed type="index" width="50" />
-        <!-- <el-table-column fixed type="selection" width="30" /> -->
 
         <el-table-column fixed width="40" show-overflow-tooltip>
           <template #default="scope">
@@ -265,8 +257,6 @@ const rowDoubleClick = data => {
           show-overflow-tooltip
         />
       </el-table>
-
-      <!-- <div class="w-full h-28 bg-slate-800"></div> -->
     </div>
   </div>
 </template>
@@ -276,8 +266,6 @@ $searchWidth: 90%;
 $searchHeight: 90%;
 
 .absolute-container {
-  margin-top: 1rem;
-  position: absolute;
   width: 100%;
   height: 100%;
   display: flex;
@@ -290,12 +278,15 @@ $searchHeight: 90%;
     .data {
       display: flex;
       justify-content: center;
+
+      .play.music {
+        margin: 1rem;
+      }
     }
   }
 
   .table {
     width: $searchWidth;
-    height: $searchHeight;
     margin: 0 auto;
     overflow-x: scroll;
   }
