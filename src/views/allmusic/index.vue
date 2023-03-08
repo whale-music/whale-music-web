@@ -4,6 +4,7 @@ import DownloadIcon from "./components/download.vue";
 import MusicPlay from "./components/music.play.vue";
 import { ref, reactive, onMounted } from "vue";
 import { message } from "@/utils/message";
+import { dateFormater } from "@/utils/dateUtil";
 
 const multipleTableRef = ref();
 const multipleSelection = ref([]);
@@ -130,6 +131,7 @@ const cellStyle = ({ columnIndex }) => {
   }
 };
 
+// 播放音乐
 const rowDoubleClick = data => {
   console.log(data);
   musicPlayConfig.isDisplay = false;
@@ -144,7 +146,7 @@ const rowDoubleClick = data => {
 </script>
 
 <template>
-  <div class="overflow-x-scroll absolute-container">
+  <div class="absolute-container">
     <div class="search">
       <div>
         <div class="data">
@@ -262,26 +264,47 @@ const rowDoubleClick = data => {
           width="450"
         >
           <template #default="scope">
-            <span>{{ scope.row.musicName }}</span>
+            <span class="font-sans subpixel-antialiased">{{
+              scope.row.musicName
+            }}</span>
             <span class="font">&emsp;{{ scope.row.musicNameAlias }}</span>
           </template>
         </el-table-column>
 
         <el-table-column prop="singerName" label="歌手" show-overflow-tooltip>
           <template #default="scope">
-            <el-tag disable-transitions>{{ scope.row.singerName }}</el-tag>
+            <el-tag
+              disable-transitions
+              v-for="item in scope.row.singerName"
+              :key="item"
+              >{{ item }}</el-tag
+            >
           </template>
         </el-table-column>
-
         <el-table-column prop="albumName" label="专辑" show-overflow-tooltip />
-
-        <el-table-column prop="timeLength" label="歌曲时长" />
-
+        <el-table-column
+          prop="timeLength"
+          label="歌曲时长"
+          width="80"
+          show-overflow-tooltip
+        >
+          <template #default="scope">
+            <span class="font-light">{{
+              dateFormater("mm:ss", scope.row.timeLength)
+            }}</span>
+          </template>
+        </el-table-column>
         <el-table-column
           prop="createTime"
           label="上传时间"
           show-overflow-tooltip
-        />
+        >
+          <template #default="scope">
+            <span>{{
+              dateFormater("YYYY-MM-dd HH:mm:ss", scope.row.createTime)
+            }}</span>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
   </div>
