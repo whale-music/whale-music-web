@@ -166,7 +166,10 @@ class PureHttp {
 
     // 单独处理自定义请求/响应回掉
     return new Promise((resolve, reject) => {
-      config.url = "/api" + config.url;
+      debugger;
+      if (process.env.NODE_ENV === "development") {
+        config.url = import.meta.env.VITE_PROXY_PREFIX + config.url;
+      }
       PureHttp.axiosInstance
         .request(config)
         .then((response: undefined) => {
