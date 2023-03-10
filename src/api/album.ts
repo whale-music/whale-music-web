@@ -1,6 +1,5 @@
 import { http } from "@/utils/http";
-import { R } from "@/api/r";
-
+import { R, Page } from "@/api/common";
 export interface Singer {
   id: string;
   singerName: string;
@@ -37,11 +36,6 @@ export interface AlbumRes {
   countId?: any;
   maxLimit?: any;
   pages: number;
-}
-
-export interface Page {
-  pageIndex: number;
-  pageNum: number;
 }
 
 export interface AlbumReq {
