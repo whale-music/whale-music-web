@@ -325,14 +325,16 @@ $searchWidth: 90%;
 $searchHeight: 90%;
 
 .absolute-container {
-  width: 100%;
-  height: 100%;
+  margin: 0;
   display: flex;
   flex-direction: column;
+  /*主轴上的对齐方式为居中*/
+  justify-content: center;
+  /*交叉轴上对齐方式为居中*/
+  align-items: center;
 
   .search {
     width: $searchWidth;
-    margin: 0 auto;
 
     .data {
       display: flex;

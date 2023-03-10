@@ -51,8 +51,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
-    <div class="flex justify-center">
+  <div class="album">
+    <div class="search">
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
         <el-form-item :label="t('input.albumName')">
           <el-input
@@ -73,7 +73,7 @@ onMounted(() => {
         </el-form-item>
       </el-form>
     </div>
-    <div>
+    <div class="table">
       <el-table :data="tableData" style="width: 100%" table-layout="fixed">
         <el-table-column type="index" />
         <el-table-column width="100" show-overflow-tooltip>
@@ -132,4 +132,27 @@ onMounted(() => {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped lang="scss">
+$searchWidth: 90%;
+$searchHeight: 90%;
+
+.album {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  /*主轴上的对齐方式为居中*/
+  justify-content: center;
+  /*交叉轴上对齐方式为居中*/
+  align-items: center;
+
+  .search {
+    display: flex;
+    justify-content: center;
+    width: $searchWidth;
+  }
+
+  .table {
+    width: $searchWidth;
+  }
+}
+</style>

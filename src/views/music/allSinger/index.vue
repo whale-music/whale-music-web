@@ -42,8 +42,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
-    <div class="flex justify-center">
+  <div class="singer">
+    <div class="search">
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
         <el-form-item :label="t('input.singerName')">
           <el-input
@@ -59,7 +59,7 @@ onMounted(() => {
       </el-form>
     </div>
 
-    <div>
+    <div class="table">
       <el-table :data="tableData" style="width: 100%" table-layout="fixed">
         <el-table-column type="index" />
         <el-table-column width="100" show-overflow-tooltip>
@@ -84,13 +84,21 @@ onMounted(() => {
           </template>
         </el-table-column>
 
-        <el-table-column :label="t('table.albumSize')" show-overflow-tooltip>
+        <el-table-column
+          :label="t('table.albumSize')"
+          show-overflow-tooltip
+          width="100"
+        >
           <template #default="scope">
             <span class="text-2xl">{{ scope.row.albumSize }}</span>
           </template>
         </el-table-column>
 
-        <el-table-column :label="t('table.musicSize')" show-overflow-tooltip>
+        <el-table-column
+          :label="t('table.musicSize')"
+          show-overflow-tooltip
+          width="100"
+        >
           <template #default="scope">
             <span class="text-2xl">{{ scope.row.musicSize }}</span>
           </template>
@@ -112,8 +120,26 @@ onMounted(() => {
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .font {
   color: #a3a39cc3;
+}
+
+.singer {
+  margin: 0;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .search {
+    display: flex;
+    justify-content: center;
+  }
+
+  .table {
+    width: 90%;
+  }
 }
 </style>
