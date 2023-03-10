@@ -22,6 +22,7 @@ buttons:
   hswholeExitFullScreen: ExitFull
   hscontentFullScreen: Content FullScreen
   hscontentExitFullScreen: Content ExitFullScreen
+  search: Search
 menus:
   hshome: Home
   hslogin: Login
@@ -48,3 +49,8 @@ list:
 msg:
   loginSuccess: Login Success
   serverError: Please check whether the server is started
+input:
+  albumName: Album Name
+  pleaseEnterAlbumName: Please Enter Album Name
+  singerName: Singer Name
+  pleaseEnterSingerName: Please Enter Singer Name
