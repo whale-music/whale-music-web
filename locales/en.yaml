@@ -43,3 +43,6 @@ login:
   passwordRuleReg: The password format should be any combination of 8-18 digits
 list:
   allmusic: All Music
+msg:
+  loginSuccess: Login Success
+  serverError: Please check whether the server is started

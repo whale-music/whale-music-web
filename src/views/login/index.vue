@@ -59,11 +59,17 @@ const onLogin = async (formEl: FormInstance | undefined) => {
             // 获取后端路由
             initRouter().then(() => {
               router.push("/");
-              message("登录成功", { type: "success" });
+              message(t("msg.loginSuccess"), { type: "success" });
             });
           } else {
             loading.value = false;
             message(res.message, { type: "error" });
+          }
+        })
+        .catch(error => {
+          console.log(error);
+          if (error.response.status === 500) {
+            message(t("msg.serverError"), { type: "error" });
           }
         });
     } else {
