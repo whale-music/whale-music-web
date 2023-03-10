@@ -16,7 +16,7 @@ export default {
     {
       path: "/music/allMusic",
       name: "AllMusicList",
-      component: () => import("@/views/allmusic/index.vue"),
+      component: () => import("@/views/music/allMusic/index.vue"),
       meta: {
         icon: music,
         title: $t("list.allmusic")
@@ -25,7 +25,7 @@ export default {
     {
       path: "/music/allAlbum",
       name: "AllAlbumList",
-      component: () => import("@/views/allAlbum/index.vue"),
+      component: () => import("@/views/music/allAlbum/index.vue"),
       meta: {
         icon: music,
         title: $t("list.allAlbum")
@@ -33,8 +33,8 @@ export default {
     },
     {
       path: "/music/allSinger",
-      name: "AllAlbumList",
-      component: () => import("@/views/music/allAlbum/index.vue"),
+      name: "AllSingerList",
+      component: () => import("@/views/music/allSinger/index.vue"),
       meta: {
         icon: music,
         title: $t("list.allSinger")
