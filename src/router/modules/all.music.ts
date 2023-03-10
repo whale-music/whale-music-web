@@ -30,6 +30,15 @@ export default {
         icon: music,
         title: $t("list.allAlbum")
       }
+    },
+    {
+      path: "/music/allSinger",
+      name: "AllAlbumList",
+      component: () => import("@/views/music/allAlbum/index.vue"),
+      meta: {
+        icon: music,
+        title: $t("list.allSinger")
+      }
     }
   ]
 } as RouteConfigsTable;

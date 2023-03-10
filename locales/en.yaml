@@ -46,6 +46,7 @@ list:
   music: music
   allmusic: All Music
   allAlbum: all Album
+  allSinger: All Singer
 msg:
   loginSuccess: Login Success
   serverError: Please check whether the server is started
