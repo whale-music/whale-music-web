@@ -44,6 +44,7 @@ login:
 list:
   music: 音乐
   allmusic: 全部音乐
+  allAlbum: 全部专辑
 msg:
   loginSuccess: 登录成功
   serverError: 请检查服务器是否启动

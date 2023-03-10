@@ -9,8 +9,10 @@ export type MusicSearchReq = {
   order: boolean;
   beforeDate: string;
   afterDate: string;
-  pageIndex: number;
-  pageNum: number;
+  page: {
+    pageIndex: number;
+    pageNum: number;
+  };
 };
 
 // 音乐搜索返回

@@ -99,8 +99,10 @@ const search = reactive<MusicSearchReq>({
   order: false,
   beforeDate: "",
   afterDate: "",
-  pageIndex: pageConfig.pageIndex,
-  pageNum: pageConfig.pageSize
+  page: {
+    pageIndex: pageConfig.pageIndex,
+    pageNum: pageConfig.pageSize
+  }
 });
 
 // 点击按钮查询

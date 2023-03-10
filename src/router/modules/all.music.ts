@@ -1,23 +1,34 @@
 import { $t } from "@/plugins/i18n";
+import music from "@/assets/svg/music.svg?component";
 const Layout = () => import("@/layout/index.vue");
 
 export default {
   path: "/music",
   name: "AllMusic",
   component: Layout,
-  redirect: "/music",
+  redirect: "/music/allMusic",
   meta: {
-    icon: "homeFilled",
+    icon: music,
     title: $t("list.music"),
     rank: 1
   },
   children: [
     {
-      path: "/allmusic",
+      path: "/music/allMusic",
       name: "AllMusicList",
       component: () => import("@/views/allmusic/index.vue"),
       meta: {
+        icon: music,
         title: $t("list.allmusic")
+      }
+    },
+    {
+      path: "/music/allAlbum",
+      name: "AllAlbumList",
+      component: () => import("@/views/allAlbum/index.vue"),
+      meta: {
+        icon: music,
+        title: $t("list.allAlbum")
       }
     }
   ]
