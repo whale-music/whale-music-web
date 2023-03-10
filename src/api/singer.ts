@@ -22,7 +22,7 @@ export interface SingerRes {
 }
 
 export const getSingerPage = (data?: SingerReq) => {
-  return http.request<R<SingerRes>>("post", "/admin/album/allAlbum", {
+  return http.request<R<SingerRes>>("post", "/admin/singer/allSinger", {
     data
   });
 };
