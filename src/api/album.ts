@@ -1,5 +1,5 @@
 import { http } from "@/utils/http";
-import { R, Page } from "@/api/common";
+import { R, Page, Data } from "@/api/common";
 export interface Singer {
   id: string;
   singerName: string;
@@ -13,7 +13,7 @@ export interface Singer {
   updateTime: string;
 }
 
-export interface Record {
+export interface AlbumRes {
   id: string;
   albumName: string;
   description: string;
@@ -23,19 +23,6 @@ export interface Record {
   singer: Singer[];
   orderBy: string;
   order: boolean;
-}
-
-export interface AlbumRes {
-  records: Record[];
-  total: number;
-  size: number;
-  current: number;
-  orders: any[];
-  optimizeCountSql: boolean;
-  searchCount: boolean;
-  countId?: any;
-  maxLimit?: any;
-  pages: number;
 }
 
 export interface AlbumReq {
@@ -54,7 +41,7 @@ export interface AlbumReq {
 }
 
 export const getAlbumPage = (data?: AlbumReq) => {
-  return http.request<R<AlbumRes>>("post", "/admin/album/allAlbum", {
+  return http.request<R<Data<AlbumRes>>>("post", "/admin/album/allAlbum", {
     data
   });
 };

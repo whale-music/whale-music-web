@@ -14,7 +14,7 @@ const formInline = reactive({
 
 const page = reactive({
   pageIndex: 0,
-  pageNum: 10,
+  pageNum: 100,
   total: 0
 });
 const getAlbumPageList = () => {
@@ -76,20 +76,30 @@ onMounted(() => {
     <div>
       <el-table :data="tableData" style="width: 100%" table-layout="fixed">
         <el-table-column type="index" />
-        <el-table-column prop="pic" show-overflow-tooltip>
+        <el-table-column width="100" show-overflow-tooltip>
           <template #default="scope">
             <el-image
               style="width: 5rem; height: 5rem"
-              class="rounded-lg"
+              class="rounded shadow-md"
               :src="scope.row.pic"
               fit="scale-down"
             />
           </template>
         </el-table-column>
         <el-table-column
-          prop="albumName"
           :label="t('input.albumName')"
           show-overflow-tooltip
+          width="500"
+        >
+          <template #default="scope">
+            <span class="text-xl">{{ scope.row.albumName }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="albumSize"
+          :label="t('table.musicSize')"
+          show-overflow-tooltip
+          width="100"
         />
         <el-table-column
           prop="singer.singerName"

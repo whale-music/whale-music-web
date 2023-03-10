@@ -1,36 +1,27 @@
 <script setup lang="ts">
-import { getAlbumPage } from "@/api/album";
+import { getSingerPage, SingerRes } from "@/api/singer";
 import { ref, reactive, onMounted } from "vue";
 import { dateFormater } from "@/utils/dateUtil";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
-const tableData = ref();
+const tableData = ref<SingerRes[]>();
 
 const formInline = reactive({
-  albumName: "",
   singerName: ""
 });
 
 const page = reactive({
   pageIndex: 0,
-  pageNum: 10,
+  pageNum: 100,
   total: 0
 });
 const getAlbumPageList = () => {
-  getAlbumPage({
+  getSingerPage({
     singerName: formInline.singerName,
-    albumName: formInline.albumName,
     orderBy: "",
     order: false,
-    timeBy: false,
-    beforeTime: "",
-    laterTime: "",
-    page: page,
-    description: "",
-    pic: "",
-    updateTime: "",
-    createTime: ""
+    page: page
   }).then(res => {
     page.pageIndex = res.data.current;
     page.pageNum = res.data.size;
@@ -54,12 +45,6 @@ onMounted(() => {
   <div>
     <div class="flex justify-center">
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
-        <el-form-item :label="t('input.albumName')">
-          <el-input
-            v-model="formInline.albumName"
-            :placeholder="t('input.pleaseEnterAlbumName')"
-          />
-        </el-form-item>
         <el-form-item :label="t('input.singerName')">
           <el-input
             v-model="formInline.singerName"
@@ -73,39 +58,44 @@ onMounted(() => {
         </el-form-item>
       </el-form>
     </div>
+
     <div>
       <el-table :data="tableData" style="width: 100%" table-layout="fixed">
         <el-table-column type="index" />
-        <el-table-column prop="pic" show-overflow-tooltip>
+        <el-table-column width="100" show-overflow-tooltip>
           <template #default="scope">
             <el-image
               style="width: 5rem; height: 5rem"
-              class="rounded-lg"
+              class="rounded shadow-md"
               :src="scope.row.pic"
-              fit="scale-down"
+              fit="contain"
             />
           </template>
         </el-table-column>
+
         <el-table-column
-          prop="albumName"
-          :label="t('input.albumName')"
-          show-overflow-tooltip
-        />
-        <el-table-column
-          prop="singer.singerName"
+          prop="singerName"
           :label="t('input.singerName')"
           show-overflow-tooltip
         >
           <template #default="scope">
-            <el-tag
-              disable-transitions
-              v-for="item in scope.row.singer"
-              :key="item.id"
-              class="m-1"
-              >{{ item.singerName }}</el-tag
-            >
+            <span class="text-xl">{{ scope.row.singerName }}</span
+            ><span class="font">&emsp;{{ scope.row.alias }}</span>
           </template>
         </el-table-column>
+
+        <el-table-column :label="t('table.albumSize')" show-overflow-tooltip>
+          <template #default="scope">
+            <span class="text-2xl">{{ scope.row.albumSize }}</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column :label="t('table.musicSize')" show-overflow-tooltip>
+          <template #default="scope">
+            <span class="text-2xl">{{ scope.row.musicSize }}</span>
+          </template>
+        </el-table-column>
+
         <el-table-column
           prop="createTime"
           label="上传时间"
@@ -122,4 +112,8 @@ onMounted(() => {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.font {
+  color: #a3a39cc3;
+}
+</style>

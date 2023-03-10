@@ -55,3 +55,6 @@ input:
   pleaseEnterAlbumName: Please Enter Album Name
   singerName: Singer Name
   pleaseEnterSingerName: Please Enter Singer Name
+table:
+  albumSize: Album Size
+  musicSize: Music Size

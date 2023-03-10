@@ -55,3 +55,6 @@ input:
   pleaseEnterAlbumName: 请输入专辑名
   singerName: 歌手名
   pleaseEnterSingerName: 请输入歌手名
+table:
+  albumSize: 专辑数
+  musicSize: 歌曲数

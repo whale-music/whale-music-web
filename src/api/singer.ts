@@ -1,5 +1,5 @@
 import { http } from "@/utils/http";
-import { R, Page } from "@/api/common";
+import { R, Page, Data } from "@/api/common";
 
 export interface SingerReq {
   singerName: string;
@@ -22,7 +22,7 @@ export interface SingerRes {
 }
 
 export const getSingerPage = (data?: SingerReq) => {
-  return http.request<R<SingerRes>>("post", "/admin/singer/allSinger", {
+  return http.request<R<Data<SingerRes>>>("post", "/admin/singer/allSinger", {
     data
   });
 };
