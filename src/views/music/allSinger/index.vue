@@ -13,7 +13,7 @@ const formInline = reactive({
 
 const page = reactive({
   pageIndex: 0,
-  pageNum: 100,
+  pageNum: 40,
   total: 0
 });
 const getAlbumPageList = () => {
@@ -68,7 +68,7 @@ onMounted(() => {
               style="width: 5rem; height: 5rem"
               class="rounded shadow-md"
               :src="scope.row.pic"
-              fit="contain"
+              fit="cover"
             />
           </template>
         </el-table-column>

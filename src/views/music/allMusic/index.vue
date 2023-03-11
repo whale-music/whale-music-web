@@ -65,7 +65,7 @@ const handleSelectionChange = val => {
   multipleSelection.value = val;
 };
 
-function getMusicList(param) {
+function getMusicList(param: MusicSearchReq) {
   tableLoading.value = true;
   getAllMusicList(param)
     .then(res => {
@@ -86,28 +86,26 @@ function getMusicList(param) {
 }
 
 const formInline = reactive({
-  name: "",
-  singer: "",
-  album: ""
-});
-
-const search = reactive<MusicSearchReq>({
-  musicName: formInline.name,
-  singerName: formInline.singer,
-  albumName: formInline.album,
-  orderBy: "sort",
-  order: false,
-  beforeDate: "",
-  afterDate: "",
-  page: {
-    pageIndex: pageConfig.pageIndex,
-    pageNum: pageConfig.pageSize
-  }
+  musicName: "",
+  singerName: "",
+  albumName: ""
 });
 
 // 点击按钮查询
 const onSubmit = () => {
-  getMusicList(search);
+  getMusicList({
+    musicName: formInline.musicName,
+    singerName: formInline.singerName,
+    albumName: formInline.albumName,
+    orderBy: "sort",
+    order: false,
+    beforeDate: "",
+    afterDate: "",
+    page: {
+      pageIndex: pageConfig.pageIndex,
+      pageNum: pageConfig.pageSize
+    }
+  });
 };
 
 // 生命周期挂载
@@ -174,21 +172,21 @@ const rowDoubleClick = data => {
           <el-form :inline="true" :model="formInline" class="demo-form-inline">
             <el-form-item label="音乐">
               <el-input
-                v-model="formInline.name"
+                v-model="formInline.musicName"
                 placeholder="输入音乐名称"
                 @keyup.enter="onSubmit"
               />
             </el-form-item>
             <el-form-item label="歌手">
               <el-input
-                v-model="formInline.singer"
+                v-model="formInline.singerName"
                 placeholder="输入歌手名称"
                 @keyup.enter="onSubmit"
               />
             </el-form-item>
             <el-form-item label="专辑">
               <el-input
-                v-model="formInline.album"
+                v-model="formInline.albumName"
                 placeholder="输入专辑名称"
                 @keyup.enter="onSubmit"
               />
