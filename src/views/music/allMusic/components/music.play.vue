@@ -106,10 +106,11 @@ onUnmounted(() => {
 .play {
   width: 28rem;
   height: 4rem;
+  border: 3px solid rgba(176, 255, 230, 1);
 
   opacity: 1;
   border-radius: 90px;
-  backdrop-filter: blur(2px);
+  // filter: blur(1px);
   background: linear-gradient(
     90deg,
     rgba(67, 230, 134, 0.83) 0%,

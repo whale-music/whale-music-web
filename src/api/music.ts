@@ -1,19 +1,5 @@
 import { http } from "@/utils/http";
-import { R } from "@/api/common";
-// 音乐搜索请求参数
-export type MusicSearchReq = {
-  musicName: string;
-  singerName: string;
-  albumName: string;
-  orderBy: string;
-  order: boolean;
-  beforeDate: string;
-  afterDate: string;
-  page: {
-    pageIndex: number;
-    pageNum: number;
-  };
-};
+import { R, MusicSearchReq } from "@/api/common";
 
 // 音乐搜索返回
 export interface MusicSearchPageRes {

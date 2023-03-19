@@ -26,6 +26,7 @@ buttons:
 menus:
   hshome: 首页
   hslogin: 登录
+  playList: 歌单
   hsabnormal: 异常页面
   hsfourZeroFour: "404"
   hsfourZeroOne: "403"

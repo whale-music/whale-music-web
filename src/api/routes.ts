@@ -8,12 +8,14 @@ export type Result = {
 export interface Router {
   path: string;
   meta: Meta;
+  component: string;
   children: Children[];
 }
 
 export interface Children {
   path: string;
   name: string;
+  component: string;
   meta: Meta;
 }
 export interface Meta {
@@ -24,5 +26,5 @@ export interface Meta {
 }
 
 export const getAsyncRoutes = () => {
-  return http.request<Result>("get", "/admin/user/getAsyncRoutes");
+  return http.request<Result>("get", "/admin/playlist/getAsyncRoutes");
 };

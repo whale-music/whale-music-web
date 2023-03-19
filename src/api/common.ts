@@ -21,3 +21,18 @@ export interface Data<T> {
   maxLimit?: any;
   pages: number;
 }
+
+// 音乐搜索请求参数
+export type MusicSearchReq = {
+  musicName: string;
+  singerName: string;
+  albumName: string;
+  orderBy: string;
+  order: boolean;
+  beforeDate: string;
+  afterDate: string;
+  page: {
+    pageIndex: number;
+    pageNum: number;
+  };
+};

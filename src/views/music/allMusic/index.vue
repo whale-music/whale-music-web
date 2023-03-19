@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { getAllMusicList, MusicSearchReq, getMusicUrl } from "@/api/music";
+import { getAllMusicList, getMusicUrl } from "@/api/music";
+import { MusicSearchReq } from "@/api/common";
 import DownloadIcon from "./components/download.vue";
 import MusicPlay from "./components/music.play.vue";
 import { ref, reactive, onMounted } from "vue";
 import { message } from "@/utils/message";
 import { dateFormater } from "@/utils/dateUtil";
+import { CellStyle } from "element-plus/es";
 
 const multipleTableRef = ref();
 const multipleSelection = ref([]);
@@ -125,7 +127,7 @@ const handleCurrentChange = val => {
 };
 
 // 表格颜色
-const cellStyle = ({ columnIndex }) => {
+const cellStyle = ({ columnIndex }): CellStyle<any> => {
   if (columnIndex === 0) {
     return {
       color: "#bfbfbf",

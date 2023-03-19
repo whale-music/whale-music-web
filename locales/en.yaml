@@ -26,6 +26,7 @@ buttons:
 menus:
   hshome: Home
   hslogin: Login
+  playList: PlayList
   hsabnormal: Abnormal Page
   hsfourZeroFour: "404"
   hsfourZeroOne: "403"
