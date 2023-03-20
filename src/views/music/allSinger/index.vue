@@ -77,38 +77,38 @@ const handleCurrentChange = val => {
 
 <template>
   <div class="singer">
-    <div class="search">
-      <div class="m-1">
-        <div class="inputGroup">
-          <input
-            type="text"
-            required="true"
-            autocomplete="off"
-            v-model="formInline.singerName"
-            @keyup.enter="onSubmit"
-          />
-          <label for="name">{{ t("input.pleaseEnterSingerName") }}</label>
+    <div class="center-singer">
+      <div class="search">
+        <div class="m-1">
+          <div class="inputGroup">
+            <input
+              type="text"
+              required="true"
+              autocomplete="off"
+              v-model="formInline.singerName"
+              @keyup.enter="onSubmit"
+            />
+            <label for="name">{{ t("input.pleaseEnterSingerName") }}</label>
+          </div>
         </div>
+
+        <Transition name="slide-fade"
+          ><div
+            class="flex flex-col justify-center m-1"
+            v-show="formInline.singerName !== ''"
+          >
+            <el-button
+              type="primary"
+              round
+              size="large"
+              :loading="tableLoading"
+              @click="onSubmit"
+              >{{ t("buttons.search") }}</el-button
+            >
+          </div></Transition
+        >
       </div>
 
-      <Transition name="slide-fade"
-        ><div
-          class="flex flex-col justify-center m-1"
-          v-show="formInline.singerName !== ''"
-        >
-          <el-button
-            type="primary"
-            round
-            size="large"
-            :loading="tableLoading"
-            @click="onSubmit"
-            >{{ t("buttons.search") }}</el-button
-          >
-        </div></Transition
-      >
-    </div>
-
-    <div class="center-option">
       <div class="option">
         <div @click="() => (menuFlag = !menuFlag)">
           <button class="menu-button">
@@ -133,98 +133,98 @@ const handleCurrentChange = val => {
           </el-select>
         </div>
       </div>
-    </div>
 
-    <div>
-      <el-collapse-transition>
-        <div v-show="menuFlag">
-          <div class="flex justify-center p-4">
-            <el-pagination
-              :default-current-page="page.pageIndex"
-              :default-page-size="page.pageNum"
-              :current-page="page.pageIndex"
-              :page-size="page.pageNum"
-              :page-sizes="[100, 200, 500, 1000]"
-              layout="total, sizes, prev, pager, next, jumper"
-              :total="page.total"
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
-            />
+      <div>
+        <el-collapse-transition>
+          <div v-show="menuFlag">
+            <div class="flex justify-center p-4">
+              <el-pagination
+                :default-current-page="page.pageIndex"
+                :default-page-size="page.pageNum"
+                :current-page="page.pageIndex"
+                :page-size="page.pageNum"
+                :page-sizes="[100, 200, 500, 1000]"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="page.total"
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+              />
+            </div>
           </div>
+        </el-collapse-transition>
+      </div>
+
+      <div class="table">
+        <el-table :data="tableData" style="width: 100%" table-layout="fixed">
+          <el-table-column type="index" />
+          <el-table-column width="100" show-overflow-tooltip>
+            <template #default="scope">
+              <el-image
+                style="width: 5rem; height: 5rem"
+                class="rounded shadow-md"
+                :src="scope.row.pic"
+                fit="cover"
+              />
+            </template>
+          </el-table-column>
+
+          <el-table-column
+            prop="singerName"
+            :label="t('input.singerName')"
+            show-overflow-tooltip
+          >
+            <template #default="scope">
+              <span class="text-xl">{{ scope.row.singerName }}</span
+              ><span class="font">&emsp;{{ scope.row.alias }}</span>
+            </template>
+          </el-table-column>
+
+          <el-table-column
+            :label="t('table.albumSize')"
+            show-overflow-tooltip
+            width="100"
+          >
+            <template #default="scope">
+              <span class="text-2xl">{{ scope.row.albumSize }}</span>
+            </template>
+          </el-table-column>
+
+          <el-table-column
+            :label="t('table.musicSize')"
+            show-overflow-tooltip
+            width="100"
+          >
+            <template #default="scope">
+              <span class="text-2xl">{{ scope.row.musicSize }}</span>
+            </template>
+          </el-table-column>
+
+          <el-table-column
+            prop="createTime"
+            label="上传时间"
+            show-overflow-tooltip
+          >
+            <template #default="scope">
+              <span>{{
+                dateFormater("YYYY-MM-dd HH:mm:ss", scope.row.createTime)
+              }}</span>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <div class="demo-pagination-block">
+          <el-pagination
+            :default-current-page="page.pageIndex"
+            :default-page-size="page.pageNum"
+            :current-page="page.pageIndex"
+            :page-size="page.pageNum"
+            :page-sizes="[100, 200, 500, 1000]"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="page.total"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+          />
         </div>
-      </el-collapse-transition>
-    </div>
-
-    <div class="table">
-      <el-table :data="tableData" style="width: 100%" table-layout="fixed">
-        <el-table-column type="index" />
-        <el-table-column width="100" show-overflow-tooltip>
-          <template #default="scope">
-            <el-image
-              style="width: 5rem; height: 5rem"
-              class="rounded shadow-md"
-              :src="scope.row.pic"
-              fit="cover"
-            />
-          </template>
-        </el-table-column>
-
-        <el-table-column
-          prop="singerName"
-          :label="t('input.singerName')"
-          show-overflow-tooltip
-        >
-          <template #default="scope">
-            <span class="text-xl">{{ scope.row.singerName }}</span
-            ><span class="font">&emsp;{{ scope.row.alias }}</span>
-          </template>
-        </el-table-column>
-
-        <el-table-column
-          :label="t('table.albumSize')"
-          show-overflow-tooltip
-          width="100"
-        >
-          <template #default="scope">
-            <span class="text-2xl">{{ scope.row.albumSize }}</span>
-          </template>
-        </el-table-column>
-
-        <el-table-column
-          :label="t('table.musicSize')"
-          show-overflow-tooltip
-          width="100"
-        >
-          <template #default="scope">
-            <span class="text-2xl">{{ scope.row.musicSize }}</span>
-          </template>
-        </el-table-column>
-
-        <el-table-column
-          prop="createTime"
-          label="上传时间"
-          show-overflow-tooltip
-        >
-          <template #default="scope">
-            <span>{{
-              dateFormater("YYYY-MM-dd HH:mm:ss", scope.row.createTime)
-            }}</span>
-          </template>
-        </el-table-column>
-      </el-table>
-
-      <div class="demo-pagination-block">
-        <el-pagination
-          :default-current-page="page.pageIndex"
-          :default-page-size="page.pageNum"
-          :current-page="page.pageIndex"
-          :page-size="page.pageNum"
-          :page-sizes="[100, 200, 500, 1000]"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="page.total"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
       </div>
     </div>
   </div>
@@ -264,6 +264,11 @@ $searchHeight: 90%;
   justify-content: space-between;
   flex-wrap: nowrap;
   align-items: center;
+}
+
+.table {
+  display: flex;
+  flex-direction: column;
 }
 
 .menu-button {

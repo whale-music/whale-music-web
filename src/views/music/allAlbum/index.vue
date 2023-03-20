@@ -251,8 +251,8 @@ const handleCurrentChange = val => {
 </template>
 
 <style scoped lang="scss">
-$searchWidth: 95%;
-$searchHeight: 95%;
+$searchWidth: 90%;
+$searchHeight: 90%;
 
 .album {
   margin: 0;
