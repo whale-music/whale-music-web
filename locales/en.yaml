@@ -52,6 +52,7 @@ msg:
   loginSuccess: Login Success
   serverError: Please check whether the server is started
 input:
+  menuBotton: Menu
   albumName: Album Name
   pleaseEnterAlbumName: Please Enter Album Name
   singerName: Singer Name

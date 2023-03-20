@@ -7,9 +7,11 @@ import { ref, reactive, onMounted } from "vue";
 import { message } from "@/utils/message";
 import { dateFormater } from "@/utils/dateUtil";
 import { CellStyle } from "element-plus/es";
+import { useI18n } from "vue-i18n";
 
 const multipleTableRef = ref();
 const multipleSelection = ref([]);
+const { t } = useI18n();
 
 // 每页显示行数
 const pageConfig = reactive({
@@ -217,6 +219,12 @@ const rowDoubleClick = data => {
 
     <div class="table">
       <div class="option">
+        <div @click="() => (menuFlag = !menuFlag)">
+          <button class="menu-button">
+            <span>{{ t("input.menuBotton") }}</span>
+          </button>
+        </div>
+
         <div>
           <el-select
             v-model="sortConfig"
@@ -232,19 +240,6 @@ const rowDoubleClick = data => {
               suffix-icon="download"
             />
           </el-select>
-        </div>
-
-        <div @click="() => (menuFlag = !menuFlag)">
-          <button class="btn">
-            <span class="icon">
-              <svg viewBox="0 0 175 80" width="40" height="40">
-                <rect width="80" height="15" fill="#f0f0f0" rx="10" />
-                <rect y="30" width="80" height="15" fill="#f0f0f0" rx="10" />
-                <rect y="60" width="80" height="15" fill="#f0f0f0" rx="10" />
-              </svg>
-            </span>
-            <span class="text">MENU</span>
-          </button>
         </div>
       </div>
 
@@ -455,53 +450,42 @@ $searchHeight: 90%;
   border-color: rgb(150, 150, 200);
 }
 
-.btn {
-  width: 10rem;
-  height: 2.9rem;
-  border-radius: 5px;
-  border: none;
-  transition: all 0.5s ease-in-out;
-  font-size: 20px;
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  background: var(--el-color-primary);
-  color: #f5f5f5;
+.menu-button {
+  display: inline-block;
+  background-color: var(--el-color-primary);
+  border-radius: 0.3rem;
+  color: #ffffff;
+  text-align: center;
+  font-size: 17px;
+  height: 2.5rem;
+  width: 6rem;
+  transition: all 0.5s;
+  cursor: pointer;
+  margin: 5px;
 }
 
-.btn:hover {
-  box-shadow: 0 0 20px 0px #2e2e2e3a;
+.menu-button span {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
 }
 
-.btn .icon {
+.menu-button span:after {
+  content: "↓";
   position: absolute;
-  height: 40px;
-  width: 70px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: all 0.5s;
-}
-
-.btn .text {
-  transform: translateX(55px);
-}
-
-.btn:hover .icon {
-  width: 175px;
-}
-
-.btn:hover .text {
-  transition: all 0.5s;
   opacity: 0;
+  top: 0;
+  right: -15px;
+  transition: 0.5s;
 }
 
-.btn:focus {
-  outline: none;
+.menu-button:hover span {
+  padding-right: 15px;
 }
 
-.btn:active .icon {
-  transform: scale(0.85);
+.menu-button:hover span:after {
+  opacity: 1;
+  right: 0;
 }
 </style>

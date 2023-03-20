@@ -52,6 +52,7 @@ msg:
   loginSuccess: 登录成功
   serverError: 请检查服务器是否启动
 input:
+  menuBotton: 菜单
   albumName: 专辑名
   pleaseEnterAlbumName: 请输入专辑名
   singerName: 歌手名
