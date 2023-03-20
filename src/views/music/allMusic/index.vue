@@ -229,7 +229,7 @@ const rowDoubleClick = data => {
 
       <div class="option">
         <div @click="() => (menuFlag = !menuFlag)">
-          <button class="menu-button">
+          <button class="menu-button focus:ring-4 var(--el-color-primary)">
             <span>{{ t("input.menuBotton") }}</span>
           </button>
         </div>
