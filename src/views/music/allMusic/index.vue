@@ -47,22 +47,9 @@ const musicPlayConfig = reactive({
 
 const sortConfig = ref("sort");
 
-const dateTimeRange = ref<[Date, Date]>([
-  new Date(2000, 10, 10, 10, 10),
-  new Date(2000, 10, 11, 10, 10)
-]);
-
 const tableData = ref();
 const tableLoading = ref<boolean>();
-// const toggleSelection = rows => {
-//   if (rows) {
-//     rows.forEach(row => {
-//       multipleTableRef.value.toggleRowSelection(row, undefined);
-//     });
-//   } else {
-//     multipleTableRef.value.clearSelection();
-//   }
-// };
+
 const handleSelectionChange = val => {
   multipleSelection.value = val;
 };
@@ -126,6 +113,8 @@ const handleCurrentChange = val => {
   onSubmit();
 };
 
+const menuFlag = ref<boolean>(false);
+
 // 表格颜色
 const cellStyle = ({ columnIndex }): CellStyle<any> => {
   if (columnIndex === 0) {
@@ -171,58 +160,68 @@ const rowDoubleClick = data => {
           </div>
         </div>
         <div class="data">
-          <el-form :inline="true" :model="formInline" class="demo-form-inline">
-            <el-form-item label="音乐">
-              <el-input
-                v-model="formInline.musicName"
-                placeholder="输入音乐名称"
-                @keyup.enter="onSubmit"
-              />
-            </el-form-item>
-            <el-form-item label="歌手">
-              <el-input
-                v-model="formInline.singerName"
-                placeholder="输入歌手名称"
-                @keyup.enter="onSubmit"
-              />
-            </el-form-item>
-            <el-form-item label="专辑">
-              <el-input
-                v-model="formInline.albumName"
-                placeholder="输入专辑名称"
-                @keyup.enter="onSubmit"
-              />
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" size="small" @click="onSubmit">
-                搜索
-              </el-button>
-            </el-form-item>
-          </el-form>
+          <div class="demo-form-inline">
+            <div class="m-1">
+              <div class="inputGroup">
+                <input
+                  type="text"
+                  required="true"
+                  autocomplete="off"
+                  v-model="formInline.musicName"
+                  @keyup.enter="onSubmit"
+                />
+                <label for="name">输入音乐名称</label>
+              </div>
+            </div>
+
+            <div class="m-1">
+              <div class="inputGroup">
+                <input
+                  type="text"
+                  required="true"
+                  autocomplete="off"
+                  v-model="formInline.singerName"
+                  @keyup.enter="onSubmit"
+                />
+                <label for="name">输入歌手名称</label>
+              </div>
+            </div>
+
+            <div class="m-1">
+              <div class="inputGroup">
+                <input
+                  type="text"
+                  required="true"
+                  autocomplete="off"
+                  v-model="formInline.albumName"
+                  @keyup.enter="onSubmit"
+                />
+                <label for="name">输入专辑名称</label>
+              </div>
+            </div>
+
+            <div class="flex flex-col justify-center m-1">
+              <el-button
+                type="primary"
+                round
+                size="large"
+                :loading="tableLoading"
+                @click="onSubmit"
+                >Primary</el-button
+              >
+            </div>
+          </div>
         </div>
       </div>
+    </div>
 
+    <div class="table">
       <div class="option">
-        <div class="demo-pagination-block">
-          <el-pagination
-            :default-current-page="pageConfig.pageIndex"
-            :default-page-size="pageConfig.pageSize"
-            :current-page="pageConfig.pageIndex"
-            :page-size="pageConfig.pageSize"
-            :page-sizes="[100, 200, 500, 1000]"
-            :small="true"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="pageConfig.total"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-          />
-        </div>
-
-        <div style="display: flex">
+        <div>
           <el-select
             v-model="sortConfig"
             placeholder="排序"
-            size="small"
+            size="large"
             style="width: 8rem"
           >
             <el-option
@@ -233,22 +232,42 @@ const rowDoubleClick = data => {
               suffix-icon="download"
             />
           </el-select>
+        </div>
 
-          <div>
-            <el-date-picker
-              v-model="dateTimeRange"
-              size="small"
-              type="datetimerange"
-              range-separator="至"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-            />
-          </div>
+        <div @click="() => (menuFlag = !menuFlag)">
+          <button class="btn">
+            <span class="icon">
+              <svg viewBox="0 0 175 80" width="40" height="40">
+                <rect width="80" height="15" fill="#f0f0f0" rx="10" />
+                <rect y="30" width="80" height="15" fill="#f0f0f0" rx="10" />
+                <rect y="60" width="80" height="15" fill="#f0f0f0" rx="10" />
+              </svg>
+            </span>
+            <span class="text">MENU</span>
+          </button>
         </div>
       </div>
-    </div>
 
-    <div class="table">
+      <div>
+        <el-collapse-transition>
+          <div v-show="menuFlag">
+            <div class="flex justify-center p-4">
+              <el-pagination
+                :default-current-page="pageConfig.pageIndex"
+                :default-page-size="pageConfig.pageSize"
+                :current-page="pageConfig.pageIndex"
+                :page-size="pageConfig.pageSize"
+                :page-sizes="[100, 200, 500, 1000]"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="pageConfig.total"
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+              />
+            </div>
+          </div>
+        </el-collapse-transition>
+      </div>
+
       <el-table
         ref="multipleTableRef"
         :data="tableData"
@@ -316,6 +335,20 @@ const rowDoubleClick = data => {
           </template>
         </el-table-column>
       </el-table>
+
+      <div class="demo-pagination-block">
+        <el-pagination
+          :default-current-page="pageConfig.pageIndex"
+          :default-page-size="pageConfig.pageSize"
+          :current-page="pageConfig.pageIndex"
+          :page-size="pageConfig.pageSize"
+          :page-sizes="[100, 200, 500, 1000]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="pageConfig.total"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -331,7 +364,7 @@ $searchHeight: 90%;
   /*主轴上的对齐方式为居中*/
   justify-content: center;
   /*交叉轴上对齐方式为居中*/
-  align-items: center;
+  // align-items: center;
 
   .search {
     width: $searchWidth;
@@ -359,10 +392,116 @@ $searchHeight: 90%;
 .font {
   color: #a3a39cc3;
 }
+// 底部分页条
+.demo-pagination-block {
+  margin: 2rem;
+  display: flex;
+  justify-content: center;
+}
+//折叠菜单
+.folding.menu {
+  height: 0;
+}
 
 .option {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.demo-form-inline {
+  display: flex;
+}
+
+.inputGroup {
+  font-family: "Segoe UI", sans-serif;
+  margin: 1em 0 1em 0;
+  max-width: 190px;
+  position: relative;
+}
+
+.inputGroup input {
+  font-size: 100%;
+  padding: 0.8em;
+  outline: none;
+  border: 2px solid rgb(200, 200, 200);
+  background-color: transparent;
+  border-radius: 20px;
+  width: 100%;
+}
+
+.inputGroup label {
+  font-size: 100%;
+  position: absolute;
+  left: 0;
+  padding: 0.8em;
+  margin-left: 0.5em;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  color: rgb(100, 100, 100);
+}
+
+.inputGroup :is(input:focus, input:valid) ~ label {
+  transform: translateY(-50%) scale(0.9);
+  margin: 0em;
+  margin-left: 1.3em;
+  padding: 0.4em;
+  background-color: #f0f2f3;
+}
+
+.inputGroup :is(input:focus, input:valid) {
+  border-color: rgb(150, 150, 200);
+}
+
+.btn {
+  width: 10rem;
+  height: 2.9rem;
+  border-radius: 5px;
+  border: none;
+  transition: all 0.5s ease-in-out;
+  font-size: 20px;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  background: var(--el-color-primary);
+  color: #f5f5f5;
+}
+
+.btn:hover {
+  box-shadow: 0 0 20px 0px #2e2e2e3a;
+}
+
+.btn .icon {
+  position: absolute;
+  height: 40px;
+  width: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.5s;
+}
+
+.btn .text {
+  transform: translateX(55px);
+}
+
+.btn:hover .icon {
+  width: 175px;
+}
+
+.btn:hover .text {
+  transition: all 0.5s;
+  opacity: 0;
+}
+
+.btn:focus {
+  outline: none;
+}
+
+.btn:active .icon {
+  transform: scale(0.85);
 }
 </style>
