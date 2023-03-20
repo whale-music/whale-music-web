@@ -147,77 +147,86 @@ const rowDoubleClick = data => {
 
 <template>
   <div class="absolute-container">
-    <div class="search">
-      <div>
-        <div class="data">
-          <div
-            class="play music animate__animated animate__fadeIn"
-            v-if="musicPlayConfig.isDisplay"
-          >
-            <MusicPlay
-              :url="musicPlayConfig.url"
-              :totalTime="musicPlayConfig.totalTime"
-              :isPlay="musicPlayConfig.isPlay"
-            />
+    <div class="table">
+      <div class="search">
+        <div>
+          <div class="data">
+            <div
+              class="play music animate__animated animate__fadeIn"
+              v-if="musicPlayConfig.isDisplay"
+            >
+              <MusicPlay
+                :url="musicPlayConfig.url"
+                :totalTime="musicPlayConfig.totalTime"
+                :isPlay="musicPlayConfig.isPlay"
+              />
+            </div>
           </div>
-        </div>
-        <div class="data">
-          <div class="demo-form-inline">
-            <div class="m-1">
-              <div class="inputGroup">
-                <input
-                  type="text"
-                  required="true"
-                  autocomplete="off"
-                  v-model="formInline.musicName"
-                  @keyup.enter="onSubmit"
-                />
-                <label for="name">输入音乐名称</label>
+          <div class="data">
+            <div class="demo-form-inline">
+              <div class="m-1">
+                <div class="inputGroup">
+                  <input
+                    type="text"
+                    required="true"
+                    autocomplete="off"
+                    v-model="formInline.musicName"
+                    @keyup.enter="onSubmit"
+                  />
+                  <label for="name">输入音乐名称</label>
+                </div>
               </div>
-            </div>
 
-            <div class="m-1">
-              <div class="inputGroup">
-                <input
-                  type="text"
-                  required="true"
-                  autocomplete="off"
-                  v-model="formInline.singerName"
-                  @keyup.enter="onSubmit"
-                />
-                <label for="name">输入歌手名称</label>
+              <div class="m-1">
+                <div class="inputGroup">
+                  <input
+                    type="text"
+                    required="true"
+                    autocomplete="off"
+                    v-model="formInline.singerName"
+                    @keyup.enter="onSubmit"
+                  />
+                  <label for="name">输入歌手名称</label>
+                </div>
               </div>
-            </div>
 
-            <div class="m-1">
-              <div class="inputGroup">
-                <input
-                  type="text"
-                  required="true"
-                  autocomplete="off"
-                  v-model="formInline.albumName"
-                  @keyup.enter="onSubmit"
-                />
-                <label for="name">输入专辑名称</label>
+              <div class="m-1">
+                <div class="inputGroup">
+                  <input
+                    type="text"
+                    required="true"
+                    autocomplete="off"
+                    v-model="formInline.albumName"
+                    @keyup.enter="onSubmit"
+                  />
+                  <label for="name">输入专辑名称</label>
+                </div>
               </div>
-            </div>
 
-            <div class="flex flex-col justify-center m-1">
-              <el-button
-                type="primary"
-                round
-                size="large"
-                :loading="tableLoading"
-                @click="onSubmit"
-                >Primary</el-button
+              <Transition name="slide-fade"
+                ><div
+                  class="flex flex-col justify-center m-1"
+                  v-show="
+                    formInline.albumName !== '' ||
+                    formInline.musicName !== '' ||
+                    formInline.singerName !== ''
+                  "
+                >
+                  <el-button
+                    type="primary"
+                    round
+                    size="large"
+                    :loading="tableLoading"
+                    @click="onSubmit"
+                    >Primary</el-button
+                  >
+                </div></Transition
               >
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="table">
       <div class="option">
         <div @click="() => (menuFlag = !menuFlag)">
           <button class="menu-button">
@@ -361,26 +370,24 @@ $searchHeight: 90%;
   /*交叉轴上对齐方式为居中*/
   // align-items: center;
 
-  .search {
-    width: $searchWidth;
-
-    .data {
-      display: flex;
-      justify-content: center;
-
-      .play.music {
-        position: absolute;
-        z-index: 100;
-        bottom: 0;
-        margin: 4rem;
-      }
-    }
-  }
-
   .table {
     width: $searchWidth;
     margin: 0 auto;
     overflow-x: scroll;
+  }
+}
+
+.search {
+  .data {
+    display: flex;
+    justify-content: center;
+
+    .play.music {
+      position: absolute;
+      z-index: 100;
+      bottom: 0;
+      margin: 4rem;
+    }
   }
 }
 
@@ -487,5 +494,19 @@ $searchHeight: 90%;
 .menu-button:hover span:after {
   opacity: 1;
   right: 0;
+}
+
+.slide-fade-enter-active {
+  transition: all 0.5s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.5s ease-in;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateX(20px);
+  opacity: 0;
 }
 </style>
