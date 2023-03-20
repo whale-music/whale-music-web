@@ -6,6 +6,8 @@ import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 const tableData = ref<SingerRes[]>();
+const tableLoading = ref<boolean>(false);
+const menuFlag = ref<boolean>(false);
 
 const formInline = reactive({
   singerName: ""
@@ -16,10 +18,33 @@ const page = reactive({
   pageNum: 40,
   total: 0
 });
+
+// 排序
+const sortData = reactive([
+  {
+    value: "sort",
+    label: "正常排序"
+  },
+  {
+    value: "createTime",
+    label: "上传日期排序"
+  },
+  {
+    value: "updateTime",
+    label: "修改日期排序"
+  },
+  {
+    value: "id",
+    label: "歌曲ID排序"
+  }
+]);
+
+const sortConfig = ref("sort");
+
 const getAlbumPageList = () => {
   getSingerPage({
     singerName: formInline.singerName,
-    orderBy: "",
+    orderBy: sortConfig.value,
     order: false,
     page: page
   }).then(res => {
@@ -32,31 +57,102 @@ const getAlbumPageList = () => {
 };
 
 const onSubmit = () => {
-  console.log("submit!");
   getAlbumPageList();
 };
 
 onMounted(() => {
   getAlbumPageList();
 });
+
+const handleSizeChange = val => {
+  page.pageNum = val;
+  onSubmit();
+};
+
+const handleCurrentChange = val => {
+  page.pageIndex = val;
+  onSubmit();
+};
 </script>
 
 <template>
   <div class="singer">
     <div class="search">
-      <el-form :inline="true" :model="formInline" class="demo-form-inline">
-        <el-form-item :label="t('input.singerName')">
-          <el-input
+      <div class="m-1">
+        <div class="inputGroup">
+          <input
+            type="text"
+            required="true"
+            autocomplete="off"
             v-model="formInline.singerName"
-            :placeholder="t('input.pleaseEnterSingerName')"
+            @keyup.enter="onSubmit"
           />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="onSubmit">{{
-            t("buttons.search")
-          }}</el-button>
-        </el-form-item>
-      </el-form>
+          <label for="name">{{ t("input.pleaseEnterSingerName") }}</label>
+        </div>
+      </div>
+
+      <Transition name="slide-fade"
+        ><div
+          class="flex flex-col justify-center m-1"
+          v-show="formInline.singerName !== ''"
+        >
+          <el-button
+            type="primary"
+            round
+            size="large"
+            :loading="tableLoading"
+            @click="onSubmit"
+            >{{ t("buttons.search") }}</el-button
+          >
+        </div></Transition
+      >
+    </div>
+
+    <div class="center-option">
+      <div class="option">
+        <div @click="() => (menuFlag = !menuFlag)">
+          <button class="menu-button">
+            <span>{{ t("input.menuBotton") }}</span>
+          </button>
+        </div>
+
+        <div>
+          <el-select
+            v-model="sortConfig"
+            placeholder="排序"
+            size="large"
+            style="width: 8rem"
+          >
+            <el-option
+              v-for="item in sortData"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+              suffix-icon="download"
+            />
+          </el-select>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <el-collapse-transition>
+        <div v-show="menuFlag">
+          <div class="flex justify-center p-4">
+            <el-pagination
+              :default-current-page="page.pageIndex"
+              :default-page-size="page.pageNum"
+              :current-page="page.pageIndex"
+              :page-size="page.pageNum"
+              :page-sizes="[100, 200, 500, 1000]"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="page.total"
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+            />
+          </div>
+        </div>
+      </el-collapse-transition>
     </div>
 
     <div class="table">
@@ -116,11 +212,28 @@ onMounted(() => {
           </template>
         </el-table-column>
       </el-table>
+
+      <div class="demo-pagination-block">
+        <el-pagination
+          :default-current-page="page.pageIndex"
+          :default-page-size="page.pageNum"
+          :current-page="page.pageIndex"
+          :page-size="page.pageNum"
+          :page-sizes="[100, 200, 500, 1000]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="page.total"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
+$searchWidth: 90%;
+$searchHeight: 90%;
+
 .font {
   color: #a3a39cc3;
 }
@@ -131,15 +244,124 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
+  // align-items: center;
 
   .search {
     display: flex;
     justify-content: center;
   }
+}
 
-  .table {
-    width: 90%;
-  }
+.center-singer {
+  width: $searchWidth;
+  margin: 0 auto;
+}
+
+.option {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.menu-button {
+  display: inline-block;
+  background-color: var(--el-color-primary);
+  border-radius: 0.3rem;
+  color: #ffffff;
+  text-align: center;
+  font-size: 17px;
+  height: 2.5rem;
+  width: 6rem;
+  transition: all 0.5s;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.menu-button span {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
+}
+
+.menu-button span:after {
+  content: "↓";
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: -15px;
+  transition: 0.5s;
+}
+
+.menu-button:hover span {
+  padding-right: 15px;
+}
+
+.menu-button:hover span:after {
+  opacity: 1;
+  right: 0;
+}
+
+.inputGroup {
+  font-family: "Segoe UI", sans-serif;
+  margin: 1em 0 1em 0;
+  max-width: 190px;
+  position: relative;
+}
+
+.inputGroup input {
+  font-size: 100%;
+  padding: 0.8em;
+  outline: none;
+  border: 2px solid rgb(200, 200, 200);
+  background-color: transparent;
+  border-radius: 20px;
+  width: 100%;
+}
+
+.inputGroup label {
+  font-size: 100%;
+  position: absolute;
+  left: 0;
+  padding: 0.8em;
+  margin-left: 0.5em;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  color: rgb(100, 100, 100);
+}
+
+.inputGroup :is(input:focus, input:valid) ~ label {
+  transform: translateY(-50%) scale(0.9);
+  margin: 0em;
+  margin-left: 1.3em;
+  padding: 0.4em;
+  background-color: #f0f2f3;
+}
+
+.inputGroup :is(input:focus, input:valid) {
+  border-color: rgb(150, 150, 200);
+}
+
+.slide-fade-enter-active {
+  transition: all 0.5s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.5s ease-in;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateX(20px);
+  opacity: 0;
+}
+
+.demo-pagination-block {
+  margin: 2rem;
+  display: flex;
+  justify-content: center;
 }
 </style>

@@ -218,7 +218,7 @@ const rowDoubleClick = data => {
                     size="large"
                     :loading="tableLoading"
                     @click="onSubmit"
-                    >t("buttons.search")</el-button
+                    >{{ t("buttons.search") }}</el-button
                   >
                 </div></Transition
               >
