@@ -40,8 +40,31 @@ export interface AlbumReq {
   createTime: string;
 }
 
+export interface selectAlbum {
+  value: string;
+  link: string;
+
+  id: number;
+  albumName: string;
+  aliasName?: any;
+  subType: string;
+  description?: any;
+  company: string;
+  pic: string;
+  publishTime: string;
+  updateTime: string;
+  createTime: string;
+}
+
 export const getAlbumPage = (data?: AlbumReq) => {
   return http.request<R<Data<AlbumRes>>>("post", "/admin/album/allAlbum", {
     data
   });
+};
+
+export const getSelectAlbumList = (name: string) => {
+  return http.request<R<selectAlbum>>(
+    "get",
+    "/admin/album/select?name=" + name
+  );
 };

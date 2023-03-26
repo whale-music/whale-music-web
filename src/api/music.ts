@@ -1,5 +1,5 @@
 import { http } from "@/utils/http";
-import { R, MusicSearchReq } from "@/api/common";
+import { R, MusicSearchReq, Page } from "@/api/common";
 
 // 音乐搜索返回
 export interface MusicSearchPageRes {
@@ -92,4 +92,67 @@ export interface MusicUrlInfo {
 // 获取歌曲地址URL
 export const getMusicUrl = (musicId?: string) => {
   return http.request<R<MusicUrlInfo[]>>("get", "/admin/music/get/" + musicId);
+};
+
+export interface Singer {
+  orderBy: string;
+  order: boolean;
+  page: Page;
+  id: number;
+  singerName: string;
+  alias: string;
+  sex: string;
+  pic: string;
+  birth: string;
+  location: string;
+  introduction: string;
+  createTime: string;
+  updateTime: string;
+}
+
+export interface Album {
+  singerName: string;
+  orderBy: string;
+  order: boolean;
+  timeBy: boolean;
+  beforeTime: string;
+  laterTime: string;
+  page: Page;
+  id: number;
+  albumName: string;
+  aliasName: string;
+  subType: string;
+  description: string;
+  company: string;
+  pic: string;
+  publishTime: string;
+  updateTime: string;
+  createTime: string;
+}
+
+export interface UploadMusicRes {
+  id: number;
+  origin: string;
+  musicName: string;
+  aliaName: string[];
+  pic: string;
+  type: string;
+  singer: Singer[];
+  album: Album;
+  lyric: string;
+  kLyric: string;
+  timeLength: number;
+  rate: number;
+  level: string;
+  size: number;
+  md5: string;
+  musicTemp: string;
+  uploadFlag: boolean;
+  userId: number;
+}
+
+export const uploadMusic = (data: UploadMusicRes) => {
+  return http.request<R<MusicSearchPageRes>>("post", "/admin/playlist/page", {
+    data
+  });
 };

@@ -28,6 +28,8 @@ const modulesRoutes = import.meta.glob("/src/views/**/*.{vue,tsx}");
 
 // 动态路由
 import { getAsyncRoutes } from "@/api/routes";
+// import { de } from "element-plus/es/locale";
+import { useUserStoreHook } from "@/store/modules/user";
 
 function handRank(routeInfo: any) {
   const { name, path, parentId, meta } = routeInfo;
@@ -213,8 +215,11 @@ function initRouter() {
     }
   } else {
     return new Promise(resolve => {
-      getAsyncRoutes().then(({ data }) => {
-        handleAsyncRoutes(cloneDeep(data));
+      getAsyncRoutes().then(res => {
+        if (res.code === "10005" || res.code === "20001") {
+          useUserStoreHook().logOut();
+        }
+        handleAsyncRoutes(cloneDeep(res.data));
         resolve(router);
       });
     });
