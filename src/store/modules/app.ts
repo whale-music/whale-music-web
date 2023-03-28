@@ -21,11 +21,11 @@ export const useAppStore = defineStore({
     device: deviceDetection() ? "mobile" : "desktop"
   }),
   getters: {
-    getSidebarStatus() {
-      return this.sidebar.opened;
+    getSidebarStatus(state) {
+      return state.sidebar.opened;
     },
-    getDevice() {
-      return this.device;
+    getDevice(state) {
+      return state.device;
     }
   },
   actions: {
