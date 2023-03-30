@@ -28,6 +28,7 @@ menus:
   hslogin: Login
   playList: PlayList
   hsabnormal: Abnormal Page
+  plugin: plugin
   hsfourZeroFour: "404"
   hsfourZeroOne: "403"
   hsFive: "500"
@@ -48,6 +49,7 @@ list:
   allmusic: All Music
   allAlbum: all Album
   allSinger: All Singer
+  addPlugin: Add Plugin
 msg:
   loginSuccess: Login Success
   serverError: Please check whether the server is started

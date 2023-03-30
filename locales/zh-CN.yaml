@@ -28,6 +28,7 @@ menus:
   hslogin: 登录
   playList: 歌单
   hsabnormal: 异常页面
+  plugin: 插件
   hsfourZeroFour: "404"
   hsfourZeroOne: "403"
   hsFive: "500"
@@ -48,6 +49,7 @@ list:
   allmusic: 全部音乐
   allAlbum: 全部专辑
   allSinger: 全部歌手
+  addPlugin: 添加插件
 msg:
   loginSuccess: 登录成功
   serverError: 请检查服务器是否启动
