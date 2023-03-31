@@ -16,11 +16,14 @@
       </div>
     </div>
     <div class="plugin-grid" v-if="this.isPluginListShow">
-      <div class="plugin-show" v-for="i in pluginList" :key="i">
-        <h3>插件1</h3>
-        <p class="text-xs font-bold text-neutral-500">@Sakura</p>
+      <div class="plugin-show" v-for="i in pluginList" :key="i.id">
+        <div class="flex justify-between">
+          <h3>{{ i.pluginName }}</h3>
+          <el-button link type="primary" @click="toEditCode(i)">编辑</el-button>
+        </div>
+        <p class="text-xs font-bold text-neutral-500">{{ i.createName }}</p>
         <p>
-          文章开头简而得当，通过环境描写来衬托人物心情，十分艺术化。杂而不乱，能做到详略得当，重点突出。结尾恰到好处地点明中心，语言朴实而含义深刻，耐人寻味。
+          {{ i.description }}
         </p>
       </div>
     </div>
@@ -33,15 +36,36 @@
 </template>
 
 <script lang="ts">
+import { getPluginList } from "@/api/plugin";
+
 export default {
   setup() {
     return {};
   },
+  mounted() {
+    getPluginList().then(res => {
+      if (res.data.length == 0) {
+        this.isPluginListShow = false;
+        return;
+      }
+      this.pluginList = res.data;
+      this.isPluginListShow = true;
+    });
+  },
+  methods: {
+    toEditCode(pluginInfo) {
+      this.$router.push({
+        path: "/plugin/addPlugin",
+        query: { id: pluginInfo.id }
+      });
+      console.log(`to router ${pluginInfo.id}`);
+    }
+  },
   data() {
     return {
       pluginSearch: "",
-      isPluginListShow: true,
-      pluginList: [1, 23, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+      isPluginListShow: false,
+      pluginList: []
     };
   }
 };
@@ -71,6 +95,7 @@ export default {
 }
 
 .plugin-show {
+  height: 10rem;
   border-radius: 1rem;
   border: 1px solid var(--el-color-primary-light-3);
   padding: 1rem;

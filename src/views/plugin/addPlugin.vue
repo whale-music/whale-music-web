@@ -1,6 +1,111 @@
 <template>
   <div>
     <h1>添加插件</h1>
+    <div class="top">
+      <div class="flex items-center">
+        <span class="mr-4 cursor-pointer" @click="editNameFlag = true">
+          {{ name === "" ? "未命名插件" : name }}
+        </span>
+        <div class="dialog">
+          <el-dialog
+            v-model="editNameFlag"
+            title="作者名"
+            align-center
+            center
+            width="30%"
+          >
+            <div class="w-full flex justify-center">
+              <div class="w-48">
+                <el-input
+                  v-model="name"
+                  placeholder="输入插件名"
+                  @keyup.enter="editNameFlag = false"
+                />
+              </div>
+            </div>
+            <template #footer>
+              <span class="dialog-footer">
+                <el-button type="primary" @click="editNameFlag = false">
+                  确认
+                </el-button>
+              </span>
+            </template>
+          </el-dialog>
+        </div>
+        <span
+          class="text-neutral-500 text-xs cursor-pointer"
+          @click="editCreateNameFlag = true"
+        >
+          {{ createName === "" ? "@未命名作者" : createName }}
+        </span>
+
+        <div class="dialog">
+          <el-dialog
+            v-model="editCreateNameFlag"
+            title="作者"
+            align-center
+            center
+            width="30%"
+          >
+            <div class="w-full flex justify-center">
+              <div class="w-48">
+                <el-input
+                  v-model="createName"
+                  placeholder="输入作者"
+                  @keyup.enter="editNameFlag = false"
+                />
+              </div>
+            </div>
+            <template #footer>
+              <span class="dialog-footer">
+                <el-button type="primary" @click="editCreateNameFlag = false">
+                  确认
+                </el-button>
+              </span>
+            </template>
+          </el-dialog>
+        </div>
+
+        <el-button
+          link
+          type="primary"
+          class="ml-4"
+          @click="editDescribeFlag = true"
+          >编辑描述
+        </el-button>
+
+        <div class="dialog">
+          <el-dialog
+            v-model="editDescribeFlag"
+            title="描述"
+            align-center
+            center
+            width="30%"
+          >
+            <div class="w-full flex justify-center">
+              <div class="w-96">
+                <el-input
+                  rows="12"
+                  resize="none"
+                  v-model="description"
+                  placeholder="输入描述"
+                  @keyup.enter="editDescribeFlag = false"
+                  type="textarea"
+                />
+              </div>
+            </div>
+            <template #footer>
+              <span class="dialog-footer">
+                <el-button type="primary" @click="editDescribeFlag = false">
+                  确认
+                </el-button>
+              </span>
+            </template>
+          </el-dialog>
+        </div>
+      </div>
+      <el-button type="primary" @click="save">保存</el-button>
+    </div>
     <codemirror
       v-model="code"
       placeholder="Code goes here..."
@@ -23,15 +128,20 @@ import { useRouter } from "vue-router";
 import { Codemirror } from "vue-codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import { oneDark } from "@codemirror/theme-one-dark";
+import { getPluginList, savePluginInfo } from "../../api/plugin";
+import { message } from "../../utils/message";
 
 export default defineComponent({
   components: {
     Codemirror
   },
   setup() {
-    const code = ref(`console.log('Hello, world!')`);
+    const code = ref("");
     const extensions = [javascript(), oneDark];
-    const router = useRouter();
+    const createName = ref("");
+    let id = null;
+    const name = ref("");
+    const description = ref("");
 
     // Codemirror EditorView instance ref
     const view = shallowRef();
@@ -39,10 +149,71 @@ export default defineComponent({
       view.value = payload.view;
     };
 
+    const editCreateNameFlag = ref(false);
+    const editNameFlag = ref(false);
+    const editDescribeFlag = ref(false);
+
+    let timeout = null;
+
+    const save = () => {
+      savePluginInfo({
+        id: id,
+        code: code.value,
+        createName: createName.value,
+        pluginName: name.value,
+        description: description.value
+      })
+        .then(res => {
+          id = res.data.id;
+          message(`${name.value}保存成功`, { type: "success" });
+        })
+        .catch(() => {
+          message(`${name.value}保存失败`, { type: "error" });
+        });
+    };
+
+    const saveContent = e => {
+      const key =
+        window.event.keyCode === undefined
+          ? window.event.keyCode
+          : window.event.which;
+      if (key === 83 && e.ctrlKey) {
+        window.event.preventDefault();
+        if (timeout) {
+          clearTimeout(timeout);
+        }
+        timeout = setTimeout(() => {
+          save();
+        }, 500);
+      }
+    };
+
     onMounted(() => {
-      router.currentRoute.value.id;
+      const plugin = useRouter().currentRoute.value.query.id;
+      if (plugin !== undefined) {
+        getPluginList(plugin).then(res => {
+          if (res.data.length === 0) {
+            code.value = `console.log('Hello, world!')`;
+            return;
+          }
+          const pluginInfo = res.data[0];
+          name.value = pluginInfo.pluginName;
+          createName.value = pluginInfo.createName;
+          code.value = pluginInfo.code;
+          id = pluginInfo.id;
+          description.value = pluginInfo.description;
+        });
+      }
+      document.addEventListener("keydown", saveContent);
     });
     return {
+      createName,
+      editNameFlag,
+      description,
+      editDescribeFlag,
+      editCreateNameFlag,
+      save,
+      name,
       code,
       extensions,
       handleReady,
@@ -51,3 +222,16 @@ export default defineComponent({
   }
 });
 </script>
+
+<style lang="scss" scoped>
+.top {
+  display: flex;
+  justify-content: space-between;
+}
+
+.dialog {
+  :deep(.el-dialog) {
+    border-radius: 1rem;
+  }
+}
+</style>
