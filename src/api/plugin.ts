@@ -12,7 +12,7 @@ export interface PluginList {
   updateTime: string;
 }
 
-/** 获取全部歌曲信息 */
+/** 获取所有插件 */
 export const getPluginList = (id?: string) => {
   return http.request<R<PluginList[]>>("get", "/admin/getAllPlugins", {
     params: {
@@ -41,11 +41,15 @@ export const getPluginParams = (id: number) => {
   });
 };
 
-export const execPluginTask = (id: number, data: InputInter[]) => {
+export const execPluginTask = (
+  id: number,
+  data: InputInter[],
+  online?: boolean
+) => {
   return http.request<R<any>>("post", "/admin/execPluginTask", {
     params: {
       pluginId: id,
-      onLine: true
+      onLine: online == null ? true : online
     },
     data: data
   });
@@ -71,4 +75,19 @@ export const getPluginRuntimeMessages = (id: number) => {
       }
     }
   );
+};
+
+export interface PluginTask {
+  id: number;
+  pluginId: number;
+  status: number;
+  userId: number;
+  createTime: string;
+  updateTime: string;
+}
+
+export const getPluginRuntimeTask = (data: PluginTask) => {
+  return http.request<R<PluginTask[]>>("post", "/admin/getPluginRuntimeTask", {
+    data
+  });
 };
