@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { getAllMusicList, getMusicUrl } from "@/api/music";
 import { MusicSearchReq } from "@/api/common";
-import DownloadIcon from "./components/download.vue";
+import DownloadIcon from "@/components/DownloadIcon/download.vue";
 import MusicPlay from "./components/music.play.vue";
 import { ref, reactive, onMounted } from "vue";
 import { message } from "@/utils/message";

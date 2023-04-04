@@ -1,5 +1,5 @@
 import { http } from "@/utils/http";
-import { R, Data } from "@/api/common";
+import { R } from "@/api/common";
 
 export interface PlayListRes {
   id: number;
@@ -16,5 +16,5 @@ export interface PlayListRes {
 
 /** 获取全部歌曲信息 */
 export const getPlayListById = (id: string) => {
-  return http.request<R<Data<PlayListRes>>>("post", "/admin/playlist/" + id);
+  return http.request<R<PlayListRes>>("post", "/admin/playlist/" + id);
 };

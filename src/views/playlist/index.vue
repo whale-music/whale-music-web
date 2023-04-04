@@ -6,6 +6,7 @@ import { ref, reactive, onMounted } from "vue";
 import { dateFormater } from "@/utils/dateUtil";
 import { message } from "@/utils/message";
 import { CellStyle } from "element-plus/es";
+import DownloadIcon from "@/components/DownloadIcon/download.vue";
 
 const router = useRoute(); //2.在跳转页面定义router变量，解构得到指定的query和params传参的参数
 console.log(router.name);
@@ -103,7 +104,7 @@ const rowDoubleClick = (data: any) => {
           <span class="font-sans subpixel-antialiased">{{
             scope.row.musicName
           }}</span>
-          <span class="font">&emsp;{{ scope.row.aliaName }}</span>
+          <span class="font">&emsp;{{ scope.row.aliasName }}</span>
         </template>
       </el-table-column>
 
@@ -111,9 +112,9 @@ const rowDoubleClick = (data: any) => {
         <template #default="scope">
           <el-tag
             disable-transitions
-            v-for="item in scope.row.singers"
+            v-for="item in scope.row.artists"
             :key="item.id"
-            >{{ item.singerName }}</el-tag
+            >{{ item.artistName }}</el-tag
           >
         </template>
       </el-table-column>
@@ -141,4 +142,8 @@ const rowDoubleClick = (data: any) => {
     </el-table>
   </div>
 </template>
-<style scoped></style>
+<style scoped>
+.font {
+  color: #a3a39cc3;
+}
+</style>
