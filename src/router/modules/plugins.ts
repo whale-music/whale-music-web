@@ -31,6 +31,15 @@ export default {
         icon: plugin,
         title: $t("list.addPlugin")
       }
+    },
+    {
+      path: "/plugin/runPlugin",
+      name: "RunPlugin",
+      component: () => import("@/views/plugin/runPlugin.vue"),
+      meta: {
+        icon: plugin,
+        title: $t("list.runPlugin")
+      }
     }
   ]
 } as RouteConfigsTable;

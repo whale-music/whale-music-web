@@ -71,7 +71,8 @@
           type="primary"
           class="ml-4"
           @click="editDescribeFlag = true"
-          >编辑描述
+        >
+          编辑描述
         </el-button>
 
         <div class="dialog">
@@ -104,7 +105,35 @@
           </el-dialog>
         </div>
       </div>
-      <el-button type="primary" @click="save">保存</el-button>
+      <div>
+        <el-button type="success" @click="run">运行</el-button>
+        <el-button type="primary" @click="save">保存</el-button>
+      </div>
+      <el-drawer
+        v-model="drawer"
+        direction="rtl"
+        size="30%"
+        title="I am the title"
+        :with-header="false"
+      >
+        <div>
+          <el-row :gutter="20" v-for="(i, index) in inputs" :key="index">
+            <span>{{ i.label }}</span>
+            <el-input v-model="i.value" placeholder="请输入" />
+          </el-row>
+        </div>
+        <el-button class="mt-4" type="primary" @click="onRunSubmit">
+          运行
+        </el-button>
+        <el-input
+          v-if="resultTextarea !== ''"
+          v-model="resultTextarea"
+          maxlength="60"
+          rows="20"
+          show-word-limit
+          type="textarea"
+        />
+      </el-drawer>
     </div>
     <codemirror
       v-model="code"
@@ -122,14 +151,21 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent, onMounted, ref, shallowRef } from "vue";
 import { useRouter } from "vue-router";
 import { Codemirror } from "vue-codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import { oneDark } from "@codemirror/theme-one-dark";
-import { getPluginList, savePluginInfo } from "../../api/plugin";
-import { message } from "../../utils/message";
+import {
+  execPluginTask,
+  getPluginList,
+  getPluginParams,
+  InputInter,
+  savePluginInfo
+} from "@/api/plugin";
+import { message } from "@/utils/message";
+import { dateFormater } from "@/utils/dateUtil";
 
 export default defineComponent({
   components: {
@@ -161,7 +197,10 @@ export default defineComponent({
         code: code.value,
         createName: createName.value,
         pluginName: name.value,
-        description: description.value
+        description: description.value,
+        createTime: "",
+        updateTime: "",
+        userId: null
       })
         .then(res => {
           id = res.data.id;
@@ -170,6 +209,42 @@ export default defineComponent({
         .catch(() => {
           message(`${name.value}保存失败`, { type: "error" });
         });
+    };
+
+    const drawer = ref(false);
+    const inputs = ref<InputInter[]>(null);
+    const run = () => {
+      console.log("run");
+      drawer.value = true;
+      getPluginParams(id).then(res => {
+        inputs.value = res.data;
+      });
+    };
+
+    const resultTextarea = ref("");
+    const onRunSubmit = () => {
+      save();
+      resultTextarea.value = "";
+      execPluginTask(id, inputs.value).then(task => {
+        if (task.code === "50005") {
+          message(`插件运行错误: ${task.message}`, { type: "error" });
+        }
+        if (task.data !== null && task.data !== undefined) {
+          task.data.forEach(i => {
+            console.log(
+              JSON.parse(i.msg),
+              dateFormater("YYYY-MM-dd HH:mm:ss", i.createTime)
+            );
+            resultTextarea.value =
+              resultTextarea.value +
+              "\n" +
+              dateFormater("YYYY-MM-dd HH:mm:ss", i.createTime) +
+              ": " +
+              i.msg +
+              "\n";
+          });
+        }
+      });
     };
 
     const saveContent = e => {
@@ -191,7 +266,7 @@ export default defineComponent({
     onMounted(() => {
       const plugin = useRouter().currentRoute.value.query.id;
       if (plugin !== undefined) {
-        getPluginList(plugin).then(res => {
+        getPluginList(plugin.toString()).then(res => {
           if (res.data.length === 0) {
             code.value = `console.log('Hello, world!')`;
             return;
@@ -212,6 +287,11 @@ export default defineComponent({
       description,
       editDescribeFlag,
       editCreateNameFlag,
+      onRunSubmit,
+      run,
+      drawer,
+      inputs,
+      resultTextarea,
       save,
       name,
       code,

@@ -26,3 +26,49 @@ export const savePluginInfo = (plugin: PluginList) => {
     data: plugin
   });
 };
+
+export interface InputInter {
+  label: string;
+  key: string;
+  value: string;
+}
+
+export const getPluginParams = (id: number) => {
+  return http.request<R<InputInter[]>>("get", "/admin/getPluginParams", {
+    params: {
+      pluginId: id
+    }
+  });
+};
+
+export const execPluginTask = (id: number, data: InputInter[]) => {
+  return http.request<R<any>>("post", "/admin/execPluginTask", {
+    params: {
+      pluginId: id,
+      onLine: true
+    },
+    data: data
+  });
+};
+
+export interface PluginMsgRes {
+  id: number;
+  pluginId: number;
+  taskId: number;
+  userId: number;
+  msg: string;
+  createTime: number;
+  updateTime: number;
+}
+
+export const getPluginRuntimeMessages = (id: number) => {
+  return http.request<R<PluginMsgRes[]>>(
+    "get",
+    "/admin/getPluginRuntimeMessages",
+    {
+      params: {
+        runtimeId: id
+      }
+    }
+  );
+};

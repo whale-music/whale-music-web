@@ -50,6 +50,7 @@ list:
   allAlbum: all Album
   allSinger: All Singer
   addPlugin: Add Plugin
+  runPlugin: Run Plugin
 msg:
   loginSuccess: Login Success
   serverError: Please check whether the server is started

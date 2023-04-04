@@ -19,7 +19,14 @@
       <div class="plugin-show" v-for="i in pluginList" :key="i.id">
         <div class="flex justify-between">
           <h3>{{ i.pluginName }}</h3>
-          <el-button link type="primary" @click="toEditCode(i)">编辑</el-button>
+          <div class="flex items-center">
+            <el-icon :size="20" class="cursor-pointer">
+              <Icon icon="ep:caret-right" />
+            </el-icon>
+            <el-button link type="primary" @click="toEditCode(i)">
+              编辑
+            </el-button>
+          </div>
         </div>
         <p class="text-xs font-bold text-neutral-500">{{ i.createName }}</p>
         <p>
@@ -37,10 +44,14 @@
 
 <script lang="ts">
 import { getPluginList } from "@/api/plugin";
+import { Icon } from "@iconify/vue";
 
 export default {
   setup() {
     return {};
+  },
+  components: {
+    Icon
   },
   mounted() {
     getPluginList().then(res => {
