@@ -88,7 +88,7 @@ const onSubmit = () => {
     musicName: formInline.musicName,
     singerName: formInline.singerName,
     albumName: formInline.albumName,
-    orderBy: "sort",
+    orderBy: sortConfig.value,
     order: false,
     beforeDate: "",
     afterDate: "",
@@ -97,6 +97,11 @@ const onSubmit = () => {
       pageNum: pageConfig.pageSize
     }
   });
+};
+
+// 表格变更时重新查询
+const sortOnSubmit = () => {
+  onSubmit();
 };
 
 // 生命周期挂载
@@ -240,6 +245,7 @@ const rowDoubleClick = data => {
             placeholder="排序"
             size="large"
             style="width: 8rem"
+            @change="sortOnSubmit"
           >
             <el-option
               v-for="item in sortData"
