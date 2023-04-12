@@ -216,9 +216,16 @@ export default defineComponent({
     const run = () => {
       console.log("run");
       drawer.value = true;
-      getPluginParams(id).then(res => {
-        inputs.value = res.data;
-      });
+      getPluginParams(id)
+        .then(res => {
+          if (res.code !== "200") {
+            message(`运行错误${res.message}`, { type: "error" });
+          }
+          inputs.value = res.data;
+        })
+        .catch(reason => {
+          message(`运行错误${reason}`, { type: "error" });
+        });
     };
 
     const resultTextarea = ref("");
@@ -226,13 +233,14 @@ export default defineComponent({
       save();
       resultTextarea.value = "";
       execPluginTask(id, inputs.value).then(task => {
-        if (task.code === "50005") {
+        if (task.code !== "200") {
           message(`插件运行错误: ${task.message}`, { type: "error" });
         }
         if (task.data !== null && task.data !== undefined) {
+          message("执行成功", { type: "success" });
           task.data.forEach(i => {
             console.log(
-              JSON.parse(i.msg),
+              i.msg,
               dateFormater("YYYY-MM-dd HH:mm:ss", i.createTime)
             );
             resultTextarea.value =
