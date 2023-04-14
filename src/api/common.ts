@@ -24,6 +24,7 @@ export interface Data<T> {
 
 // 音乐搜索请求参数
 export type MusicSearchReq = {
+  musicIds: number[];
   musicName: string;
   singerName: string;
   albumName: string;

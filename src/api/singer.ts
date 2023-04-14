@@ -54,3 +54,47 @@ export const getArtistListByAlbumId = (id: number) => {
     "/admin/singer/getArtistByAlbumId?id=" + id
   );
 };
+
+export interface MusicList {
+  id: number;
+  musicName: string;
+  aliasName: string;
+  pic: string;
+  albumId: number;
+  sort: number;
+  timeLength: number;
+  updateTime: string;
+  createTime: string;
+}
+
+export interface AlbumList {
+  id: number;
+  albumName: string;
+  subType: string;
+  description: string;
+  company?: any;
+  pic: string;
+  publishTime: string;
+  updateTime: string;
+  createTime: string;
+}
+
+export interface ArtistInfoRes {
+  id: number;
+  artistName: string;
+  aliasName: string;
+  artistNames: string[];
+  sex?: any;
+  pic: string;
+  birth?: any;
+  location?: any;
+  introduction: string;
+  createTime: string;
+  updateTime: string;
+  musicList: MusicList[];
+  albumList: AlbumList[];
+}
+
+export const getArtistInfo = (id: number) => {
+  return http.request<R<ArtistInfoRes>>("get", `/admin/singer/${id}`);
+};

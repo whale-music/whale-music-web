@@ -20,6 +20,15 @@ export interface Order {
 }
 
 export interface MusicSearchRes {
+  artistName: string[];
+  publishTime: string;
+  order: boolean;
+  singerIds: number[];
+  singerName: string[];
+  musicRawUrl: string;
+  musicNameAlias: string;
+  isExist: boolean;
+  albumName: string;
   singerList: SingerList[];
   album: Album;
   musicUrlList: MusicUrlList[];
@@ -91,7 +100,7 @@ export interface MusicUrlInfo {
 }
 // 获取歌曲地址URL
 export const getMusicUrl = (musicId?: string) => {
-  return http.request<R<MusicUrlInfo[]>>("get", "/admin/music/get/" + musicId);
+  return http.request<R<MusicUrlInfo[]>>("get", "/admin/music/url/" + musicId);
 };
 
 export interface Singer {

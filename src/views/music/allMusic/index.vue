@@ -8,6 +8,11 @@ import { message } from "@/utils/message";
 import { dateFormater } from "@/utils/dateUtil";
 import { CellStyle } from "element-plus/es";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
+import { Icon } from "@iconify/vue";
+import Loading from "@/assets/svg/loading.svg?component";
+
+const router = useRouter();
 
 const multipleTableRef = ref();
 const multipleSelection = ref([]);
@@ -78,15 +83,16 @@ function getMusicList(param: MusicSearchReq) {
 
 const formInline = reactive({
   musicName: "",
-  singerName: "",
+  artistName: "",
   albumName: ""
 });
 
 // 点击按钮查询
 const onSubmit = () => {
   getMusicList({
+    musicIds: [],
     musicName: formInline.musicName,
-    singerName: formInline.singerName,
+    artistName: formInline.artistName,
     albumName: formInline.albumName,
     orderBy: sortConfig.value,
     order: false,
@@ -123,9 +129,10 @@ const handleCurrentChange = val => {
 const menuFlag = ref<boolean>(false);
 
 // 表格颜色
-const cellStyle = ({ columnIndex }): CellStyle<any> => {
+const cellStyle = ({ columnIndex, row }): CellStyle<any> => {
+  let styles = {};
   if (columnIndex === 0) {
-    return {
+    styles = {
       color: "#bfbfbf",
       padding: "0",
       margin: "0",
@@ -134,6 +141,14 @@ const cellStyle = ({ columnIndex }): CellStyle<any> => {
       "text-align": "center"
     };
   }
+  // 设置无地址音乐颜色
+  switch (row.isExist) {
+    case false:
+      styles["color"] = "#a2a2a2";
+      styles["backgroundColor"] = "#ebeef3";
+      break;
+  }
+  return styles;
 };
 
 // 播放音乐
@@ -148,10 +163,39 @@ const rowDoubleClick = data => {
   musicPlayConfig.totalTime = data.timeLength;
   musicPlayConfig.isPlay = true;
 };
+
+const toMusicInfo = res => {
+  router.push({
+    path: "/music/musicInfo",
+    query: { id: res.id }
+  });
+};
+
+const toAlbum = res => {
+  router.push({
+    path: "/music/albumInfo",
+    query: { id: res.albumId }
+  });
+};
+const toArtist = res => {
+  console.log(res);
+  router.push({
+    path: "/music/artistInfo",
+    query: { id: res }
+  });
+};
 </script>
 
 <template>
   <div class="absolute-container">
+    <!--刷新-->
+    <div class="refresh">
+      <el-button circle style="width: 40px; height: 40px">
+        <el-icon :size="20" class="cursor-pointer">
+          <Icon icon="ep:refresh" />
+        </el-icon>
+      </el-button>
+    </div>
     <div class="table">
       <div class="search">
         <div>
@@ -188,7 +232,7 @@ const rowDoubleClick = data => {
                     type="text"
                     required="true"
                     autocomplete="off"
-                    v-model="formInline.singerName"
+                    v-model="formInline.artistName"
                     @keyup.enter="onSubmit"
                   />
                   <label for="name">输入歌手名称</label>
@@ -208,13 +252,13 @@ const rowDoubleClick = data => {
                 </div>
               </div>
 
-              <Transition name="slide-fade"
-                ><div
+              <Transition name="slide-fade">
+                <div
                   class="flex flex-col justify-center m-1"
                   v-show="
                     formInline.albumName !== '' ||
                     formInline.musicName !== '' ||
-                    formInline.singerName !== ''
+                    formInline.artistName !== ''
                   "
                 >
                   <el-button
@@ -223,17 +267,17 @@ const rowDoubleClick = data => {
                     size="large"
                     :loading="tableLoading"
                     @click="onSubmit"
-                    >{{ t("buttons.search") }}</el-button
-                  >
-                </div></Transition
-              >
+                    >{{ t("buttons.search") }}
+                  </el-button>
+                </div>
+              </Transition>
             </div>
           </div>
         </div>
       </div>
 
       <div class="option">
-        <div @click="() => (menuFlag = !menuFlag)">
+        <div @click="menuFlag = !menuFlag">
           <button class="menu-button focus:ring-4 var(--el-color-primary)">
             <span>{{ t("input.menuBotton") }}</span>
           </button>
@@ -278,75 +322,103 @@ const rowDoubleClick = data => {
         </el-collapse-transition>
       </div>
 
-      <el-table
-        ref="multipleTableRef"
-        :data="tableData"
-        v-loading="tableLoading"
-        highlight-current-row
-        @selection-change="handleSelectionChange"
-        :cell-style="cellStyle"
-        @row-dblclick="rowDoubleClick"
-      >
-        <el-table-column fixed type="index" width="50" />
-
-        <el-table-column fixed width="40" show-overflow-tooltip>
-          <template #default="scope">
-            <DownloadIcon :muiscId="scope.row.id" />
-          </template>
-        </el-table-column>
-
-        <el-table-column
-          fixed
-          prop="musicName"
-          label="名称"
-          show-overflow-tooltip
-          width="450"
+      <!--加载遮罩-->
+      <transition name="el-fade-in" v-if="tableLoading">
+        <div class="show-loading">
+          <Loading class="animate-spin duration-700" />
+        </div>
+      </transition>
+      <transition name="el-fade-in-linear" class="tableDataShow" v-else>
+        <el-table
+          ref="multipleTableRef"
+          :data="tableData"
+          highlight-current-row
+          @selection-change="handleSelectionChange"
+          :cell-style="cellStyle"
+          @row-dblclick="rowDoubleClick"
         >
-          <template #default="scope">
-            <span class="font-sans subpixel-antialiased">{{
-              scope.row.musicName
-            }}</span>
-            <span class="font">&emsp;{{ scope.row.musicNameAlias }}</span>
-          </template>
-        </el-table-column>
+          <el-table-column fixed type="index" width="50" />
 
-        <el-table-column prop="singerName" label="歌手" show-overflow-tooltip>
-          <template #default="scope">
-            <el-tag
-              disable-transitions
-              v-for="item in scope.row.singerName"
-              :key="item"
-              >{{ item }}</el-tag
-            >
-          </template>
-        </el-table-column>
-        <el-table-column prop="albumName" label="专辑" show-overflow-tooltip />
-        <el-table-column
-          prop="timeLength"
-          label="歌曲时长"
-          width="80"
-          show-overflow-tooltip
-        >
-          <template #default="scope">
-            <span class="font-light">{{
-              dateFormater("mm:ss", scope.row.timeLength)
-            }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="createTime"
-          label="上传时间"
-          show-overflow-tooltip
-        >
-          <template #default="scope">
-            <span>{{
-              dateFormater("YYYY-MM-dd HH:mm:ss", scope.row.createTime)
-            }}</span>
-          </template>
-        </el-table-column>
-      </el-table>
+          <el-table-column fixed width="40" :show-overflow-tooltip="true">
+            <template #default="scope">
+              <DownloadIcon :muiscId="scope.row.id" />
+            </template>
+          </el-table-column>
 
-      <div class="demo-pagination-block">
+          <el-table-column
+            fixed
+            prop="musicName"
+            label="名称"
+            :show-overflow-tooltip="true"
+            width="450"
+          >
+            <template #default="scope">
+              <el-link
+                :underline="false"
+                class="font-sans"
+                @click="toMusicInfo(scope.row)"
+                >{{ scope.row.musicName }}</el-link
+              >
+              <span class="font">&emsp;{{ scope.row.musicNameAlias }}</span>
+            </template>
+          </el-table-column>
+
+          <el-table-column
+            prop="singerName"
+            label="歌手"
+            :show-overflow-tooltip="true"
+          >
+            <template #default="scope">
+              <el-link
+                class="mr-1"
+                disable-transitions
+                v-for="(item, index) in scope.row.singerName"
+                :key="index"
+              >
+                <el-tag @click="toArtist(scope.row.singerIds[index])">{{
+                  item
+                }}</el-tag>
+              </el-link>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="albumName"
+            label="专辑"
+            :show-overflow-tooltip="true"
+          >
+            <template #default="scope">
+              <span @click="toAlbum(scope.row)">
+                <el-link :underline="false">{{ scope.row.albumName }}</el-link>
+              </span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="timeLength"
+            label="歌曲时长"
+            width="80"
+            :show-overflow-tooltip="true"
+          >
+            <template #default="scope">
+              <span class="font-light">{{
+                dateFormater("mm:ss", scope.row.timeLength)
+              }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="createTime"
+            label="上传时间"
+            :show-overflow-tooltip="true"
+          >
+            <template #default="scope">
+              <span>{{
+                dateFormater("YYYY-MM-dd HH:mm:ss", scope.row.createTime)
+              }}</span>
+            </template>
+          </el-table-column>
+        </el-table>
+      </transition>
+
+      <div class="demo-pagination-block" v-show="!tableLoading">
         <el-pagination
           :default-current-page="pageConfig.pageIndex"
           :default-page-size="pageConfig.pageSize"
@@ -366,6 +438,12 @@ const rowDoubleClick = data => {
 <style lang="scss" scoped>
 $searchWidth: 90%;
 $searchHeight: 90%;
+
+.refresh {
+  position: fixed;
+  bottom: 200px;
+  right: 40px;
+}
 
 .absolute-container {
   margin: 0;
@@ -400,12 +478,14 @@ $searchHeight: 90%;
 .font {
   color: #a3a39cc3;
 }
+
 // 底部分页条
 .demo-pagination-block {
   margin: 2rem;
   display: flex;
   justify-content: center;
 }
+
 //折叠菜单
 .folding.menu {
   height: 0;
@@ -514,5 +594,23 @@ $searchHeight: 90%;
 .slide-fade-leave-to {
   transform: translateX(20px);
   opacity: 0;
+}
+
+.show-loading {
+  width: 100%;
+  height: 20rem;
+  padding: 2rem;
+  border-radius: 2rem;
+  background-color: #fbfbfb;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tableDataShow {
+  margin-top: 1rem;
+  border-radius: 1rem;
+  animation-timing-function: 2s;
 }
 </style>

@@ -13,7 +13,7 @@ const musicInfo = reactive<MusicInfo>({
   musicName: "",
   musicAliasName: "",
   singerId: [],
-  singerName: [],
+  artistName: [],
   albumId: null,
   albumName: "",
   pic: "",
@@ -24,7 +24,7 @@ interface MusicInfo {
   musicName: string;
   musicAliasName: string;
   singerId: Array<number>;
-  singerName: Array<string>;
+  artistName: Array<string>;
   albumId: number;
   albumName: string;
   pic: string;
@@ -120,7 +120,7 @@ const uploadSuccess = (
       />
       <div v-if="uploadFlag">
         <!-- <p v-show="musicInfo.">{{ musicInfo.musicName }}</p> -->
-        <p class="text-center play-singer">{{ musicInfo.singerName }}</p>
+        <p class="text-center play-singer">{{ musicInfo.artistName }}</p>
       </div>
       <audio v-if="uploadFlag" :src="musicTempUrl" controls preload="auto" />
     </div>

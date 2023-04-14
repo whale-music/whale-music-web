@@ -3,6 +3,8 @@ import { getSingerPage, SingerRes } from "@/api/singer";
 import { ref, reactive, onMounted } from "vue";
 import { dateFormater } from "@/utils/dateUtil";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
+const router = useRouter();
 
 const { t } = useI18n();
 const tableData = ref<SingerRes[]>();
@@ -10,7 +12,7 @@ const tableLoading = ref<boolean>(false);
 const menuFlag = ref<boolean>(false);
 
 const formInline = reactive({
-  singerName: ""
+  artistName: ""
 });
 
 const page = reactive({
@@ -43,7 +45,7 @@ const sortConfig = ref("sort");
 
 const getAlbumPageList = () => {
   getSingerPage({
-    singerName: formInline.singerName,
+    artistName: formInline.artistName,
     orderBy: sortConfig.value,
     order: false,
     page: page
@@ -73,6 +75,14 @@ const handleCurrentChange = val => {
   page.pageIndex = val;
   onSubmit();
 };
+
+const toArtist = res => {
+  console.log(res);
+  router.push({
+    path: "/music/artistInfo",
+    query: { id: res.id }
+  });
+};
 </script>
 
 <template>
@@ -85,7 +95,7 @@ const handleCurrentChange = val => {
               type="text"
               required="true"
               autocomplete="off"
-              v-model="formInline.singerName"
+              v-model="formInline.artistName"
               @keyup.enter="onSubmit"
             />
             <label for="name">{{ t("input.pleaseEnterSingerName") }}</label>
@@ -95,7 +105,7 @@ const handleCurrentChange = val => {
         <Transition name="slide-fade"
           ><div
             class="flex flex-col justify-center m-1"
-            v-show="formInline.singerName !== ''"
+            v-show="formInline.artistName !== ''"
           >
             <el-button
               type="primary"
@@ -157,7 +167,7 @@ const handleCurrentChange = val => {
       <div class="table">
         <el-table :data="tableData" style="width: 100%" table-layout="fixed">
           <el-table-column type="index" />
-          <el-table-column width="100" show-overflow-tooltip>
+          <el-table-column width="100" :show-overflow-tooltip="true">
             <template #default="scope">
               <el-image
                 style="width: 5rem; height: 5rem"
@@ -171,17 +181,21 @@ const handleCurrentChange = val => {
           <el-table-column
             prop="singerName"
             :label="t('input.singerName')"
-            show-overflow-tooltip
+            :show-overflow-tooltip="true"
           >
             <template #default="scope">
-              <span class="text-xl">{{ scope.row.singerName }}</span
-              ><span class="font">&emsp;{{ scope.row.alias }}</span>
+              <el-link :underline="false" @click="toArtist(scope.row)"
+                ><span class="text-xl">{{
+                  scope.row.artistName
+                }}</span></el-link
+              >
+              <span class="font">&emsp;{{ scope.row.aliasName }}</span>
             </template>
           </el-table-column>
 
           <el-table-column
             :label="t('table.albumSize')"
-            show-overflow-tooltip
+            :show-overflow-tooltip="true"
             width="100"
           >
             <template #default="scope">
@@ -191,7 +205,7 @@ const handleCurrentChange = val => {
 
           <el-table-column
             :label="t('table.musicSize')"
-            show-overflow-tooltip
+            :show-overflow-tooltip="true"
             width="100"
           >
             <template #default="scope">
@@ -202,7 +216,7 @@ const handleCurrentChange = val => {
           <el-table-column
             prop="createTime"
             label="上传时间"
-            show-overflow-tooltip
+            :show-overflow-tooltip="true"
           >
             <template #default="scope">
               <span>{{

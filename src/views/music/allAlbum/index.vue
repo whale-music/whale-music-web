@@ -3,6 +3,8 @@ import { getAlbumPage } from "@/api/album";
 import { ref, reactive, onMounted } from "vue";
 import { dateFormater } from "@/utils/dateUtil";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
+const router = useRouter();
 
 const { t } = useI18n();
 const tableData = ref();
@@ -12,7 +14,7 @@ const menuFlag = ref<boolean>();
 
 const formInline = reactive({
   albumName: "",
-  singerName: ""
+  artistName: ""
 });
 
 const sortConfig = ref("sort");
@@ -45,7 +47,7 @@ const pageConfig = reactive({
 });
 const getAlbumPageList = () => {
   getAlbumPage({
-    singerName: formInline.singerName,
+    artistName: formInline.artistName,
     albumName: formInline.albumName,
     orderBy: "",
     order: false,
@@ -84,6 +86,13 @@ const handleCurrentChange = val => {
   pageConfig.pageIndex = val;
   onSubmit();
 };
+
+const toAlbum = res => {
+  router.push({
+    path: "/music/albumInfo",
+    query: { id: res.id }
+  });
+};
 </script>
 
 <template>
@@ -108,7 +117,7 @@ const handleCurrentChange = val => {
               type="text"
               required="true"
               autocomplete="off"
-              v-model="formInline.singerName"
+              v-model="formInline.artistName"
               @keyup.enter="onSubmit"
             />
             <label for="name">{{ t("input.pleaseEnterSingerName") }}</label>
@@ -117,7 +126,7 @@ const handleCurrentChange = val => {
         <Transition name="slide-fade"
           ><div
             class="flex flex-col justify-center m-1"
-            v-show="formInline.albumName !== '' || formInline.singerName !== ''"
+            v-show="formInline.albumName !== '' || formInline.artistName !== ''"
           >
             <el-button
               type="primary"
@@ -195,7 +204,11 @@ const handleCurrentChange = val => {
             width="500"
           >
             <template #default="scope">
-              <span class="text-xl">{{ scope.row.albumName }}</span>
+              <el-link :underline="false">
+                <span class="text-xl" @click="toAlbum(scope.row)">{{
+                  scope.row.albumName
+                }}</span>
+              </el-link>
             </template>
           </el-table-column>
           <el-table-column

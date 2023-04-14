@@ -1,5 +1,6 @@
 import { http } from "@/utils/http";
 import { R, Page, Data } from "@/api/common";
+import { MusicSearchRes } from "@/api/music";
 export interface Singer {
   id: string;
   singerName: string;
@@ -67,4 +68,37 @@ export const getSelectAlbumList = (name: string) => {
     "get",
     "/admin/album/select?name=" + name
   );
+};
+export interface ArtistRes {
+  id: number;
+  artistName: string;
+  aliasName: string;
+  sex: string;
+  pic: string;
+  birth: string;
+  location: string;
+  introduction: string;
+  createTime: string;
+  updateTime: string;
+}
+
+export interface AlbumDataRes {
+  id: number;
+  albumName: string;
+  subType: string;
+  description: string;
+  company: string;
+  pic: string;
+  publishTime: string;
+  updateTime: string;
+  createTime: string;
+  musicList: MusicSearchRes[];
+  albumSize: number;
+  artistList: ArtistRes[];
+  orderBy?: any;
+  order?: any;
+}
+
+export const getAlbumDataInfo = (id: string) => {
+  return http.request<R<AlbumDataRes>>("get", "/admin/album/" + id);
 };
