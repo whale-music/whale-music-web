@@ -1,7 +1,4 @@
 import { $t } from "@/plugins/i18n";
-import music from "@/assets/svg/music.svg?component";
-import album from "@/assets/svg/album.svg?component";
-import singer from "@/assets/svg/singer.svg?component";
 const Layout = () => import("@/layout/index.vue");
 
 export default {
@@ -20,7 +17,7 @@ export default {
       name: "AllMusicList",
       component: () => import("@/views/music/allMusic/index.vue"),
       meta: {
-        icon: music,
+        icon: "solar:music-library-2-bold-duotone",
         title: $t("list.allmusic")
       }
     },
@@ -29,7 +26,7 @@ export default {
       name: "AllAlbumList",
       component: () => import("@/views/music/allAlbum/index.vue"),
       meta: {
-        icon: album,
+        icon: "mingcute:album-line",
         title: $t("list.allAlbum")
       }
     },
@@ -38,7 +35,7 @@ export default {
       name: "AllSingerList",
       component: () => import("@/views/music/allSinger/index.vue"),
       meta: {
-        icon: singer,
+        icon: "solar:user-bold-duotone",
         title: $t("list.allSinger")
       }
     }
