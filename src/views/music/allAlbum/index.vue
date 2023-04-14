@@ -47,7 +47,7 @@ const pageConfig = reactive({
 });
 const getAlbumPageList = () => {
   getAlbumPage({
-    artistName: formInline.artistName,
+    singerName: formInline.artistName,
     albumName: formInline.albumName,
     orderBy: "",
     order: false,

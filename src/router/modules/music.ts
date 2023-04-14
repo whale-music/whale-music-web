@@ -10,7 +10,7 @@ export default {
   component: Layout,
   redirect: "/music/allMusic",
   meta: {
-    icon: music,
+    icon: "solar:music-library-2-bold-duotone",
     title: $t("list.music"),
     rank: 1
   },

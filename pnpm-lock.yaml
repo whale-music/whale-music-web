@@ -6,7 +6,9 @@ specifiers:
   "@commitlint/cli": 13.1.0
   "@commitlint/config-conventional": 13.1.0
   "@iconify-icons/ep": ^1.2.10
+  "@iconify-icons/mingcute": ^1.2.4
   "@iconify-icons/ri": ^1.2.4
+  "@iconify-icons/solar": ^1.2.0
   "@iconify/vue": ^4.1.0
   "@intlify/unplugin-vue-i18n": ^0.8.2
   "@pureadmin/descriptions": ^1.1.0
@@ -121,7 +123,9 @@ devDependencies:
   "@commitlint/cli": 13.1.0
   "@commitlint/config-conventional": 13.1.0
   "@iconify-icons/ep": 1.2.10
+  "@iconify-icons/mingcute": 1.2.4
   "@iconify-icons/ri": 1.2.4
+  "@iconify-icons/solar": 1.2.0
   "@iconify/vue": 4.1.0_vue@3.2.47
   "@intlify/unplugin-vue-i18n": 0.8.2_vue-i18n@9.2.2
   "@pureadmin/theme": 3.0.0
@@ -1263,10 +1267,28 @@ packages:
       "@iconify/types": 2.0.0
     dev: true
 
+  /@iconify-icons/mingcute/1.2.4:
+    resolution:
+      {
+        integrity: sha512-4aaWYa6GxSdYmJg8iBVx6VDuKUcTDEbio929+GrswoxfyTsPUkOOgw2wffUDHjE3JDUAnrWj9teQTnBkFm7Gyg==
+      }
+    dependencies:
+      "@iconify/types": 2.0.0
+    dev: true
+
   /@iconify-icons/ri/1.2.4:
     resolution:
       {
         integrity: sha512-hTYFsUMEYU62Eu8YEtNPvGRusvUXQPs3kT+Vvl6VJc9TwfX+W8SNo4eL7e35QeNZh2JWAwG6cYCoWFQQSFpFHg==
+      }
+    dependencies:
+      "@iconify/types": 2.0.0
+    dev: true
+
+  /@iconify-icons/solar/1.2.0:
+    resolution:
+      {
+        integrity: sha512-ku1gupZMbcbvlEMkYrsV0NtC3XXUFwRScPAKYWnimPOCyzbJwbPgLDzd76Vhk/4S2pbmt4R1poOqTzBMp7sWPA==
       }
     dependencies:
       "@iconify/types": 2.0.0

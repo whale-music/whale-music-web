@@ -9,7 +9,7 @@ export default {
   component: Layout,
   redirect: "/plugin/allPlugins",
   meta: {
-    icon: plugin,
+    icon: "mingcute:plugin-2-fill",
     title: $t("menus.plugin"),
     rank: 1
   },
