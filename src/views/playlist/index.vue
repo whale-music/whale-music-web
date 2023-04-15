@@ -16,6 +16,8 @@ import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
 import { Page } from "@/api/common";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { getUserInfo, UserInfoRes } from "@/api/user";
+import LayoutGrid from "@/assets/svg/layout_grid.svg?component";
+import LayoutList from "@/assets/svg/layout_list.svg?component";
 
 const route = useRoute(); //2.在跳转页面定义router变量，解构得到指定的query和params传参的参数
 const router = useRouter();
@@ -227,8 +229,8 @@ const centerDialogVisible = ref(false);
             v-model="layoutFlag"
             size="large"
             inline-prompt
-            active-text="list"
-            inactive-text="grid"
+            :active-icon="LayoutList"
+            :inactive-icon="LayoutGrid"
             style="
               --el-switch-on-color: var(--el-color-primary);
               --el-switch-off-color: #a55eea;
