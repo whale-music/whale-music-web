@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { useNav } from "@/layout/hooks/useNav";
+import LeftOutline from "@iconify-icons/solar/alt-arrow-left-bold";
+import RightOutline from "@iconify-icons/solar/alt-arrow-right-bold";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const props = defineProps({
   collapse: Boolean
 });
@@ -18,7 +22,6 @@ const { title } = useNav();
         class="sidebar-logo-link"
         to="/"
       >
-        <img src="/logo.svg" alt="logo" />
         <span class="sidebar-title">{{ title }}</span>
       </router-link>
       <router-link
@@ -28,8 +31,17 @@ const { title } = useNav();
         class="sidebar-logo-link"
         to="/"
       >
-        <img src="/logo.svg" alt="logo" />
         <span class="sidebar-title">{{ title }}</span>
+        <IconifyIconOffline
+          class="router"
+          @click="router.back()"
+          :icon="LeftOutline"
+        />
+        <IconifyIconOffline
+          class="router"
+          @click="router.back(1)"
+          :icon="RightOutline"
+        />
       </router-link>
     </transition>
   </div>
@@ -64,6 +76,19 @@ const { title } = useNav();
       white-space: nowrap;
       text-overflow: ellipsis;
       font-size: 18px;
+      font-weight: 600;
+    }
+
+    .router {
+      height: 32px;
+      line-height: 32px;
+      margin: 2px 0 0 12px;
+      color: $subMenuActiveText;
+      display: inline-block;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      font-size: 14px;
       font-weight: 600;
     }
   }
