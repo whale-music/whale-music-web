@@ -46,3 +46,20 @@ export const getPlayListById = (id: string, data?: MusicSearchReq) => {
     data: data
   });
 };
+
+export interface PlayInfoRes {
+  id: number;
+  playListName: string;
+  pic: string;
+  type: number;
+  description?: any;
+  userId: number;
+  sort: number;
+  subscribed: boolean;
+  createTime: string;
+  updateTime: string;
+}
+/** 获取歌单信息 */
+export const getPlayListInfo = (id: string) => {
+  return http.request<R<PlayInfoRes>>("get", `/admin/playlist/info/${id}`);
+};

@@ -58,9 +58,7 @@ const centerDialogVisible = ref(false);
           <br />
           <div>
             <p class="content">
-              <span class="text-desc font-bold"
-                >{{ albumInfo.description }}
-              </span>
+              <span class="font-bold">{{ albumInfo.description }} </span>
             </p>
             <el-link
               class="tail"

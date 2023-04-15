@@ -1,5 +1,10 @@
 <script lang="ts" setup>
-import { getPlayListById, PlayListRes } from "@/api/playlist";
+import {
+  getPlayListInfo,
+  getPlayListById,
+  PlayListRes,
+  PlayInfoRes
+} from "@/api/playlist";
 import { getMusicUrl } from "@/api/music";
 import { useRoute, useRouter } from "vue-router"; //1.先在需要跳转的页面引入useRouter
 import { ref, reactive, onMounted } from "vue";
@@ -10,6 +15,7 @@ import DownloadIcon from "@/components/DownloadIcon/download.vue";
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
 import { Page } from "@/api/common";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
+import { getUserInfo, UserInfoRes } from "@/api/user";
 
 const route = useRoute(); //2.在跳转页面定义router变量，解构得到指定的query和params传参的参数
 const router = useRouter();
@@ -48,7 +54,7 @@ const musicPlayConfig = reactive({
 const musicName = ref("");
 const pageConfig = ref<Page>({
   pageIndex: 0,
-  pageNum: 10,
+  pageNum: 12,
   total: 0
 });
 const getPlay = (id: string) => {
@@ -90,8 +96,38 @@ const onSubmit = () => {
   getPlay(route.name.toString());
 };
 
+const playlistInfo = ref<PlayInfoRes>({
+  createTime: "",
+  id: 0,
+  pic: "",
+  playListName: "",
+  sort: 0,
+  subscribed: false,
+  type: 0,
+  updateTime: "",
+  userId: 0
+});
+
+const userInfo = ref<UserInfoRes>({
+  createTime: "",
+  id: 0,
+  lastLoginTime: "",
+  nickname: "",
+  password: "",
+  updateTime: "",
+  username: ""
+});
 // 生命周期挂载
 onMounted(() => {
+  // 查询歌单信息
+  getPlayListInfo(route.name.toString()).then(res => {
+    playlistInfo.value = res.data;
+
+    // 查询用户信息
+    getUserInfo(res.data.userId).then(res => {
+      userInfo.value = res.data;
+    });
+  });
   // 查询表格
   onSubmit();
 });
@@ -132,109 +168,162 @@ const toAlbum = id => {
     query: { id: id }
   });
 };
+
+const centerDialogVisible = ref(false);
 </script>
 <template>
-  <div>
+  <div ref="divRef">
     <ShowLoading :loading="tableLoading" />
     <el-empty description="description" v-if="emptyFlag" />
     <div v-if="!tableLoading && !emptyFlag">
-      <el-table
-        v-if="layoutFlag"
-        class="table-data"
-        :data="tableData"
-        highlight-current-row
-        @selection-change="handleSelectionChange"
-        :cell-style="cellStyle"
-        @row-dblclick="rowDoubleClick"
-      >
-        <el-table-column fixed type="index" width="60" />
-
-        <el-table-column fixed width="40" show-overflow-tooltip>
-          <template #default="scope">
-            <DownloadIcon :muiscId="scope.row.id" />
-          </template>
-        </el-table-column>
-
-        <el-table-column fixed label="名称" show-overflow-tooltip width="450">
-          <template #default="scope">
-            <span class="font-sans subpixel-antialiased">{{
-              scope.row.musicName
-            }}</span>
-            <span class="font">&emsp;{{ scope.row.aliasName }}</span>
-          </template>
-        </el-table-column>
-
-        <el-table-column label="歌手" show-overflow-tooltip>
-          <template #default="scope">
-            <el-tag
-              disable-transitions
-              v-for="item in scope.row.artists"
-              :key="item.id"
-              >{{ item.artistName }}</el-tag
-            >
-          </template>
-        </el-table-column>
-        <el-table-column label="专辑" show-overflow-tooltip>
-          <template #default="scope">
-            <el-tag>
-              {{ scope.row.album.albumName }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="歌曲时长" width="80" show-overflow-tooltip>
-          <template #default="scope">
-            <span class="font-light">{{
-              dateFormater("mm:ss", scope.row.timeLength)
-            }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="createTime"
-          label="上传时间"
-          show-overflow-tooltip
-        >
-          <template #default="scope">
-            <span>{{
-              dateFormater("YYYY-MM-dd HH:mm:ss", scope.row.createTime)
-            }}</span>
-          </template>
-        </el-table-column>
-      </el-table>
-      <div v-else class="list-grid">
-        <div v-for="(item, index) in tableData" :key="index">
-          <LoadImg
-            class="cursor-pointer"
-            :src="item.pic"
-            width="10rem"
-            height="10rem"
-            @click="toMusicInfo(item.id)"
-          />
-          <p
-            class="cursor-pointer truncate hover:underline"
-            @click="toMusicInfo(item.id)"
-          >
-            {{ item.musicName }}
-          </p>
-          <el-link :underline="false" @click="toAlbum(item.album.id)">
-            <p class="text-ellipsis overflow-hidden font-bold text-sm">
-              {{ item.album.albumName }}
+      <div class="flex">
+        <LoadImg :src="playlistInfo.pic" />
+        <div class="ml-8">
+          <p class="playlist-name">{{ playlistInfo.playListName }}</p>
+          <p>{{ userInfo.nickname }}</p>
+          <div>
+            <p class="content">
+              <span class="text-desc font-bold"
+                >{{ playlistInfo.description }}
+              </span>
             </p>
-          </el-link>
+            <el-link
+              v-show="
+                playlistInfo.description !== '' &&
+                playlistInfo.description !== null
+              "
+              class="tail"
+              :underline="false"
+              @click="centerDialogVisible = !centerDialogVisible"
+              >[详情]
+            </el-link>
+
+            <!--显示专辑详细信息-->
+            <el-dialog
+              class="showDialog"
+              v-model="centerDialogVisible"
+              width="30%"
+              :show-close="false"
+            >
+              <template #header>
+                <h2>{{ playlistInfo.playListName }}</h2>
+                <span class="text-sm text-neutral-400">&#32;·&#32;</span>
+                <span class="text-sm text-neutral-400">
+                  {{ dateFormater("YYYY", playlistInfo.createTime) }}</span
+                >
+              </template>
+              <el-scrollbar class="show-desc">
+                <span>{{ playlistInfo.description }}</span>
+              </el-scrollbar>
+            </el-dialog>
+          </div>
+        </div>
+      </div>
+      <div class="mt-12">
+        <div class="desc" v-show="!tableLoading">
+          <p class="playlist-item-name">歌曲列表</p>
+          <el-switch
+            class="mr-4"
+            v-model="layoutFlag"
+            size="large"
+            inline-prompt
+            active-text="list"
+            inactive-text="grid"
+            style="
+              --el-switch-on-color: var(--el-color-primary);
+              --el-switch-off-color: #a55eea;
+            "
+          />
+        </div>
+      </div>
+      <div class="mt-6">
+        <el-table
+          v-if="layoutFlag"
+          class="table-data"
+          :data="tableData"
+          highlight-current-row
+          @selection-change="handleSelectionChange"
+          :cell-style="cellStyle"
+          @row-dblclick="rowDoubleClick"
+        >
+          <el-table-column fixed type="index" width="60" />
+
+          <el-table-column fixed width="40" show-overflow-tooltip>
+            <template #default="scope">
+              <DownloadIcon :muiscId="scope.row.id" />
+            </template>
+          </el-table-column>
+
+          <el-table-column fixed label="名称" show-overflow-tooltip width="450">
+            <template #default="scope">
+              <span class="font-sans subpixel-antialiased">{{
+                scope.row.musicName
+              }}</span>
+              <span class="font">&emsp;{{ scope.row.aliasName }}</span>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="歌手" show-overflow-tooltip>
+            <template #default="scope">
+              <el-tag
+                disable-transitions
+                v-for="item in scope.row.artists"
+                :key="item.id"
+                >{{ item.artistName }}</el-tag
+              >
+            </template>
+          </el-table-column>
+          <el-table-column label="专辑" show-overflow-tooltip>
+            <template #default="scope">
+              <el-tag>
+                {{ scope.row.album.albumName }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="歌曲时长" width="80" show-overflow-tooltip>
+            <template #default="scope">
+              <span class="font-light">{{
+                dateFormater("mm:ss", scope.row.timeLength)
+              }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="createTime"
+            label="上传时间"
+            show-overflow-tooltip
+          >
+            <template #default="scope">
+              <span>{{
+                dateFormater("YYYY-MM-dd HH:mm:ss", scope.row.createTime)
+              }}</span>
+            </template>
+          </el-table-column>
+        </el-table>
+        <div v-else class="list-grid">
+          <div v-for="(item, index) in tableData" :key="index">
+            <LoadImg
+              class="cursor-pointer"
+              :src="item.pic"
+              width="10rem"
+              height="10rem"
+              @click="toMusicInfo(item.id)"
+            />
+            <p
+              class="cursor-pointer truncate hover:underline"
+              @click="toMusicInfo(item.id)"
+            >
+              {{ item.musicName }}
+            </p>
+            <el-link :underline="false" @click="toAlbum(item.album.id)">
+              <p class="text-ellipsis overflow-hidden font-bold text-sm">
+                {{ item.album.albumName }}
+              </p>
+            </el-link>
+          </div>
         </div>
       </div>
     </div>
-    <div class="option" v-show="!tableLoading">
-      <el-switch
-        v-model="layoutFlag"
-        size="large"
-        inline-prompt
-        active-text="list"
-        inactive-text="grid"
-        style="
-          --el-switch-on-color: var(--el-color-primary);
-          --el-switch-off-color: #a55eea;
-        "
-      />
+    <div class="option" v-show="!tableLoading" id="toPage">
       <el-pagination
         :hide-on-single-page="pageConfig.pageNum === 0"
         background
@@ -242,7 +331,7 @@ const toAlbum = id => {
         :default-page-size="pageConfig.pageNum"
         :current-page="pageConfig.pageIndex"
         :page-size="pageConfig.pageNum"
-        layout="prev, pager, next, jumper"
+        layout="prev, pager, next"
         :total="pageConfig.total"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
@@ -250,7 +339,7 @@ const toAlbum = id => {
     </div>
   </div>
 </template>
-<style scoped>
+<style lang="scss" scoped>
 .font {
   color: #a3a39cc3;
 }
@@ -281,6 +370,41 @@ const toAlbum = id => {
 }
 
 .option {
+  display: flex;
+  flex-direction: row-reverse;
+  margin-top: 2rem;
+  margin-right: 8rem;
+  margin-bottom: 2rem;
+}
+
+.playlist-name {
+  font-size: 3rem;
+}
+
+.playlist-item-name {
+  font-size: 2rem;
+}
+
+.content {
+  max-width: 40rem;
+  max-height: 6rem;
+  color: var(--el-color-info-light-3);
+  position: relative;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: pre-line;
+}
+
+.show-desc {
+  height: 20rem;
+  overflow-y: auto;
+}
+
+:deep(.el-dialog) {
+  border-radius: 1rem;
+}
+
+.desc {
   display: flex;
   justify-content: space-between;
 }

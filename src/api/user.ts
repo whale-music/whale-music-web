@@ -1,4 +1,5 @@
 import { http } from "@/utils/http";
+import { R } from "@/api/common";
 
 export type UserResult = {
   code: string;
@@ -24,5 +25,24 @@ export const getLogin = (data?: object) => {
 
 /** 刷新token */
 export const refreshTokenApi = (data?: object) => {
-  return http.request<UserResult>("post", "/refreshToken", { data });
+  return http.request<UserResult>("post", "/admin/user/refreshToken", { data });
+};
+
+export interface UserInfoRes {
+  id: number;
+  username: string;
+  nickname: string;
+  password: string;
+  avatarUrl?: any;
+  backgroundUrl?: any;
+  signature?: any;
+  accountType?: any;
+  lastLoginIp?: any;
+  lastLoginTime: string;
+  createTime: string;
+  updateTime: string;
+}
+/** 刷新token */
+export const getUserInfo = (id: number) => {
+  return http.request<R<UserInfoRes>>("get", `/admin/user/${id}`);
 };
