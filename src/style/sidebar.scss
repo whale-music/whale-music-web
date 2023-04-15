@@ -39,7 +39,8 @@
     transition: margin-left var(--pure-transition-duration);
     margin-left: $sideBarWidth;
     position: relative;
-    background: #f0f2f5;
+    // 主界面容器背景
+    background-color: $menuBg;
 
     .el-scrollbar__wrap {
       overflow: auto;
@@ -82,7 +83,6 @@
     left: 0;
     z-index: 1001;
     overflow: hidden;
-    box-shadow: 0 0 1px #888;
 
     .scrollbar-wrapper {
       overflow-x: hidden !important;
@@ -99,6 +99,8 @@
     &.has-logo {
       .el-scrollbar.pc {
         /* logo: 48px、leftCollapse: 40px、leftCollapse-shadow: 4px */
+        /* 子列表外间距 */
+        margin-top: 0.4rem;
         height: calc(100% - 92px);
       }
       .el-scrollbar.mobile {
@@ -216,7 +218,7 @@
     /* 无子集的激活菜单背景 */
     .is-active.submenu-title-noDropdown.outer-most > * {
       z-index: 1;
-      color: #fff;
+      color: var(--el-color-primary);
     }
     .is-active.submenu-title-noDropdown.outer-most::before {
       content: "";
@@ -227,8 +229,11 @@
       margin: 4px 0;
       top: 0;
       bottom: 0;
-      border-radius: 3px;
-      background: var(--el-color-primary) !important;
+      border-radius: 6px;
+      // 子菜单激活背景
+      //background: #ffffff !important;
+      //@apply dark:bg-[#141414] bg-[#ffffff]
+      background-color: var(--el-bg-color);
     }
   }
 

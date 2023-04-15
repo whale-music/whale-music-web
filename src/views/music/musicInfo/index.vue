@@ -125,12 +125,7 @@ const toAlbum = albumId => {
     </div>
     <div class="text-2xl mt-4">音源</div>
     <div class="item-list">
-      <div
-        class="show-item"
-        :style="{ 'background-color': index % 2 !== 1 ? '#ffff' : '#eeeeee' }"
-        v-for="(item, index) in musicUrl"
-        :key="index"
-      >
+      <div class="show-item" v-for="(item, index) in musicUrl" :key="index">
         <div class="ml-4">
           <span class="index">{{ index + 1 }}</span>
           <span class="ml-4 font-bold">{{ musicInfo.musicName }}</span>
@@ -202,7 +197,7 @@ const toAlbum = albumId => {
 .show-item {
   width: 100%;
   height: 3.6rem;
-  background-color: #ffffff;
+  background-color: var(--el-bg-color);
   border-radius: 1rem;
   display: flex;
   flex-direction: row;

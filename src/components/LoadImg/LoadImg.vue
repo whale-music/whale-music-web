@@ -40,7 +40,7 @@ const props = defineProps({
 
 <style lang="scss" scoped>
 .img {
+  @apply shadow-xl;
   border-radius: 2rem;
-  box-shadow: var(--el-color-info-light-3) 1px 1px 10px;
 }
 </style>
