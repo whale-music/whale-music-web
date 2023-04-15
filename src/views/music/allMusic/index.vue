@@ -22,7 +22,7 @@ const { t } = useI18n();
 
 // 每页显示行数
 const pageConfig = reactive({
-  pageSize: 100,
+  pageSize: 50,
   pageIndex: 1,
   total: 0
 });
@@ -425,7 +425,7 @@ const toArtist = res => {
           :default-page-size="pageConfig.pageSize"
           :current-page="pageConfig.pageIndex"
           :page-size="pageConfig.pageSize"
-          :page-sizes="[100, 200, 500, 1000]"
+          :page-sizes="[50, 100, 500, 1000]"
           layout="total, sizes, prev, pager, next, jumper"
           :total="pageConfig.total"
           @size-change="handleSizeChange"
