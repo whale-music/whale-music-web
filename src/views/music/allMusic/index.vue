@@ -10,8 +10,10 @@ import { CellStyle } from "element-plus/es";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { Icon } from "@iconify/vue";
-import Loading from "@/assets/svg/loading.svg?component";
+import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
+import { useDark } from "@pureadmin/utils";
 
+const { isDark } = useDark();
 const router = useRouter();
 
 const multipleTableRef = ref();
@@ -145,7 +147,8 @@ const cellStyle = ({ columnIndex, row }): CellStyle<any> => {
   switch (row.isExist) {
     case false:
       styles["color"] = "#a2a2a2";
-      styles["backgroundColor"] = "#ebeef3";
+      // styles["backgroundColor"] = "#1e1e1e";
+      styles["backgroundColor"] = isDark.value ? "#262626" : "#f4f6f7";
       break;
   }
   return styles;
@@ -323,10 +326,8 @@ const toArtist = res => {
       </div>
 
       <!--加载遮罩-->
-      <transition name="el-fade-in" v-if="tableLoading">
-        <div class="show-loading">
-          <Loading class="animate-spin duration-700" />
-        </div>
+      <transition name="el-fade-in" v-if="tableLoading" class="duration-150">
+        <ShowLoading :loading="tableLoading" />
       </transition>
       <transition name="el-fade-in-linear" class="tableDataShow" v-else>
         <el-table
@@ -601,7 +602,7 @@ $searchHeight: 90%;
   height: 20rem;
   padding: 2rem;
   border-radius: 2rem;
-  background-color: #fbfbfb;
+  background-color: var(--el-bg-color);
 
   display: flex;
   justify-content: center;

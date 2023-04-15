@@ -7,17 +7,6 @@ import { type multipleScopeVarsOptions } from "@pureadmin/theme";
 /** 预设主题色 */
 const themeColors = {
   default: {
-    subMenuActiveText: "#fff",
-    menuBg: "#001529",
-    menuHover: "#4091f7",
-    subMenuBg: "#0f0303",
-    subMenuActiveBg: "#4091f7",
-    menuText: "rgb(254 254 254 / 65%)",
-    sidebarLogo: "#002140",
-    menuTitleHover: "#fff",
-    menuActiveBefore: "#4091f7"
-  },
-  light: {
     subMenuActiveText: "#409eff",
     menuBg: "#fff",
     menuHover: "#e0ebf6",
@@ -26,6 +15,17 @@ const themeColors = {
     menuText: "#7a80b4",
     sidebarLogo: "#fff",
     menuTitleHover: "#000",
+    menuActiveBefore: "#4091f7"
+  },
+  light: {
+    subMenuActiveText: "#fff",
+    menuBg: "#001529",
+    menuHover: "#4091f7",
+    subMenuBg: "#0f0303",
+    subMenuActiveBg: "#4091f7",
+    menuText: "rgb(254 254 254 / 65%)",
+    sidebarLogo: "#002140",
+    menuTitleHover: "#fff",
     menuActiveBefore: "#4091f7"
   },
   dusk: {

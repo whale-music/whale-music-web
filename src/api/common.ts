@@ -7,6 +7,7 @@ export interface R<T> {
 export interface Page {
   pageIndex: number;
   pageNum: number;
+  total?: number;
 }
 
 export interface Data<T> {
@@ -26,7 +27,7 @@ export interface Data<T> {
 export type MusicSearchReq = {
   musicIds: number[];
   musicName: string;
-  singerName: string;
+  artistName: string;
   albumName: string;
   orderBy: string;
   order: boolean;
