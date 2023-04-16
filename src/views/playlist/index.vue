@@ -3,7 +3,8 @@ import {
   getPlayListInfo,
   getPlayListById,
   PlayListRes,
-  PlayInfoRes
+  PlayInfoRes,
+  createPlayList
 } from "@/api/playlist";
 import { getMusicUrl } from "@/api/music";
 import { useRoute, useRouter } from "vue-router"; //1.先在需要跳转的页面引入useRouter
@@ -134,6 +135,22 @@ onMounted(() => {
   onSubmit();
 });
 
+const playListInput = ref("");
+
+const createPlayListButton = () => {
+  if (playListInput.value !== "") {
+    createPlayList(playListInput.value).then(res => {
+      addPlayListDialogVisible.value = false;
+      if (res.code === "200") {
+        message("创建成功", { type: "success" });
+        router.go(0);
+      }
+    });
+  } else {
+    message("请输入歌单名", { type: "error" });
+  }
+};
+
 // 播放音乐
 const rowDoubleClick = (data: any) => {
   console.log(data);
@@ -172,16 +189,40 @@ const toAlbum = id => {
 };
 
 const centerDialogVisible = ref(false);
+
+const addPlayListDialogVisible = ref(false);
 </script>
 <template>
   <div ref="divRef">
     <ShowLoading :loading="tableLoading" />
-    <el-empty description="description" v-if="emptyFlag" />
-    <div v-if="!tableLoading && !emptyFlag">
+    <div v-if="!tableLoading">
       <div class="flex">
         <LoadImg :src="playlistInfo.pic" />
-        <div class="ml-8">
-          <p class="playlist-name">{{ playlistInfo.playListName }}</p>
+        <div class="ml-8 flex-auto">
+          <div class="title-name">
+            <p class="playlist-name">{{ playlistInfo.playListName }}</p>
+            <el-button
+              class="mr-8 mt-2"
+              type="primary"
+              @click="addPlayListDialogVisible = true"
+              >新建歌单</el-button
+            >
+            <el-dialog
+              v-model="addPlayListDialogVisible"
+              title="新建歌单"
+              width="30%"
+              align-center
+            >
+              <el-input v-model="playListInput" placeholder="Please input" />
+              <template #footer>
+                <span class="flex justify-center">
+                  <el-button type="primary" @click="createPlayListButton">
+                    添加
+                  </el-button>
+                </span>
+              </template>
+            </el-dialog>
+          </div>
           <p>{{ userInfo.nickname }}</p>
           <div>
             <p class="content">
@@ -325,10 +366,11 @@ const centerDialogVisible = ref(false);
         </div>
       </div>
     </div>
+    <el-empty description="description" v-if="emptyFlag" />
     <div class="option" v-show="!tableLoading" id="toPage">
       <el-pagination
-        :hide-on-single-page="pageConfig.pageNum === 0"
         background
+        :hide-on-single-page="pageConfig.pageNum"
         :default-current-page="pageConfig.pageIndex"
         :default-page-size="pageConfig.pageNum"
         :current-page="pageConfig.pageIndex"
@@ -381,6 +423,12 @@ const centerDialogVisible = ref(false);
 
 .playlist-name {
   font-size: 3rem;
+}
+
+.title-name {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
 }
 
 .playlist-item-name {

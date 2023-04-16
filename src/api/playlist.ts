@@ -63,3 +63,8 @@ export interface PlayInfoRes {
 export const getPlayListInfo = (id: string) => {
   return http.request<R<PlayInfoRes>>("get", `/admin/playlist/info/${id}`);
 };
+
+/** 添加歌单 */
+export const createPlayList = (name: string) => {
+  return http.request<R<PlayInfoRes>>("put", `/admin/playlist/${name}`);
+};
