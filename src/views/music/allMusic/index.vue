@@ -654,4 +654,8 @@ $searchHeight: 90%;
 :deep(.el-dialog) {
   border-radius: 1rem;
 }
+
+.tableDataShow {
+  border-radius: 1rem;
+}
 </style>
