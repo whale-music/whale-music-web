@@ -1,45 +1,43 @@
 <script lang="ts" setup>
 import { onBeforeMount, ref } from "vue";
 import { useRouter } from "vue-router";
-import { getAllMusicList, getMusicUrl, MusicUrlInfo } from "@/api/music";
+import {
+  getAllMusicList,
+  getMusicUrl,
+  MusicSearchRes,
+  MusicUrlInfo
+} from "@/api/music";
 import { dateFormater } from "@/utils/dateUtil";
 import { Icon } from "@iconify/vue";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 const router = useRouter();
 const id = ref();
 
-interface MusicInfo {
-  id: number;
-  musicName: string;
-  musicNameAlias: string;
-  singerIds: number[];
-  artistName: string[];
-  albumId: number;
-  albumName: string;
-  order: boolean;
-  isExist: boolean;
-  musicRawUrl: string;
-  timeLength: number;
-  createTime: string;
-  pic: string;
-  publishTime: string;
-}
-
-const musicInfo = ref<MusicInfo>({
-  publishTime: "",
+const musicInfo = ref<MusicSearchRes>({
+  album: undefined,
   albumId: 0,
   albumName: "",
+  aliaName: "",
+  artistIds: [],
+  artistName: [],
+  artistNames: [],
   createTime: "",
   id: 0,
   isExist: false,
-  musicName: "Music Info",
+  isPlaying: false,
+  kLyric: "",
+  lyric: "",
+  musicName: "",
   musicNameAlias: "",
   musicRawUrl: "",
+  musicUrlList: [],
   order: false,
   pic: "",
-  singerIds: [],
-  artistName: [],
-  timeLength: 0
+  publishTime: "",
+  singerList: [],
+  sort: 0,
+  timeLength: 0,
+  updateTime: ""
 });
 
 const musicUrl = ref<MusicUrlInfo[]>();
@@ -57,23 +55,7 @@ onBeforeMount(() => {
     page: { pageIndex: 0, pageNum: 1 },
     artistName: ""
   }).then(res => {
-    const musicSearchRe = res.data.records[0];
-    musicInfo.value = {
-      publishTime: dateFormater("YYYY-MM-dd", musicSearchRe.publishTime),
-      pic: musicSearchRe.pic,
-      albumId: musicSearchRe.albumId,
-      albumName: musicSearchRe.albumName,
-      createTime: musicSearchRe.createTime,
-      id: musicSearchRe.id,
-      isExist: musicSearchRe.isExist,
-      musicName: musicSearchRe.musicName,
-      musicNameAlias: musicSearchRe.musicNameAlias,
-      musicRawUrl: musicSearchRe.musicRawUrl,
-      order: musicSearchRe.order,
-      singerIds: musicSearchRe.singerIds,
-      artistName: musicSearchRe.artistName,
-      timeLength: 0
-    };
+    musicInfo.value = res.data.records[0];
     getMusicUrl(musicInfo.value.id.toString()).then(res => {
       console.log(res, "url");
       musicUrl.value = res.data;
@@ -85,6 +67,14 @@ const toAlbum = albumId => {
   router.push({
     path: "/music/albumInfo",
     query: { id: albumId }
+  });
+};
+
+const toArtist = res => {
+  console.log(res);
+  router.push({
+    path: "/music/artistInfo",
+    query: { id: res }
   });
 };
 </script>
@@ -106,15 +96,18 @@ const toAlbum = albumId => {
           <span class="show-font">艺术家: </span>
           <el-link
             :underline="false"
-            v-for="(item, index) in musicInfo.artistName"
+            v-for="(item, index) in musicInfo.artistNames"
             :key="index"
             ><span
+              @click="toArtist(musicInfo.artistIds[index])"
               class="cursor-pointer font-semibold"
               v-html="item + '\u00a0'"
           /></el-link>
           <br />
           <span class="show-font">发行时间: </span>
-          <span class="font-bold">{{ musicInfo.publishTime }}</span>
+          <span class="font-bold">{{
+            dateFormater("YYYY-MM-dd", musicInfo.publishTime)
+          }}</span>
         </div>
         <div class="buttons">
           <el-button round

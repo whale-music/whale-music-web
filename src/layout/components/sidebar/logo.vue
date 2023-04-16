@@ -10,39 +10,52 @@ const props = defineProps({
 });
 
 const { title } = useNav();
+
+const toLast = () => {
+  router.go(-1);
+};
+
+const toNext = () => {
+  router.go(1);
+};
 </script>
 
 <template>
   <div class="sidebar-logo-container" :class="{ collapses: props.collapse }">
     <transition name="sidebarLogoFade">
-      <router-link
-        v-if="props.collapse"
-        key="props.collapse"
-        :title="title"
-        class="sidebar-logo-link"
-        to="/"
-      >
-        <span class="sidebar-title">{{ title }}</span>
-      </router-link>
-      <router-link
-        v-else
-        key="expand"
-        :title="title"
-        class="sidebar-logo-link"
-        to="/"
-      >
-        <span class="sidebar-title">{{ title }}</span>
-        <IconifyIconOffline
-          class="router"
-          @click="router.back()"
-          :icon="LeftOutline"
-        />
-        <IconifyIconOffline
-          class="router"
-          @click="router.back(1)"
-          :icon="RightOutline"
-        />
-      </router-link>
+      <div class="flex">
+        <router-link
+          v-if="props.collapse"
+          key="props.collapse"
+          :title="title"
+          class="sidebar-logo-link"
+          to="/"
+        >
+          <span class="sidebar-title">{{ title }}</span>
+        </router-link>
+        <router-link
+          v-else
+          key="expand"
+          :title="title"
+          class="sidebar-logo-link"
+          to="/"
+        >
+          <span class="sidebar-title">{{ title }}</span>
+        </router-link>
+
+        <a class="sidebar-logo-link">
+          <span class="sidebar-title">
+            <IconifyIconOffline
+              class="router"
+              @click="toLast"
+              :icon="LeftOutline" />
+            <IconifyIconOffline
+              class="router"
+              @click="toNext"
+              :icon="RightOutline"
+          /></span>
+        </a>
+      </div>
     </transition>
   </div>
 </template>
@@ -54,6 +67,7 @@ const { title } = useNav();
   height: 48px;
   overflow: hidden;
   position: relative;
+  display: flex;
 
   .sidebar-logo-link {
     height: 100%;

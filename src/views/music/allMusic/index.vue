@@ -364,19 +364,15 @@ const toArtist = res => {
             </template>
           </el-table-column>
 
-          <el-table-column
-            prop="singerName"
-            label="歌手"
-            :show-overflow-tooltip="true"
-          >
+          <el-table-column label="歌手" :show-overflow-tooltip="true">
             <template #default="scope">
               <el-link
                 class="mr-1"
                 disable-transitions
-                v-for="(item, index) in scope.row.singerName"
+                v-for="(item, index) in scope.row.artistNames"
                 :key="index"
               >
-                <el-tag @click="toArtist(scope.row.singerIds[index])">{{
+                <el-tag @click="toArtist(scope.row.artistIds[index])">{{
                   item
                 }}</el-tag>
               </el-link>

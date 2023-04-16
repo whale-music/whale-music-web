@@ -1,30 +1,13 @@
 import { http } from "@/utils/http";
-import { R, MusicSearchReq, Page } from "@/api/common";
+import { R, MusicSearchReq, Page, Data } from "@/api/common";
 
 // 音乐搜索返回
-export interface MusicSearchPageRes {
-  records: MusicSearchRes[];
-  total: number;
-  size: number;
-  current: number;
-  orders: Order[];
-  optimizeCountSql: boolean;
-  searchCount: boolean;
-  optimizeJoinOfCountSql: boolean;
-  countId: string;
-  maxLimit: number;
-}
-export interface Order {
-  column: string;
-  asc: boolean;
-}
-
 export interface MusicSearchRes {
   artistName: string[];
   publishTime: string;
   order: boolean;
-  singerIds: number[];
-  singerName: string[];
+  artistIds: number[];
+  artistNames: string[];
   musicRawUrl: string;
   musicNameAlias: string;
   isExist: boolean;
@@ -85,7 +68,7 @@ export interface MusicUrlList {
 
 /** 获取全部歌曲信息 */
 export const getAllMusicList = (data?: MusicSearchReq) => {
-  return http.request<R<MusicSearchPageRes>>("post", "/admin/playlist/page", {
+  return http.request<R<Data<MusicSearchRes>>>("post", "/admin/playlist/page", {
     data
   });
 };
@@ -139,7 +122,7 @@ export interface Album {
   createTime: string;
 }
 
-export interface UploadMusicRes {
+export interface UploadMusicReq {
   id: number;
   origin: string;
   musicName: string;
@@ -160,8 +143,77 @@ export interface UploadMusicRes {
   userId: number;
 }
 
-export const uploadMusic = (data: UploadMusicRes) => {
-  return http.request<R<MusicSearchPageRes>>("post", "/admin/playlist/page", {
+export interface Music {
+  id: number;
+  musicName: string;
+  aliasName: string;
+  pic: string;
+  albumId: number;
+  sort: number;
+  timeLength: number;
+  updateTime: string;
+  createTime: string;
+}
+
+export interface Album {
+  id: number;
+  albumName: string;
+  subType: string;
+  description: string;
+  company: string;
+  pic: string;
+  publishTime: string;
+  updateTime: string;
+  createTime: string;
+}
+
+export interface Singer {
+  id: number;
+  artistName: string;
+  aliasName: string;
+  sex: string;
+  pic: string;
+  birth: string;
+  location: string;
+  introduction: string;
+  createTime: string;
+  updateTime: string;
+}
+
+export interface Lyric {
+  id: number;
+  musicId: number;
+  type: string;
+  lyric: string;
+  createTime: string;
+  updateTime: string;
+}
+
+export interface MusicUrl {
+  id: number;
+  musicId: number;
+  rate: number;
+  level: string;
+  url: string;
+  md5: string;
+  encodeType: string;
+  size: number;
+  userId: number;
+  origin: string;
+  createTime: string;
+  updateTime: string;
+}
+
+export interface UploadMusicRes {
+  music: Music;
+  album: Album;
+  singer: Singer[];
+  lyrics: Lyric[];
+  musicUrl: MusicUrl;
+}
+
+export const uploadMusic = (data: UploadMusicReq) => {
+  return http.request<R<UploadMusicRes>>("post", "/admin/music/upload/info", {
     data
   });
 };
