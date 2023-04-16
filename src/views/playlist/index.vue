@@ -4,7 +4,8 @@ import {
   getPlayListById,
   PlayListRes,
   PlayInfoRes,
-  createPlayList
+  createPlayList,
+  deletePlayList
 } from "@/api/playlist";
 import { getMusicUrl } from "@/api/music";
 import { useRoute, useRouter } from "vue-router"; //1.先在需要跳转的页面引入useRouter
@@ -19,6 +20,7 @@ import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { getUserInfo, UserInfoRes } from "@/api/user";
 import LayoutGrid from "@/assets/svg/layout_grid.svg?component";
 import LayoutList from "@/assets/svg/layout_list.svg?component";
+import { initRouter } from "@/router/utils";
 
 const route = useRoute(); //2.在跳转页面定义router变量，解构得到指定的query和params传参的参数
 const router = useRouter();
@@ -151,6 +153,19 @@ const createPlayListButton = () => {
   }
 };
 
+const deletePlayListButton = () => {
+  deleteDialogVisible.value = false;
+  deletePlayList(route.name.toString()).then(res => {
+    if (res.code === "200") {
+      message("删除成功", { type: "success" });
+      initRouter();
+      router.push("/playlist");
+    } else {
+      message("删除失败", { type: "error" });
+    }
+  });
+};
+
 // 播放音乐
 const rowDoubleClick = (data: any) => {
   console.log(data);
@@ -191,6 +206,8 @@ const toAlbum = id => {
 const centerDialogVisible = ref(false);
 
 const addPlayListDialogVisible = ref(false);
+
+const deleteDialogVisible = ref(false);
 </script>
 <template>
   <div ref="divRef">
@@ -223,23 +240,61 @@ const addPlayListDialogVisible = ref(false);
               </template>
             </el-dialog>
           </div>
-          <p>{{ userInfo.nickname }}</p>
+          <div class="mt-2 mb-2">
+            <span class="mr-4">{{ userInfo.nickname }}</span>
+            <span class="text-sm text-[var(--el-color-info-light-3)]"
+              >{{
+                dateFormater("YYYY-MM-dd HH:mm:ss", playlistInfo.createTime)
+              }}创建</span
+            >
+          </div>
+          <div class="mt-1 mb-3">
+            <el-button type="primary" round>播放歌单</el-button>
+            <el-button round>编辑歌单</el-button>
+            <el-button round>关于歌单</el-button>
+            <el-button @click="deleteDialogVisible = true" type="danger" round
+              >删除歌单</el-button
+            >
+            <el-dialog
+              v-model="deleteDialogVisible"
+              title="确定删除歌单吗? "
+              width="30%"
+              center
+            >
+              <template #footer>
+                <span class="dialog-footer">
+                  <el-button @click="deleteDialogVisible = false"
+                    >取消</el-button
+                  >
+                  <el-button type="danger" @click="deletePlayListButton">
+                    删除
+                  </el-button>
+                </span>
+              </template>
+            </el-dialog>
+          </div>
           <div>
-            <p class="content">
-              <span class="text-desc font-bold"
-                >{{ playlistInfo.description }}
-              </span>
-            </p>
-            <el-link
-              v-show="
-                playlistInfo.description !== '' &&
-                playlistInfo.description !== null
-              "
-              class="tail"
-              :underline="false"
-              @click="centerDialogVisible = !centerDialogVisible"
-              >[详情]
-            </el-link>
+            <div class="flex">
+              <p class="content">
+                <span class="mr-1">简介:</span>
+                <span class="text-desc font-bold"
+                  >{{ playlistInfo.description }}
+                </span>
+              </p>
+              <el-link
+                v-if="
+                  playlistInfo.description !== '' &&
+                  playlistInfo.description !== null
+                "
+                class="tail"
+                :underline="false"
+                @click="centerDialogVisible = !centerDialogVisible"
+                >[详情]
+              </el-link>
+              <el-link v-else :underline="false" type="primary"
+                >添加简介</el-link
+              >
+            </div>
 
             <!--显示专辑详细信息-->
             <el-dialog
@@ -370,7 +425,7 @@ const addPlayListDialogVisible = ref(false);
     <div class="option" v-show="!tableLoading" id="toPage">
       <el-pagination
         background
-        :hide-on-single-page="pageConfig.pageNum"
+        :hide-on-single-page="pageConfig.total === 0"
         :default-current-page="pageConfig.pageIndex"
         :default-page-size="pageConfig.pageNum"
         :current-page="pageConfig.pageIndex"

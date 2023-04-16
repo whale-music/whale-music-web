@@ -68,3 +68,8 @@ export const getPlayListInfo = (id: string) => {
 export const createPlayList = (name: string) => {
   return http.request<R<PlayInfoRes>>("put", `/admin/playlist/${name}`);
 };
+
+/** 删除歌单 */
+export const deletePlayList = (id: string) => {
+  return http.request<R<PlayInfoRes>>("delete", `/admin/playlist/${id}`);
+};
