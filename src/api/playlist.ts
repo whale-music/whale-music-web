@@ -73,3 +73,28 @@ export const createPlayList = (name: string) => {
 export const deletePlayList = (id: string) => {
   return http.request<R<PlayInfoRes>>("delete", `/admin/playlist/${id}`);
 };
+
+export interface UserPlayListRes extends PlayInfoRes {
+  count: number;
+}
+/** 获取用户歌单 */
+export const getUserPlayList = (userId: string) => {
+  return http.request<R<UserPlayListRes[]>>(
+    "get",
+    `/admin/playlist/user/${userId}`
+  );
+};
+
+export const tracksMusicToPlayList = (
+  pid: string,
+  musicIds: number[],
+  flag?: boolean
+) => {
+  return http.request<R<UserPlayListRes[]>>("get", `/admin/playlist/tracks`, {
+    params: {
+      pid: pid,
+      musicIds: musicIds.join(","),
+      flag: flag
+    }
+  });
+};

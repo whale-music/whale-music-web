@@ -45,12 +45,16 @@ app.component("FontIcon", FontIcon);
 import { Auth } from "@/components/ReAuth";
 app.component("Auth", Auth);
 
+import "@imengyu/vue3-context-menu/lib/vue3-context-menu.css";
+import ContextMenu from "@imengyu/vue3-context-menu";
+
 getServerConfig(app).then(async config => {
   app.use(router);
   await router.isReady();
   injectResponsiveStorage(app, config);
   setupStore(app);
   app.use(MotionPlugin).use(useI18n).use(ElementPlus);
+  app.use(ContextMenu);
   // .use(useEcharts);
   // .use(Table);
   // .use(PureDescriptions);

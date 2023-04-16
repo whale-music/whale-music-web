@@ -20,8 +20,8 @@ const props = defineProps({
       :style="{ width: props.width, height: props.height }"
       class="show-loading-box"
     >
-      <IconifyIconOnline
-        icon="mingcute:loading-3-fill"
+      <IconifyIconOffline
+        icon="loading3Fill"
         class="animate-spin"
         style="color: blue"
         width="60px"

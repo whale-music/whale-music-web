@@ -10,6 +10,11 @@ const props = defineProps({
     type: String,
     default: "20rem",
     required: false
+  },
+  radius: {
+    type: String,
+    default: "2rem",
+    required: false
   }
 });
 </script>
@@ -18,7 +23,7 @@ const props = defineProps({
   <el-image
     :src="props.src"
     fit="cover"
-    :style="{ width: width, height: height }"
+    :style="{ width: width, height: height, 'border-radius': props.radius }"
     class="img"
   >
     <template #placeholder>

@@ -31,6 +31,7 @@
   "dependencies": {
     "@codemirror/lang-javascript": "^6.1.4",
     "@codemirror/theme-one-dark": "^6.1.1",
+    "@imengyu/vue3-context-menu": "^1.2.5",
     "@pureadmin/descriptions": "^1.1.0",
     "@pureadmin/table": "^2.0.0",
     "@pureadmin/utils": "^1.8.5",

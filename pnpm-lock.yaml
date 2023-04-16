@@ -10,6 +10,7 @@ specifiers:
   "@iconify-icons/ri": ^1.2.4
   "@iconify-icons/solar": ^1.2.0
   "@iconify/vue": ^4.1.0
+  "@imengyu/vue3-context-menu": ^1.2.5
   "@intlify/unplugin-vue-i18n": ^0.8.2
   "@pureadmin/descriptions": ^1.1.0
   "@pureadmin/table": ^2.0.0
@@ -92,6 +93,7 @@ specifiers:
 dependencies:
   "@codemirror/lang-javascript": 6.1.4
   "@codemirror/theme-one-dark": 6.1.1
+  "@imengyu/vue3-context-menu": 1.2.5
   "@pureadmin/descriptions": 1.1.1_element-plus@2.2.32
   "@pureadmin/table": 2.0.0_element-plus@2.2.32
   "@pureadmin/utils": 1.8.5_echarts@5.4.1+vue@3.2.47
@@ -1312,6 +1314,13 @@ packages:
       "@iconify/types": 2.0.0
       vue: 3.2.47
     dev: true
+
+  /@imengyu/vue3-context-menu/1.2.5:
+    resolution:
+      {
+        integrity: sha512-Kf04lnWTomyu7xIE9t9sAoSvP9dMfrAhuhFbDxMge/N9I07u2UywcS2Awin/5UjWTqCtqgTsaWguGGR9qCw8/g==
+      }
+    dev: false
 
   /@intlify/bundle-utils/4.0.0_vue-i18n@9.2.2:
     resolution:

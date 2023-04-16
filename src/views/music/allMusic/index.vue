@@ -11,7 +11,11 @@ import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { Icon } from "@iconify/vue";
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
-import { useDark } from "@pureadmin/utils";
+import { storageSession, useDark } from "@pureadmin/utils";
+import ContextMenu from "@imengyu/vue3-context-menu";
+import AddMusicToPlayList from "@/components/addMusicToPlayList/addMusicToPlayList.vue";
+import { getUserPlayList, UserPlayListRes } from "@/api/playlist";
+import { DataInfo, sessionKey } from "@/utils/auth";
 
 const { isDark } = useDark();
 const router = useRouter();
@@ -154,6 +158,37 @@ const cellStyle = ({ columnIndex, row }): CellStyle<any> => {
   return styles;
 };
 
+const playItemDialogVisible = ref(false);
+const userPlayItem = ref<UserPlayListRes[]>();
+const addMusicId = ref<number>();
+const userInfo = storageSession().getItem<DataInfo>(sessionKey);
+const getUserPlayInfo = (id: number) => {
+  console.log(`Music: ${id}`);
+  addMusicId.value = id;
+  getUserPlayList(userInfo.id).then(res => {
+    playItemDialogVisible.value = true;
+    userPlayItem.value = res.data;
+  });
+};
+
+const onContextMenu = (e: MouseEvent, id: number) => {
+  //prevent the browser's default menu
+  e.preventDefault();
+  //show our menu
+  ContextMenu.showContextMenu({
+    x: e.x,
+    y: e.y,
+    items: [
+      {
+        label: "添加音乐到歌单",
+        onClick: () => {
+          getUserPlayInfo(id);
+        }
+      }
+    ]
+  });
+};
+
 // 播放音乐
 const rowDoubleClick = data => {
   console.log(data);
@@ -191,6 +226,15 @@ const toArtist = res => {
 
 <template>
   <div class="absolute-container">
+    <!--添加歌曲到歌单-->
+    <el-dialog v-model="playItemDialogVisible" width="30%" center>
+      <AddMusicToPlayList
+        :play-item="userPlayItem"
+        :userId="Number.parseInt(userInfo.id)"
+        :music-id="addMusicId"
+      />
+    </el-dialog>
+
     <!--刷新-->
     <div class="refresh">
       <el-button circle style="width: 40px; height: 40px">
@@ -354,13 +398,15 @@ const toArtist = res => {
             width="450"
           >
             <template #default="scope">
-              <el-link
-                :underline="false"
-                class="font-sans"
-                @click="toMusicInfo(scope.row)"
-                >{{ scope.row.musicName }}</el-link
-              >
-              <span class="font">&emsp;{{ scope.row.musicNameAlias }}</span>
+              <div @contextmenu="onContextMenu($event, scope.row.id)">
+                <el-link
+                  :underline="false"
+                  class="font-sans"
+                  @click="toMusicInfo(scope.row)"
+                  >{{ scope.row.musicName }}</el-link
+                >
+                <span class="font">&emsp;{{ scope.row.musicNameAlias }}</span>
+              </div>
             </template>
           </el-table-column>
 
@@ -605,9 +651,7 @@ $searchHeight: 90%;
   align-items: center;
 }
 
-.tableDataShow {
-  margin-top: 1rem;
+:deep(.el-dialog) {
   border-radius: 1rem;
-  animation-timing-function: 2s;
 }
 </style>
