@@ -20,7 +20,6 @@ export interface MusicSearchRes {
   musicName: string;
   aliaName: string;
   pic: string;
-  lyric: string;
   kLyric: string;
   albumId: number;
   sort: number;
@@ -73,17 +72,45 @@ export const getAllMusicList = (data?: MusicSearchReq) => {
   });
 };
 
-export interface MusicUrlInfo {
-  id: string;
-  size: number;
+export interface MusicUrlRes {
+  id: number;
+  musicId: number;
+  rate: number;
   level: string;
+  url: string;
   md5: string;
+  encodeType: string;
+  size: number;
+  userId: number;
+  origin: string;
+  createTime: string;
+  updateTime: string;
+}
+
+export interface MusicUrlInfo extends MusicUrlRes {
   rawUrl: string;
   exists: boolean;
 }
 // 获取歌曲地址URL
 export const getMusicUrl = (musicId?: string) => {
   return http.request<R<MusicUrlInfo[]>>("get", "/admin/music/url/" + musicId);
+};
+
+export interface MusicLyricRes {
+  id: number;
+  musicId: number;
+  type: string;
+  lyric: string;
+  createTime: string;
+  updateTime: string;
+}
+
+// 获取歌曲lyric
+export const getMusicLyric = (musicId?: string) => {
+  return http.request<R<MusicLyricRes[]>>(
+    "get",
+    `/admin/music/lyric/${musicId}`
+  );
 };
 
 export interface Singer {

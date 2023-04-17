@@ -71,10 +71,17 @@ const toAlbum = albumId => {
 };
 
 const toArtist = res => {
-  console.log(res);
   router.push({
     path: "/music/artistInfo",
     query: { id: res }
+  });
+};
+
+const toMusicPlay = id => {
+  console.log(id);
+  router.push({
+    path: "/musicPlay",
+    query: { id: id }
   });
 };
 </script>
@@ -118,30 +125,32 @@ const toArtist = res => {
     </div>
     <div class="text-2xl mt-4">音源</div>
     <div class="item-list">
-      <div class="show-item" v-for="(item, index) in musicUrl" :key="index">
-        <div class="ml-4">
-          <span class="index">{{ index + 1 }}</span>
-          <span class="ml-4 font-bold">{{ musicInfo.musicName }}</span>
-          <span class="md5">{{ item.md5 }}</span>
-        </div>
-        <div class="operate-info">
-          <span class="mr-4 font-medium level">{{ item.level }}</span>
-          <div class="flex items-center">
-            <el-button round class="mr-4">复制</el-button>
-            <el-link :underline="false">
-              <el-dropdown>
-                <el-icon :size="20" class="cursor-pointer">
-                  <Icon icon="ep:more-filled" />
-                </el-icon>
-                <template #dropdown>
-                  <el-dropdown-menu>
-                    <el-dropdown-item>Action 1</el-dropdown-item>
-                    <el-dropdown-item>Action 2</el-dropdown-item>
-                    <el-dropdown-item>Action 3</el-dropdown-item>
-                  </el-dropdown-menu>
-                </template>
-              </el-dropdown>
-            </el-link>
+      <div v-for="(item, index) in musicUrl" :key="index">
+        <div class="show-item" @click="toMusicPlay(item.musicId)">
+          <div class="ml-4">
+            <span class="index">{{ index + 1 }}</span>
+            <span class="ml-4 font-bold">{{ musicInfo.musicName }}</span>
+            <span class="md5">{{ item.md5 }}</span>
+          </div>
+          <div class="operate-info">
+            <span class="mr-4 font-medium level">{{ item.level }}</span>
+            <div class="flex items-center">
+              <el-button round class="mr-4">复制</el-button>
+              <el-link :underline="false">
+                <el-dropdown>
+                  <el-icon :size="20" class="cursor-pointer">
+                    <Icon icon="ep:more-filled" />
+                  </el-icon>
+                  <template #dropdown>
+                    <el-dropdown-menu>
+                      <el-dropdown-item>Action 1</el-dropdown-item>
+                      <el-dropdown-item>Action 2</el-dropdown-item>
+                      <el-dropdown-item>Action 3</el-dropdown-item>
+                    </el-dropdown-menu>
+                  </template>
+                </el-dropdown>
+              </el-link>
+            </div>
           </div>
         </div>
       </div>
