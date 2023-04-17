@@ -10,6 +10,8 @@ import {
   MusicUrlInfo
 } from "@/api/music";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
+import { dateFormater } from "@/utils/dateUtil";
+
 const router = useRouter();
 
 const idValue = ref();
@@ -69,7 +71,6 @@ const musicLyricList = ref<MusicLyricRes[]>();
 
 const lyricsArr = ref<string[]>();
 
-const progressRed = ref(null);
 onMounted(async () => {
   idValue.value = router.currentRoute.value.query.id;
   const tempUrl = await getMusicUrl(idValue.value);
@@ -93,19 +94,11 @@ onMounted(async () => {
   currentMusicLyric.value = musicLyricList.value[0];
 
   lyricsArr.value = currentMusicLyric.value.lyric.split("\n");
-
-  console.log(progressRed.value.offsetHeight, `offsetHeight`);
-  console.log(currentMusicUrl.value);
 });
-
-// const audioRef = ref<HTMLAudioElement>(new Audio());
-// const onTimeupdateFun = event => {
-//   console.log(event.currentTime);
-// };
 
 const audioRef = ref({
   // 该字段是音频是否处于播放状态的属性
-  playing: false,
+  playing: true,
   // 音频当前播放时长
   currentTime: 0,
   // 音频最大播放时长
@@ -114,21 +107,45 @@ const audioRef = ref({
   step: 0.1
 });
 
+//判断是否被拖动
+const isChange = ref<boolean>(false);
+const timeProgressBar = ref<number>(0);
 // 进度条
 const onTimeupdate = event => {
   const currentTime = event.target.currentTime;
-  console.log(currentTime, `currentTime`);
   // state.sliderTime= formatProcessToolTip(state.sliderTime)
+  // const value = (event.target.currentTime / event.target.duration) * 100;
+  if (isChange.value == true) return;
+  timeProgressBar.value = isNaN(currentTime) ? 0 : currentTime;
+  console.log(timeProgressBar.value, `当前秒`);
 };
-const onLoadedmetadata = event => {
-  const duration = parseInt(event.target.duration);
-  console.log(duration, `duration`);
+// 在加载的元数据上
+// const onLoadedmetadata = event => {
+//   // duration 总时长
+//   sumDuration.value = parseInt(event.target.duration);
+//   console.log(sumDuration.value, `总时长`);
+// };
+// const sumDuration = ref<number>(0);
+
+const playing = ref<boolean>(true);
+// 开始播放
+const onPlay = () => {
+  playing.value = false;
+  console.log(playing.value);
+  audioRef.value.play();
+};
+// 暂停播放
+const onPause = () => {
+  playing.value = true;
+  console.log(playing.value);
+  audioRef.value.pause();
 };
 
-const timeProgressBar = ref<number>(20);
-
-const toProgress = event => {
-  console.log(event.x, `x`);
+//鼠标拖拽松开时
+const changeMusicDuration = () => {
+  audioRef.value.currentTime = timeProgressBar.value;
+  console.log(audioRef.value.currentTime, `更新当前时长`);
+  isChange.value = false;
 };
 </script>
 
@@ -160,19 +177,61 @@ const toProgress = event => {
             >
           </div>
           <div class="progress">
-            <el-progress
-              ref="progressRed"
-              @click="toProgress($event)"
-              :percentage="timeProgressBar"
-              color="#f5eeee"
-              :show-text="false"
+            <el-slider
+              :min="0"
+              :max="musicInfo.timeLength / 1000"
+              :step="1"
+              v-model="timeProgressBar"
+              :show-tooltip="false"
+              @mousedown="isChange = true"
+              @mouseup="changeMusicDuration"
             />
+            <div class="flex justify-between">
+              <span>{{ dateFormater("mm:ss", timeProgressBar) }}</span>
+              <span>
+                {{ dateFormater("mm:ss", musicInfo.timeLength) }}
+              </span>
+            </div>
+            <div class="flex justify-center">
+              <IconifyIconOnline
+                class="cursor-pointer mr-4"
+                icon="solar:rewind-back-bold-duotone"
+                width="2.8rem"
+                height="2.8rem"
+              />
+              <div>
+                <div v-if="playing">
+                  <IconifyIconOnline
+                    @click="onPlay"
+                    class="cursor-pointer"
+                    icon="solar:play-bold"
+                    width="2.8rem"
+                    height="2.8rem"
+                  />
+                </div>
+                <div v-else>
+                  <IconifyIconOnline
+                    @click="onPause"
+                    class="cursor-pointer"
+                    icon="solar:pause-circle-bold"
+                    width="2.8rem"
+                    height="2.8rem"
+                  />
+                </div>
+              </div>
+              <IconifyIconOnline
+                class="cursor-pointer ml-4"
+                icon="solar:rewind-forward-bold-duotone"
+                width="2.8rem"
+                height="2.8rem"
+              />
+            </div>
           </div>
           <audio
             :src="currentMusicUrl.url"
             @timeupdate="onTimeupdate"
-            @canplay="onLoadedmetadata"
-            controls
+            @play="onPlay"
+            @pause="onPause"
             ref="audioRef"
           >
             您的浏览器不支持 audio 元素。
@@ -261,5 +320,17 @@ const toProgress = event => {
 :deep(.el-progress-bar__outer) {
   @apply cursor-pointer;
   background-color: #ebeef554;
+}
+
+:deep(.el-slider) {
+  --el-slider-main-bg-color: #ffffff;
+  --el-slider-runway-bg-color: rgba(255, 255, 255, 0.4);
+  --el-slider-stop-bg-color: var(--el-color-white);
+  --el-slider-disabled-color: var(--el-text-color-placeholder);
+  --el-slider-border-radius: 3px;
+  --el-slider-height: 6px;
+  --el-slider-button-size: 20px;
+  --el-slider-button-wrapper-size: 36px;
+  --el-slider-button-wrapper-offset: -15px;
 }
 </style>
