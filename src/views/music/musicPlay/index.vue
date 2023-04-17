@@ -69,7 +69,7 @@ const musicInfo = ref<MusicSearchRes>({
 const musicUrlList = ref<MusicUrlInfo[]>();
 const musicLyricList = ref<MusicLyricRes[]>();
 
-const lyricsArr = ref<string[]>();
+const lyricsArr = ref([]);
 
 onMounted(async () => {
   idValue.value = router.currentRoute.value.query.id;
@@ -93,7 +93,17 @@ onMounted(async () => {
   currentMusicUrl.value = musicUrlList.value[0];
   currentMusicLyric.value = musicLyricList.value[0];
 
-  lyricsArr.value = currentMusicLyric.value.lyric.split("\n");
+  // lyricsArr.value = currentMusicLyric.value.lyric.split("\n");
+  const strings = currentMusicLyric.value.lyric.split("\n");
+  for (let i = 0; i < strings.length; i++) {
+    const strings2 = strings[i].split("]");
+    const tempTime = strings2[0].replace("[", "");
+    const time = new Date(`1970T08:${tempTime}`).getTime();
+    lyricsArr.value.push({
+      duration: time,
+      lyric: strings2[1]
+    });
+  }
 });
 
 const audioRef = ref({
@@ -110,6 +120,11 @@ const audioRef = ref({
 //判断是否被拖动
 const isChange = ref<boolean>(false);
 const timeProgressBar = ref<number>(0);
+
+// 当前歌曲进度
+const lyricIndex = ref<number>(0);
+
+const lyricMapFlag = new Map();
 // 进度条
 const onTimeupdate = event => {
   const currentTime = event.target.currentTime;
@@ -117,7 +132,39 @@ const onTimeupdate = event => {
   // const value = (event.target.currentTime / event.target.duration) * 100;
   if (isChange.value == true) return;
   timeProgressBar.value = isNaN(currentTime) ? 0 : currentTime;
-  console.log(timeProgressBar.value, `当前秒`);
+  const tempCurrentTime = currentTime * 1000;
+
+  // 匹配歌词
+  for (let i = 0; i < lyricsArr.value.length; i++) {
+    if (tempCurrentTime > parseInt(lyricsArr.value[i].duration)) {
+      lyricIndex.value = i;
+      if (
+        lyricMapFlag.get(lyricIndex.value) === null ||
+        lyricMapFlag.get(lyricIndex.value) === undefined
+      ) {
+        console.log("歌词上移");
+        rollFunc(true);
+        lyricMapFlag.set(lyricIndex.value, 0);
+      }
+    }
+  }
+  // for (let i = 0; i < lyricsArr.value.length; i++) {
+  //   const valueElement = lyricsArr.value[i];
+  //   // console.log(time, "currentTime");
+  //   // console.log(valueElement.duration, "duration");
+  //   if (lyricsArr.value.length - 1 == i) {
+  //     console.log("最后一个");
+  //     lyricActivePlaying.value[i].classList.add("currently-playing");
+  //     return;
+  //   }
+  //   if (
+  //     valueElement.duration <= tempCurrentTime &&
+  //     tempCurrentTime >= lyricsArr.value[i + 1]
+  //   ) {
+  //     console.log("匹配成功");
+  //     lyricActivePlaying.value[i].classList.add("currently-playing");
+  //   }
+  // }
 };
 // 在加载的元数据上
 // const onLoadedmetadata = event => {
@@ -144,8 +191,14 @@ const onPause = () => {
 //鼠标拖拽松开时
 const changeMusicDuration = () => {
   audioRef.value.currentTime = timeProgressBar.value;
-  console.log(audioRef.value.currentTime, `更新当前时长`);
   isChange.value = false;
+};
+
+const rollProgress = ref<number>(0);
+
+const rollFunc = flag => {
+  rollProgress.value = rollProgress.value - (flag ? 4 : -4);
+  console.log(rollProgress.value);
 };
 </script>
 
@@ -187,13 +240,14 @@ const changeMusicDuration = () => {
               @mouseup="changeMusicDuration"
             />
             <div class="flex justify-between">
-              <span>{{ dateFormater("mm:ss", timeProgressBar) }}</span>
+              <span>{{ dateFormater("mm:ss", timeProgressBar * 1000) }}</span>
               <span>
                 {{ dateFormater("mm:ss", musicInfo.timeLength) }}
               </span>
             </div>
             <div class="flex justify-center">
               <IconifyIconOnline
+                @click="rollFunc(false)"
                 class="cursor-pointer mr-4"
                 icon="solar:rewind-back-bold-duotone"
                 width="2.8rem"
@@ -220,6 +274,7 @@ const changeMusicDuration = () => {
                 </div>
               </div>
               <IconifyIconOnline
+                @click="rollFunc(true)"
                 class="cursor-pointer ml-4"
                 icon="solar:rewind-forward-bold-duotone"
                 width="2.8rem"
@@ -241,11 +296,15 @@ const changeMusicDuration = () => {
           <div class="lyric">
             <el-scrollbar height="100vh">
               <div v-for="(item, index) in lyricsArr" :key="index">
-                <div class="mt-24" v-if="index === 0" />
+                <div class="mt-[50vh]" v-if="index === 0" />
                 <span
-                  class="block mt-8 mb-8 cursor-pointer hover:text-[#302b2c] font-bold text-2xl"
+                  :class="{
+                    'lyric-item': true,
+                    'currently-playing': lyricIndex === index
+                  }"
+                  :style="{ transform: `translateY(${rollProgress}rem)` }"
                 >
-                  {{ item }}
+                  {{ item.lyric }}
                 </span>
                 <div class="mb-24" v-if="index === lyricsArr.length - 1" />
               </div>
@@ -332,5 +391,18 @@ const changeMusicDuration = () => {
   --el-slider-button-size: 20px;
   --el-slider-button-wrapper-size: 36px;
   --el-slider-button-wrapper-offset: -15px;
+}
+
+.lyric-item {
+  @apply block mt-8 mb-8 cursor-pointer hover:text-[#f0f0f0] font-bold;
+  font-size: 1.5rem; /* 24px */
+  line-height: 2rem; /* 32px */
+  color: rgba(200, 200, 200, 0.5);
+  transform: translateY(1.5rem);
+}
+
+.currently-playing {
+  @apply text-3xl;
+  color: #ffffff;
 }
 </style>
