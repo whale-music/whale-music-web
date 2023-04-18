@@ -224,7 +224,7 @@ const toLyrics = item => {
     <div class="shadowMask">
       <div class="container-box">
         <div class="controller">
-          <LoadImg :src="musicInfo.pic" />
+          <LoadImg :src="musicInfo.pic" height="23rem" width=" 23rem" />
           <span class="music-font">{{ musicInfo.musicName }}</span>
           <div class="flex">
             <span class="album-font">{{ musicInfo.albumName }}</span>
@@ -306,25 +306,23 @@ const toLyrics = item => {
             您的浏览器不支持 audio 元素。
           </audio>
         </div>
-        <div>
-          <div class="lyric">
-            <el-scrollbar height="100vh">
-              <div v-for="(item, index) in lyricsArr" :key="index">
-                <div class="mt-[36vh]" v-if="index === 0" />
-                <span
-                  :class="{
-                    'lyric-item': true,
-                    'currently-playing': lyricIndex === index
-                  }"
-                  @mousedown="isChange = true"
-                  @mouseup="toLyrics(item)"
-                >
-                  {{ item.lyric }}
-                </span>
-                <div class="mb-24" v-if="index === lyricsArr.length - 1" />
-              </div>
-            </el-scrollbar>
-          </div>
+        <div class="lyric">
+          <el-scrollbar height="100vh">
+            <div v-for="(item, index) in lyricsArr" :key="index">
+              <div class="mt-[36vh]" v-if="index === 0" />
+              <span
+                :class="{
+                  'lyric-item': true,
+                  'currently-playing': lyricIndex === index
+                }"
+                @mousedown="isChange = true"
+                @mouseup="toLyrics(item)"
+              >
+                {{ item.lyric }}
+              </span>
+              <div class="mb-24" v-if="index === lyricsArr.length - 1" />
+            </div>
+          </el-scrollbar>
         </div>
       </div>
     </div>
@@ -364,12 +362,15 @@ const toLyrics = item => {
   margin: 2rem;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1; //铺满盒子剩余空间
 }
 
 .lyric {
   height: 100%;
   margin-left: 2rem;
-  width: 40rem;
+  flex-grow: 2; //铺满盒子剩余空间
 }
 
 .music-font {
@@ -389,6 +390,7 @@ const toLyrics = item => {
 .progress {
   margin-top: 1rem;
   margin-bottom: 1rem;
+  width: 22rem;
 }
 
 :deep(.el-progress-bar__outer) {
