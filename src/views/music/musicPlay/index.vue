@@ -100,6 +100,9 @@ onMounted(async () => {
     const strings2 = strings[i].split("]");
     const tempTime = strings2[0].replace("[", "");
     const time = new Date(`1970T08:${tempTime}`).getTime();
+
+    strings2[1] = strings2[1] === "" ? "-" : strings2[1];
+    // duration为毫秒值
     lyricsArr.value.push({
       duration: time,
       lyric: strings2[1]
@@ -122,10 +125,9 @@ const audioRef = ref({
 const isChange = ref<boolean>(false);
 const timeProgressBar = ref<number>(0);
 
-// 当前歌曲进度
+// 当前歌曲进度浮标
 const lyricIndex = ref<number>(0);
 
-const lyricMapFlag = new Map();
 // 进度条
 const onTimeupdate = event => {
   const currentTime = event.target.currentTime;
@@ -133,18 +135,29 @@ const onTimeupdate = event => {
   // const value = (event.target.currentTime / event.target.duration) * 100;
   if (isChange.value == true) return;
   timeProgressBar.value = isNaN(currentTime) ? 0 : currentTime;
+  // 转换成毫秒
   const tempCurrentTime = currentTime * 1000;
 
   // 匹配歌词
   for (let i = 0; i < lyricsArr.value.length; i++) {
+    // 播放进度不断推进， 判断每个歌词节点, 如果大于当前播放的时间，则进入下一个节点
     if (tempCurrentTime > parseInt(lyricsArr.value[i].duration)) {
-      lyricIndex.value = i;
-      if (
-        lyricMapFlag.get(lyricIndex.value) === null ||
-        lyricMapFlag.get(lyricIndex.value) === undefined
-      ) {
-        lyricsArr.value[i].lyric === "" || rollFunc(true);
-        lyricMapFlag.set(lyricIndex.value, 0);
+      if (i > lyricIndex.value) {
+        lyricIndex.value = i;
+        rollFunc(true);
+      } else {
+        // 如果进度条回退， 当前值值绝对回比进度条到过的最大的值要小
+        const tempNum = parseInt(lyricsArr.value[lyricIndex.value].duration);
+        if (tempCurrentTime < tempNum) {
+          const number = lyricIndex.value - i;
+          // 歌词回退
+          for (let j = 0; j < number; j++) {
+            rollFunc(false);
+          }
+          // 浮标重新赋值
+          lyricIndex.value = i;
+          console.log(tempCurrentTime, "进度条回退");
+        }
       }
     }
   }
@@ -177,10 +190,13 @@ const changeMusicDuration = () => {
   isChange.value = false;
 };
 
+// 滚动步长
 const rollProgress = ref<number>(0);
 
+// 滚动到歌词播放地方
 const rollFunc = flag => {
-  rollProgress.value = rollProgress.value - (flag ? 4 : -4);
+  console.log(flag, "flag");
+  rollProgress.value = rollProgress.value - (flag ? 3.5 : -3.5);
 
   const lyricAnime = anime({
     targets: [".lyric-item"],
@@ -190,6 +206,13 @@ const rollFunc = flag => {
     autoplay: false
   });
   lyricAnime.play();
+};
+
+// 播放到歌词点击的时间点
+const toLyrics = item => {
+  audioRef.value.currentTime = Math.ceil(item.duration / 1000);
+  console.log(audioRef.value.currentTime, "item");
+  isChange.value = false;
 };
 </script>
 
@@ -236,7 +259,7 @@ const rollFunc = flag => {
                 {{ dateFormater("mm:ss", musicInfo.timeLength) }}
               </span>
             </div>
-            <div class="flex justify-center">
+            <div class="flex justify-center items-center">
               <IconifyIconOnline
                 @click="rollFunc(false)"
                 class="cursor-pointer mr-4"
@@ -250,8 +273,8 @@ const rollFunc = flag => {
                     @click="onPlay"
                     class="cursor-pointer"
                     icon="solar:play-bold"
-                    width="2.8rem"
-                    height="2.8rem"
+                    width="3.25rem"
+                    height="3.25rem"
                   />
                 </div>
                 <div v-else>
@@ -259,8 +282,8 @@ const rollFunc = flag => {
                     @click="onPause"
                     class="cursor-pointer"
                     icon="solar:pause-circle-bold"
-                    width="2.8rem"
-                    height="2.8rem"
+                    width="3.25rem"
+                    height="3.25rem"
                   />
                 </div>
               </div>
@@ -293,6 +316,8 @@ const rollFunc = flag => {
                     'lyric-item': true,
                     'currently-playing': lyricIndex === index
                   }"
+                  @mousedown="isChange = true"
+                  @mouseup="toLyrics(item)"
                 >
                   {{ item.lyric }}
                 </span>
@@ -384,25 +409,27 @@ const rollFunc = flag => {
 }
 
 .lyric-item {
-  @apply block mt-8 mb-8 cursor-pointer hover:text-[#f0f0f0] font-bold;
+  @apply block mt-5 mb-5 cursor-pointer hover:text-[#f0f0f0] font-bold;
   font-size: 1.5rem; /* 24px */
-  line-height: 2rem; /* 32px */
   color: rgba(200, 200, 200, 0.5);
   transform: translateY(1.5rem);
 }
 
 .currently-playing {
-  @apply text-3xl;
+  @apply mt-8 mb-8;
+  font-size: 2rem;
   color: #ffffff;
   animation: 1s lyricsAnimation ease 1;
 }
 
 @keyframes lyricsAnimation {
   from {
+    font-size: 1.5rem;
     color: rgba(200, 200, 200, 0.5);
   }
 
   to {
+    font-size: 2rem;
     color: #ffffff;
   }
 }
