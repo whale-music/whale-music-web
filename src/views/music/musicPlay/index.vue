@@ -296,7 +296,7 @@ const rollFunc = flag => {
           <div class="lyric">
             <el-scrollbar height="100vh">
               <div v-for="(item, index) in lyricsArr" :key="index">
-                <div class="mt-[50vh]" v-if="index === 0" />
+                <div class="mt-[36vh]" v-if="index === 0" />
                 <span
                   :class="{
                     'lyric-item': true,
