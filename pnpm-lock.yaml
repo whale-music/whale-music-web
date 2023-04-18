@@ -31,6 +31,7 @@ specifiers:
   "@vueuse/core": ^9.13.0
   "@vueuse/motion": 2.0.0-beta.12
   animate.css: ^4.1.1
+  animejs: ^3.2.1
   autoprefixer: ^10.4.13
   axios: 1.2.2
   cloc: ^2.11.0
@@ -100,6 +101,7 @@ dependencies:
   "@vueuse/core": 9.13.0_vue@3.2.47
   "@vueuse/motion": 2.0.0-beta.12_vue@3.2.47
   animate.css: 4.1.1
+  animejs: 3.2.1
   axios: 1.2.2
   codemirror: 6.0.1
   dayjs: 1.11.7
@@ -2512,6 +2514,13 @@ packages:
     resolution:
       {
         integrity: sha512-+mRmCTv6SbCmtYJCN4faJMNFVNN5EuCTTprDTAo7YzIGji2KADmakjVA3+8mVDkZ2Bf09vayB35lSQIex2+QaQ==
+      }
+    dev: false
+
+  /animejs/3.2.1:
+    resolution:
+      {
+        integrity: sha512-sWno3ugFryK5nhiDm/2BKeFCpZv7vzerWUcUPyAZLDhMek3+S/p418ldZJbJXo5ZUOpfm2kP2XRO4NJcULMy9A==
       }
     dev: false
 

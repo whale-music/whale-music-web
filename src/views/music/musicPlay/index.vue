@@ -11,6 +11,7 @@ import {
 } from "@/api/music";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { dateFormater } from "@/utils/dateUtil";
+import anime from "animejs/lib/anime.es.js";
 
 const router = useRouter();
 
@@ -142,29 +143,11 @@ const onTimeupdate = event => {
         lyricMapFlag.get(lyricIndex.value) === null ||
         lyricMapFlag.get(lyricIndex.value) === undefined
       ) {
-        console.log("歌词上移");
-        rollFunc(true);
+        lyricsArr.value[i].lyric === "" || rollFunc(true);
         lyricMapFlag.set(lyricIndex.value, 0);
       }
     }
   }
-  // for (let i = 0; i < lyricsArr.value.length; i++) {
-  //   const valueElement = lyricsArr.value[i];
-  //   // console.log(time, "currentTime");
-  //   // console.log(valueElement.duration, "duration");
-  //   if (lyricsArr.value.length - 1 == i) {
-  //     console.log("最后一个");
-  //     lyricActivePlaying.value[i].classList.add("currently-playing");
-  //     return;
-  //   }
-  //   if (
-  //     valueElement.duration <= tempCurrentTime &&
-  //     tempCurrentTime >= lyricsArr.value[i + 1]
-  //   ) {
-  //     console.log("匹配成功");
-  //     lyricActivePlaying.value[i].classList.add("currently-playing");
-  //   }
-  // }
 };
 // 在加载的元数据上
 // const onLoadedmetadata = event => {
@@ -198,7 +181,15 @@ const rollProgress = ref<number>(0);
 
 const rollFunc = flag => {
   rollProgress.value = rollProgress.value - (flag ? 4 : -4);
-  console.log(rollProgress.value);
+
+  const lyricAnime = anime({
+    targets: [".lyric-item"],
+    translateY: `${rollProgress.value}rem`,
+    duration: 1500,
+    easing: "easeInOutExpo",
+    autoplay: false
+  });
+  lyricAnime.play();
 };
 </script>
 
@@ -302,7 +293,6 @@ const rollFunc = flag => {
                     'lyric-item': true,
                     'currently-playing': lyricIndex === index
                   }"
-                  :style="{ transform: `translateY(${rollProgress}rem)` }"
                 >
                   {{ item.lyric }}
                 </span>
@@ -340,7 +330,7 @@ const rollFunc = flag => {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: 100%;
   background-color: rgba(50, 50, 50, 0.2);
   backdrop-filter: blur(50px);
 }
@@ -352,7 +342,7 @@ const rollFunc = flag => {
 }
 
 .lyric {
-  height: 100vh;
+  height: 100%;
   margin-left: 2rem;
   width: 40rem;
 }
@@ -404,5 +394,16 @@ const rollFunc = flag => {
 .currently-playing {
   @apply text-3xl;
   color: #ffffff;
+  animation: 1s lyricsAnimation ease 1;
+}
+
+@keyframes lyricsAnimation {
+  from {
+    color: rgba(200, 200, 200, 0.5);
+  }
+
+  to {
+    color: #ffffff;
+  }
 }
 </style>
