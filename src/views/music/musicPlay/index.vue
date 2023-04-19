@@ -12,6 +12,7 @@ import {
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { dateFormater } from "@/utils/dateUtil";
 import anime from "animejs/lib/anime.es.js";
+import ArrowDownBold from "@iconify-icons/solar/alt-arrow-down-outline";
 
 const router = useRouter();
 
@@ -224,6 +225,14 @@ const toLyrics = item => {
     class="main-box"
     :style="{ background: `linear-gradient(#4c2046, #4d1e40)` }"
   >
+    <div class="toBack">
+      <IconifyIconOffline
+        :icon="ArrowDownBold"
+        width="3rem"
+        height="3rem"
+        @click="router.back()"
+      />
+    </div>
     <div class="shadowMask">
       <div class="container-box">
         <div class="controller">
@@ -343,6 +352,23 @@ $lyricPadding: 0.8rem;
   to {
     color: #ffffff;
   }
+}
+
+.toBack {
+  z-index: 1;
+  position: absolute;
+  top: 1rem;
+  right: 2rem;
+}
+
+.toBack:hover {
+  z-index: 1;
+  position: absolute;
+  top: 1rem;
+  right: 2rem;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 1rem;
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 .main-box {
