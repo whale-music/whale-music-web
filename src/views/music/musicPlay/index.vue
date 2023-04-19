@@ -13,6 +13,7 @@ import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { dateFormater } from "@/utils/dateUtil";
 import anime from "animejs/lib/anime.es.js";
 import ArrowDownBold from "@iconify-icons/solar/alt-arrow-down-outline";
+import { prominent } from "@/utils/color/color";
 
 const router = useRouter();
 
@@ -68,11 +69,12 @@ const musicInfo = ref<MusicSearchRes>({
   updateTime: ""
 });
 
+// 背景动态渐变色
+const imgColorStyle = ref();
+
 const musicUrlList = ref<MusicUrlInfo[]>();
 const musicLyricList = ref<MusicLyricRes[]>();
-
 const lyricsArr = ref([]);
-
 onMounted(async () => {
   idValue.value = router.currentRoute.value.query.id;
   const tempUrl = await getMusicUrl(idValue.value);
@@ -109,6 +111,26 @@ onMounted(async () => {
       lyric: strings2[1]
     });
   }
+  // background-color: #21D4FD;
+  // background-image: -webkit-linear-gradient(19deg, #21D4FD 0%, #B721FF 50%, #ffffff 100%);
+  // background-image: -moz-linear-gradient(19deg, #21D4FD 0%, #B721FF 50%, #ffffff 100%);
+  // background-image: -o-linear-gradient(19deg, #21D4FD 0%, #B721FF 50%, #ffffff 100%);
+  // background-image: linear-gradient(19deg, #21D4FD 0%, #B721FF 50%, #ffffff 100%);
+
+  // background-image: linear-gradient(25deg, #4457b7, #6385a7, #6fb393, #6ce37b)
+  // background-image: linear-gradient(312deg, #4457b7, #6385a7, #6fb393, #6ce37b)
+
+  const musicPicUrl = `${musicInfo.value.pic}?time=${Math.random()}`;
+  console.log(musicPicUrl, "music Pic url");
+  const colors = await prominent(musicPicUrl, {
+    format: "hex",
+    group: 30
+  });
+  console.log(colors, "获取主题色成功");
+  imgColorStyle.value = {
+    "background-color": colors[0],
+    "background-image": `linear-gradient(312deg, ${colors[0]} 0%, ${colors[1]} 50%, ${colors[2]} 100%)`
+  };
 });
 
 const audioRef = ref({
@@ -221,10 +243,7 @@ const toLyrics = item => {
 </script>
 
 <template>
-  <div
-    class="main-box"
-    :style="{ background: `linear-gradient(#4c2046, #4d1e40)` }"
-  >
+  <div class="main-box" :style="imgColorStyle">
     <div class="toBack">
       <IconifyIconOffline
         :icon="ArrowDownBold"
@@ -366,7 +385,7 @@ $lyricPadding: 0.8rem;
   position: absolute;
   top: 1rem;
   right: 2rem;
-  border: 1px solid rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 1rem;
   background-color: rgba(0, 0, 0, 0.2);
 }
