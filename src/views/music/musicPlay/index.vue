@@ -392,7 +392,7 @@ $lyricPadding: 0.8rem;
 
 .container-box {
   display: flex;
-  justify-content: center;
+  justify-content: space-evenly;
   align-items: center;
   height: 100%;
   background-color: rgba(50, 50, 50, 0.2);
@@ -452,7 +452,6 @@ $lyricPadding: 0.8rem;
 .lyric-item {
   @apply block mt-5 mb-5 cursor-pointer hover:text-[#f0f0f0] font-bold text-4xl;
   color: rgba(200, 200, 200, 0.5);
-  transform: translateY(1.5rem);
   padding: $lyricPadding;
 }
 
@@ -465,8 +464,6 @@ $lyricPadding: 0.8rem;
 .currently-playing {
   @apply mt-12 mb-12 text-4xl;
   padding: $lyricPadding;
-  display: block;
-  transform: scale(1);
   color: #ffffff;
   animation: 1s lyricsAnimation ease 1;
 }
