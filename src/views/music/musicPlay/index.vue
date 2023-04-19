@@ -319,7 +319,7 @@ const toLyrics = item => {
           </audio>
         </div>
         <div class="lyric">
-          <el-scrollbar height="100vh">
+          <div class="scrollbar">
             <div v-for="(item, index) in lyricsArr" :key="index">
               <div class="mt-[36vh]" v-if="index === 0" />
               <span
@@ -334,7 +334,7 @@ const toLyrics = item => {
               </span>
               <div class="mb-24" v-if="index === lyricsArr.length - 1" />
             </div>
-          </el-scrollbar>
+          </div>
         </div>
       </div>
     </div>
@@ -466,5 +466,10 @@ $lyricPadding: 0.8rem;
   padding: $lyricPadding;
   color: #ffffff;
   animation: 1s lyricsAnimation ease 1;
+}
+
+.scrollbar {
+  height: 100vh;
+  overflow-y: hidden;
 }
 </style>
