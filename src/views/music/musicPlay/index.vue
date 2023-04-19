@@ -128,13 +128,13 @@ const getBGColor = async () => {
     format: "hex",
     group: 30
   });
-  anime
-    .timeline({
-      endDelay: 1000,
-      easing: "easeInOutQuad",
-      direction: "alternate"
-    })
-    .add({ targets: ".main-box", background: colors[0] }, 0);
+
+  imgColorStyle.value = {
+    backgroundColor: colors[0]
+  };
+  // imgColorStyle.value = {
+  //   backgroundImage: `linear-gradient(312deg, ${colors[0]} 0%, ${colors[1]} 50%, ${colors[2]} 100%)`
+  // };
 };
 
 const audioRef = ref({
@@ -224,7 +224,7 @@ const rollProgress = ref<number>(0);
 const rollFunc = flag => {
   console.log(flag, "flag");
   // 越大滚动间隔越长
-  const step = 5.5;
+  const step = 6.6;
   rollProgress.value = rollProgress.value - (flag ? step : -step);
 
   const duration = audioRef.value.duration - audioRef.value.currentTime;
@@ -261,7 +261,7 @@ const toLyrics = item => {
         <div class="controller">
           <LoadImg :src="musicInfo.pic" height="23rem" width=" 23rem" />
           <span class="music-font">{{ musicInfo.musicName }}</span>
-          <div class="flex">
+          <div class="flex w-full">
             <span class="album-font">{{ musicInfo.albumName }}</span>
             <span
               class="album-font"
@@ -367,16 +367,6 @@ const toLyrics = item => {
 <style lang="scss" scoped>
 $lyricPadding: 0.8rem;
 
-@keyframes lyricsAnimation {
-  from {
-    color: rgba(200, 200, 200, 0.5);
-  }
-
-  to {
-    color: #ffffff;
-  }
-}
-
 .toBack {
   z-index: 1;
   position: absolute;
@@ -406,6 +396,7 @@ $lyricPadding: 0.8rem;
   background-size: cover;
   /* 设置背景颜色，背景图加载过程中会显示背景色 */
   background-color: #464646;
+  transition: background-color 2s;
 }
 
 .shadowMask {
@@ -415,7 +406,7 @@ $lyricPadding: 0.8rem;
 
 .container-box {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: flex-start;
   align-items: center;
   height: 100%;
   background-color: rgba(50, 50, 50, 0.2);
@@ -423,7 +414,9 @@ $lyricPadding: 0.8rem;
 }
 
 .controller {
-  margin: 2rem;
+  margin-left: 2rem;
+  margin-right: 2rem;
+  width: 24rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -432,10 +425,13 @@ $lyricPadding: 0.8rem;
 
 .lyric {
   height: 100%;
+  width: 55rem;
   margin-left: 2rem;
 }
 
 .music-font {
+  display: inline-block;
+  width: 100%;
   font-size: 2rem;
 }
 
@@ -472,23 +468,26 @@ $lyricPadding: 0.8rem;
   --el-slider-button-wrapper-offset: -15px;
 }
 
-.lyric-item {
-  @apply block mt-5 mb-5 cursor-pointer hover:text-[#f0f0f0] font-bold text-4xl;
-  color: rgba(200, 200, 200, 0.5);
-  padding: $lyricPadding;
-}
-
 .lyric-item:hover {
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 1rem;
   padding: $lyricPadding;
 }
 
+.lyric-item {
+  @apply block mt-5 mb-5 cursor-pointer hover:text-[#f0f0f0] font-bold;
+  font-size: 2.5rem;
+  color: rgba(200, 200, 200, 0.5);
+  padding: $lyricPadding;
+  transition: font-size 1s;
+}
+
 .currently-playing {
-  @apply mt-12 mb-12 text-4xl;
+  @apply mt-12 mb-12;
+  font-size: 3.5rem;
   padding: $lyricPadding;
   color: #ffffff;
-  animation: 1s lyricsAnimation ease 1;
+  transition: color 1.5s;
 }
 
 .scrollbar {
