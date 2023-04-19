@@ -115,6 +115,7 @@ const audioRef = ref({
   playing: true,
   // 音频当前播放时长
   currentTime: 0,
+  duration: 0,
   // 音频最大播放时长
   maxTime: 0,
   minTime: 0,
@@ -141,7 +142,7 @@ const onTimeupdate = event => {
   // 匹配歌词
   for (let i = 0; i < lyricsArr.value.length; i++) {
     // 播放进度不断推进， 判断每个歌词节点, 如果大于当前播放的时间，则进入下一个节点
-    if (tempCurrentTime > parseInt(lyricsArr.value[i].duration)) {
+    if (tempCurrentTime >= parseInt(lyricsArr.value[i].duration)) {
       if (i > lyricIndex.value) {
         lyricIndex.value = i;
         rollFunc(true);
@@ -156,7 +157,6 @@ const onTimeupdate = event => {
           }
           // 浮标重新赋值
           lyricIndex.value = i;
-          console.log(tempCurrentTime, "进度条回退");
         }
       }
     }
@@ -196,16 +196,19 @@ const rollProgress = ref<number>(0);
 // 滚动到歌词播放地方
 const rollFunc = flag => {
   console.log(flag, "flag");
-  rollProgress.value = rollProgress.value - (flag ? 3.5 : -3.5);
+  // 越大滚动间隔越长
+  const step = 5.5;
+  rollProgress.value = rollProgress.value - (flag ? step : -step);
 
-  const lyricAnime = anime({
+  const duration = audioRef.value.duration - audioRef.value.currentTime;
+  console.log(duration, "duration");
+  anime({
     targets: [".lyric-item"],
     translateY: `${rollProgress.value}rem`,
-    duration: 1500,
-    easing: "easeInOutExpo",
-    autoplay: false
+    duration: duration * 5,
+    easing: "cubicBezier(.3, .5, .2, 1)",
+    autoplay: true
   });
-  lyricAnime.play();
 };
 
 // 播放到歌词点击的时间点
@@ -330,6 +333,18 @@ const toLyrics = item => {
 </template>
 
 <style lang="scss" scoped>
+$lyricPadding: 0.8rem;
+
+@keyframes lyricsAnimation {
+  from {
+    color: rgba(200, 200, 200, 0.5);
+  }
+
+  to {
+    color: #ffffff;
+  }
+}
+
 .main-box {
   color: #ffffff;
   /* 背景图垂直、水平均居中 */
@@ -364,13 +379,11 @@ const toLyrics = item => {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  flex-grow: 1; //铺满盒子剩余空间
 }
 
 .lyric {
   height: 100%;
   margin-left: 2rem;
-  flex-grow: 2; //铺满盒子剩余空间
 }
 
 .music-font {
@@ -411,28 +424,24 @@ const toLyrics = item => {
 }
 
 .lyric-item {
-  @apply block mt-5 mb-5 cursor-pointer hover:text-[#f0f0f0] font-bold;
-  font-size: 1.5rem; /* 24px */
+  @apply block mt-5 mb-5 cursor-pointer hover:text-[#f0f0f0] font-bold text-4xl;
   color: rgba(200, 200, 200, 0.5);
   transform: translateY(1.5rem);
+  padding: $lyricPadding;
+}
+
+.lyric-item:hover {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 1rem;
+  padding: $lyricPadding;
 }
 
 .currently-playing {
-  @apply mt-8 mb-8;
-  font-size: 2rem;
+  @apply mt-12 mb-12 text-4xl;
+  padding: $lyricPadding;
+  display: block;
+  transform: scale(1);
   color: #ffffff;
   animation: 1s lyricsAnimation ease 1;
-}
-
-@keyframes lyricsAnimation {
-  from {
-    font-size: 1.5rem;
-    color: rgba(200, 200, 200, 0.5);
-  }
-
-  to {
-    font-size: 2rem;
-    color: #ffffff;
-  }
 }
 </style>
