@@ -119,19 +119,23 @@ onMounted(async () => {
 
   // background-image: linear-gradient(25deg, #4457b7, #6385a7, #6fb393, #6ce37b)
   // background-image: linear-gradient(312deg, #4457b7, #6385a7, #6fb393, #6ce37b)
+  await getBGColor();
+});
 
+const getBGColor = async () => {
   const musicPicUrl = `${musicInfo.value.pic}?time=${Math.random()}`;
-  console.log(musicPicUrl, "music Pic url");
   const colors = await prominent(musicPicUrl, {
     format: "hex",
     group: 30
   });
-  console.log(colors, "获取主题色成功");
-  imgColorStyle.value = {
-    "background-color": colors[0],
-    "background-image": `linear-gradient(312deg, ${colors[0]} 0%, ${colors[1]} 50%, ${colors[2]} 100%)`
-  };
-});
+  anime
+    .timeline({
+      endDelay: 1000,
+      easing: "easeInOutQuad",
+      direction: "alternate"
+    })
+    .add({ targets: ".main-box", background: colors[0] }, 0);
+};
 
 const audioRef = ref({
   // 该字段是音频是否处于播放状态的属性
