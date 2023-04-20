@@ -27,9 +27,21 @@ const menuData = computed(() => {
     : usePermissionStoreHook().wholeMenus;
 });
 
-const loading = computed(() =>
-  pureApp.layout === "mix" ? false : menuData.value.length === 0 ? true : false
-);
+const loading = computed(() => {
+  const b = pureApp.layout === "mix" ? false : menuData.value.length === 0;
+  // 存储上一个侧栏路由信息，如果为空则跳过
+  if (!b && menuData.value.length !== 0) {
+    storageLocal().setItem(
+      "menuStorae",
+      pureApp.layout === "mix" && device.value !== "mobile"
+        ? subMenuData.value
+        : usePermissionStoreHook().wholeMenus
+    );
+  }
+  return b;
+});
+
+const menuStorae = computed(() => storageLocal().getItem("menuStorae"));
 
 function getSubMenuData(path: string) {
   // path的上级路由组成的数组
@@ -84,7 +96,7 @@ watch(
         @select="indexPath => menuSelect(indexPath, routers)"
       >
         <sidebar-item
-          v-for="routes in menuData"
+          v-for="routes in menuData.length === 0 ? menuStorae : menuData"
           :key="routes.path"
           :item="routes"
           :base-path="routes.path"
