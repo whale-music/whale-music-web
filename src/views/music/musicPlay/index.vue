@@ -129,12 +129,12 @@ const getBGColor = async () => {
     group: 30
   });
 
-  imgColorStyle.value = {
-    backgroundColor: colors[0]
-  };
   // imgColorStyle.value = {
-  //   backgroundImage: `linear-gradient(312deg, ${colors[0]} 0%, ${colors[1]} 50%, ${colors[2]} 100%)`
+  //   backgroundColor: colors[0]
   // };
+  imgColorStyle.value = {
+    backgroundImage: `linear-gradient(312deg, ${colors[0]} 0%, ${colors[1]} 50%, ${colors[2]} 100%)`
+  };
 };
 
 const audioRef = ref({
