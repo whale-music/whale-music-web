@@ -24,7 +24,7 @@ export interface Data<T> {
 }
 
 // 音乐搜索请求参数
-export type MusicSearchReq = {
+export interface MusicSearchReq {
   musicIds: number[];
   musicName: string;
   artistName: string;
@@ -33,8 +33,9 @@ export type MusicSearchReq = {
   order: boolean;
   beforeDate: string;
   afterDate: string;
+  refresh: boolean;
   page: {
     pageIndex: number;
     pageNum: number;
   };
-};
+}

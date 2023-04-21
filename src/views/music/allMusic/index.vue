@@ -9,7 +9,6 @@ import { dateFormater } from "@/utils/dateUtil";
 import { CellStyle } from "element-plus/es";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
-import { Icon } from "@iconify/vue";
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
 import { storageSession, useDark } from "@pureadmin/utils";
 import ContextMenu from "@imengyu/vue3-context-menu";
@@ -94,7 +93,7 @@ const formInline = reactive({
 });
 
 // 点击按钮查询
-const onSubmit = () => {
+const onSubmit = (refresh?: boolean) => {
   getMusicList({
     musicIds: [],
     musicName: formInline.musicName,
@@ -104,6 +103,7 @@ const onSubmit = () => {
     order: false,
     beforeDate: "",
     afterDate: "",
+    refresh: refresh != null,
     page: {
       pageIndex: pageConfig.pageIndex,
       pageNum: pageConfig.pageSize
@@ -237,11 +237,13 @@ const toArtist = res => {
 
     <!--刷新-->
     <div class="refresh">
-      <el-button circle style="width: 40px; height: 40px">
-        <el-icon :size="20" class="cursor-pointer">
-          <Icon icon="ep:refresh" />
-        </el-icon>
-      </el-button>
+      <IconifyIconOnline
+        @click="onSubmit(true)"
+        class="cursor-pointer"
+        icon="solar:refresh-outline"
+        width="2rem"
+        height="2rem"
+      />
     </div>
     <div class="table">
       <div class="search">
@@ -264,7 +266,7 @@ const toArtist = res => {
                 <div class="inputGroup">
                   <input
                     type="text"
-                    required="true"
+                    :required="true"
                     autocomplete="off"
                     v-model="formInline.musicName"
                     @keyup.enter="onSubmit"
@@ -277,7 +279,7 @@ const toArtist = res => {
                 <div class="inputGroup">
                   <input
                     type="text"
-                    required="true"
+                    :required="true"
                     autocomplete="off"
                     v-model="formInline.artistName"
                     @keyup.enter="onSubmit"
@@ -290,7 +292,7 @@ const toArtist = res => {
                 <div class="inputGroup">
                   <input
                     type="text"
-                    required="true"
+                    :required="true"
                     autocomplete="off"
                     v-model="formInline.albumName"
                     @keyup.enter="onSubmit"
@@ -370,10 +372,14 @@ const toArtist = res => {
       </div>
 
       <!--加载遮罩-->
-      <transition name="el-fade-in" v-if="tableLoading" class="duration-150">
+      <transition name="el-fade-in">
         <ShowLoading :loading="tableLoading" />
       </transition>
-      <transition name="el-fade-in-linear" class="tableDataShow" v-else>
+      <transition
+        name="el-zoom-in-top"
+        class="tableDataShow"
+        v-show="!tableLoading"
+      >
         <el-table
           ref="multipleTableRef"
           :data="tableData"
@@ -486,6 +492,8 @@ $searchHeight: 90%;
   position: fixed;
   bottom: 200px;
   right: 40px;
+  margin: 3px;
+  z-index: 100;
 }
 
 .absolute-container {

@@ -1,10 +1,10 @@
 import { http } from "@/utils/http";
 import { R, Page, Data } from "@/api/common";
 import { MusicSearchRes } from "@/api/music";
-export interface Singer {
-  id: string;
-  singerName: string;
-  alias: string;
+export interface ArtistList {
+  id: number;
+  artistName: string;
+  aliasName: string;
   sex?: any;
   pic: string;
   birth?: any;
@@ -15,13 +15,18 @@ export interface Singer {
 }
 
 export interface AlbumRes {
-  id: string;
+  id: number;
   albumName: string;
+  subType: string;
   description: string;
+  company: string;
   pic: string;
+  publishTime: string;
   updateTime: string;
   createTime: string;
-  singer: Singer[];
+  musicList?: any;
+  albumSize: number;
+  artistList: ArtistList[];
   orderBy: string;
   order: boolean;
 }

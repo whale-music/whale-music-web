@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getAlbumPage } from "@/api/album";
+import { AlbumRes, getAlbumPage } from "@/api/album";
 import { ref, reactive, onMounted } from "vue";
 import { dateFormater } from "@/utils/dateUtil";
 import { useI18n } from "vue-i18n";
@@ -7,7 +7,7 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 const { t } = useI18n();
-const tableData = ref();
+const tableData = ref<AlbumRes[]>();
 const tableLoading = ref<boolean>();
 
 const menuFlag = ref<boolean>();
@@ -103,7 +103,7 @@ const toAlbum = res => {
           <div class="inputGroup">
             <input
               type="text"
-              required="true"
+              :required="true"
               autocomplete="off"
               v-model="formInline.albumName"
               @keyup.enter="onSubmit"
@@ -115,7 +115,7 @@ const toAlbum = res => {
           <div class="inputGroup">
             <input
               type="text"
-              required="true"
+              :required="true"
               autocomplete="off"
               v-model="formInline.artistName"
               @keyup.enter="onSubmit"
@@ -188,7 +188,7 @@ const toAlbum = res => {
 
         <el-table :data="tableData" style="width: 100%" table-layout="fixed">
           <el-table-column type="index" />
-          <el-table-column width="100" show-overflow-tooltip>
+          <el-table-column width="100" :show-overflow-tooltip="true">
             <template #default="scope">
               <el-image
                 style="width: 5rem; height: 5rem"
@@ -200,7 +200,7 @@ const toAlbum = res => {
           </el-table-column>
           <el-table-column
             :label="t('input.albumName')"
-            show-overflow-tooltip
+            :show-overflow-tooltip="true"
             width="500"
           >
             <template #default="scope">
@@ -214,28 +214,27 @@ const toAlbum = res => {
           <el-table-column
             prop="albumSize"
             :label="t('table.musicSize')"
-            show-overflow-tooltip
+            :show-overflow-tooltip="true"
             width="100"
           />
           <el-table-column
-            prop="singer.singerName"
             :label="t('input.singerName')"
-            show-overflow-tooltip
+            :show-overflow-tooltip="true"
           >
             <template #default="scope">
               <el-tag
                 disable-transitions
-                v-for="item in scope.row.singer"
+                v-for="item in scope.row.artistList"
                 :key="item.id"
                 class="m-1"
-                >{{ item.singerName }}</el-tag
+                >{{ item.artistName }}</el-tag
               >
             </template>
           </el-table-column>
           <el-table-column
             prop="createTime"
             label="上传时间"
-            show-overflow-tooltip
+            :show-overflow-tooltip="true"
           >
             <template #default="scope">
               <span>{{
