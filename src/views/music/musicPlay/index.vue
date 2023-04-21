@@ -396,7 +396,8 @@ $lyricPadding: 0.8rem;
   background-size: cover;
   /* 设置背景颜色，背景图加载过程中会显示背景色 */
   background-color: #464646;
-  transition: background-color 2s;
+  transition: all 2s;
+  width: 100%;
 }
 
 .shadowMask {
