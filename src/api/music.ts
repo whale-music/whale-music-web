@@ -21,6 +21,7 @@ export interface MusicSearchRes {
   aliaName: string;
   pic: string;
   kLyric: string;
+  lyric: string;
   albumId: number;
   sort: number;
   timeLength: number;

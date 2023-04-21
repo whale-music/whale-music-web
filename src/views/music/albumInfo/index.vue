@@ -6,6 +6,8 @@ import { dateFormater } from "@/utils/dateUtil";
 import { Icon } from "@iconify/vue";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 
+const router = useRouter();
+
 const albumId = ref();
 
 const albumInfo = ref<AlbumDataRes>({
@@ -33,6 +35,13 @@ onBeforeMount(() => {
 });
 
 const centerDialogVisible = ref(false);
+
+const toMusicInfo = id => {
+  router.push({
+    path: "/music/musicInfo",
+    query: { id: id }
+  });
+};
 </script>
 <template>
   <div>
@@ -102,12 +111,16 @@ const centerDialogVisible = ref(false);
         v-for="(item, index) in albumInfo.musicList"
         :key="index"
       >
-        <div>
+        <div
+          @click="toMusicInfo(item.id)"
+          class="h-full flex items-center cursor-pointer"
+        >
           <span class="music index">{{ index + 1 }}</span>
           <span class="music">
             {{ item.musicName }}
           </span>
         </div>
+        <div class="h-full grow cursor-pointer" @click="toMusicInfo(item.id)" />
         <div>
           <span class="mr-4">{{ dateFormater("mm:ss", item.timeLength) }}</span>
           <el-link :underline="false" class="mr-8">

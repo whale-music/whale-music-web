@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onBeforeMount, ref } from "vue";
+import { onBeforeMount, ref, unref } from "vue";
 import { useRouter } from "vue-router";
 import {
   getAllMusicList,
@@ -10,6 +10,9 @@ import {
 import { dateFormater } from "@/utils/dateUtil";
 import { Icon } from "@iconify/vue";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
+import { useCopyToClipboard } from "@pureadmin/utils";
+import { message } from "@/utils/message";
+
 const router = useRouter();
 const id = ref();
 
@@ -45,6 +48,7 @@ const musicUrl = ref<MusicUrlInfo[]>();
 onBeforeMount(() => {
   id.value = useRouter().currentRoute.value.query.id;
   getAllMusicList({
+    refresh: false,
     musicIds: [id.value],
     afterDate: "",
     albumName: "",
@@ -62,6 +66,14 @@ onBeforeMount(() => {
     });
   });
 });
+
+const { clipboardValue, copied } = useCopyToClipboard();
+function copy(value) {
+  clipboardValue.value = unref(value);
+  if (copied.value) {
+    message("拷贝成功", { type: "success" });
+  }
+}
 
 const toAlbum = albumId => {
   router.push({
@@ -126,16 +138,25 @@ const toMusicPlay = id => {
     <div class="text-2xl mt-4">音源</div>
     <div class="item-list">
       <div v-for="(item, index) in musicUrl" :key="index">
-        <div class="show-item" @click="toMusicPlay(item.musicId)">
-          <div class="ml-4">
+        <div class="show-item">
+          <div
+            class="ml-4 flex items-center h-full cursor-pointer"
+            @click="toMusicPlay(item.musicId)"
+          >
             <span class="index">{{ index + 1 }}</span>
             <span class="ml-4 font-bold">{{ musicInfo.musicName }}</span>
             <span class="md5">{{ item.md5 }}</span>
           </div>
+          <div
+            class="grow h-full cursor-pointer"
+            @click="toMusicPlay(item.musicId)"
+          />
           <div class="operate-info">
             <span class="mr-4 font-medium level">{{ item.level }}</span>
             <div class="flex items-center">
-              <el-button round class="mr-4">复制</el-button>
+              <el-button round class="mr-4" @click="copy(item.url)"
+                >复制</el-button
+              >
               <el-link :underline="false">
                 <el-dropdown>
                   <el-icon :size="20" class="cursor-pointer">
