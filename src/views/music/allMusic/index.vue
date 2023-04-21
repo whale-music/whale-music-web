@@ -236,14 +236,21 @@ const toArtist = res => {
     </el-dialog>
 
     <!--刷新-->
-    <div class="refresh">
-      <IconifyIconOnline
-        @click="onSubmit(true)"
-        class="cursor-pointer"
-        icon="solar:refresh-outline"
-        width="2rem"
-        height="2rem"
-      />
+    <div class="refresh" v-show="!tableLoading">
+      <el-tooltip
+        class="box-item"
+        effect="dark"
+        content="刷新缓存"
+        placement="left-start"
+      >
+        <IconifyIconOnline
+          @click="onSubmit(true)"
+          class="cursor-pointer"
+          icon="solar:refresh-outline"
+          width="2rem"
+          height="2rem"
+        />
+      </el-tooltip>
     </div>
     <div class="table">
       <div class="search">
@@ -494,6 +501,8 @@ $searchHeight: 90%;
   right: 40px;
   margin: 3px;
   z-index: 100;
+  animation: animate__slideInUp; /* referring directly to the animation's @keyframe declaration */
+  animation-duration: 2s; /* don't forget to set a duration! */
 }
 
 .absolute-container {
