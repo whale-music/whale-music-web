@@ -606,7 +606,7 @@ $searchHeight: 90%;
 .menu-button {
   display: inline-block;
   background-color: var(--el-color-primary);
-  border-radius: 0.3rem;
+  border-radius: 0.8rem;
   color: #ffffff;
   text-align: center;
   font-size: 17px;
@@ -669,6 +669,14 @@ $searchHeight: 90%;
 }
 
 :deep(.el-dialog) {
+  border-radius: 1rem;
+}
+
+:deep(.el-select__popper) {
+  border-radius: 1rem;
+}
+
+:deep(.el-input__wrapper) {
   border-radius: 1rem;
 }
 
