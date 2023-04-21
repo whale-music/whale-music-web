@@ -4,6 +4,9 @@ import { ref, reactive, onMounted } from "vue";
 import { dateFormater } from "@/utils/dateUtil";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
+import { message } from "@/utils/message";
+import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
+
 const router = useRouter();
 
 const { t } = useI18n();
@@ -43,23 +46,38 @@ const sortData = reactive([
 
 const sortConfig = ref("sort");
 
+const loadingFlag = ref<boolean>(false);
+const emptyFlag = ref<boolean>(false);
 const getAlbumPageList = () => {
+  loadingFlag.value = true;
   getSingerPage({
     artistName: formInline.artistName,
     orderBy: sortConfig.value,
     order: false,
     page: page
-  }).then(res => {
-    page.pageIndex = res.data.current;
-    page.pageNum = res.data.size;
-    page.total = res.data.total;
+  })
+    .then(res => {
+      page.pageIndex = res.data.current;
+      page.pageNum = res.data.size;
+      page.total = res.data.total;
 
-    tableData.value = res.data.records;
-  });
+      tableData.value = res.data.records;
+      loadingFlag.value = false;
+    })
+    .catch(res => {
+      message(`${res}`, { type: "error" });
+      loadingFlag.value = false;
+      emptyFlag.value = true;
+    });
 };
 
 const onSubmit = () => {
   getAlbumPageList();
+};
+
+// 表格变更时重新查询
+const sortOnSubmit = () => {
+  onSubmit();
 };
 
 onMounted(() => {
@@ -132,6 +150,7 @@ const toArtist = res => {
             placeholder="排序"
             size="large"
             style="width: 8rem"
+            @change="sortOnSubmit"
           >
             <el-option
               v-for="item in sortData"
@@ -164,82 +183,89 @@ const toArtist = res => {
         </el-collapse-transition>
       </div>
 
-      <div class="table">
-        <el-table :data="tableData" style="width: 100%" table-layout="fixed">
-          <el-table-column type="index" />
-          <el-table-column width="100" :show-overflow-tooltip="true">
-            <template #default="scope">
-              <el-image
-                style="width: 5rem; height: 5rem"
-                class="rounded shadow-md"
-                :src="scope.row.pic"
-                fit="cover"
-              />
-            </template>
-          </el-table-column>
+      <!--加载遮罩-->
+      <transition name="el-fade-in">
+        <ShowLoading :loading="loadingFlag" />
+      </transition>
+      <el-empty v-if="!loadingFlag && emptyFlag" description="description" />
+      <transition name="el-zoom-in-top">
+        <div class="table" v-show="!loadingFlag && !emptyFlag">
+          <el-table :data="tableData" style="width: 100%" table-layout="fixed">
+            <el-table-column type="index" />
+            <el-table-column width="100" :show-overflow-tooltip="false">
+              <template #default="scope">
+                <el-image
+                  style="width: 5rem; height: 5rem"
+                  class="rounded shadow-md"
+                  :src="scope.row.pic"
+                  fit="cover"
+                />
+              </template>
+            </el-table-column>
 
-          <el-table-column
-            prop="singerName"
-            :label="t('input.singerName')"
-            :show-overflow-tooltip="true"
-          >
-            <template #default="scope">
-              <el-link :underline="false" @click="toArtist(scope.row)"
-                ><span class="text-xl">{{
-                  scope.row.artistName
-                }}</span></el-link
-              >
-              <span class="font">&emsp;{{ scope.row.aliasName }}</span>
-            </template>
-          </el-table-column>
+            <el-table-column
+              prop="singerName"
+              :label="t('input.singerName')"
+              :show-overflow-tooltip="true"
+            >
+              <template #default="scope">
+                <el-link :underline="false" @click="toArtist(scope.row)"
+                  ><span class="text-xl">{{
+                    scope.row.artistName
+                  }}</span></el-link
+                >
+                <span class="font">&emsp;{{ scope.row.aliasName }}</span>
+              </template>
+            </el-table-column>
 
-          <el-table-column
-            :label="t('table.albumSize')"
-            :show-overflow-tooltip="true"
-            width="100"
-          >
-            <template #default="scope">
-              <span class="text-2xl">{{ scope.row.albumSize }}</span>
-            </template>
-          </el-table-column>
+            <el-table-column
+              :label="t('table.albumSize')"
+              :show-overflow-tooltip="true"
+              width="100"
+            >
+              <template #default="scope">
+                <span class="text-2xl">{{ scope.row.albumSize }}</span>
+              </template>
+            </el-table-column>
 
-          <el-table-column
-            :label="t('table.musicSize')"
-            :show-overflow-tooltip="true"
-            width="100"
-          >
-            <template #default="scope">
-              <span class="text-2xl">{{ scope.row.musicSize }}</span>
-            </template>
-          </el-table-column>
+            <el-table-column
+              :label="t('table.musicSize')"
+              :show-overflow-tooltip="true"
+              width="100"
+            >
+              <template #default="scope">
+                <span class="text-2xl">{{ scope.row.musicSize }}</span>
+              </template>
+            </el-table-column>
 
-          <el-table-column
-            prop="createTime"
-            label="上传时间"
-            :show-overflow-tooltip="true"
-          >
-            <template #default="scope">
-              <span>{{
-                dateFormater("YYYY-MM-dd HH:mm:ss", scope.row.createTime)
-              }}</span>
-            </template>
-          </el-table-column>
-        </el-table>
+            <el-table-column
+              prop="createTime"
+              label="上传时间"
+              :show-overflow-tooltip="true"
+            >
+              <template #default="scope">
+                <span>{{
+                  dateFormater("YYYY-MM-dd HH:mm:ss", scope.row.createTime)
+                }}</span>
+              </template>
+            </el-table-column>
+          </el-table>
 
-        <div class="demo-pagination-block">
-          <el-pagination
-            :default-current-page="page.pageIndex"
-            :default-page-size="page.pageNum"
-            :current-page="page.pageIndex"
-            :page-size="page.pageNum"
-            :page-sizes="[100, 200, 500, 1000]"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="page.total"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-          />
+          <div class="demo-pagination-block" v-show="!loadingFlag">
+            <el-pagination
+              :default-current-page="page.pageIndex"
+              :default-page-size="page.pageNum"
+              :current-page="page.pageIndex"
+              :page-size="page.pageNum"
+              :page-sizes="[100, 200, 500, 1000]"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="page.total"
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+            />
+          </div>
         </div>
-      </div>
+      </transition>
     </div>
   </div>
 </template>

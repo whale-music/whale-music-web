@@ -594,8 +594,7 @@ $searchHeight: 90%;
 .inputGroup :is(input:focus, input:valid) ~ label {
   @apply dark:bg-[#020409] bg-neutral-100;
   transform: translateY(-50%) scale(0.9);
-  margin: 0em;
-  margin-left: 1.3em;
+  margin: 0 0 0 1.3em;
   padding: 0.4em;
 }
 

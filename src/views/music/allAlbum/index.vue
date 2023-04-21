@@ -4,6 +4,9 @@ import { ref, reactive, onMounted } from "vue";
 import { dateFormater } from "@/utils/dateUtil";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
+import { message } from "@/utils/message";
+import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
+
 const router = useRouter();
 
 const { t } = useI18n();
@@ -45,7 +48,11 @@ const pageConfig = reactive({
   pageIndex: 1,
   total: 0
 });
+
+const loadingFlag = ref<boolean>(false);
+const emptyFlag = ref<boolean>(false);
 const getAlbumPageList = () => {
+  loadingFlag.value = true;
   getAlbumPage({
     singerName: formInline.artistName,
     albumName: formInline.albumName,
@@ -59,18 +66,29 @@ const getAlbumPageList = () => {
     pic: "",
     updateTime: "",
     createTime: ""
-  }).then(res => {
-    pageConfig.pageIndex = res.data.current;
-    pageConfig.pageNum = res.data.size;
-    pageConfig.total = res.data.total;
+  })
+    .then(res => {
+      pageConfig.pageIndex = res.data.current;
+      pageConfig.pageNum = res.data.size;
+      pageConfig.total = res.data.total;
 
-    tableData.value = res.data.records;
-  });
+      tableData.value = res.data.records;
+      loadingFlag.value = false;
+    })
+    .catch(res => {
+      loadingFlag.value = false;
+      emptyFlag.value = true;
+      message(`${res}`, { type: "error" });
+    });
 };
 
 const onSubmit = () => {
-  console.log("submit!");
   getAlbumPageList();
+};
+
+// 表格变更时重新查询
+const sortOnSubmit = () => {
+  onSubmit();
 };
 
 onMounted(() => {
@@ -153,6 +171,7 @@ const toAlbum = res => {
             placeholder="排序"
             size="large"
             style="width: 8rem"
+            @change="sortOnSubmit"
           >
             <el-option
               v-for="item in sortData"
@@ -186,65 +205,77 @@ const toAlbum = res => {
           </el-collapse-transition>
         </div>
 
-        <el-table :data="tableData" style="width: 100%" table-layout="fixed">
-          <el-table-column type="index" />
-          <el-table-column width="100" :show-overflow-tooltip="true">
-            <template #default="scope">
-              <el-image
-                style="width: 5rem; height: 5rem"
-                class="rounded shadow-md"
-                :src="scope.row.pic"
-                fit="cover"
-              />
-            </template>
-          </el-table-column>
-          <el-table-column
-            :label="t('input.albumName')"
-            :show-overflow-tooltip="true"
-            width="500"
+        <!--加载遮罩-->
+        <transition name="el-fade-in">
+          <ShowLoading :loading="loadingFlag" />
+        </transition>
+        <el-empty v-if="!loadingFlag && emptyFlag" description="description" />
+        <transition name="el-zoom-in-top">
+          <el-table
+            :data="tableData"
+            style="width: 100%"
+            table-layout="fixed"
+            v-show="!loadingFlag && !emptyFlag"
           >
-            <template #default="scope">
-              <el-link :underline="false">
-                <span class="text-xl" @click="toAlbum(scope.row)">{{
-                  scope.row.albumName
+            <el-table-column type="index" />
+            <el-table-column width="100" :show-overflow-tooltip="false">
+              <template #default="scope">
+                <el-image
+                  style="width: 5rem; height: 5rem"
+                  class="rounded shadow-md"
+                  :src="scope.row.pic"
+                  fit="cover"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column
+              :label="t('input.albumName')"
+              :show-overflow-tooltip="true"
+              width="500"
+            >
+              <template #default="scope">
+                <el-link :underline="false">
+                  <span class="text-xl" @click="toAlbum(scope.row)">{{
+                    scope.row.albumName
+                  }}</span>
+                </el-link>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="albumSize"
+              :label="t('table.musicSize')"
+              :show-overflow-tooltip="true"
+              width="100"
+            />
+            <el-table-column
+              :label="t('input.singerName')"
+              :show-overflow-tooltip="true"
+            >
+              <template #default="scope">
+                <el-tag
+                  disable-transitions
+                  v-for="item in scope.row.artistList"
+                  :key="item.id"
+                  class="m-1"
+                  >{{ item.artistName }}</el-tag
+                >
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="createTime"
+              label="上传时间"
+              :show-overflow-tooltip="true"
+            >
+              <template #default="scope">
+                <span>{{
+                  dateFormater("YYYY-MM-dd HH:mm:ss", scope.row.createTime)
                 }}</span>
-              </el-link>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="albumSize"
-            :label="t('table.musicSize')"
-            :show-overflow-tooltip="true"
-            width="100"
-          />
-          <el-table-column
-            :label="t('input.singerName')"
-            :show-overflow-tooltip="true"
-          >
-            <template #default="scope">
-              <el-tag
-                disable-transitions
-                v-for="item in scope.row.artistList"
-                :key="item.id"
-                class="m-1"
-                >{{ item.artistName }}</el-tag
-              >
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="createTime"
-            label="上传时间"
-            :show-overflow-tooltip="true"
-          >
-            <template #default="scope">
-              <span>{{
-                dateFormater("YYYY-MM-dd HH:mm:ss", scope.row.createTime)
-              }}</span>
-            </template>
-          </el-table-column>
-        </el-table>
+              </template>
+            </el-table-column>
+          </el-table>
+        </transition>
 
-        <div class="demo-pagination-block">
+        <div class="demo-pagination-block" v-show="!loadingFlag">
           <el-pagination
             :default-current-page="pageConfig.pageIndex"
             :default-page-size="pageConfig.pageNum"
@@ -279,7 +310,7 @@ $searchHeight: 90%;
 .center_album {
   width: $searchWidth;
   margin: 0 auto;
-  overflow-x: scroll;
+  overflow: hidden;
 
   display: flex;
   flex-direction: column;
