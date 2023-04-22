@@ -73,7 +73,8 @@ const getPlay = (id: string) => {
     order: false,
     orderBy: "",
     page: pageConfig.value,
-    artistName: ""
+    artistName: "",
+    refresh: false
   })
     .then(res => {
       tableLoading.value = false;
@@ -141,13 +142,19 @@ const playListInput = ref("");
 
 const createPlayListButton = () => {
   if (playListInput.value !== "") {
-    createPlayList(playListInput.value).then(res => {
-      addPlayListDialogVisible.value = false;
-      if (res.code === "200") {
-        message("创建成功", { type: "success" });
-        router.go(0);
-      }
-    });
+    createPlayList(playListInput.value)
+      .then(res => {
+        addPlayListDialogVisible.value = false;
+        if (res.code === "200") {
+          message("创建成功", { type: "success" });
+          router.go(0);
+        } else {
+          message(`创建失败${res.message}`, { type: "error" });
+        }
+      })
+      .catch(res => {
+        message(`创建失败${res}`, { type: "error" });
+      });
   } else {
     message("请输入歌单名", { type: "error" });
   }
@@ -226,11 +233,11 @@ const deleteDialogVisible = ref(false);
             >
             <el-dialog
               v-model="addPlayListDialogVisible"
-              title="新建歌单"
               width="30%"
               align-center
             >
-              <el-input v-model="playListInput" placeholder="Please input" />
+              <h1 class="text-center">新建歌单</h1>
+              <el-input v-model="playListInput" placeholder="输入新建歌单名" />
               <template #footer>
                 <span class="flex justify-center">
                   <el-button type="primary" @click="createPlayListButton">
