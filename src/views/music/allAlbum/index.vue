@@ -427,4 +427,8 @@ $searchHeight: 90%;
   display: flex;
   justify-content: center;
 }
+
+:deep(.el-table__row td) {
+  border: 1px solid transparent;
+}
 </style>

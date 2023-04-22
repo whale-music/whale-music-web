@@ -679,6 +679,10 @@ $searchHeight: 90%;
   border-radius: 1rem;
 }
 
+:deep(.el-table__row td) {
+  border: 1px solid transparent;
+}
+
 .tableDataShow {
   border-radius: 1rem;
 }
