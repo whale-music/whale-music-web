@@ -420,7 +420,7 @@ const deleteDialogVisible = ref(false);
               {{ item.musicName }}
             </p>
             <el-link :underline="false" @click="toAlbum(item.album.id)">
-              <p class="text-ellipsis overflow-hidden font-bold text-sm">
+              <p class="truncate w-40 font-bold text-sm">
                 {{ item.album.albumName }}
               </p>
             </el-link>
