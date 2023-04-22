@@ -69,6 +69,10 @@ onBeforeMount(() => {
 
 const { clipboardValue, copied } = useCopyToClipboard();
 function copy(value) {
+  if (value == null || value === "") {
+    message("空地址", { type: "error" });
+    return;
+  }
   clipboardValue.value = unref(value);
   if (copied.value) {
     message("拷贝成功", { type: "success" });
