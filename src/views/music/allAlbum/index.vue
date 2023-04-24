@@ -243,11 +243,14 @@ const toAlbum = res => {
               </template>
             </el-table-column>
             <el-table-column
-              prop="albumSize"
               :label="t('table.musicSize')"
               :show-overflow-tooltip="true"
               width="100"
-            />
+            >
+              <template #default="scope">
+                <span class="text-2xl">{{ scope.row.albumSize }}</span>
+              </template>
+            </el-table-column>
             <el-table-column
               :label="t('input.singerName')"
               :show-overflow-tooltip="true"
@@ -258,7 +261,9 @@ const toAlbum = res => {
                   v-for="item in scope.row.artistList"
                   :key="item.id"
                   class="m-1"
-                  >{{ item.artistName }}</el-link
+                  ><span class="text-xl font-bold">{{
+                    item.artistName
+                  }}</span></el-link
                 >
               </template>
             </el-table-column>
