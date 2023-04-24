@@ -12,6 +12,8 @@ import { Icon } from "@iconify/vue";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { useCopyToClipboard } from "@pureadmin/utils";
 import { message } from "@/utils/message";
+import axios from "axios";
+import { downloadByData } from "@pureadmin/utils";
 
 const router = useRouter();
 const id = ref();
@@ -78,6 +80,16 @@ function copy(value) {
     message("拷贝音源地址成功", { type: "success" });
   }
 }
+
+const download = (name, suffix, url) => {
+  axios
+    .get(url, {
+      responseType: "blob"
+    })
+    .then(({ data }) => {
+      downloadByData(data, `${name}.${suffix}`);
+    });
+};
 
 const toAlbum = albumId => {
   router.push({
@@ -178,9 +190,16 @@ const toMusicPlay = res => {
                   </el-icon>
                   <template #dropdown>
                     <el-dropdown-menu>
-                      <el-dropdown-item>Action 1</el-dropdown-item>
-                      <el-dropdown-item>Action 2</el-dropdown-item>
-                      <el-dropdown-item>Action 3</el-dropdown-item>
+                      <el-dropdown-item
+                        @click="
+                          download(
+                            musicInfo.musicName,
+                            item.encodeType,
+                            item.url
+                          )
+                        "
+                        >下载音源
+                      </el-dropdown-item>
                     </el-dropdown-menu>
                   </template>
                 </el-dropdown>
@@ -202,7 +221,7 @@ const toMusicPlay = res => {
   width: 20rem;
   height: 20rem;
   border-radius: 2rem;
-  // 将h-shadow,v-shadow设为0px,实现四周阴影
+  // 四周阴影
   box-shadow: var(--el-color-info-light-3) 1px 1px 10px;
 }
 
