@@ -106,42 +106,39 @@ const toArtist = res => {
 <template>
   <div class="singer">
     <div class="center-singer">
-      <div class="search">
-        <div class="m-1">
-          <div class="inputGroup">
-            <input
-              type="text"
-              :required="true"
-              autocomplete="off"
-              v-model="formInline.artistName"
-              @keyup.enter="onSubmit"
-            />
-            <label for="name">{{ t("input.pleaseEnterSingerName") }}</label>
-          </div>
-        </div>
-
-        <Transition name="slide-fade"
-          ><div
-            class="flex flex-col justify-center m-1"
-            v-show="formInline.artistName !== ''"
-          >
-            <el-button
-              type="primary"
-              round
-              size="large"
-              :loading="tableLoading"
-              @click="onSubmit"
-              >{{ t("buttons.search") }}</el-button
-            >
-          </div></Transition
-        >
-      </div>
-
       <div class="option">
-        <div @click="() => (menuFlag = !menuFlag)">
-          <button class="menu-button">
+        <div class="flex items-center">
+          <button @click="menuFlag = !menuFlag" class="menu-button">
             <span>{{ t("input.menuBotton") }}</span>
           </button>
+          <div class="search">
+            <div class="inputGroup">
+              <input
+                type="text"
+                :required="true"
+                autocomplete="off"
+                v-model="formInline.artistName"
+                @keyup.enter="onSubmit"
+              />
+              <label for="name">{{ t("input.pleaseEnterSingerName") }}</label>
+            </div>
+
+            <Transition name="slide-fade"
+              ><div
+                class="flex flex-col justify-center m-1"
+                v-show="formInline.artistName !== ''"
+              >
+                <el-button
+                  type="primary"
+                  round
+                  size="large"
+                  :loading="tableLoading"
+                  @click="onSubmit"
+                  >{{ t("buttons.search") }}</el-button
+                >
+              </div></Transition
+            >
+          </div>
         </div>
 
         <div>
@@ -283,17 +280,14 @@ $searchHeight: 90%;
 }
 
 .singer {
-  margin: 0;
-
   display: flex;
   flex-direction: column;
   justify-content: center;
-  // align-items: center;
+}
 
-  .search {
-    display: flex;
-    justify-content: center;
-  }
+.search {
+  display: flex;
+  justify-content: center;
 }
 
 .center-singer {
@@ -355,9 +349,9 @@ $searchHeight: 90%;
 }
 
 .inputGroup {
+  margin: 10px;
   font-family: "Segoe UI", sans-serif;
-  margin: 1em 0 1em 0;
-  max-width: 190px;
+  max-width: 20rem;
   position: relative;
 }
 
@@ -367,7 +361,7 @@ $searchHeight: 90%;
   outline: none;
   border: 2px solid rgb(200, 200, 200);
   background-color: transparent;
-  border-radius: 20px;
+  border-radius: 1rem;
   width: 100%;
 }
 
@@ -383,15 +377,15 @@ $searchHeight: 90%;
 }
 
 .inputGroup :is(input:focus, input:valid) ~ label {
+  @apply dark:bg-[#000000];
   transform: translateY(-50%) scale(0.9);
-  margin: 0em;
-  margin-left: 1.3em;
+  margin: 0 0 0 1.3em;
   padding: 0.4em;
   background-color: #f0f2f3;
 }
 
 .inputGroup :is(input:focus, input:valid) {
-  border-color: rgb(150, 150, 200);
+  border-color: var(--el-color-primary-light-3);
 }
 
 .slide-fade-enter-active {

@@ -535,7 +535,6 @@ $searchHeight: 90%;
 }
 
 .absolute-container {
-  margin: 0;
   display: flex;
   flex-direction: column;
   /*主轴上的对齐方式为居中*/
