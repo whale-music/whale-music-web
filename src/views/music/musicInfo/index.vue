@@ -81,6 +81,17 @@ function copy(value) {
   }
 }
 
+const playMusic = () => {
+  for (const musicUrlInfo of musicUrl.value) {
+    // 只取第一条数据
+    if (musicUrlInfo !== null && musicUrlInfo.url !== "") {
+      toMusicPlay(musicUrlInfo);
+      return;
+    }
+  }
+  message("播放失败，无音源", { type: "error" });
+};
+
 const download = (name, suffix, url) => {
   axios
     .get(url, {
@@ -112,7 +123,7 @@ const toMusicPlay = res => {
   }
   router.push({
     path: "/musicPlay",
-    query: { id: res.musicId }
+    query: { id: res.id }
   });
 };
 </script>
@@ -148,7 +159,7 @@ const toMusicPlay = res => {
           }}</span>
         </div>
         <div class="buttons">
-          <el-button round
+          <el-button round @click="playMusic"
             ><span v-html="'\u00a0' + '播放' + '\u00a0'"
           /></el-button>
         </div>

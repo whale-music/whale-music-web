@@ -44,6 +44,7 @@ const currentMusicLyric = ref<MusicLyricRes>({
   updateTime: ""
 });
 const musicInfo = ref<MusicSearchRes>({
+  lyric: "",
   album: undefined,
   albumId: 0,
   albumName: "",
@@ -80,6 +81,7 @@ onMounted(async () => {
   const tempUrl = await getMusicUrl(idValue.value);
   musicUrlList.value = tempUrl.data;
   const tempMusicInfo = await getAllMusicList({
+    refresh: false,
     afterDate: "",
     albumName: "",
     artistName: "",
