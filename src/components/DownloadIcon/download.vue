@@ -18,7 +18,10 @@ const downloadMusic = () => {
 </script>
 
 <template>
-  <div class="cursor-pointer" @click="downloadMusic">
+  <div
+    class="cursor-pointer flex justify-center items-center"
+    @click="downloadMusic"
+  >
     <el-icon :size="20">
       <Icon icon="ic:sharp-cloud-download" />
     </el-icon>

@@ -15,12 +15,13 @@ import ContextMenu from "@imengyu/vue3-context-menu";
 import AddMusicToPlayList from "@/components/addMusicToPlayList/addMusicToPlayList.vue";
 import { getUserPlayList, UserPlayListRes } from "@/api/playlist";
 import { DataInfo, sessionKey } from "@/utils/auth";
+import { ElTable } from "element-plus";
+import RadioIcon from "@/assets/svg/radio.svg?component";
+import MultipleSelectionIcon from "@/assets/svg/multiple_selection.svg?component";
 
 const { isDark } = useDark();
 const router = useRouter();
 
-const multipleTableRef = ref();
-const multipleSelection = ref([]);
 const { t } = useI18n();
 
 // 每页显示行数
@@ -62,6 +63,11 @@ const sortConfig = ref("sort");
 const tableData = ref();
 const tableLoading = ref<boolean>();
 
+// 表格Ref
+const multipleTableRef = ref<InstanceType<typeof ElTable>>();
+// 选择数据
+const multipleSelectionFlag = ref<boolean>(false);
+const multipleSelection = ref([]);
 const handleSelectionChange = val => {
   multipleSelection.value = val;
 };
@@ -135,9 +141,23 @@ const handleCurrentChange = val => {
 const menuFlag = ref<boolean>(false);
 
 // 表格颜色
-const cellStyle = ({ columnIndex, row }): CellStyle<any> => {
+const cellStyle = ({ row, columnIndex }): CellStyle<any> => {
   let styles = {};
+  styles["border"] = "none";
+  styles["overflow"] = "hidden";
+  // 复选框样式
   if (columnIndex === 0) {
+    styles = {
+      color: "#bfbfbf",
+      padding: "0",
+      margin: "0",
+      width: "0.6rem",
+      "font-size": "0.6rem",
+      "text-align": "center"
+    };
+  }
+  // 设置序号样式
+  if (columnIndex === 1 && multipleSelectionFlag.value) {
     styles = {
       color: "#bfbfbf",
       padding: "0",
@@ -158,6 +178,25 @@ const cellStyle = ({ columnIndex, row }): CellStyle<any> => {
   return styles;
 };
 
+// 设置表头样式
+const tableHeaderCellStyle = (): CellStyle<any> => {
+  if (isDark.value) {
+    return {
+      color: "white",
+      fontWeight: "bold",
+      textAlign: "center",
+      borderBottom: "none"
+    };
+  } else {
+    return {
+      color: "black",
+      fontWeight: "bold",
+      textAlign: "center",
+      borderBottom: "none"
+    };
+  }
+};
+
 const playItemDialogVisible = ref(false);
 const userPlayItem = ref<UserPlayListRes[]>();
 const addMusicId = ref<number>();
@@ -171,6 +210,7 @@ const getUserPlayInfo = (id: number) => {
   });
 };
 
+// 右键菜单
 const onContextMenu = (e: MouseEvent, id: number) => {
   //prevent the browser's default menu
   e.preventDefault();
@@ -202,10 +242,20 @@ const rowDoubleClick = data => {
   musicPlayConfig.isPlay = true;
 };
 
-const toMusicInfo = res => {
+// 复选框
+const rowClick = row => {
+  // 多选时不进入详情页面
+  if (multipleSelectionFlag.value) {
+    multipleTableRef.value.toggleRowSelection(row, null);
+  } else {
+    toMusicInfo(row.id);
+  }
+};
+
+const toMusicInfo = id => {
   router.push({
     path: "/music/musicInfo",
-    query: { id: res.id }
+    query: { id: id }
   });
 };
 
@@ -340,6 +390,12 @@ const toArtist = res => {
         </div>
 
         <div>
+          <el-switch
+            size="large"
+            :active-icon="MultipleSelectionIcon"
+            :inactive-icon="RadioIcon"
+            v-model="multipleSelectionFlag"
+          />
           <el-select
             v-model="sortConfig"
             placeholder="排序"
@@ -386,18 +442,27 @@ const toArtist = res => {
         name="el-zoom-in-top"
         class="tableDataShow"
         v-show="!tableLoading"
+        :key="multipleSelectionFlag"
       >
         <el-table
           ref="multipleTableRef"
           :data="tableData"
           highlight-current-row
+          header-align="left"
           @selection-change="handleSelectionChange"
           :cell-style="cellStyle"
+          :header-cell-style="tableHeaderCellStyle"
           @row-dblclick="rowDoubleClick"
+          @row-click="rowClick"
         >
+          <el-table-column
+            type="selection"
+            width="55"
+            v-if="multipleSelectionFlag"
+          />
           <el-table-column fixed type="index" width="50" />
 
-          <el-table-column fixed width="40" :show-overflow-tooltip="true">
+          <el-table-column fixed width="50" :show-overflow-tooltip="true">
             <template #default="scope">
               <DownloadIcon :muiscId="scope.row.id" />
             </template>
@@ -415,7 +480,7 @@ const toArtist = res => {
                 <el-link
                   :underline="false"
                   class="font-sans"
-                  @click="toMusicInfo(scope.row)"
+                  @click="toMusicInfo(scope.row.id)"
                   >{{ scope.row.musicName }}</el-link
                 >
                 <span class="font">&emsp;{{ scope.row.musicNameAlias }}</span>
@@ -427,13 +492,14 @@ const toArtist = res => {
             <template #default="scope">
               <el-link
                 class="mr-1"
+                :underline="false"
                 disable-transitions
                 v-for="(item, index) in scope.row.artistNames"
                 :key="index"
               >
-                <el-tag @click="toArtist(scope.row.artistIds[index])">{{
+                <span @click="toArtist(scope.row.artistIds[index])">{{
                   item
-                }}</el-tag>
+                }}</span>
               </el-link>
             </template>
           </el-table-column>
@@ -533,6 +599,15 @@ $searchHeight: 90%;
       margin: 4rem;
     }
   }
+}
+
+:deep(.hover-row) {
+  transform: scale(1.01);
+  transition: all 0.3s ease 0s;
+}
+/*表格鼠标悬停的样式（背景颜色）*/
+:deep(.el-table tbody tr:hover > td) {
+  background-color: var(--el-border-color);
 }
 
 .font {
