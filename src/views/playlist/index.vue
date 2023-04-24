@@ -79,7 +79,7 @@ const getPlay = (id: string) => {
     .then(res => {
       tableLoading.value = false;
       if (res.code === "200") {
-        tableData.value = res.data.records;
+        tableData.value = res.data.records.reverse();
         emptyFlag.value =
           res.data.records == null || res.data.records.length === 0;
         pageConfig.value.pageIndex = res.data.current;
