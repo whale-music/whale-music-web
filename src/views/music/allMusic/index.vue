@@ -19,6 +19,8 @@ import { ElTable } from "element-plus";
 import RadioIcon from "@/assets/svg/radio.svg?component";
 import MultipleSelectionIcon from "@/assets/svg/multiple_selection.svg?component";
 import RefreshIcon from "@/assets/svg/refresh.svg?component";
+import { FriendlyTime } from "@/utils/DateFormat.ts";
+import dayjs from "dayjs";
 
 const { isDark } = useDark();
 const router = useRouter();
@@ -180,7 +182,7 @@ const cellStyle = ({ row, columnIndex }): CellStyle<any> => {
 };
 
 // 设置表头样式
-const tableHeaderCellStyle = ({ rowIndex }): CellStyle<any> => {
+const tableHeaderCellStyle = ({ columnIndex }): CellStyle<any> => {
   let style = {};
   style = {
     color: "white",
@@ -188,7 +190,7 @@ const tableHeaderCellStyle = ({ rowIndex }): CellStyle<any> => {
     textAlign: "left",
     borderBottom: "none"
   };
-  if (rowIndex === 0) {
+  if (columnIndex === 0) {
     style["textAlign"] = "center";
   }
   if (isDark.value) {
@@ -527,7 +529,10 @@ const toArtist = res => {
           >
             <template #default="scope">
               <span>{{
-                dateFormater("YYYY-MM-dd HH:mm:ss", scope.row.createTime)
+                FriendlyTime(
+                  dateFormater("YYYY-MM-dd HH:mm:ss", scope.row.createTime),
+                  dayjs()
+                )
               }}</span>
             </template>
           </el-table-column>
