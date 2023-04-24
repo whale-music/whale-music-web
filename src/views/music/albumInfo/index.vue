@@ -42,6 +42,13 @@ const toMusicInfo = id => {
     query: { id: id }
   });
 };
+
+const toArtist = id => {
+  router.push({
+    path: "/music/artistInfo",
+    query: { id: id }
+  });
+};
 </script>
 <template>
   <div>
@@ -51,6 +58,16 @@ const toMusicInfo = id => {
         <div>
           <span class="name">{{ albumInfo.albumName }}</span>
           <br />
+          <div class="flex items-center">
+            <span>艺术家:&#32;</span>
+            <el-link
+              :underline="false"
+              @click="toArtist(item.id)"
+              v-for="(item, index) in albumInfo.artistList"
+              :key="index"
+              ><span class="font-semibold" v-html="item.artistName + '\u00a0'"
+            /></el-link>
+          </div>
           <span>类型: </span>
           <span>{{ albumInfo.subType }}</span>
           <br />

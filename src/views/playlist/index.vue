@@ -353,13 +353,18 @@ const deleteDialogVisible = ref(false);
         >
           <el-table-column fixed type="index" width="60" />
 
-          <el-table-column fixed width="40" show-overflow-tooltip>
+          <el-table-column fixed width="40" :show-overflow-tooltip="true">
             <template #default="scope">
               <DownloadIcon :muiscId="scope.row.id" />
             </template>
           </el-table-column>
 
-          <el-table-column fixed label="名称" show-overflow-tooltip width="450">
+          <el-table-column
+            fixed
+            label="名称"
+            :show-overflow-tooltip="true"
+            width="450"
+          >
             <template #default="scope">
               <span class="font-sans subpixel-antialiased">{{
                 scope.row.musicName
@@ -368,7 +373,7 @@ const deleteDialogVisible = ref(false);
             </template>
           </el-table-column>
 
-          <el-table-column label="歌手" show-overflow-tooltip>
+          <el-table-column label="歌手" :show-overflow-tooltip="true">
             <template #default="scope">
               <el-tag
                 disable-transitions
@@ -378,14 +383,18 @@ const deleteDialogVisible = ref(false);
               >
             </template>
           </el-table-column>
-          <el-table-column label="专辑" show-overflow-tooltip>
+          <el-table-column label="专辑" :show-overflow-tooltip="true">
             <template #default="scope">
               <el-tag>
                 {{ scope.row.album.albumName }}
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="歌曲时长" width="80" show-overflow-tooltip>
+          <el-table-column
+            label="歌曲时长"
+            width="80"
+            :show-overflow-tooltip="true"
+          >
             <template #default="scope">
               <span class="font-light">{{
                 dateFormater("mm:ss", scope.row.timeLength)
@@ -395,7 +404,7 @@ const deleteDialogVisible = ref(false);
           <el-table-column
             prop="createTime"
             label="上传时间"
-            show-overflow-tooltip
+            :show-overflow-tooltip="true"
           >
             <template #default="scope">
               <span>{{
@@ -446,21 +455,14 @@ const deleteDialogVisible = ref(false);
   </div>
 </template>
 <style lang="scss" scoped>
+@import url("@/style/pagination.scss");
+
 .font {
   color: #a3a39cc3;
 }
 
 .table-data {
   border-radius: 1rem;
-}
-
-:deep(.el-pager li) {
-  border-radius: 6px;
-}
-
-:deep(.is-active) {
-  background-color: var(--el-color-primary-light-7) !important;
-  color: var(--el-color-primary) !important;
 }
 
 :deep(.el-input__wrapper) {

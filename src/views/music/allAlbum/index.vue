@@ -190,12 +190,13 @@ const toAlbum = res => {
             <div v-show="menuFlag">
               <div class="flex justify-center p-4">
                 <el-pagination
+                  background
                   :default-current-page="pageConfig.pageIndex"
                   :default-page-size="pageConfig.pageNum"
                   :current-page="pageConfig.pageIndex"
                   :page-size="pageConfig.pageNum"
                   :page-sizes="[100, 200, 500, 1000]"
-                  layout="total, sizes, prev, pager, next, jumper"
+                  layout="prev, pager, next, total, sizes, jumper"
                   :total="pageConfig.total"
                   @size-change="handleSizeChange"
                   @current-change="handleCurrentChange"
@@ -218,11 +219,11 @@ const toAlbum = res => {
             v-show="!loadingFlag && !emptyFlag"
           >
             <el-table-column type="index" />
-            <el-table-column width="100" :show-overflow-tooltip="false">
+            <el-table-column width="110" :show-overflow-tooltip="false">
               <template #default="scope">
                 <el-image
                   style="width: 5rem; height: 5rem"
-                  class="rounded shadow-md"
+                  class="rounded"
                   :src="scope.row.pic"
                   fit="cover"
                 />
@@ -252,12 +253,12 @@ const toAlbum = res => {
               :show-overflow-tooltip="true"
             >
               <template #default="scope">
-                <el-tag
-                  disable-transitions
+                <el-link
+                  :underline="false"
                   v-for="item in scope.row.artistList"
                   :key="item.id"
                   class="m-1"
-                  >{{ item.artistName }}</el-tag
+                  >{{ item.artistName }}</el-link
                 >
               </template>
             </el-table-column>
@@ -277,6 +278,7 @@ const toAlbum = res => {
 
         <div class="demo-pagination-block" v-show="!loadingFlag">
           <el-pagination
+            background
             :default-current-page="pageConfig.pageIndex"
             :default-page-size="pageConfig.pageNum"
             :current-page="pageConfig.pageIndex"
@@ -296,6 +298,7 @@ const toAlbum = res => {
 <style scoped lang="scss">
 $searchWidth: 90%;
 $searchHeight: 90%;
+@import url("@/style/pagination.scss");
 
 .album {
   margin: 0;
@@ -398,8 +401,7 @@ $searchHeight: 90%;
 
 .inputGroup :is(input:focus, input:valid) ~ label {
   transform: translateY(-50%) scale(0.9);
-  margin: 0em;
-  margin-left: 1.3em;
+  margin: 0 0 0 1.3em;
   padding: 0.4em;
   background-color: #f0f2f3;
 }

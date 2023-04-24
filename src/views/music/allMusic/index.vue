@@ -383,6 +383,10 @@ const toArtist = res => {
             inline-prompt
             :active-icon="MultipleSelectionIcon"
             :inactive-icon="RadioIcon"
+            style="
+              --el-switch-on-color: var(--el-color-primary);
+              --el-switch-off-color: #a55eea;
+            "
             v-model="multipleSelectionFlag"
           />
           <el-select
@@ -408,12 +412,14 @@ const toArtist = res => {
           <div v-show="menuFlag">
             <div class="flex justify-between p-4">
               <el-pagination
+                background
+                :hide-on-single-page="pageConfig.total === 0"
                 :default-current-page="pageConfig.pageIndex"
                 :default-page-size="pageConfig.pageSize"
                 :current-page="pageConfig.pageIndex"
                 :page-size="pageConfig.pageSize"
                 :page-sizes="[100, 200, 500, 1000]"
-                layout="total, sizes, prev, pager, next, jumper"
+                layout="prev, pager, next, total, sizes, jumper"
                 :total="pageConfig.total"
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
@@ -541,6 +547,8 @@ const toArtist = res => {
 
       <div class="demo-pagination-block" v-show="!tableLoading">
         <el-pagination
+          background
+          :hide-on-single-page="pageConfig.total === 0"
           :default-current-page="pageConfig.pageIndex"
           :default-page-size="pageConfig.pageSize"
           :current-page="pageConfig.pageIndex"
@@ -559,6 +567,7 @@ const toArtist = res => {
 <style lang="scss" scoped>
 $searchWidth: 90%;
 $searchHeight: 90%;
+@import url("@/style/pagination.scss");
 
 .refresh {
   border-radius: 3px;

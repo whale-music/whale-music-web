@@ -48,7 +48,7 @@ const toAlbum = res => {
           :underline="false"
           v-for="(item, index) in artistInfo.artistNames"
           :key="index"
-          ><span class="cursor-pointer font-semibold" v-html="item + '\u00a0'"
+          ><span class="align-middle font-semibold" v-html="item + '\u00a0'"
         /></el-link>
         <br />
         <span
@@ -68,6 +68,9 @@ const toAlbum = res => {
           <el-link
             class="tail"
             :underline="false"
+            v-if="
+              artistInfo.introduction != null && artistInfo.introduction !== ''
+            "
             @click="centerDialogVisible = !centerDialogVisible"
             >[详情]
           </el-link>

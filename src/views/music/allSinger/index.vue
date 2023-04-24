@@ -111,7 +111,7 @@ const toArtist = res => {
           <div class="inputGroup">
             <input
               type="text"
-              required="true"
+              :required="true"
               autocomplete="off"
               v-model="formInline.artistName"
               @keyup.enter="onSubmit"
@@ -168,12 +168,13 @@ const toArtist = res => {
           <div v-show="menuFlag">
             <div class="flex justify-center p-4">
               <el-pagination
+                background
                 :default-current-page="page.pageIndex"
                 :default-page-size="page.pageNum"
                 :current-page="page.pageIndex"
                 :page-size="page.pageNum"
                 :page-sizes="[100, 200, 500, 1000]"
-                layout="total, sizes, prev, pager, next, jumper"
+                layout="prev, pager, next, total, sizes, jumper"
                 :total="page.total"
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
@@ -192,7 +193,7 @@ const toArtist = res => {
         <div class="table" v-show="!loadingFlag && !emptyFlag">
           <el-table :data="tableData" style="width: 100%" table-layout="fixed">
             <el-table-column type="index" />
-            <el-table-column width="100" :show-overflow-tooltip="false">
+            <el-table-column width="110" :show-overflow-tooltip="false">
               <template #default="scope">
                 <el-image
                   style="width: 5rem; height: 5rem"
@@ -253,6 +254,8 @@ const toArtist = res => {
 
           <div class="demo-pagination-block" v-show="!loadingFlag">
             <el-pagination
+              background
+              :hide-on-single-page="page.total === 0"
               :default-current-page="page.pageIndex"
               :default-page-size="page.pageNum"
               :current-page="page.pageIndex"
@@ -273,6 +276,7 @@ const toArtist = res => {
 <style lang="scss" scoped>
 $searchWidth: 90%;
 $searchHeight: 90%;
+@import url("@/style/pagination.scss");
 
 .font {
   color: #a3a39cc3;
