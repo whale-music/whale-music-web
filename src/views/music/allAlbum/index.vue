@@ -307,7 +307,6 @@ $searchHeight: 90%;
 @import url("@/style/pagination.scss");
 
 .album {
-  margin: 0;
   display: flex;
   flex-direction: column;
   /*主轴上的对齐方式为居中*/
