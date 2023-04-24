@@ -95,19 +95,14 @@ function getMusicList(param: MusicSearchReq) {
     });
 }
 
-const formInline = reactive({
-  musicName: "",
-  artistName: "",
-  albumName: ""
-});
-
+const searchName = ref<string>("");
 // 点击按钮查询
 const onSubmit = (refresh?: boolean) => {
   getMusicList({
     musicIds: [],
-    musicName: formInline.musicName,
-    artistName: formInline.artistName,
-    albumName: formInline.albumName,
+    musicName: searchName.value,
+    artistName: searchName.value,
+    albumName: searchName.value,
     orderBy: sortConfig.value,
     order: false,
     beforeDate: "",
@@ -303,64 +298,31 @@ const toArtist = res => {
           </div>
           <div class="data">
             <div class="demo-form-inline">
-              <div class="m-1">
-                <div class="inputGroup">
-                  <input
-                    type="text"
-                    :required="true"
-                    autocomplete="off"
-                    v-model="formInline.musicName"
-                    @keyup.enter="onSubmit"
-                  />
-                  <label for="name">输入音乐名称</label>
-                </div>
+              <div class="group">
+                <IconifyIconOnline class="icon" icon="solar:magnifer-linear" />
+                <input
+                  placeholder="搜索音乐专辑歌手名"
+                  type="search"
+                  class="input"
+                  :style="{ 'padding-right': tableLoading ? '2rem' : '6.5rem' }"
+                  @keyup.enter="onSubmit"
+                  v-model="searchName"
+                />
+                <Transition name="slide-fade">
+                  <div
+                    class="absolute right-0 flex flex-col justify-center m-1"
+                  >
+                    <el-button
+                      class="search-button"
+                      type="primary"
+                      size="large"
+                      :loading="tableLoading"
+                      @click="onSubmit"
+                      >{{ t("buttons.search") }}
+                    </el-button>
+                  </div>
+                </Transition>
               </div>
-
-              <div class="m-1">
-                <div class="inputGroup">
-                  <input
-                    type="text"
-                    :required="true"
-                    autocomplete="off"
-                    v-model="formInline.artistName"
-                    @keyup.enter="onSubmit"
-                  />
-                  <label for="name">输入歌手名称</label>
-                </div>
-              </div>
-
-              <div class="m-1">
-                <div class="inputGroup">
-                  <input
-                    type="text"
-                    :required="true"
-                    autocomplete="off"
-                    v-model="formInline.albumName"
-                    @keyup.enter="onSubmit"
-                  />
-                  <label for="name">输入专辑名称</label>
-                </div>
-              </div>
-
-              <Transition name="slide-fade">
-                <div
-                  class="flex flex-col justify-center m-1"
-                  v-show="
-                    formInline.albumName !== '' ||
-                    formInline.musicName !== '' ||
-                    formInline.artistName !== ''
-                  "
-                >
-                  <el-button
-                    type="primary"
-                    round
-                    size="large"
-                    :loading="tableLoading"
-                    @click="onSubmit"
-                    >{{ t("buttons.search") }}
-                  </el-button>
-                </div>
-              </Transition>
             </div>
           </div>
         </div>
@@ -636,46 +598,64 @@ $searchHeight: 90%;
 }
 
 .demo-form-inline {
-  display: flex;
-}
-
-.inputGroup {
-  font-family: "Segoe UI", sans-serif;
-  margin: 1em 0 1em 0;
-  max-width: 190px;
-  position: relative;
-}
-
-.inputGroup input {
-  font-size: 100%;
-  padding: 0.8em;
-  outline: none;
-  border: 2px solid rgb(200, 200, 200);
-  background-color: transparent;
-  border-radius: 20px;
   width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
-.inputGroup label {
-  font-size: 100%;
+.group {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  line-height: 28px;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  position: relative;
+  width: 50%;
+}
+
+.input {
+  width: 100%;
+  height: 3.2rem;
+  line-height: 28px;
+  padding: 0 0 0 2.5rem;
+  border: 2px solid transparent;
+  border-radius: 1rem;
+  outline: none;
+  background-color: var(--el-bg-color);
+  color: var(--el-text-color-primary);
+  -webkit-transition: 0.3s ease;
+  transition: 0.3s ease;
+}
+
+.input::placeholder {
+  color: #9e9ea7;
+}
+
+.input:focus,
+input:hover {
+  outline: none;
+  border-color: rgba(var(--el-color-primary-rgb), 0.4);
+  //border-color: rgba(234, 76, 137, 0.4);
+  background-color: var(--el-bg-color);
+  //box-shadow: 0 0 0 4px rgb(234 76 137 / 10%);
+  box-shadow: 0 0 0 4px var(--el-color-primary-light-8);
+}
+
+.icon {
   position: absolute;
-  left: 0;
-  padding: 0.8em;
-  margin-left: 0.5em;
-  pointer-events: none;
-  transition: all 0.3s ease;
-  color: rgb(100, 100, 100);
+  left: 1rem;
+  fill: #9e9ea7;
+  width: 1rem;
+  height: 1rem;
 }
 
-.inputGroup :is(input:focus, input:valid) ~ label {
-  @apply dark:bg-[#020409] bg-neutral-100;
-  transform: translateY(-50%) scale(0.9);
-  margin: 0 0 0 1.3em;
-  padding: 0.4em;
-}
-
-.inputGroup :is(input:focus, input:valid) {
-  border-color: rgb(150, 150, 200);
+.search-button {
+  height: 2.4rem;
+  margin-right: 1rem;
+  border-radius: 1rem;
+  transition: width 1s ease;
 }
 
 .menu-button {
