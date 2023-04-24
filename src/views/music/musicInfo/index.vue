@@ -14,6 +14,7 @@ import { useCopyToClipboard } from "@pureadmin/utils";
 import { message } from "@/utils/message";
 import axios from "axios";
 import { downloadByData } from "@pureadmin/utils";
+import PlayIcon from "@/assets/svg/play.svg?component";
 
 const router = useRouter();
 const id = ref();
@@ -158,10 +159,31 @@ const toMusicPlay = res => {
             dateFormater("YYYY-MM-dd", musicInfo.publishTime)
           }}</span>
         </div>
-        <div class="buttons">
-          <el-button round @click="playMusic"
-            ><span v-html="'\u00a0' + '播放' + '\u00a0'"
-          /></el-button>
+        <div>
+          <el-button-group>
+            <el-button
+              style="height: 2.4rem"
+              type="primary"
+              size="default"
+              round
+              @click="playMusic"
+            >
+              <i><PlayIcon class="w-5 h-5" /></i>
+              <span v-html="'\u00a0' + '播放' + '\u00a0'"
+            /></el-button>
+            <el-button
+              type="primary"
+              style="height: 2.4rem"
+              round
+              size="default"
+              ><i
+                ><IconifyIconOnline
+                  color="#ffffff"
+                  icon="mingcute:add-fill"
+                  width="1.1rem"
+                  height="1.1rem" /></i
+            ></el-button>
+          </el-button-group>
         </div>
       </div>
     </div>
