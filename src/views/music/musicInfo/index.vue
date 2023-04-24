@@ -179,16 +179,25 @@ const toMusicPlay = res => {
           </div>
           <div class="grow h-full cursor-pointer" @click="toMusicPlay(item)" />
           <div class="operate-info">
-            <IconifyIconOnline
-              class="mr-4"
-              :style="{
-                color:
-                  item.url == null || item.url === '' ? '#7d7d7d' : '#626aef'
-              }"
-              icon="solar:play-stream-bold"
-              width="2rem"
-              height="2rem"
-            />
+            <el-tooltip
+              class="box-item"
+              effect="dark"
+              :content="
+                item.url == null || item.url === '' ? '不可播放' : '可播放'
+              "
+              placement="top-start"
+            >
+              <IconifyIconOnline
+                class="mr-4"
+                :style="{
+                  color:
+                    item.url == null || item.url === '' ? '#7d7d7d' : '#626aef'
+                }"
+                icon="solar:play-stream-bold"
+                width="2rem"
+                height="2rem"
+              />
+            </el-tooltip>
             <span class="mr-4 font-medium level">{{ item.level }}</span>
             <div class="flex items-center">
               <el-button round class="mr-4" @click="copy(item.url)"

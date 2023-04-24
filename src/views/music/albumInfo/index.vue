@@ -123,8 +123,18 @@ const toArtist = id => {
     </div>
     <div class="item">
       <div
-        class="music-item"
-        :style="{ 'background-color': index % 2 !== 1 ? '#ffff' : '#eeeeee' }"
+        :class="{
+          'music-item1': index % 2 !== 1,
+          'music-item2': index % 2 !== 0
+        }"
+        :style="{
+          'border-top-left-radius': index === 0 ? '1rem' : '0',
+          'border-top-right-radius': index === 0 ? '1rem' : '0',
+          'border-bottom-left-radius':
+            index === albumInfo.musicList.length - 1 ? '1rem' : '0',
+          'border-bottom-right-radius':
+            index === albumInfo.musicList.length - 1 ? '1rem' : '0'
+        }"
         v-for="(item, index) in albumInfo.musicList"
         :key="index"
       >
@@ -206,11 +216,11 @@ const toArtist = id => {
   margin-top: 2rem;
 }
 
-.music-item {
+.music-item1 {
+  @apply dark:bg-[#232323];
   width: 100%;
   height: 3.6rem;
-  background-color: #fff;
-  border-radius: 1rem;
+  background-color: #ffffff;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
@@ -219,11 +229,37 @@ const toArtist = id => {
   justify-content: space-between;
 }
 
-.music-item:hover {
+.music-item1:hover {
+  @apply dark:bg-[#2c2c2c];
   width: 100%;
   height: 3.6rem;
-  background-color: #000000;
-  border-radius: 1rem;
+  background-color: #eeeeee;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-content: center;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.music-item2 {
+  @apply dark:bg-[#1f1f1f];
+  width: 100%;
+  height: 3.6rem;
+  background-color: #f6f6f6;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-content: center;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.music-item2:hover {
+  @apply dark:bg-[#2c2c2c];
+  width: 100%;
+  height: 3.6rem;
+  background-color: #eeeeee;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
