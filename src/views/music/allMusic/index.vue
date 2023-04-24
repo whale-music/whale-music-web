@@ -91,7 +91,7 @@ function getMusicList(param: MusicSearchReq) {
     })
     .catch(res => {
       tableLoading.value = false;
-      message(res, { type: "error" });
+      message(`查询失败${res}`, { type: "error" });
     });
 }
 
@@ -112,7 +112,7 @@ const onSubmit = (refresh?: boolean) => {
     order: false,
     beforeDate: "",
     afterDate: "",
-    refresh: refresh != null,
+    refresh: refresh == null || typeof refresh != "boolean" ? false : refresh,
     page: {
       pageIndex: pageConfig.pageIndex,
       pageNum: pageConfig.pageSize
@@ -174,7 +174,6 @@ const cellStyle = ({ row, columnIndex }): CellStyle<any> => {
   switch (row.isExist) {
     case false:
       styles["color"] = "#a2a2a2";
-      // styles["backgroundColor"] = "#1e1e1e";
       styles["backgroundColor"] = isDark.value ? "#262626" : "#f4f6f7";
       break;
   }
@@ -183,13 +182,11 @@ const cellStyle = ({ row, columnIndex }): CellStyle<any> => {
 
 // 设置表头样式
 const tableHeaderCellStyle = ({ columnIndex }): CellStyle<any> => {
-  let style = {};
-  style = {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "left",
-    borderBottom: "none"
-  };
+  const style = {};
+  style["color"] = "white";
+  style["font-weight"] = "bold";
+  style["text-align"] = "left";
+  style["border-bottom"] = "none";
   if (columnIndex === 0) {
     style["textAlign"] = "center";
   }
