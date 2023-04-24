@@ -201,13 +201,13 @@ const toMusicPlay = res => {
             ></el-button>
           </el-button-group>
           <!--添加歌曲到歌单-->
-          <el-dialog v-model="playItemDialogVisible" width="30%" center>
-            <AddMusicToPlayList
-              :play-item="userPlayItem"
-              :userId="Number.parseInt(userInfo.id)"
-              :music-id="addMusicId"
-            />
-          </el-dialog>
+          <AddMusicToPlayList
+            v-if="playItemDialogVisible"
+            :play-item="userPlayItem"
+            :userId="Number.parseInt(userInfo.id)"
+            :music-id="addMusicId"
+            @closeDialog="playItemDialogVisible = false"
+          />
         </div>
       </div>
     </div>

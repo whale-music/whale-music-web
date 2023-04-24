@@ -278,6 +278,7 @@ const toArtist = res => {
         :play-item="userPlayItem"
         :userId="Number.parseInt(userInfo.id)"
         :music-id="addMusicId"
+        @closeDialog="playItemDialogVisible = false"
       />
     </el-dialog>
     <div class="table">
@@ -721,18 +722,17 @@ input:hover {
   align-items: center;
 }
 
-:deep(.el-dialog) {
-  border-radius: 1rem;
+// 选择框样式，没有生效
+:deep(.el-popper.is-pure) {
+  border-radius: 1rem !important;
 }
 
-:deep(.el-select__popper) {
-  border-radius: 1rem;
-}
-
+// 输入框样式
 :deep(.el-input__wrapper) {
   border-radius: 1rem;
 }
 
+// 表格样式
 :deep(.el-table__row td) {
   border: 1px solid transparent;
 }
