@@ -75,7 +75,7 @@ function copy(value) {
   }
   clipboardValue.value = unref(value);
   if (copied.value) {
-    message("拷贝成功", { type: "success" });
+    message("拷贝音源地址成功", { type: "success" });
   }
 }
 
@@ -93,11 +93,14 @@ const toArtist = res => {
   });
 };
 
-const toMusicPlay = id => {
-  console.log(id);
+const toMusicPlay = res => {
+  if (res.url == null || res.url === "") {
+    message(`该音源无效`, { type: "error" });
+    return;
+  }
   router.push({
     path: "/musicPlay",
-    query: { id: id }
+    query: { id: res.musicId }
   });
 };
 </script>
@@ -145,17 +148,24 @@ const toMusicPlay = id => {
         <div class="show-item">
           <div
             class="ml-4 flex items-center h-full cursor-pointer"
-            @click="toMusicPlay(item.musicId)"
+            @click="toMusicPlay(item)"
           >
             <span class="index">{{ index + 1 }}</span>
             <span class="ml-4 font-bold">{{ musicInfo.musicName }}</span>
             <span class="md5">{{ item.md5 }}</span>
           </div>
-          <div
-            class="grow h-full cursor-pointer"
-            @click="toMusicPlay(item.musicId)"
-          />
+          <div class="grow h-full cursor-pointer" @click="toMusicPlay(item)" />
           <div class="operate-info">
+            <IconifyIconOnline
+              class="mr-4"
+              :style="{
+                color:
+                  item.url == null || item.url === '' ? '#7d7d7d' : '#626aef'
+              }"
+              icon="solar:play-stream-bold"
+              width="2rem"
+              height="2rem"
+            />
             <span class="mr-4 font-medium level">{{ item.level }}</span>
             <div class="flex items-center">
               <el-button round class="mr-4" @click="copy(item.url)"
