@@ -10,11 +10,14 @@ import {
 import { dateFormater } from "@/utils/dateUtil";
 import { Icon } from "@iconify/vue";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
-import { useCopyToClipboard } from "@pureadmin/utils";
+import { storageSession, useCopyToClipboard } from "@pureadmin/utils";
 import { message } from "@/utils/message";
 import axios from "axios";
 import { downloadByData } from "@pureadmin/utils";
 import PlayIcon from "@/assets/svg/play.svg?component";
+import AddMusicToPlayList from "@/components/addMusicToPlayList/addMusicToPlayList.vue";
+import { getUserPlayList, UserPlayListRes } from "@/api/playlist";
+import { DataInfo, sessionKey } from "@/utils/auth";
 
 const router = useRouter();
 const id = ref();
@@ -103,6 +106,18 @@ const download = (name, suffix, url) => {
     });
 };
 
+const playItemDialogVisible = ref(false);
+const addMusicId = ref<number>();
+const userPlayItem = ref<UserPlayListRes[]>();
+const userInfo = storageSession().getItem<DataInfo>(sessionKey);
+const getUserPlayInfo = (id: number) => {
+  addMusicId.value = id;
+  getUserPlayList(userInfo.id).then(res => {
+    playItemDialogVisible.value = true;
+    userPlayItem.value = res.data;
+  });
+};
+
 const toAlbum = albumId => {
   router.push({
     path: "/music/albumInfo",
@@ -176,6 +191,7 @@ const toMusicPlay = res => {
               style="height: 2.4rem"
               round
               size="default"
+              @click="getUserPlayInfo(musicInfo.id)"
               ><i
                 ><IconifyIconOnline
                   color="#ffffff"
@@ -184,6 +200,14 @@ const toMusicPlay = res => {
                   height="1.1rem" /></i
             ></el-button>
           </el-button-group>
+          <!--添加歌曲到歌单-->
+          <el-dialog v-model="playItemDialogVisible" width="30%" center>
+            <AddMusicToPlayList
+              :play-item="userPlayItem"
+              :userId="Number.parseInt(userInfo.id)"
+              :music-id="addMusicId"
+            />
+          </el-dialog>
         </div>
       </div>
     </div>

@@ -199,7 +199,6 @@ const userPlayItem = ref<UserPlayListRes[]>();
 const addMusicId = ref<number>();
 const userInfo = storageSession().getItem<DataInfo>(sessionKey);
 const getUserPlayInfo = (id: number) => {
-  console.log(`Music: ${id}`);
   addMusicId.value = id;
   getUserPlayList(userInfo.id).then(res => {
     playItemDialogVisible.value = true;

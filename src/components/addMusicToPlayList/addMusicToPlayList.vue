@@ -26,7 +26,10 @@ const addMusicToPlayList = (pid: string) => {
     <h1>收藏歌单</h1>
     <div>
       <ul v-for="(item, index) in props.playItem" :key="index">
-        <li class="item cursor-pointer" @click="addMusicToPlayList(item.id)">
+        <li
+          class="item cursor-pointer"
+          @click="addMusicToPlayList(item.id.toString())"
+        >
           <div class="flex">
             <LoadImg
               :src="item.pic"
