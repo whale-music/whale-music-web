@@ -18,6 +18,7 @@ import { DataInfo, sessionKey } from "@/utils/auth";
 import { ElTable } from "element-plus";
 import RadioIcon from "@/assets/svg/radio.svg?component";
 import MultipleSelectionIcon from "@/assets/svg/multiple_selection.svg?component";
+import RefreshIcon from "@/assets/svg/refresh.svg?component";
 
 const { isDark } = useDark();
 const router = useRouter();
@@ -179,21 +180,23 @@ const cellStyle = ({ row, columnIndex }): CellStyle<any> => {
 };
 
 // 设置表头样式
-const tableHeaderCellStyle = (): CellStyle<any> => {
+const tableHeaderCellStyle = ({ rowIndex }): CellStyle<any> => {
+  let style = {};
+  style = {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "left",
+    borderBottom: "none"
+  };
+  if (rowIndex === 0) {
+    style["textAlign"] = "center";
+  }
   if (isDark.value) {
-    return {
-      color: "white",
-      fontWeight: "bold",
-      textAlign: "center",
-      borderBottom: "none"
-    };
+    style["color"] = "white";
+    return style;
   } else {
-    return {
-      color: "black",
-      fontWeight: "bold",
-      textAlign: "center",
-      borderBottom: "none"
-    };
+    style["color"] = "black";
+    return style;
   }
 };
 
@@ -284,24 +287,6 @@ const toArtist = res => {
         :music-id="addMusicId"
       />
     </el-dialog>
-
-    <!--刷新-->
-    <div class="refresh" v-show="!tableLoading">
-      <el-tooltip
-        class="box-item"
-        effect="dark"
-        content="刷新缓存"
-        placement="left-start"
-      >
-        <IconifyIconOnline
-          @click="onSubmit(true)"
-          class="cursor-pointer"
-          icon="solar:refresh-outline"
-          width="2rem"
-          height="2rem"
-        />
-      </el-tooltip>
-    </div>
     <div class="table">
       <div class="search">
         <div>
@@ -389,9 +374,11 @@ const toArtist = res => {
           </button>
         </div>
 
-        <div>
+        <div class="flex items-center">
           <el-switch
+            class="mr-4"
             size="large"
+            inline-prompt
             :active-icon="MultipleSelectionIcon"
             :inactive-icon="RadioIcon"
             v-model="multipleSelectionFlag"
@@ -417,7 +404,7 @@ const toArtist = res => {
       <div>
         <el-collapse-transition>
           <div v-show="menuFlag">
-            <div class="flex justify-center p-4">
+            <div class="flex justify-between p-4">
               <el-pagination
                 :default-current-page="pageConfig.pageIndex"
                 :default-page-size="pageConfig.pageSize"
@@ -429,6 +416,15 @@ const toArtist = res => {
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
               />
+              <el-tooltip
+                class="box-item"
+                content="刷新缓存，这需要一段时间"
+                placement="top-start"
+              >
+                <el-button type="danger" :icon="RefreshIcon" round
+                  >刷新缓存</el-button
+                >
+              </el-tooltip>
             </div>
           </div>
         </el-collapse-transition>
@@ -447,8 +443,6 @@ const toArtist = res => {
         <el-table
           ref="multipleTableRef"
           :data="tableData"
-          highlight-current-row
-          header-align="left"
           @selection-change="handleSelectionChange"
           :cell-style="cellStyle"
           :header-cell-style="tableHeaderCellStyle"
@@ -562,11 +556,7 @@ $searchWidth: 90%;
 $searchHeight: 90%;
 
 .refresh {
-  position: fixed;
-  bottom: 200px;
-  right: 40px;
-  margin: 3px;
-  z-index: 100;
+  border-radius: 3px;
   animation: animate__slideInUp; /* referring directly to the animation's @keyframe declaration */
   animation-duration: 2s; /* don't forget to set a duration! */
 }
