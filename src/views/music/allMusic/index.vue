@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getAllMusicList, getMusicUrl } from "@/api/music";
+import { getAllMusicList, getMusicUrl, MusicSearchRes } from "@/api/music";
 import { MusicSearchReq } from "@/api/common";
 import DownloadIcon from "@/components/DownloadIcon/download.vue";
 import MusicPlay from "./components/music.play.vue";
@@ -63,7 +63,7 @@ const musicPlayConfig = reactive({
 
 const sortConfig = ref("sort");
 
-const tableData = ref();
+const tableData = ref<MusicSearchRes[]>();
 const tableLoading = ref<boolean>();
 
 // 表格Ref
@@ -401,10 +401,14 @@ const toArtist = res => {
       <transition name="el-fade-in">
         <ShowLoading :loading="tableLoading" />
       </transition>
+      <el-empty
+        v-if="(tableData == null || tableData.length === 0) && !tableLoading"
+        description="这里没有音乐, 你可以首页添加音乐"
+      />
       <transition
         name="el-zoom-in-top"
         class="tableDataShow"
-        v-show="!tableLoading"
+        v-show="!tableLoading && tableData != null && tableData.length !== 0"
         :key="multipleSelectionFlag"
       >
         <el-table
