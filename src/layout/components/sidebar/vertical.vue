@@ -44,6 +44,7 @@ const loading = computed(() => {
 const menuStorae = computed(() => storageLocal().getItem("menuStorae"));
 
 function getSubMenuData(path: string) {
+  subMenuData.value = [];
   // path的上级路由组成的数组
   const parentPathArr = getParentPaths(
     path,
