@@ -1,17 +1,26 @@
 <template>
   <div>
     <h1>{{ pluginInfo.pluginName }}</h1>
-    <div class="inputs">
-      <div class="m-1" v-for="(i, index) in inputs" :key="index">
-        <span>{{ i.label }}</span>
-        <el-input v-model="i.value" placeholder="请输入" />
-      </div>
-    </div>
-    <el-button class="mt-4" type="primary" @click="save">运行</el-button>
 
+    <div class="inputs">
+      <el-collapse-transition>
+        <div v-show="loadFlag">
+          <div class="m-1" v-for="(i, index) in inputs" :key="index">
+            <span>{{ i.label }}</span>
+            <el-input
+              @change="saveOrUpdateCache(pluginId, inputs)"
+              v-model="i.value"
+              placeholder="请输入"
+            />
+          </div>
+        </div>
+      </el-collapse-transition>
+    </div>
+
+    <el-button class="mt-4 mb-4" type="primary" @click="save">运行</el-button>
     <div>
       <el-input
-        v-if="resultTextarea !== ''"
+        v-show="resultTextarea !== ''"
         v-model="resultTextarea"
         maxlength="60"
         rows="20"
@@ -36,15 +45,16 @@ import {
 } from "@/api/plugin";
 import { dateFormater } from "@/utils/dateUtil";
 import { message } from "@/utils/message";
+import { saveOrUpdateCache } from "@/utils/pluginCache";
 
 const inputs = ref<InputInter[]>();
 const resultTextarea = ref<string>();
 
-let plugin = null;
+const pluginId = ref();
 let timing = null;
 const save = () => {
   console.log("start run");
-  execPluginTask(plugin, inputs.value, false).then(res => {
+  execPluginTask(pluginId.value, inputs.value, false).then(res => {
     if (res.code == "200") {
       circulate(res.data);
     } else {
@@ -72,17 +82,11 @@ const circulate = (id: any) => {
     getPluginRuntimeMessages(id).then(res => {
       resultTextarea.value = "";
       res.data.forEach(i => {
-        console.log(
-          JSON.parse(i.msg),
-          dateFormater("YYYY-MM-dd HH:mm:ss", i.createTime)
-        );
-        resultTextarea.value =
-          resultTextarea.value +
-          "\n" +
-          dateFormater("YYYY-MM-dd HH:mm:ss", i.createTime) +
-          ": " +
-          JSON.parse(i.msg).params +
-          "\n";
+        console.log(i.msg, dateFormater("YYYY-MM-dd HH:mm:ss", i.createTime));
+        resultTextarea.value = `${resultTextarea.value}${dateFormater(
+          "YYYY-MM-dd HH:mm:ss",
+          i.createTime
+        )} - ${i.msg}\n`;
       });
     });
 
@@ -104,12 +108,17 @@ const circulate = (id: any) => {
     });
   }, 1000);
 };
+
+const loadFlag = ref<boolean>(false);
 onMounted(() => {
-  plugin = useRouter().currentRoute.value.query.id;
-  getPluginParams(Number.parseInt(plugin.toString())).then(res => {
+  pluginId.value = useRouter().currentRoute.value.query.id;
+  loadFlag.value = false;
+  getPluginParams(Number.parseInt(pluginId.value)).then(res => {
+    loadFlag.value = true;
     inputs.value = res.data;
+    saveOrUpdateCache(pluginId.value, inputs.value);
   });
-  getPluginList(plugin).then(res => {
+  getPluginList(pluginId.value).then(res => {
     if (res.code == "200" && res.data.length > 0 && res.data[0] != null) {
       pluginInfo.value = res.data[0];
     }
@@ -119,11 +128,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .inputs {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  flex-wrap: nowrap;
-  align-items: flex-end;
+  transition: height ease 1s;
 }
 
 .inputs > div {

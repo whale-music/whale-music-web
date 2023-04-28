@@ -20,8 +20,14 @@
         <div class="flex justify-between">
           <h3>{{ i.pluginName }}</h3>
           <div class="flex items-center">
-            <el-icon :size="20" class="cursor-pointer">
-              <Icon icon="ep:caret-right" />
+            <el-icon
+              :size="25"
+              class="cursor-pointer"
+              style="color: var(--el-bg-color)"
+            >
+              <a @click="toRunPlugin(i.id)">
+                <Icon icon="mingcute:play-fill" />
+              </a>
             </el-icon>
             <el-button link type="primary" @click="toEditCode(i)">
               编辑
@@ -43,8 +49,9 @@
 </template>
 
 <script lang="ts">
-import { getPluginList } from "@/api/plugin";
+import { getPluginList, PluginList } from "@/api/plugin";
 import { Icon } from "@iconify/vue";
+import { useRouter } from "vue-router";
 
 export default {
   setup() {
@@ -64,19 +71,25 @@ export default {
     });
   },
   methods: {
-    toEditCode(pluginInfo) {
+    toEditCode(pluginInfo: PluginList) {
       this.$router.push({
         path: "/plugin/addPlugin",
         query: { id: pluginInfo.id }
       });
-      console.log(`to router ${pluginInfo.id}`);
+    },
+    toRunPlugin(id: number) {
+      this.router.push({
+        path: "/plugin/runPlugin",
+        query: { id: id }
+      });
     }
   },
   data() {
     return {
+      router: useRouter(),
       pluginSearch: "",
       isPluginListShow: false,
-      pluginList: []
+      pluginList: [] as PropType<(PluginList | number)[]>
     };
   }
 };

@@ -1,5 +1,4 @@
 import { $t } from "@/plugins/i18n";
-import plugin from "@/assets/svg/plugin.svg?component";
 
 const Layout = () => import("@/layout/index.vue");
 
@@ -19,7 +18,7 @@ export default {
       name: "AllPluginList",
       component: () => import("@/views/plugin/index.vue"),
       meta: {
-        icon: plugin,
+        icon: "mingcute:plugin-2-fill",
         title: $t("menus.plugin")
       }
     },
@@ -28,7 +27,7 @@ export default {
       name: "AddPluginList",
       component: () => import("@/views/plugin/addPlugin.vue"),
       meta: {
-        icon: plugin,
+        icon: "mingcute:plugin-2-fill",
         title: $t("list.addPlugin")
       }
     },
@@ -37,8 +36,9 @@ export default {
       name: "RunPlugin",
       component: () => import("@/views/plugin/runPlugin.vue"),
       meta: {
-        icon: plugin,
-        title: $t("list.runPlugin")
+        icon: "mingcute:plugin-2-fill",
+        title: $t("list.runPlugin"),
+        showLink: false
       }
     }
   ]

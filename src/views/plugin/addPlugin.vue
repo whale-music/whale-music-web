@@ -1,5 +1,14 @@
 <template>
   <div>
+    <el-dialog v-model="errorFlag" width="30%">
+      <template #footer>
+        <el-scrollbar>
+          <div class="scrollbar-error-content">
+            {{ errorMsg }}
+          </div>
+        </el-scrollbar>
+      </template>
+    </el-dialog>
     <h1>添加插件</h1>
     <div class="top">
       <div class="flex items-center">
@@ -14,7 +23,7 @@
             center
             width="30%"
           >
-            <div class="w-full flex justify-center">
+            <div class="flex justify-center w-full">
               <div class="w-48">
                 <el-input
                   v-model="name"
@@ -33,7 +42,7 @@
           </el-dialog>
         </div>
         <span
-          class="text-neutral-500 text-xs cursor-pointer"
+          class="text-xs cursor-pointer text-neutral-500"
           @click="editCreateNameFlag = true"
         >
           {{ createName === "" ? "@未命名作者" : createName }}
@@ -47,7 +56,7 @@
             center
             width="30%"
           >
-            <div class="w-full flex justify-center">
+            <div class="flex justify-center w-full">
               <div class="w-48">
                 <el-input
                   v-model="createName"
@@ -83,7 +92,7 @@
             center
             width="30%"
           >
-            <div class="w-full flex justify-center">
+            <div class="flex justify-center w-full">
               <div class="w-96">
                 <el-input
                   rows="12"
@@ -119,7 +128,11 @@
         <div>
           <el-row :gutter="20" v-for="(i, index) in inputs" :key="index">
             <span>{{ i.label }}</span>
-            <el-input v-model="i.value" placeholder="请输入" />
+            <el-input
+              v-model="i.value"
+              @change="saveOrUpdateCache(id, inputs)"
+              placeholder="请输入"
+            />
           </el-row>
         </div>
         <el-button class="mt-4" type="primary" @click="onRunSubmit">
@@ -166,6 +179,7 @@ import {
 } from "@/api/plugin";
 import { message } from "@/utils/message";
 import { dateFormater } from "@/utils/dateUtil";
+import { saveOrUpdateCache } from "@/utils/pluginCache";
 
 export default defineComponent({
   components: {
@@ -175,7 +189,7 @@ export default defineComponent({
     const code = ref("");
     const extensions = [javascript(), oneDark];
     const createName = ref("");
-    let id = null;
+    const id = ref();
     const name = ref("");
     const description = ref("");
 
@@ -191,9 +205,12 @@ export default defineComponent({
 
     let timeout = null;
 
+    const drawer = ref(false);
+    const inputs = ref<InputInter[]>(null);
+
     const save = () => {
       savePluginInfo({
-        id: id,
+        id: id.value,
         code: code.value,
         createName: createName.value,
         pluginName: name.value,
@@ -203,7 +220,7 @@ export default defineComponent({
         userId: null
       })
         .then(res => {
-          id = res.data.id;
+          id.value = res.data.id;
           message(`${name.value}保存成功`, { type: "success" });
         })
         .catch(() => {
@@ -211,20 +228,36 @@ export default defineComponent({
         });
     };
 
-    const drawer = ref(false);
-    const inputs = ref<InputInter[]>(null);
+    // const saveOrUpdateCache = (data: InputInter[]) => {
+    //   if (data == null) return;
+    //   for (let index = 0; index < data.length; index++) {
+    //     const element = data[index];
+    //     let key = `${useUserStore.name}$${id.value}$${element.key}`;
+    //     if (element.value != null && element.value !== "") {
+    //       storageLocal().setItem(key, element.value);
+    //     }
+    //     data[index].value =
+    //       element.value === "" ? storageLocal().getItem(key) : element.value;
+    //   }
+    // };
+
+    const errorFlag = ref(false);
+    const errorMsg = ref("");
     const run = () => {
-      console.log("run");
       drawer.value = true;
-      getPluginParams(id)
+      save();
+      getPluginParams(id.value)
         .then(res => {
           if (res.code !== "200") {
-            message(`运行错误${res.message}`, { type: "error" });
+            // message(`运行错误${res.message}`, { type: "error" });
+            errorFlag.value = true;
+            errorMsg.value = res.message;
           }
           inputs.value = res.data;
+          saveOrUpdateCache(id.value, inputs.value);
         })
         .catch(reason => {
-          message(`运行错误${reason}`, { type: "error" });
+          message(`请求错误${reason}`, { type: "error" });
         });
     };
 
@@ -232,7 +265,7 @@ export default defineComponent({
     const onRunSubmit = () => {
       save();
       resultTextarea.value = "";
-      execPluginTask(id, inputs.value).then(task => {
+      execPluginTask(id.value, inputs.value).then(task => {
         if (task.code !== "200") {
           message(`插件运行错误: ${task.message}`, { type: "error" });
         }
@@ -283,13 +316,17 @@ export default defineComponent({
           name.value = pluginInfo.pluginName;
           createName.value = pluginInfo.createName;
           code.value = pluginInfo.code;
-          id = pluginInfo.id;
+          id.value = pluginInfo.id;
           description.value = pluginInfo.description;
         });
       }
       document.addEventListener("keydown", saveContent);
     });
     return {
+      id,
+      saveOrUpdateCache,
+      errorFlag,
+      errorMsg,
       createName,
       editNameFlag,
       description,
@@ -321,5 +358,10 @@ export default defineComponent({
   :deep(.el-dialog) {
     border-radius: 1rem;
   }
+}
+
+.scrollbar-error-content {
+  height: 20rem;
+  width: 80rem;
 }
 </style>
