@@ -27,7 +27,7 @@ export default {
       name: "AddPluginList",
       component: () => import("@/views/plugin/addPlugin.vue"),
       meta: {
-        icon: "mingcute:plugin-2-fill",
+        icon: "solar:test-tube-minimalistic-bold-duotone",
         title: $t("list.addPlugin")
       }
     },
@@ -39,6 +39,15 @@ export default {
         icon: "mingcute:plugin-2-fill",
         title: $t("list.runPlugin"),
         showLink: false
+      }
+    },
+    {
+      path: "/plugin/task",
+      name: "Task",
+      component: () => import("@/views/plugin/task.vue"),
+      meta: {
+        icon: "solar:calendar-mark-bold-duotone",
+        title: $t("list.task")
       }
     }
   ]

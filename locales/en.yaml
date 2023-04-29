@@ -51,6 +51,7 @@ list:
   allSinger: All Singer
   addPlugin: Add Plugin
   runPlugin: Run Plugin
+  task: Task
 msg:
   loginSuccess: Login Success
   serverError: Please check whether the server is started

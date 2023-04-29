@@ -13,7 +13,7 @@ export interface PluginList {
 }
 
 /** 获取所有插件 */
-export const getPluginList = (id?: string) => {
+export const getPluginList = (id?: string | string[]) => {
   return http.request<R<PluginList[]>>("get", "/admin/getAllPlugins", {
     params: {
       id: id
@@ -87,7 +87,11 @@ export interface PluginTask {
 }
 
 export const getPluginRuntimeTask = (data: PluginTask) => {
-  return http.request<R<PluginTask[]>>("post", "/admin/getPluginRuntimeTask", {
+  return http.request<R<PluginTask[]>>("post", "/admin/getTask", {
     data
   });
+};
+
+export const deletePluginTask = (id: number) => {
+  return http.request<R<PluginTask[]>>("get", `/admin//deleteTask/${id}`);
 };
