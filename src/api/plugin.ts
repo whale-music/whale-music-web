@@ -60,6 +60,7 @@ export interface PluginMsgRes {
   pluginId: number;
   taskId: number;
   userId: number;
+  level: number;
   msg: string;
   createTime: number;
   updateTime: number;

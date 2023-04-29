@@ -79,8 +79,12 @@ onMounted(() => {
   loadFlag.value = false;
   getPluginParams(Number.parseInt(pluginId.value)).then(res => {
     loadFlag.value = true;
-    inputs.value = res.data;
-    saveOrUpdateCache(pluginId.value, inputs.value);
+    if (res.code === "200") {
+      inputs.value = res.data;
+      saveOrUpdateCache(pluginId.value, inputs.value);
+    } else {
+      message(`获取参数错误: ${res.message}`, { type: "error" });
+    }
   });
   getPluginList(pluginId.value).then(res => {
     if (res.code == "200" && res.data.length > 0 && res.data[0] != null) {

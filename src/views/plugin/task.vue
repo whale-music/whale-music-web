@@ -87,6 +87,8 @@ const deleteTask = async (id: number, index: number) => {
       message("删除成功", { type: "success" });
       taskList.value[index].loading = false;
       taskList.value.splice(index, 1);
+    } else {
+      message(`删除失败${r.message}`, { type: "success" });
     }
     taskList.value[index].loading = false;
   } catch (e) {
