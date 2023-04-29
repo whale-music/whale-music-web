@@ -1,0 +1,5 @@
+:deep(.el-input__wrapper) {
+  border-radius: 0.6rem;
+  box-shadow: 0 0 0 1px var(--el-input-border-color, var(--el-border-color))
+    inset;
+}

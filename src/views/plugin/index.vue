@@ -213,6 +213,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "@/style/element/input.scss";
+
 .input-box {
   display: flex;
   margin-right: 0;
