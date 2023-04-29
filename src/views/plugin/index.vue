@@ -15,8 +15,32 @@
         <el-button type="primary" size="large" class="mr-4">新建</el-button>
       </div>
     </div>
+    <el-dialog v-model="deletePlugin" width="30%">
+      <span>确定删除吗？</span>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="deletePlugin = false">否</el-button>
+          <el-button
+            type="primary"
+            @click="
+              () => {
+                this.deletePlugin = false;
+                this.deletePluginMethod();
+              }
+            "
+          >
+            是
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
     <div class="plugin-grid" v-if="this.isPluginListShow">
-      <div class="plugin-show" v-for="i in pluginList" :key="i.id">
+      <div
+        class="plugin-show"
+        v-for="(i, index) in pluginList"
+        :key="i.id"
+        @contextmenu="onContextMenu($event, i.id, index)"
+      >
         <div class="flex justify-between">
           <h3>{{ i.pluginName }}</h3>
           <div class="flex items-center">
@@ -49,9 +73,11 @@
 </template>
 
 <script lang="ts">
-import { getPluginList, PluginList } from "@/api/plugin";
+import { deletePlugin, getPluginList, PluginList } from "@/api/plugin";
 import { Icon } from "@iconify/vue";
 import { useRouter } from "vue-router";
+import ContextMenu from "@imengyu/vue3-context-menu";
+import { message } from "@/utils/message";
 
 export default {
   setup() {
@@ -82,6 +108,39 @@ export default {
         path: "/plugin/runPlugin",
         query: { id: id }
       });
+    },
+    async deletePluginMethod() {
+      try {
+        const r = await deletePlugin(this.tempDeletePlugin);
+        if (r.code === "200") {
+          message("删除成功", { type: "success" });
+          this.pluginList.splice(this.tempDeleteIndex, 1);
+        } else {
+          message(`删除失败${r.message}`, { type: "error" });
+        }
+      } catch (e) {
+        message(`请求失败${e}`, { type: "error" });
+      }
+    },
+    // 右键菜单
+    onContextMenu(e: MouseEvent, id: number, index: number) {
+      //prevent the browser's default menu
+      e.preventDefault();
+      //show our menu
+      ContextMenu.showContextMenu({
+        x: e.x,
+        y: e.y,
+        items: [
+          {
+            label: "删除插件",
+            onClick: () => {
+              this.deletePlugin = true;
+              this.tempDeletePlugin = id;
+              this.tempDeleteIndex = index;
+            }
+          }
+        ]
+      });
     }
   },
   data() {
@@ -89,13 +148,16 @@ export default {
       router: useRouter(),
       pluginSearch: "",
       isPluginListShow: false,
-      pluginList: [] as PropType<(PluginList | number)[]>
+      pluginList: [] as PropType<(PluginList | number)[]>,
+      deletePlugin: false,
+      tempDeletePlugin: null,
+      tempDeleteIndex: null
     };
   }
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .input-box {
   display: flex;
   margin-right: 0;
@@ -125,5 +187,10 @@ export default {
   padding: 1rem;
   margin: 1rem;
   background-color: var(--el-color-primary-light-5);
+}
+
+/* 选择框样式，没有生效 */
+:deep(.el-dialog) {
+  border-radius: 1rem !important;
 }
 </style>

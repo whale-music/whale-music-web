@@ -94,5 +94,9 @@ export const getPluginTask = (data: PluginTask) => {
 };
 
 export const deletePluginTask = (id: number) => {
-  return http.request<R<PluginTask[]>>("get", `/admin//deleteTask/${id}`);
+  return http.request<R<PluginTask[]>>("get", `/admin/deleteTask/${id}`);
+};
+
+export const deletePlugin = (id: number) => {
+  return http.request<R<PluginTask[]>>("get", `/admin/deletePlugin/${id}`);
 };
