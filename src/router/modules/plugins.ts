@@ -49,6 +49,16 @@ export default {
         icon: "solar:calendar-mark-bold-duotone",
         title: $t("list.task")
       }
+    },
+    {
+      path: "/plugin/taskInfo",
+      name: "TaskInfo",
+      component: () => import("@/views/plugin/taskInfo.vue"),
+      meta: {
+        icon: "solar:clapperboard-text-bold-duotone",
+        title: $t("list.taskInfo"),
+        showLink: false
+      }
     }
   ]
 } as RouteConfigsTable;

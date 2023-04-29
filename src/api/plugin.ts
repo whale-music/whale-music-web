@@ -16,7 +16,7 @@ export interface PluginList {
 export const getPluginList = (id?: string | string[]) => {
   return http.request<R<PluginList[]>>("get", "/admin/getAllPlugins", {
     params: {
-      id: id
+      id: Array.isArray(id) ? id.join(",") : id
     }
   });
 };
@@ -86,7 +86,7 @@ export interface PluginTask {
   updateTime: string;
 }
 
-export const getPluginRuntimeTask = (data: PluginTask) => {
+export const getPluginTask = (data: PluginTask) => {
   return http.request<R<PluginTask[]>>("post", "/admin/getTask", {
     data
   });

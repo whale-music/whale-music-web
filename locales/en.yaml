@@ -52,6 +52,7 @@ list:
   addPlugin: Add Plugin
   runPlugin: Run Plugin
   task: Task
+  taskInfo: Run Log
 msg:
   loginSuccess: Login Success
   serverError: Please check whether the server is started

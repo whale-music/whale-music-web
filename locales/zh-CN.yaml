@@ -52,6 +52,7 @@ list:
   addPlugin: 添加插件
   runPlugin: 运行插件
   task: 任务
+  taskInfo: 运行日志
 msg:
   loginSuccess: 登录成功
   serverError: 请检查服务器是否启动

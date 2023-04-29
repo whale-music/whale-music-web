@@ -3,15 +3,17 @@ import { onBeforeMount, ref } from "vue";
 import {
   deletePluginTask,
   getPluginList,
-  getPluginRuntimeTask,
+  getPluginTask,
   PluginTask
 } from "@/api/plugin";
 import { message } from "@/utils/message";
 import Wbutton from "@/components/button/index.vue";
-
 import { FriendlyTime } from "@/utils/DateFormat";
 import { dateFormater } from "@/utils/dateUtil";
 import dayjs from "dayjs";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 interface PluginTaskList extends PluginTask {
   name?: string;
@@ -29,7 +31,7 @@ function initPluginList() {
     updateTime: "",
     userId: null
   };
-  getPluginRuntimeTask(data)
+  getPluginTask(data)
     .then(value => {
       taskList.value = value.data;
       const pluginIdArr = [];
@@ -93,6 +95,17 @@ const deleteTask = async (id: number, index: number) => {
   }
 };
 
+const underdevelopment = () => {
+  message("未开发，敬请期待", { type: "warning" });
+};
+
+const toTaskInfo = (id: number) => {
+  router.push({
+    path: "/plugin/taskInfo",
+    query: { id: id }
+  });
+};
+
 const showStatusText = (status: number) => {
   // "stop"
   if (status === 0) {
@@ -137,8 +150,8 @@ const showStatusText = (status: number) => {
             </div>
           </div>
           <div class="flex justify-around">
-            <Wbutton :loading="false">查看</Wbutton>
-            <Wbutton :loading="false" type="warning">停止</Wbutton>
+            <Wbutton @click="toTaskInfo(item.id)">查看</Wbutton>
+            <Wbutton type="warning" @click="underdevelopment">停止</Wbutton>
 
             <el-popconfirm
               confirm-button-text="是"
