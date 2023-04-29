@@ -41,28 +41,30 @@ const closeDialog = () => {
       @close="closeDialog"
     >
       <h1>收藏歌单</h1>
-      <div>
-        <ul v-for="(item, index) in props.playItem" :key="index">
-          <li
-            class="item cursor-pointer"
-            @click="addMusicToPlayList(item.id.toString())"
-          >
-            <div class="flex">
-              <LoadImg
-                :src="item.pic"
-                height="3rem"
-                width="3rem"
-                radius="8px"
-                class="m-2"
-              />
-              <div class="m-2 flex-col justify-between">
-                <p>{{ item.playListName }}</p>
-                <span class="text-xs font-bold">{{ item.count }}首音乐</span>
+      <el-scrollbar height="400px">
+        <div>
+          <ul v-for="(item, index) in props.playItem" :key="index">
+            <li
+              class="item cursor-pointer"
+              @click="addMusicToPlayList(item.id.toString())"
+            >
+              <div class="flex">
+                <LoadImg
+                  :src="item.pic"
+                  height="3rem"
+                  width="3rem"
+                  radius="8px"
+                  class="m-2"
+                />
+                <div class="m-2 flex-col justify-between">
+                  <p>{{ item.playListName }}</p>
+                  <span class="text-xs font-bold">{{ item.count }}首音乐</span>
+                </div>
               </div>
-            </div>
-          </li>
-        </ul>
-      </div>
+            </li>
+          </ul>
+        </div>
+      </el-scrollbar>
     </el-dialog>
   </div>
 </template>

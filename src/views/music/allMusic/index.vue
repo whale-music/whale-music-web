@@ -273,14 +273,13 @@ const toArtist = res => {
 <template>
   <div class="absolute-container">
     <!--添加歌曲到歌单-->
-    <el-dialog v-model="playItemDialogVisible" width="30%" center>
-      <AddMusicToPlayList
-        :play-item="userPlayItem"
-        :userId="Number.parseInt(userInfo.id)"
-        :music-id="addMusicId"
-        @closeDialog="playItemDialogVisible = false"
-      />
-    </el-dialog>
+    <AddMusicToPlayList
+      v-if="playItemDialogVisible"
+      :play-item="userPlayItem"
+      :userId="Number.parseInt(userInfo.id)"
+      :music-id="addMusicId"
+      @closeDialog="playItemDialogVisible = false"
+    />
     <div class="table">
       <div class="search">
         <div>
