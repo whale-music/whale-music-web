@@ -28,7 +28,8 @@ export default {
       component: () => import("@/views/plugin/addPlugin.vue"),
       meta: {
         icon: "solar:test-tube-minimalistic-bold-duotone",
-        title: $t("list.addPlugin")
+        title: $t("list.addPlugin"),
+        showLink: false
       }
     },
     {

@@ -12,7 +12,32 @@
           />
           <el-button type="primary" size="large">搜索</el-button>
         </div>
-        <el-button type="primary" size="large" class="mr-4">新建</el-button>
+        <el-button
+          type="primary"
+          size="large"
+          class="mr-4"
+          @click="this.showDialogFlag = true"
+          >新建</el-button
+        >
+        <el-dialog v-model="this.showDialogFlag" width="30%" center>
+          <el-form
+            label-position="top"
+            label-width="100px"
+            :model="this.pluginInfo"
+            style="max-width: 460px"
+          >
+            <el-form-item label="插件名">
+              <el-input v-model="this.pluginInfo.pluginName" />
+            </el-form-item>
+            <el-form-item label="作者">
+              <el-input v-model="this.pluginInfo.createName" />
+            </el-form-item>
+            <el-form-item label="插件描述">
+              <el-input v-model="this.pluginInfo.description" />
+            </el-form-item>
+          </el-form>
+          <Wbutton type="primary" @click="creatPlugin">创建</Wbutton>
+        </el-dialog>
       </div>
     </div>
     <el-dialog v-model="deletePlugin" width="30%">
@@ -73,18 +98,25 @@
 </template>
 
 <script lang="ts">
-import { deletePlugin, getPluginList, PluginList } from "@/api/plugin";
+import {
+  deletePlugin,
+  getPluginList,
+  PluginList,
+  savePluginInfo
+} from "@/api/plugin";
 import { Icon } from "@iconify/vue";
 import { useRouter } from "vue-router";
 import ContextMenu from "@imengyu/vue3-context-menu";
 import { message } from "@/utils/message";
+import Wbutton from "@/components/button/index.vue";
 
 export default {
   setup() {
     return {};
   },
   components: {
-    Icon
+    Icon,
+    Wbutton
   },
   mounted() {
     getPluginList().then(res => {
@@ -97,6 +129,27 @@ export default {
     });
   },
   methods: {
+    creatPlugin() {
+      savePluginInfo(this.pluginInfo)
+        .then(res => {
+          if (res.code === "200") {
+            message(`${this.pluginInfo.pluginName}保存成功`, {
+              type: "success"
+            });
+            this.pluginList.push(res.data);
+            this.pluginInfo = {};
+          } else {
+            message(`保存失败${res.message}`, { type: "error" });
+          }
+          this.showDialogFlag = false;
+        })
+        .catch(reason => {
+          this.showDialogFlag = false;
+          message(`${this.pluginInfo.pluginName}保存失败: ${reason}`, {
+            type: "error"
+          });
+        });
+    },
     toEditCode(pluginInfo: PluginList) {
       this.$router.push({
         path: "/plugin/addPlugin",
@@ -151,7 +204,9 @@ export default {
       pluginList: [] as PropType<(PluginList | number)[]>,
       deletePlugin: false,
       tempDeletePlugin: null,
-      tempDeleteIndex: null
+      tempDeleteIndex: null,
+      showDialogFlag: false,
+      pluginInfo: {} as PropType<PluginList | number>
     };
   }
 };
