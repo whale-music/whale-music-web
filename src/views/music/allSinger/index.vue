@@ -8,9 +8,10 @@ import { message } from "@/utils/message";
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
 import MultipleSelectionIcon from "@/assets/svg/multiple_selection.svg?component";
 import RadioIcon from "@/assets/svg/radio.svg?component";
-import { storageLocal } from "@pureadmin/utils";
-import { ElTable } from "element-plus";
+import { storageLocal, useDark } from "@pureadmin/utils";
+import { CellStyle, ElTable } from "element-plus";
 
+const { isDark } = useDark();
 const router = useRouter();
 
 const { t } = useI18n();
@@ -144,6 +145,55 @@ const deleteButton = async () => {
   }
 };
 
+// 表格颜色
+const cellStyle = ({ columnIndex }): CellStyle<any> => {
+  let styles = {};
+  styles["border"] = "none";
+  styles["overflow"] = "hidden";
+  // 复选框样式
+  if (columnIndex === 0) {
+    styles = {
+      color: "#bfbfbf",
+      padding: "0",
+      margin: "0",
+      width: "0.6rem",
+      "font-size": "0.6rem",
+      "text-align": "center"
+    };
+  }
+  // 设置序号样式
+  if (columnIndex === 1 && switchTableAndRadioFlag.value) {
+    styles = {
+      color: "#bfbfbf",
+      padding: "0",
+      margin: "0",
+      width: "0.6rem",
+      "font-size": "0.6rem",
+      "text-align": "center"
+    };
+  }
+  return styles;
+};
+
+// 设置表头样式
+const tableHeaderCellStyle = ({ columnIndex }): CellStyle<any> => {
+  const style = {};
+  style["color"] = "white";
+  style["font-weight"] = "bold";
+  style["text-align"] = "left";
+  style["border-bottom"] = "none";
+  if (columnIndex === 0) {
+    style["textAlign"] = "center";
+  }
+  if (isDark.value) {
+    style["color"] = "white";
+    return style;
+  } else {
+    style["color"] = "black";
+    return style;
+  }
+};
+
 const toArtist = res => {
   console.log(res);
   router.push({
@@ -179,6 +229,10 @@ const toArtist = res => {
           </template>
         </el-dialog>
         <div class="flex items-center ml-2 mr-2 rounded">
+          <span class="p-4">
+            <span class="text-sm text-black/30">已选择</span>
+            {{ multipleSelection.length }}
+          </span>
           <IconifyIconOnline
             @click="cancelButton"
             class="cursor-pointer"
@@ -296,97 +350,100 @@ const toArtist = res => {
         <ShowLoading :loading="loadingFlag" />
       </transition>
       <el-empty v-if="!loadingFlag && emptyFlag" description="description" />
-      <transition name="el-zoom-in-top">
-        <div class="table" v-show="!loadingFlag && !emptyFlag">
-          <el-table
-            ref="multipleTableRef"
-            :data="tableData"
-            style="width: 100%"
-            table-layout="fixed"
-            @selection-change="handleSelectionChange"
+      <transition
+        name="el-zoom-in-top"
+        class="table"
+        v-show="!loadingFlag && !emptyFlag"
+      >
+        <el-table
+          ref="multipleTableRef"
+          :data="tableData"
+          style="width: 100%"
+          :cell-style="cellStyle"
+          table-layout="fixed"
+          :header-cell-style="tableHeaderCellStyle"
+          @selection-change="handleSelectionChange"
+        >
+          <el-table-column
+            type="selection"
+            width="55"
+            v-if="switchTableAndRadioFlag"
+          />
+          <el-table-column type="index" />
+          <el-table-column width="110" :show-overflow-tooltip="false">
+            <template #default="scope">
+              <el-image
+                style="width: 5rem; height: 5rem"
+                class="rounded shadow-md"
+                :src="scope.row.pic"
+                fit="cover"
+              />
+            </template>
+          </el-table-column>
+
+          <el-table-column
+            prop="singerName"
+            :label="t('input.singerName')"
+            :show-overflow-tooltip="true"
           >
-            <el-table-column
-              type="selection"
-              width="55"
-              v-if="switchTableAndRadioFlag"
-            />
-            <el-table-column type="index" />
-            <el-table-column width="110" :show-overflow-tooltip="false">
-              <template #default="scope">
-                <el-image
-                  style="width: 5rem; height: 5rem"
-                  class="rounded shadow-md"
-                  :src="scope.row.pic"
-                  fit="cover"
-                />
-              </template>
-            </el-table-column>
+            <template #default="scope">
+              <el-link :underline="false" @click="toArtist(scope.row)"
+                ><span class="text-xl">{{
+                  scope.row.artistName
+                }}</span></el-link
+              >
+              <span class="font">&emsp;{{ scope.row.aliasName }}</span>
+            </template>
+          </el-table-column>
 
-            <el-table-column
-              prop="singerName"
-              :label="t('input.singerName')"
-              :show-overflow-tooltip="true"
-            >
-              <template #default="scope">
-                <el-link :underline="false" @click="toArtist(scope.row)"
-                  ><span class="text-xl">{{
-                    scope.row.artistName
-                  }}</span></el-link
-                >
-                <span class="font">&emsp;{{ scope.row.aliasName }}</span>
-              </template>
-            </el-table-column>
+          <el-table-column
+            :label="t('table.albumSize')"
+            :show-overflow-tooltip="true"
+            width="100"
+          >
+            <template #default="scope">
+              <span class="text-2xl">{{ scope.row.albumSize }}</span>
+            </template>
+          </el-table-column>
 
-            <el-table-column
-              :label="t('table.albumSize')"
-              :show-overflow-tooltip="true"
-              width="100"
-            >
-              <template #default="scope">
-                <span class="text-2xl">{{ scope.row.albumSize }}</span>
-              </template>
-            </el-table-column>
+          <el-table-column
+            :label="t('table.musicSize')"
+            :show-overflow-tooltip="true"
+            width="100"
+          >
+            <template #default="scope">
+              <span class="text-2xl">{{ scope.row.musicSize }}</span>
+            </template>
+          </el-table-column>
 
-            <el-table-column
-              :label="t('table.musicSize')"
-              :show-overflow-tooltip="true"
-              width="100"
-            >
-              <template #default="scope">
-                <span class="text-2xl">{{ scope.row.musicSize }}</span>
-              </template>
-            </el-table-column>
-
-            <el-table-column
-              prop="createTime"
-              label="上传时间"
-              :show-overflow-tooltip="true"
-            >
-              <template #default="scope">
-                <span>{{
-                  dateFormater("YYYY-MM-dd HH:mm:ss", scope.row.createTime)
-                }}</span>
-              </template>
-            </el-table-column>
-          </el-table>
-
-          <div class="demo-pagination-block" v-show="!loadingFlag">
-            <el-pagination
-              background
-              :hide-on-single-page="page.total === 0"
-              :default-current-page="page.pageIndex"
-              :default-page-size="page.pageNum"
-              :current-page="page.pageIndex"
-              :page-size="page.pageNum"
-              :page-sizes="[100, 200, 500, 1000]"
-              layout="total, sizes, prev, pager, next, jumper"
-              :total="page.total"
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
-            />
-          </div>
-        </div>
+          <el-table-column
+            prop="createTime"
+            label="上传时间"
+            :show-overflow-tooltip="true"
+          >
+            <template #default="scope">
+              <span>{{
+                dateFormater("YYYY-MM-dd HH:mm:ss", scope.row.createTime)
+              }}</span>
+            </template>
+          </el-table-column>
+        </el-table>
       </transition>
+      <div class="demo-pagination-block" v-show="!loadingFlag">
+        <el-pagination
+          background
+          :hide-on-single-page="page.total === 0"
+          :default-current-page="page.pageIndex"
+          :default-page-size="page.pageNum"
+          :current-page="page.pageIndex"
+          :page-size="page.pageNum"
+          :page-sizes="[100, 200, 500, 1000]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="page.total"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -429,6 +486,7 @@ $searchHeight: 90%;
 .table {
   display: flex;
   flex-direction: column;
+  border-radius: 1rem;
 }
 
 .menu-button {
