@@ -103,9 +103,10 @@ const switchTableAndRadioFlag = ref<boolean>(
   storageLocal().getItem("switchArtistTableAndRadio")
 );
 const switchTableAndRadio = val => {
+  multipleSelection.value = [];
   storageLocal().setItem("switchArtistTableAndRadio", val);
 };
-const multipleSelection = ref<SingerRes[]>();
+const multipleSelection = ref<SingerRes[]>([]);
 const selectFlag = ref<boolean>(false);
 const multipleTableRef = ref<InstanceType<typeof ElTable>>();
 
@@ -230,7 +231,9 @@ const toArtist = res => {
         </el-dialog>
         <div class="flex items-center ml-2 mr-2 rounded">
           <span class="p-4">
-            <span class="text-sm text-black/30">已选择</span>
+            <span class="text-sm" style="color: var(--el-text-color-regular)"
+              >已选择</span
+            >
             {{ multipleSelection.length }}
           </span>
           <IconifyIconOnline
