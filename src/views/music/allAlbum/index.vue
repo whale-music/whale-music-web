@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { AlbumRes, getAlbumPage } from "@/api/album";
-import { ref, reactive, onMounted } from "vue";
+import { AlbumRes, deleteAlbum, getAlbumPage } from "@/api/album";
+import { ref, reactive, onMounted, watch } from "vue";
 import { dateFormater } from "@/utils/dateUtil";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { message } from "@/utils/message";
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
+import MultipleSelectionIcon from "@/assets/svg/multiple_selection.svg?component";
+import RadioIcon from "@/assets/svg/radio.svg?component";
+import { storageLocal } from "@pureadmin/utils";
+import { ElTable } from "element-plus";
 
 const router = useRouter();
 
@@ -105,16 +109,180 @@ const handleCurrentChange = val => {
   onSubmit();
 };
 
+const multipleTableRef = ref<InstanceType<typeof ElTable>>();
+
+const switchTableAndRadioFlag = ref<boolean>(
+  storageLocal().getItem("switchTableAndRadio")
+);
+
+const switchTableAndRadio = val => {
+  storageLocal().setItem("switchTableAndRadio", val);
+};
+
+const deleteMusicFlag = ref<boolean>(false);
+const deleteCompelMusicFlag = ref<boolean>(false);
+
+const deleteButton = () => {
+  console.log("delete Button");
+  deleteAlbumList(false);
+};
+const deleteCompelButton = () => {
+  console.log("deleteCompelButton");
+  deleteAlbumList(true);
+};
+
+const multipleSelection = ref<AlbumRes[]>();
+const selectFlag = ref<boolean>(false);
+// 监听是否选择音乐
+watch(multipleSelection, async newQuestion => {
+  selectFlag.value = newQuestion.length > 0;
+});
+const handleSelectionChange = val => {
+  multipleSelection.value = val;
+};
+
+const cancelButton = () => {
+  multipleTableRef.value.clearSelection();
+};
+
+const deleteAlbumList = async (flag: boolean) => {
+  const id = [];
+  multipleSelection.value.forEach(value => id.push(value.id));
+  try {
+    const res = await deleteAlbum(id, flag);
+    if (res.code === "200") {
+      if (multipleSelection.value.length === pageConfig.pageNum) {
+        await onSubmit();
+        return;
+      }
+      for (const valueElement of multipleSelection.value) {
+        tableData.value = tableData.value.filter(
+          value => value.id !== valueElement.id
+        );
+      }
+      message("删除成功", { type: "success" });
+    } else {
+      message(`删除失败: ${res.message}`, { type: "error" });
+    }
+  } catch (e) {
+    message(`请求失败: ${e}`, { type: "error" });
+  }
+};
+
+// 复选框
+const rowClick = row => {
+  // 多选时不进入详情页面
+  if (switchTableAndRadioFlag.value) {
+    multipleTableRef.value.toggleRowSelection(row, null);
+  }
+};
+
 const toAlbum = res => {
   router.push({
     path: "/music/albumInfo",
     query: { id: res.id }
   });
 };
+
+const toArtist = id => {
+  console.log(id);
+  router.push({
+    path: "/music/artistInfo",
+    query: { id: id }
+  });
+};
 </script>
 
 <template>
   <div class="album">
+    <div class="operation-panel-bg" v-show="selectFlag">
+      <div class="operation-panel">
+        <el-dialog
+          v-model="deleteMusicFlag"
+          width="30%"
+          title="确认需要删除吗?"
+        >
+          <b
+            >该删除会删除<b class="text-rose-800">专辑</b>本身，如果有关联<b
+              class="text-rose-800"
+              >歌曲</b
+            >会删除失败</b
+          >
+          <template #footer>
+            <span class="dialog-footer">
+              <el-button @click="deleteMusicFlag = false">否</el-button>
+              <el-button
+                type="primary"
+                @click="
+                  deleteMusicFlag = false;
+                  deleteButton();
+                "
+              >
+                是
+              </el-button>
+            </span>
+          </template>
+        </el-dialog>
+
+        <el-dialog
+          v-model="deleteCompelMusicFlag"
+          width="30%"
+          title="确认需要删除吗?"
+        >
+          <b
+            >该操作会删除<b class="text-rose-800">歌曲</b>和<b
+              class="text-rose-800"
+              >歌单</b
+            >关联的音乐，并不会删除歌手专辑</b
+          >
+          <template #footer>
+            <span class="dialog-footer">
+              <el-button @click="deleteCompelMusicFlag = false">否</el-button>
+              <el-button
+                type="danger"
+                @click="
+                  deleteCompelMusicFlag = false;
+                  deleteCompelButton();
+                "
+              >
+                是
+              </el-button>
+            </span>
+          </template>
+        </el-dialog>
+        <div class="flex items-center ml-2 mr-2 rounded">
+          <IconifyIconOnline
+            @click="cancelButton"
+            class="cursor-pointer"
+            style="color: #636e72"
+            icon="solar:close-circle-bold-duotone"
+            width="2rem"
+            height="2rem"
+          />
+        </div>
+        <div class="flex items-center ml-2 mr-2 rounded">
+          <IconifyIconOnline
+            @click="deleteMusicFlag = true"
+            class="cursor-pointer"
+            style="color: #636e72"
+            icon="solar:trash-bin-2-outline"
+            width="2rem"
+            height="2rem"
+          />
+        </div>
+        <div class="flex items-center ml-2 mr-2 rounded">
+          <IconifyIconOnline
+            @click="deleteCompelMusicFlag = true"
+            class="cursor-pointer"
+            style="color: #d63031"
+            icon="solar:trash-bin-minimalistic-2-bold-duotone"
+            width="2rem"
+            height="2rem"
+          />
+        </div>
+      </div>
+    </div>
+
     <div class="center_album">
       <div class="option">
         <div class="flex items-center">
@@ -166,7 +334,20 @@ const toAlbum = res => {
           </div>
         </div>
 
-        <div>
+        <div class="flex justify-center items-center flex-wrap">
+          <el-switch
+            class="mr-4"
+            size="large"
+            inline-prompt
+            :active-icon="MultipleSelectionIcon"
+            :inactive-icon="RadioIcon"
+            style="
+              --el-switch-on-color: var(--el-color-primary);
+              --el-switch-off-color: #a55eea;
+            "
+            v-model="switchTableAndRadioFlag"
+            @change="switchTableAndRadio"
+          />
           <el-select
             v-model="sortConfig"
             placeholder="排序"
@@ -214,11 +395,21 @@ const toAlbum = res => {
         <el-empty v-if="!loadingFlag && emptyFlag" description="description" />
         <transition name="el-zoom-in-top">
           <el-table
+            ref="multipleTableRef"
             :data="tableData"
+            class="album-table"
             style="width: 100%"
             table-layout="fixed"
+            :key="switchTableAndRadioFlag"
             v-show="!loadingFlag && !emptyFlag"
+            @selection-change="handleSelectionChange"
+            @row-click="rowClick"
           >
+            <el-table-column
+              type="selection"
+              width="55"
+              v-if="switchTableAndRadioFlag"
+            />
             <el-table-column type="index" />
             <el-table-column width="110" :show-overflow-tooltip="false">
               <template #default="scope">
@@ -258,6 +449,7 @@ const toAlbum = res => {
             >
               <template #default="scope">
                 <el-link
+                  @click="toArtist(item.id)"
                   :underline="false"
                   v-for="item in scope.row.artistList"
                   :key="item.id"
@@ -305,6 +497,7 @@ const toAlbum = res => {
 $searchWidth: 90%;
 $searchHeight: 90%;
 @import url("@/style/pagination.scss");
+@import url("@/style/element/dialog.scss");
 
 .album {
   display: flex;
@@ -433,7 +626,36 @@ $searchHeight: 90%;
   justify-content: center;
 }
 
+.album-table {
+  border-radius: 1rem;
+}
+
 :deep(.el-table__row td) {
   border: 1px solid transparent;
+}
+
+// 输入框样式
+:deep(.el-input__wrapper) {
+  border-radius: 1rem;
+}
+
+.operation-panel-bg {
+  display: flex;
+  justify-content: center;
+}
+
+.operation-panel {
+  position: absolute;
+  display: flex;
+  z-index: 200;
+  bottom: 0;
+  justify-content: center;
+  align-items: center;
+  width: 15rem;
+  height: 3.2rem;
+  background: var(--el-bg-color);
+  border-radius: 1rem;
+  border: 1px solid rgba(142, 142, 142, 0.2);
+  margin-bottom: 20px;
 }
 </style>

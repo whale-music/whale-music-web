@@ -107,3 +107,15 @@ export interface AlbumDataRes {
 export const getAlbumDataInfo = (id: string) => {
   return http.request<R<AlbumDataRes>>("get", "/admin/album/" + id);
 };
+
+export const deleteAlbum = (id: number[], compel?: boolean) => {
+  return http.request<R<AlbumDataRes>>(
+    "delete",
+    `/admin/album/${id.join(",")}`,
+    {
+      params: {
+        compel: compel
+      }
+    }
+  );
+};
