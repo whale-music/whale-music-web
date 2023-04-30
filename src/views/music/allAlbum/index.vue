@@ -117,6 +117,7 @@ const switchTableAndRadioFlag = ref<boolean>(
 );
 
 const switchTableAndRadio = val => {
+  multipleSelection.value = [];
   storageLocal().setItem("switchAlbumTableAndRadio", val);
 };
 
@@ -127,11 +128,10 @@ const deleteButton = () => {
   deleteAlbumList(false);
 };
 const deleteCompelButton = () => {
-  console.log("deleteCompelButton");
   deleteAlbumList(true);
 };
 
-const multipleSelection = ref<AlbumRes[]>();
+const multipleSelection = ref<AlbumRes[]>([]);
 const selectFlag = ref<boolean>(false);
 // 监听是否选择音乐
 watch(multipleSelection, async newQuestion => {
@@ -300,6 +300,12 @@ const toArtist = id => {
           </template>
         </el-dialog>
         <div class="flex items-center ml-2 mr-2 rounded">
+          <span class="p-4">
+            <span class="text-sm" style="color: var(--el-text-color-regular)"
+              >已选择</span
+            >
+            {{ multipleSelection.length }}
+          </span>
           <IconifyIconOnline
             @click="cancelButton"
             class="cursor-pointer"
@@ -702,7 +708,6 @@ $searchHeight: 90%;
   bottom: 0;
   justify-content: center;
   align-items: center;
-  width: 15rem;
   height: 3.2rem;
   background: var(--el-bg-color);
   border-radius: 1rem;
