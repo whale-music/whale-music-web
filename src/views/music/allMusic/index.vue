@@ -355,8 +355,15 @@ const toArtist = res => {
     />
     <div class="operation-panel-bg" v-show="selectFlag">
       <div class="operation-panel">
-        <el-dialog v-model="deleteMusicFlag" width="30%">
-          <span>确认需要删除吗?</span>
+        <el-dialog
+          v-model="deleteMusicFlag"
+          width="30%"
+          title="确认需要删除吗?"
+        >
+          <b
+            >该删除会删除<b class="text-rose-800">歌曲</b
+            >本身，如果有关联歌单会删除失败</b
+          >
           <template #footer>
             <span class="dialog-footer">
               <el-button @click="deleteMusicFlag = false">否</el-button>
@@ -373,9 +380,17 @@ const toArtist = res => {
           </template>
         </el-dialog>
 
-        <el-dialog v-model="deleteCompelMusicFlag" width="30%">
-          <span>确认需要删除吗?</span>
-          <span>该删除除了专辑数据会删除关联歌单, 关联tag中的数据</span>
+        <el-dialog
+          v-model="deleteCompelMusicFlag"
+          width="30%"
+          title="确认需要删除吗?"
+        >
+          <b
+            >该操作会删除<b class="text-rose-800">歌曲</b>和<b
+              class="text-rose-800"
+              >歌单</b
+            >关联的音乐，并不会删除歌手专辑</b
+          >
           <template #footer>
             <span class="dialog-footer">
               <el-button @click="deleteCompelMusicFlag = false">否</el-button>
