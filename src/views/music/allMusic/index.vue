@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import { getAllMusicList, getMusicUrl, MusicSearchRes } from "@/api/music";
+import {
+  deleteMusic,
+  getAllMusicList,
+  getMusicUrl,
+  MusicSearchRes
+} from "@/api/music";
 import { MusicSearchReq } from "@/api/common";
 import DownloadIcon from "@/components/DownloadIcon/download.vue";
 import MusicPlay from "./components/music.play.vue";
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, watch } from "vue";
 import { message } from "@/utils/message";
 import { dateFormater } from "@/utils/dateUtil";
 import { CellStyle } from "element-plus/es";
@@ -20,6 +25,7 @@ import RadioIcon from "@/assets/svg/radio.svg?component";
 import MultipleSelectionIcon from "@/assets/svg/multiple_selection.svg?component";
 import RefreshIcon from "@/assets/svg/refresh.svg?component";
 import { FriendlyTime } from "@/utils/DateFormat.ts";
+import { storageLocal } from "@pureadmin/utils";
 import dayjs from "dayjs";
 
 const { isDark } = useDark();
@@ -68,11 +74,13 @@ const tableLoading = ref<boolean>();
 
 // 表格Ref
 const multipleTableRef = ref<InstanceType<typeof ElTable>>();
-// 选择数据
-const multipleSelectionFlag = ref<boolean>(false);
-const multipleSelection = ref([]);
-const handleSelectionChange = val => {
-  multipleSelection.value = val;
+// 开启选择数据
+const multipleSelectionFlag = ref<boolean>(
+  storageLocal().getItem("switchTableAndRadio")
+);
+
+const switchTableAndRadio = val => {
+  storageLocal().setItem("switchTableAndRadio", val);
 };
 
 function getMusicList(param: MusicSearchReq) {
@@ -248,6 +256,71 @@ const rowClick = row => {
   }
 };
 
+const selectTableList = ref<MusicSearchRes[]>([]);
+const handleSelectionChange = val => {
+  selectTableList.value = val;
+};
+// 监听是否选择音乐
+watch(selectTableList, async newQuestion => {
+  selectFlag.value = newQuestion.length > 0;
+});
+const selectFlag = ref<boolean>(false);
+const deleteMusicList = async (id: number[], compel: boolean) => {
+  const res = await deleteMusic(id, compel);
+  if (res.code === "200") {
+    message("删除成功", { type: "success" });
+  } else {
+    message(`删除失败: ${res.message}`, { type: "error" });
+  }
+};
+
+const cancelButton = () => {
+  multipleTableRef.value.clearSelection();
+};
+
+const deleteCompelMusicFlag = ref<boolean>(false);
+const deleteMusicFlag = ref<boolean>(false);
+// 删除
+const deleteButton = async () => {
+  const id = [];
+  selectTableList.value.forEach(value => id.push(value.id));
+  try {
+    await deleteMusicList(id, false);
+    if (selectTableList.value.length === pageConfig.pageSize) {
+      await onSubmit();
+      return;
+    }
+    for (const valueElement of selectTableList.value) {
+      tableData.value = tableData.value.filter(
+        value => value.id !== valueElement.id
+      );
+    }
+    // onSubmit();
+  } catch (e) {
+    message(`请求失败: ${e}`, { type: "error" });
+  }
+};
+// 强制删除
+const deleteCompelButton = async () => {
+  try {
+    const id = [];
+    selectTableList.value.forEach(value => id.push(value.id));
+    await deleteMusicList(id, true);
+    if (selectTableList.value.length === pageConfig.pageSize) {
+      await onSubmit();
+      return;
+    }
+    for (const valueElement of selectTableList.value) {
+      tableData.value = tableData.value.filter(
+        value => value.id !== valueElement.id
+      );
+    }
+    // onSubmit();
+  } catch (e) {
+    message(`请求失败: ${e}`, { type: "error" });
+  }
+};
+
 const toMusicInfo = id => {
   router.push({
     path: "/music/musicInfo",
@@ -280,6 +353,85 @@ const toArtist = res => {
       :music-id="addMusicId"
       @closeDialog="playItemDialogVisible = false"
     />
+    <div class="operation-panel-bg" v-show="selectFlag">
+      <div class="operation-panel">
+        <el-dialog v-model="deleteMusicFlag" width="30%">
+          <span>确认需要删除吗?</span>
+          <template #footer>
+            <span class="dialog-footer">
+              <el-button @click="deleteMusicFlag = false">否</el-button>
+              <el-button
+                type="primary"
+                @click="
+                  deleteMusicFlag = false;
+                  deleteButton();
+                "
+              >
+                是
+              </el-button>
+            </span>
+          </template>
+        </el-dialog>
+
+        <el-dialog v-model="deleteCompelMusicFlag" width="30%">
+          <span>确认需要删除吗?</span>
+          <span>该删除除了专辑数据会删除关联歌单, 关联tag中的数据</span>
+          <template #footer>
+            <span class="dialog-footer">
+              <el-button @click="deleteCompelMusicFlag = false">否</el-button>
+              <el-button
+                type="danger"
+                @click="
+                  deleteCompelMusicFlag = false;
+                  deleteCompelButton();
+                "
+              >
+                是
+              </el-button>
+            </span>
+          </template>
+        </el-dialog>
+        <div class="flex items-center ml-2 mr-2 rounded">
+          <IconifyIconOnline
+            @click="cancelButton"
+            class="cursor-pointer"
+            style="color: #636e72"
+            icon="solar:close-circle-bold-duotone"
+            width="2rem"
+            height="2rem"
+          />
+        </div>
+        <div class="flex items-center ml-2 mr-2 rounded">
+          <IconifyIconOnline
+            @click="deleteMusicFlag = true"
+            class="cursor-pointer"
+            style="color: #636e72"
+            icon="solar:trash-bin-2-outline"
+            width="2rem"
+            height="2rem"
+          />
+        </div>
+        <div class="flex items-center ml-2 mr-2 rounded">
+          <IconifyIconOnline
+            @click="deleteCompelMusicFlag = true"
+            class="cursor-pointer"
+            style="color: #d63031"
+            icon="solar:trash-bin-minimalistic-2-bold-duotone"
+            width="2rem"
+            height="2rem"
+          />
+        </div>
+        <div class="flex items-center ml-2 mr-2 rounded">
+          <IconifyIconOnline
+            class="cursor-pointer"
+            style="color: var(--el-color-primary-light-3)"
+            icon="solar:download-outline"
+            width="2rem"
+            height="2rem"
+          />
+        </div>
+      </div>
+    </div>
     <div class="table">
       <div class="search">
         <div>
@@ -346,6 +498,7 @@ const toArtist = res => {
               --el-switch-off-color: #a55eea;
             "
             v-model="multipleSelectionFlag"
+            @change="switchTableAndRadio"
           />
           <el-select
             v-model="sortConfig"
@@ -535,6 +688,32 @@ $searchHeight: 90%;
   border-radius: 3px;
   animation: animate__slideInUp; /* referring directly to the animation's @keyframe declaration */
   animation-duration: 2s; /* don't forget to set a duration! */
+}
+
+.operation-panel-bg {
+  width: 100%;
+  height: 3rem;
+  display: flex;
+  justify-content: center;
+}
+
+.operation-panel {
+  position: absolute;
+  display: flex;
+  z-index: 200;
+  bottom: 0;
+  justify-content: center;
+  align-items: center;
+  width: 15rem;
+  height: 3.2rem;
+  background: var(--el-bg-color);
+  border-radius: 1rem;
+  border: 1px solid rgba(142, 142, 142, 0.2);
+  margin-bottom: 20px;
+}
+
+:deep(.el-dialog) {
+  border-radius: 1rem;
 }
 
 .absolute-container {

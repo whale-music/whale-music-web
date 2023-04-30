@@ -245,3 +245,15 @@ export const uploadMusic = (data: UploadMusicReq) => {
     data
   });
 };
+
+export const deleteMusic = (musicId: number[], compel?: boolean) => {
+  return http.request<R<UploadMusicRes>>(
+    "delete",
+    `/admin/music/${musicId.join(",")}`,
+    {
+      params: {
+        compel: compel
+      }
+    }
+  );
+};
