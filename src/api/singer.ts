@@ -98,3 +98,10 @@ export interface ArtistInfoRes {
 export const getArtistInfo = (id: number) => {
   return http.request<R<ArtistInfoRes>>("get", `/admin/singer/${id}`);
 };
+
+export const deleteArtist = (id: number[]) => {
+  return http.request<R<ArtistInfoRes>>(
+    "delete",
+    `/admin/singer/${id.join(",")}`
+  );
+};

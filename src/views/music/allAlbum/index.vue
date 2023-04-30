@@ -112,18 +112,17 @@ const handleCurrentChange = val => {
 const multipleTableRef = ref<InstanceType<typeof ElTable>>();
 
 const switchTableAndRadioFlag = ref<boolean>(
-  storageLocal().getItem("switchTableAndRadio")
+  storageLocal().getItem("switchAlbumTableAndRadio")
 );
 
 const switchTableAndRadio = val => {
-  storageLocal().setItem("switchTableAndRadio", val);
+  storageLocal().setItem("switchAlbumTableAndRadio", val);
 };
 
 const deleteMusicFlag = ref<boolean>(false);
 const deleteCompelMusicFlag = ref<boolean>(false);
 
 const deleteButton = () => {
-  console.log("delete Button");
   deleteAlbumList(false);
 };
 const deleteCompelButton = () => {

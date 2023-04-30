@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { getSingerPage, SingerRes } from "@/api/singer";
-import { ref, reactive, onMounted } from "vue";
+import { deleteArtist, getSingerPage, SingerRes } from "@/api/singer";
+import { ref, reactive, onMounted, watch } from "vue";
 import { dateFormater } from "@/utils/dateUtil";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { message } from "@/utils/message";
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
+import MultipleSelectionIcon from "@/assets/svg/multiple_selection.svg?component";
+import RadioIcon from "@/assets/svg/radio.svg?component";
+import { storageLocal } from "@pureadmin/utils";
+import { ElTable } from "element-plus";
 
 const router = useRouter();
 
@@ -94,6 +98,52 @@ const handleCurrentChange = val => {
   onSubmit();
 };
 
+const switchTableAndRadioFlag = ref<boolean>(
+  storageLocal().getItem("switchArtistTableAndRadio")
+);
+const switchTableAndRadio = val => {
+  storageLocal().setItem("switchArtistTableAndRadio", val);
+};
+const multipleSelection = ref<SingerRes[]>();
+const selectFlag = ref<boolean>(false);
+const multipleTableRef = ref<InstanceType<typeof ElTable>>();
+
+// 监听是否选择歌手
+watch(multipleSelection, async newQuestion => {
+  selectFlag.value = newQuestion.length > 0;
+});
+const handleSelectionChange = val => {
+  multipleSelection.value = val;
+};
+const deleteMusicFlag = ref<boolean>(false);
+const cancelButton = () => {
+  multipleTableRef.value.clearSelection();
+};
+
+const deleteButton = async () => {
+  const id = [];
+  multipleSelection.value.forEach(value => id.push(value.id));
+  try {
+    const res = await deleteArtist(id);
+    if (res.code === "200") {
+      if (multipleSelection.value.length === page.pageNum) {
+        await onSubmit();
+        return;
+      }
+      for (const valueElement of multipleSelection.value) {
+        tableData.value = tableData.value.filter(
+          value => value.id !== valueElement.id
+        );
+      }
+      message("删除成功", { type: "success" });
+    } else {
+      message(`删除失败:${res.message}`, { type: "error" });
+    }
+  } catch (e) {
+    message(`删除失败:${e}`, { type: "error" });
+  }
+};
+
 const toArtist = res => {
   console.log(res);
   router.push({
@@ -105,6 +155,52 @@ const toArtist = res => {
 
 <template>
   <div class="singer">
+    <div class="operation-panel-bg" v-show="selectFlag">
+      <div class="operation-panel">
+        <el-dialog
+          v-model="deleteMusicFlag"
+          width="30%"
+          title="确认需要删除吗?"
+        >
+          <span> 该操作只会删除歌手数据 </span>
+          <template #footer>
+            <span class="dialog-footer">
+              <el-button @click="deleteMusicFlag = false">否</el-button>
+              <el-button
+                type="danger"
+                @click="
+                  deleteMusicFlag = false;
+                  deleteButton();
+                "
+              >
+                是
+              </el-button>
+            </span>
+          </template>
+        </el-dialog>
+        <div class="flex items-center ml-2 mr-2 rounded">
+          <IconifyIconOnline
+            @click="cancelButton"
+            class="cursor-pointer"
+            style="color: #636e72"
+            icon="solar:close-circle-bold-duotone"
+            width="2rem"
+            height="2rem"
+          />
+        </div>
+        <div class="flex items-center ml-2 mr-2 rounded">
+          <IconifyIconOnline
+            @click="deleteMusicFlag = true"
+            class="cursor-pointer"
+            style="color: #636e72"
+            icon="solar:trash-bin-2-outline"
+            width="2rem"
+            height="2rem"
+          />
+        </div>
+      </div>
+    </div>
+
     <div class="center-singer">
       <div class="option">
         <div class="flex items-center">
@@ -141,7 +237,21 @@ const toArtist = res => {
           </div>
         </div>
 
-        <div>
+        <div class="flex justify-center items-center flex-wrap">
+          <el-switch
+            class="mr-4"
+            size="large"
+            inline-prompt
+            :active-icon="MultipleSelectionIcon"
+            :inactive-icon="RadioIcon"
+            style="
+              --el-switch-on-color: var(--el-color-primary);
+              --el-switch-off-color: #a55eea;
+            "
+            v-model="switchTableAndRadioFlag"
+            @change="switchTableAndRadio"
+          />
+
           <el-select
             v-model="sortConfig"
             placeholder="排序"
@@ -188,7 +298,18 @@ const toArtist = res => {
       <el-empty v-if="!loadingFlag && emptyFlag" description="description" />
       <transition name="el-zoom-in-top">
         <div class="table" v-show="!loadingFlag && !emptyFlag">
-          <el-table :data="tableData" style="width: 100%" table-layout="fixed">
+          <el-table
+            ref="multipleTableRef"
+            :data="tableData"
+            style="width: 100%"
+            table-layout="fixed"
+            @selection-change="handleSelectionChange"
+          >
+            <el-table-column
+              type="selection"
+              width="55"
+              v-if="switchTableAndRadioFlag"
+            />
             <el-table-column type="index" />
             <el-table-column width="110" :show-overflow-tooltip="false">
               <template #default="scope">
@@ -274,6 +395,7 @@ const toArtist = res => {
 $searchWidth: 90%;
 $searchHeight: 90%;
 @import url("@/style/pagination.scss");
+@import url("@/style/element/dialog.scss");
 
 .font {
   color: #a3a39cc3;
@@ -410,5 +532,25 @@ $searchHeight: 90%;
 
 :deep(.el-table__row td) {
   border: 1px solid transparent;
+}
+
+.operation-panel-bg {
+  display: flex;
+  justify-content: center;
+}
+
+.operation-panel {
+  position: absolute;
+  display: flex;
+  z-index: 200;
+  bottom: 0;
+  justify-content: center;
+  align-items: center;
+  //width: 15rem;
+  height: 3.2rem;
+  background: var(--el-bg-color);
+  border-radius: 1rem;
+  border: 1px solid rgba(142, 142, 142, 0.2);
+  margin-bottom: 20px;
 }
 </style>
