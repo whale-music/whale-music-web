@@ -8,9 +8,10 @@ import { message } from "@/utils/message";
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
 import MultipleSelectionIcon from "@/assets/svg/multiple_selection.svg?component";
 import RadioIcon from "@/assets/svg/radio.svg?component";
-import { storageLocal } from "@pureadmin/utils";
-import { ElTable } from "element-plus";
+import { storageLocal, useDark } from "@pureadmin/utils";
+import { CellStyle, ElTable } from "element-plus";
 
+const { isDark } = useDark();
 const router = useRouter();
 
 const { t } = useI18n();
@@ -173,6 +174,55 @@ const rowClick = row => {
   // 多选时不进入详情页面
   if (switchTableAndRadioFlag.value) {
     multipleTableRef.value.toggleRowSelection(row, null);
+  }
+};
+
+// 表格颜色
+const cellStyle = ({ columnIndex }): CellStyle<any> => {
+  let styles = {};
+  styles["border"] = "none";
+  styles["overflow"] = "hidden";
+  // 复选框样式
+  if (columnIndex === 0) {
+    styles = {
+      color: "#bfbfbf",
+      padding: "0",
+      margin: "0",
+      width: "0.6rem",
+      "font-size": "0.6rem",
+      "text-align": "center"
+    };
+  }
+  // 设置序号样式
+  if (columnIndex === 1 && switchTableAndRadioFlag.value) {
+    styles = {
+      color: "#bfbfbf",
+      padding: "0",
+      margin: "0",
+      width: "0.6rem",
+      "font-size": "0.6rem",
+      "text-align": "center"
+    };
+  }
+  return styles;
+};
+
+// 设置表头样式
+const tableHeaderCellStyle = ({ columnIndex }): CellStyle<any> => {
+  const style = {};
+  style["color"] = "white";
+  style["font-weight"] = "bold";
+  style["text-align"] = "left";
+  style["border-bottom"] = "none";
+  if (columnIndex === 0) {
+    style["textAlign"] = "center";
+  }
+  if (isDark.value) {
+    style["color"] = "white";
+    return style;
+  } else {
+    style["color"] = "black";
+    return style;
   }
 };
 
@@ -402,7 +452,9 @@ const toArtist = id => {
             :key="switchTableAndRadioFlag"
             v-show="!loadingFlag && !emptyFlag"
             @selection-change="handleSelectionChange"
+            :header-cell-style="tableHeaderCellStyle"
             @row-click="rowClick"
+            :cell-style="cellStyle"
           >
             <el-table-column
               type="selection"
