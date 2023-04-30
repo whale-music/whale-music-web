@@ -80,6 +80,7 @@ const multipleSelectionFlag = ref<boolean>(
 );
 
 const switchTableAndRadio = val => {
+  selectTableList.value = [];
   storageLocal().setItem("switchTableAndRadio", val);
 };
 
@@ -407,6 +408,12 @@ const toArtist = res => {
           </template>
         </el-dialog>
         <div class="flex items-center ml-2 mr-2 rounded">
+          <span class="p-4">
+            <span class="text-sm" style="color: var(--el-text-color-regular)"
+              >已选择</span
+            >
+            {{ selectTableList.length }}
+          </span>
           <IconifyIconOnline
             @click="cancelButton"
             class="cursor-pointer"
@@ -572,18 +579,15 @@ const toArtist = res => {
         v-if="(tableData == null || tableData.length === 0) && !tableLoading"
         description="这里没有音乐, 你可以首页添加音乐"
       />
-      <transition
-        name="el-zoom-in-top"
-        class="tableDataShow"
-        v-show="!tableLoading && tableData != null && tableData.length !== 0"
-        :key="multipleSelectionFlag"
-      >
+      <transition name="el-zoom-in-top" class="tableDataShow">
         <el-table
           ref="multipleTableRef"
           :data="tableData"
           @selection-change="handleSelectionChange"
           :cell-style="cellStyle"
           :header-cell-style="tableHeaderCellStyle"
+          v-show="!tableLoading && tableData != null && tableData.length !== 0"
+          :key="multipleSelectionFlag"
           @row-dblclick="rowDoubleClick"
           @row-click="rowClick"
         >
@@ -706,8 +710,6 @@ $searchHeight: 90%;
 }
 
 .operation-panel-bg {
-  width: 100%;
-  height: 3rem;
   display: flex;
   justify-content: center;
 }
@@ -719,7 +721,6 @@ $searchHeight: 90%;
   bottom: 0;
   justify-content: center;
   align-items: center;
-  width: 15rem;
   height: 3.2rem;
   background: var(--el-bg-color);
   border-radius: 1rem;
