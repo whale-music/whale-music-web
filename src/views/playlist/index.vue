@@ -20,7 +20,7 @@ import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { getUserInfo, UserInfoRes } from "@/api/user";
 import LayoutGrid from "@/assets/svg/layout_grid.svg?component";
 import LayoutList from "@/assets/svg/layout_list.svg?component";
-import { initRouter } from "@/router/utils";
+import { handleAliveRoute } from "@/router/utils";
 
 const route = useRoute(); //2.在跳转页面定义router变量，解构得到指定的query和params传参的参数
 const router = useRouter();
@@ -165,7 +165,7 @@ const deletePlayListButton = () => {
   deletePlayList(route.name.toString()).then(res => {
     if (res.code === "200") {
       message("删除成功", { type: "success" });
-      initRouter();
+      handleAliveRoute(route.matched, "delete");
       router.push("/playlist");
     } else {
       message("删除失败", { type: "error" });
