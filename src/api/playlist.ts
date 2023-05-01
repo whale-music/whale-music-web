@@ -70,8 +70,11 @@ export const createPlayList = (name: string) => {
 };
 
 /** 删除歌单 */
-export const deletePlayList = (id: string) => {
-  return http.request<R<PlayInfoRes>>("delete", `/admin/playlist/${id}`);
+export const deletePlayList = (id: string[]) => {
+  return http.request<R<PlayInfoRes>>(
+    "delete",
+    `/admin/playlist/${id.join(",")}`
+  );
 };
 
 export interface UserPlayListRes extends PlayInfoRes {
@@ -96,5 +99,20 @@ export const tracksMusicToPlayList = (
       musicIds: musicIds.join(","),
       flag: flag
     }
+  });
+};
+
+export interface Page {
+  pageIndex: number;
+  pageNum: number;
+}
+
+export interface PlayInfoReq extends PlayInfoRes, UserPlayListRes {
+  page: Page;
+}
+/** 获取用户歌单 */
+export const getPlayListPage = (data: PlayInfoReq) => {
+  return http.request<R<Data<PlayInfoRes>>>("post", `/admin/playlist/page`, {
+    data
   });
 };

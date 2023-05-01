@@ -68,9 +68,13 @@ export interface MusicUrlList {
 
 /** 获取全部歌曲信息 */
 export const getAllMusicList = (data?: MusicSearchReq) => {
-  return http.request<R<Data<MusicSearchRes>>>("post", "/admin/playlist/page", {
-    data
-  });
+  return http.request<R<Data<MusicSearchRes>>>(
+    "post",
+    "/admin/playlist/music/page",
+    {
+      data
+    }
+  );
 };
 
 export interface MusicUrlRes {

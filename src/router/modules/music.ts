@@ -41,7 +41,7 @@ export default {
     },
     {
       path: "/music/playlist",
-      name: "AllSingerList",
+      name: "AllPlayList",
       component: () => import("@/views/playlist/playlist.vue"),
       meta: {
         icon: "solar:playlist-minimalistic-2-bold-duotone",

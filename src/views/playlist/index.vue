@@ -21,6 +21,7 @@ import { getUserInfo, UserInfoRes } from "@/api/user";
 import LayoutGrid from "@/assets/svg/layout_grid.svg?component";
 import LayoutList from "@/assets/svg/layout_list.svg?component";
 import { handleAliveRoute } from "@/router/utils";
+import { removeMenusRouter } from "@/utils/removeRouter";
 
 const route = useRoute(); //2.在跳转页面定义router变量，解构得到指定的query和params传参的参数
 const router = useRouter();
@@ -162,11 +163,13 @@ const createPlayListButton = () => {
 
 const deletePlayListButton = () => {
   deleteDialogVisible.value = false;
-  deletePlayList(route.name.toString()).then(res => {
+  deletePlayList([route.name.toString()]).then(res => {
     if (res.code === "200") {
       message("删除成功", { type: "success" });
       handleAliveRoute(route.matched, "delete");
-      router.push("/playlist");
+
+      router.push({ path: "/playlist" });
+      removeMenusRouter(route.name);
     } else {
       message("删除失败", { type: "error" });
     }
