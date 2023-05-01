@@ -53,6 +53,7 @@ list:
   runPlugin: 运行插件
   task: 任务
   taskInfo: 运行日志
+  playList: 全部歌单
 msg:
   loginSuccess: 登录成功
   serverError: 请检查服务器是否启动

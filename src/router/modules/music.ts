@@ -38,6 +38,15 @@ export default {
         icon: "solar:user-bold-duotone",
         title: $t("list.allSinger")
       }
+    },
+    {
+      path: "/music/playlist",
+      name: "AllSingerList",
+      component: () => import("@/views/playlist/playlist.vue"),
+      meta: {
+        icon: "solar:playlist-minimalistic-2-bold-duotone",
+        title: $t("list.playList")
+      }
     }
   ]
 } as RouteConfigsTable;

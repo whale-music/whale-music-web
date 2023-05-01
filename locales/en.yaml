@@ -53,6 +53,7 @@ list:
   runPlugin: Run Plugin
   task: Task
   taskInfo: Run Log
+  playList: Play List
 msg:
   loginSuccess: Login Success
   serverError: Please check whether the server is started
