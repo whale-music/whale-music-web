@@ -1,6 +1,6 @@
 import { http } from "@/utils/http";
 import { R } from "@/api/common";
-import { Album, Music } from "@/api/music";
+import { Album, Artist, Music } from "@/api/music";
 
 export const getMusicCount = () => {
   return http.request<R<number>>("get", "/admin/home/music/count");
@@ -20,6 +20,10 @@ export const getMusicTop = () => {
 
 export const getAlbumTop = () => {
   return http.request<R<Album[]>>("get", "/admin/home/albumTop");
+};
+
+export const getArtistTop = () => {
+  return http.request<R<Artist[]>>("get", "/admin/home/artistTop");
 };
 
 export interface MusicStatisticsRes {

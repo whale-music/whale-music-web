@@ -58,6 +58,10 @@ const pros = defineProps({
   background: var(--el-color-warning-light-8);
 }
 
+.el-button.el-button--success.is-plain.is-text.is-has-bg.button {
+  background: var(--el-color-success-light-8);
+}
+
 .el-button.el-button--danger.is-plain.is-text.is-has-bg.button {
   background: var(--el-color-danger-light-8);
 }

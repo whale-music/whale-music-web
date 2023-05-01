@@ -4,27 +4,35 @@ import {
   getAlbumCount,
   getAlbumTop,
   getArtistCount,
+  getArtistTop,
   getMusicCount,
   getMusicStatistics,
-  getMusicTop,
   getPluginTask,
   MusicStatisticsRes,
   PluginTaskRes
 } from "@/api/hone";
-import { Album, Music } from "@/api/music";
+import { Album, Artist } from "@/api/music";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { EchartOptions, useDark, useECharts } from "@pureadmin/utils";
+import { ElScrollbar } from "element-plus";
+import dayjs from "dayjs";
+import { dateFormater } from "@/utils/dateUtil";
+import { FriendlyTime } from "@/utils/DateFormat.ts";
+import Wbutton from "@/components/button/index.vue";
 
 defineOptions({
   name: "Welcome"
 });
 
-const musicList = ref<Music[]>();
+const artistList = ref<Artist[]>();
 const albumList = ref<Album[]>();
 
 const musicCount = ref<number>();
 const albumCount = ref<number>();
 const artistCount = ref<number>();
+
+const albumInnerRef = ref<HTMLDivElement>();
+const artistInnerRef = ref<HTMLDivElement>();
 
 const musicMusicStatistics = ref<MusicStatisticsRes[]>();
 
@@ -38,9 +46,9 @@ onBeforeMount(async () => {
   albumCount.value = _albumCount.data;
   artistCount.value = _artistCount.data;
   const album = await getAlbumTop();
-  const music = await getMusicTop();
+  const artist = await getArtistTop();
   albumList.value = album.data;
-  musicList.value = music.data;
+  artistList.value = artist.data;
 
   const _musicMusicStatistics = await getMusicStatistics();
   musicMusicStatistics.value = _musicMusicStatistics.data;
@@ -85,6 +93,32 @@ const pieDataChartRef = ref<HTMLDivElement | null>(null);
 const { setOptions } = useECharts(pieDataChartRef as Ref<HTMLDivElement>, {
   theme: theme
 });
+
+const statusIcon = status => {
+  switch (status) {
+    // stop
+    case 0:
+      return "stop";
+    case 1:
+      return "run";
+    case 2:
+      return "error";
+  }
+};
+
+const statusColor = status => {
+  switch (status) {
+    // stop
+    case 0:
+      return "success";
+    //  run
+    case 1:
+      return "primary";
+    // error
+    case 2:
+      return "danger";
+  }
+};
 
 function setEchaerOption() {
   setOptions({
@@ -166,25 +200,27 @@ function setEchaerOption() {
           </div>
         </div>
       </div>
-      <h1>最新音乐</h1>
-      <div class="music-new">
-        <el-scrollbar>
-          <div class="music-list">
-            <div
-              class="music-item"
-              v-for="(item, index) in musicList"
-              :key="index"
-            >
-              <LoadImg :src="item.pic" height="10rem" width="10rem" />
-              <span class="block truncate w-40">{{ item.musicName }}</span>
-            </div>
-          </div>
-        </el-scrollbar>
+      <div class="flex justify-between items-center">
+        <h1>最新专辑</h1>
+        <div class="font-bold">
+          <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="按住shift建鼠标滚动以查看"
+            placement="top"
+          >
+            <IconifyIconOnline
+              class="cursor-pointer text-[#a4b0be]"
+              icon="solar:info-circle-bold-duotone"
+              width="2rem"
+              height="2rem"
+            />
+          </el-tooltip>
+        </div>
       </div>
-      <h1>最新专辑</h1>
       <div class="album-new">
         <el-scrollbar>
-          <div class="album-list">
+          <div class="album-list" ref="albumInnerRef">
             <div
               class="album-item"
               v-for="(item, index) in albumList"
@@ -192,6 +228,40 @@ function setEchaerOption() {
             >
               <LoadImg :src="item.pic" height="10rem" width="10rem" />
               <span class="block truncate w-40">{{ item.albumName }}</span>
+            </div>
+          </div>
+        </el-scrollbar>
+      </div>
+      <div class="flex justify-between items-center">
+        <h1>最新艺术家</h1>
+        <div class="font-bold">
+          <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="按住shift建鼠标滚动以查看"
+            placement="top"
+          >
+            <IconifyIconOnline
+              class="cursor-pointer text-[#a4b0be]"
+              icon="solar:info-circle-bold-duotone"
+              width="2rem"
+              height="2rem"
+            />
+          </el-tooltip>
+        </div>
+      </div>
+      <div class="artist-new">
+        <el-scrollbar>
+          <div class="artist-list" ref="artistInnerRef">
+            <div
+              class="artist-item"
+              v-for="(item, index) in artistList"
+              :key="index"
+            >
+              <el-avatar :size="150" :src="item.pic" />
+              <span class="text-center font-bold text-xl block truncate w-40">{{
+                item.artistName
+              }}</span>
             </div>
           </div>
         </el-scrollbar>
@@ -219,25 +289,37 @@ function setEchaerOption() {
           <h1 class="ml-6">插件运行任务</h1>
           <ul v-for="(item, index) in pluginTask" :key="index">
             <li>
-              <div class="flex justify-around items-center">
-                <IconifyIconOnline
-                  color="#727272"
-                  icon="solar:user-circle-bold"
-                  width="4rem"
-                  height="4rem"
-                />
-                <div>
-                  <div>{{ item.id }}</div>
-                  <div>{{ item.updateTime }}</div>
+              <div class="flex justify-between items-center ml-6">
+                <div class="flex justify-center items-center">
+                  <IconifyIconOnline
+                    color="#727272"
+                    icon="solar:user-circle-bold"
+                    width="4rem"
+                    height="4rem"
+                  />
+                  <div>
+                    <div>{{ item.id }}</div>
+                    <b class="text-sm">
+                      {{
+                        FriendlyTime(
+                          dateFormater("YYYY-MM-dd HH:mm:ss", item.updateTime),
+                          dayjs()
+                        )
+                      }}
+                    </b>
+                  </div>
                 </div>
-                <div class="flex items-center">
+                <div class="flex items-center mr-6">
                   <IconifyIconOnline
                     class="text-[#626aef]"
                     icon="solar:cloud-upload-line-duotone"
                     width="2rem"
                     height="2rem"
                   />
-                  <span>{{ item.status }}</span>
+                  <span class="mr-4" />
+                  <Wbutton :type="statusColor(item.status)">{{
+                    statusIcon(item.status)
+                  }}</Wbutton>
                 </div>
               </div>
             </li>
@@ -278,32 +360,58 @@ function setEchaerOption() {
   border-radius: 1rem;
 }
 
+// 音乐数据显示
 .task-sidebar {
   width: 40vw;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  background: var(--el-bg-color);
+  border: 1px solid var(--el-text-color-regular);
+  border-radius: 1rem;
 }
 
+// 音乐数据饼图
 .music-count {
-  //height: 30vh;
+  height: 30vh;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
 }
 
+// 插件运行历史记录
 .music-task {
-  height: 60vh;
+  height: 62vh;
+  background: var(--el-bg-color);
+  border-top: 1px solid var(--el-text-color-regular);
+  border-bottom-left-radius: 1rem;
 }
 
-.music-new {
+.artist-new {
   width: 60vw;
+  background: var(--el-bg-color);
+  border: 1px solid var(--el-text-color-regular);
+  border-radius: 1rem;
 }
 
 .album-new {
+  @apply shadow-xl;
   width: 60vw;
+  background: var(--el-bg-color);
+  border: 1px solid var(--el-text-color-regular);
+  border-radius: 1rem;
 }
 
-.music-list {
+.artist-list {
   display: flex;
 }
 
-.music-item {
+.artist-item {
   margin: 1rem;
+  will-change: filter;
+  transition: filter 300ms;
+}
+
+.artist-item:hover {
+  filter: drop-shadow(0 0 0.8em var(--el-color-primary));
 }
 
 .album-item {

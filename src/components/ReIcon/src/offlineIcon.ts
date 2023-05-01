@@ -9,8 +9,12 @@ import HomeFilled from "@iconify-icons/ep/home-filled";
 import InformationLine from "@iconify-icons/ri/information-line";
 import Lollipop from "@iconify-icons/ep/lollipop";
 import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
+import ArrowLeftBold from "@iconify-icons/solar/alt-arrow-left-bold";
+import ArrowRightBold from "@iconify-icons/solar/alt-arrow-right-bold";
 
 addIcon("homeFilled", HomeFilled);
 addIcon("informationLine", InformationLine);
 addIcon("lollipop", Lollipop);
 addIcon("loading3Fill", Loading3Fill);
+addIcon("arrowLeftBold", ArrowLeftBold);
+addIcon("arrowRightBold", ArrowRightBold);

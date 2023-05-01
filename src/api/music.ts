@@ -12,7 +12,7 @@ export interface MusicSearchRes {
   musicNameAlias: string;
   isExist: boolean;
   albumName: string;
-  singerList: SingerList[];
+  singerList: Artist[];
   album: Album;
   musicUrlList: MusicUrlList[];
   isPlaying: boolean;
@@ -29,9 +29,9 @@ export interface MusicSearchRes {
   createTime: string;
 }
 
-export interface SingerList {
+export interface Artist {
   id: number;
-  singerName: string;
+  artistName: string;
   alias: string;
   sex: string;
   pic: string;
