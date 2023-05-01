@@ -353,19 +353,17 @@ const toArtist = res => {
         <ShowLoading :loading="loadingFlag" />
       </transition>
       <el-empty v-if="!loadingFlag && emptyFlag" description="description" />
-      <transition
-        name="el-zoom-in-top"
-        class="table"
-        v-show="!loadingFlag && !emptyFlag"
-      >
+      <transition name="el-zoom-in-top" class="table">
         <el-table
           ref="multipleTableRef"
           :data="tableData"
           style="width: 100%"
           :cell-style="cellStyle"
           table-layout="fixed"
+          :key="switchTableAndRadioFlag"
           :header-cell-style="tableHeaderCellStyle"
           @selection-change="handleSelectionChange"
+          v-show="!loadingFlag && !emptyFlag"
         >
           <el-table-column
             type="selection"
@@ -385,7 +383,6 @@ const toArtist = res => {
           </el-table-column>
 
           <el-table-column
-            prop="singerName"
             :label="t('input.singerName')"
             :show-overflow-tooltip="true"
           >
