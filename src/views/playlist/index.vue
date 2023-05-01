@@ -5,7 +5,8 @@ import {
   PlayListRes,
   PlayInfoRes,
   createPlayList,
-  deletePlayList
+  deletePlayList,
+  updatePlayListInfo
 } from "@/api/playlist";
 import { getMusicUrl } from "@/api/music";
 import { useRoute, useRouter } from "vue-router"; //1.先在需要跳转的页面引入useRouter
@@ -22,6 +23,7 @@ import LayoutGrid from "@/assets/svg/layout_grid.svg?component";
 import LayoutList from "@/assets/svg/layout_list.svg?component";
 import { handleAliveRoute } from "@/router/utils";
 import { removeMenusRouter } from "@/utils/removeRouter";
+import Wbutton from "@/components/button/index.vue";
 
 const route = useRoute(); //2.在跳转页面定义router变量，解构得到指定的query和params传参的参数
 const router = useRouter();
@@ -189,6 +191,23 @@ const rowDoubleClick = (data: any) => {
   musicPlayConfig.isPlay = true;
 };
 
+const editPlayInfoFlag = ref<boolean>(false);
+const updatePlayInfo = async () => {
+  editPlayInfoFlag.value = false;
+  try {
+    const res = await updatePlayListInfo(playlistInfo.value);
+    if (res.code === "200") {
+      message("修改成功", { type: "success" });
+    } else {
+      message(`修改失败: ${res.message}`, { type: "error" });
+    }
+  } catch (e) {
+    message(`请求失败: ${e}`, { type: "error" });
+  }
+};
+
+const aboutFlag = ref<boolean>(false);
+
 const handleSizeChange = val => {
   pageConfig.value.pageNum = val;
   onSubmit();
@@ -221,6 +240,58 @@ const deleteDialogVisible = ref(false);
 </script>
 <template>
   <div ref="divRef">
+    <el-dialog v-model="editPlayInfoFlag" title="Tips" width="30%">
+      <el-form label-position="top" :model="playlistInfo">
+        <el-form-item label="歌单名">
+          <el-input v-model="playlistInfo.playListName" placeholder="歌单名" />
+        </el-form-item>
+        <el-form-item label="封面">
+          <el-input v-model="playlistInfo.pic" placeholder="https://" />
+        </el-form-item>
+        <el-form-item label="歌单状态">
+          <el-select v-model="playlistInfo.type" placeholder="">
+            <el-option label="普通歌单" value="0" />
+            <el-option label="喜爱歌单" value="1" />
+            <el-option label="推荐歌单" value="2" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="歌单描述" prop="desc">
+          <el-input v-model="playlistInfo.description" type="textarea" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="editPlayInfoFlag = false">取消</el-button>
+          <el-button @click="updatePlayInfo" type="primary"> 更新 </el-button>
+        </span>
+      </template>
+    </el-dialog>
+    <el-dialog v-model="aboutFlag" width="30%" :show-close="false">
+      <div>
+        <div class="mb-4">
+          <h2>歌单名</h2>
+          <span>{{ playlistInfo.playListName }}</span>
+        </div>
+        <div class="mb-4">
+          <h2>封面</h2>
+          <span class="block truncate w-[23rem]">{{ playlistInfo.pic }}</span>
+        </div>
+        <div class="mb-4">
+          <h2>歌单描述</h2>
+          <span class="block truncate w-[23rem]">{{
+            playlistInfo.description
+          }}</span>
+        </div>
+      </div>
+      <template #header="{ titleId, titleClass }">
+        <div class="flex justify-between">
+          <h4 :id="titleId" :class="titleClass">关于</h4>
+          <Wbutton @click="message('功能正在开发中', { type: 'info' })"
+            >导出歌单</Wbutton
+          >
+        </div>
+      </template>
+    </el-dialog>
     <ShowLoading :loading="tableLoading" />
     <div v-if="!tableLoading">
       <div class="flex">
@@ -260,8 +331,10 @@ const deleteDialogVisible = ref(false);
           </div>
           <div class="mt-1 mb-3">
             <el-button type="primary" round>播放歌单</el-button>
-            <el-button round>编辑歌单</el-button>
-            <el-button round>关于歌单</el-button>
+            <el-button @click="editPlayInfoFlag = true" round
+              >编辑歌单</el-button
+            >
+            <el-button @click="aboutFlag = true" round>关于歌单</el-button>
             <el-button @click="deleteDialogVisible = true" type="danger" round
               >删除歌单</el-button
             >
@@ -301,7 +374,11 @@ const deleteDialogVisible = ref(false);
                 @click="centerDialogVisible = !centerDialogVisible"
                 >[详情]
               </el-link>
-              <el-link v-else :underline="false" type="primary"
+              <el-link
+                v-else
+                :underline="false"
+                type="primary"
+                @click="editPlayInfoFlag = true"
                 >添加简介</el-link
               >
             </div>
@@ -315,6 +392,9 @@ const deleteDialogVisible = ref(false);
             >
               <template #header>
                 <h2>{{ playlistInfo.playListName }}</h2>
+                <span class="font-bold text-sm text-neutral-400">{{
+                  userInfo.nickname
+                }}</span>
                 <span class="text-sm text-neutral-400">&#32;·&#32;</span>
                 <span class="text-sm text-neutral-400">
                   {{ dateFormater("YYYY", playlistInfo.createTime) }}</span
@@ -470,6 +550,8 @@ const deleteDialogVisible = ref(false);
 
 :deep(.el-input__wrapper) {
   box-shadow: 0 0 0 !important;
+  border: 1px solid var(--el-color-primary-light-8);
+  border-radius: 5px;
 }
 
 .list-grid {
