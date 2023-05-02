@@ -19,6 +19,7 @@ import dayjs from "dayjs";
 import { dateFormater } from "@/utils/dateUtil";
 import { FriendlyTime } from "@/utils/DateFormat.ts";
 import Wbutton from "@/components/button/index.vue";
+import { ReNormalCountTo } from "@/components/ReCountTo";
 
 defineOptions({
   name: "Welcome"
@@ -165,9 +166,13 @@ function setEchaerOption() {
               width="3rem"
               height="3rem"
             />
-            <span class="count-font">
-              {{ musicCount }}
-            </span>
+            <ReNormalCountTo
+              class="count-font"
+              :duration="1000"
+              :fontSize="'2em'"
+              :startVal="1"
+              :endVal="musicCount"
+            />
             <span class="text-xl font-bold"> 音乐 </span>
           </div>
         </div>
@@ -179,9 +184,13 @@ function setEchaerOption() {
               width="3rem"
               height="3rem"
             />
-            <span class="count-font">
-              {{ albumCount }}
-            </span>
+            <ReNormalCountTo
+              class="count-font"
+              :duration="1000"
+              :fontSize="'2em'"
+              :startVal="1"
+              :endVal="albumCount"
+            />
             <span class="text-xl font-bold"> 专辑 </span>
           </div>
         </div>
@@ -193,9 +202,13 @@ function setEchaerOption() {
               width="3rem"
               height="3rem"
             />
-            <span class="count-font">
-              {{ artistCount }}
-            </span>
+            <ReNormalCountTo
+              class="count-font"
+              :duration="1000"
+              :fontSize="'2em'"
+              :startVal="1"
+              :endVal="artistCount"
+            />
             <span class="text-xl font-bold"> 艺术家 </span>
           </div>
         </div>
