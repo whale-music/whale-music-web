@@ -366,7 +366,7 @@ function setEchaerOption() {
   margin-left: 1rem;
   margin-right: 1rem;
   background: var(--el-bg-color);
-  border: 1px solid var(--el-text-color-regular);
+  //border: 1px solid var(--el-text-color-regular);
   border-radius: 1rem;
 }
 
@@ -381,22 +381,21 @@ function setEchaerOption() {
 .music-task {
   height: 62vh;
   background: var(--el-bg-color);
-  border-top: 1px solid var(--el-text-color-regular);
+  border-top: 1px solid #b0b0b0;
   border-bottom-left-radius: 1rem;
 }
 
 .artist-new {
   width: 60vw;
   background: var(--el-bg-color);
-  border: 1px solid var(--el-text-color-regular);
+  //border: 1px solid var(--el-text-color-regular);
   border-radius: 1rem;
 }
 
 .album-new {
-  @apply shadow-xl;
   width: 60vw;
   background: var(--el-bg-color);
-  border: 1px solid var(--el-text-color-regular);
+  //border: 1px solid var(--el-text-color-regular);
   border-radius: 1rem;
 }
 
