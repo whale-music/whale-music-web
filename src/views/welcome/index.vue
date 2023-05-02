@@ -95,6 +95,22 @@ const { setOptions } = useECharts(pieDataChartRef as Ref<HTMLDivElement>, {
   theme: theme
 });
 
+const albumRefScrollbar = ref(null);
+const albumHandleScroll = e => {
+  const wheelDelta = e.wheelDelta || -e.deltaY * 40;
+  const scrollbar = albumRefScrollbar.value;
+  // scrollbar.wrap$获取到包裹容器的element对象
+  scrollbar.setScrollLeft(scrollbar.wrapRef.scrollLeft - wheelDelta);
+};
+
+const artistRefScrollbar = ref(null);
+const artistHandleScroll = e => {
+  const wheelDelta = e.wheelDelta || -e.deltaY * 40;
+  const scrollbar = artistRefScrollbar.value;
+  // scrollbar.wrap$获取到包裹容器的element对象
+  scrollbar.setScrollLeft(scrollbar.wrapRef.scrollLeft - wheelDelta);
+};
+
 const statusIcon = status => {
   switch (status) {
     // stop
@@ -159,60 +175,120 @@ function setEchaerOption() {
     <div class="data">
       <div class="data-header">
         <div class="header">
-          <div class="flex ml-4 mt-1 items-center">
+          <div class="flex ml-4 mt-1 items-center justify-between">
+            <div class="flex items-center">
+              <IconifyIconOnline
+                class="cursor-pointer text-[#626aef]"
+                icon="solar:music-note-bold-duotone"
+                width="3rem"
+                height="3rem"
+              />
+              <span class="text-xl ml-4 font-bold"> 音乐 </span>
+            </div>
             <IconifyIconOnline
-              class="cursor-pointer text-[#626aef]"
-              icon="solar:music-note-bold-duotone"
-              width="3rem"
-              height="3rem"
+              class="cursor-pointer mr-4"
+              icon="mingcute:more-1-line"
+              width="2rem"
+              height="2rem"
             />
+          </div>
+          <div class="ml-6 flex items-center justify-between">
             <ReNormalCountTo
-              prefix=""
+              prefix="# "
               :duration="1000"
               :color="'var(--el-text-color-primary)'"
               :fontSize="'2em'"
               :startVal="1"
               :endVal="musicCount"
             />
-            <span class="text-xl font-bold"> 音乐 </span>
+            <el-tag
+              size="small"
+              effect="dark"
+              class="mr-4"
+              color="#3cc8a8"
+              :hit="false"
+              :disable-transitions="true"
+              round
+              >+12.8% ↑</el-tag
+            >
           </div>
         </div>
         <div class="header">
-          <div class="flex ml-4 mt-1 items-center">
+          <div class="flex ml-4 mt-1 items-center justify-between">
+            <div class="flex items-center">
+              <IconifyIconOnline
+                class="cursor-pointer text-[#626aef]"
+                icon="mingcute:album-line"
+                width="3rem"
+                height="3rem"
+              />
+              <span class="text-xl ml-4 font-bold"> 专辑 </span>
+            </div>
             <IconifyIconOnline
-              class="cursor-pointer text-[#626aef]"
-              icon="mingcute:album-line"
-              width="3rem"
-              height="3rem"
+              class="cursor-pointer mr-4"
+              icon="mingcute:more-1-line"
+              width="2rem"
+              height="2rem"
             />
+          </div>
+          <div class="ml-6 flex items-center justify-between">
             <ReNormalCountTo
-              prefix=""
+              prefix="# "
               :duration="1000"
               :color="'var(--el-text-color-primary)'"
               :fontSize="'2em'"
               :startVal="1"
               :endVal="albumCount"
             />
-            <span class="text-xl font-bold"> 专辑 </span>
+            <el-tag
+              size="small"
+              effect="dark"
+              class="mr-4"
+              color="#3cc8a8"
+              :hit="false"
+              :disable-transitions="true"
+              round
+              >+12.8% ↑</el-tag
+            >
           </div>
         </div>
         <div class="header">
-          <div class="flex ml-4 mt-1 items-center">
+          <div class="ml-6 flex items-center justify-between">
+            <div class="flex items-center">
+              <IconifyIconOnline
+                class="cursor-pointer text-[#626aef]"
+                icon="solar:user-rounded-bold-duotone"
+                width="3rem"
+                height="3rem"
+              />
+              <span class="text-xl font-bold"> 艺术家 </span>
+            </div>
             <IconifyIconOnline
-              class="cursor-pointer text-[#626aef]"
-              icon="solar:user-rounded-bold-duotone"
-              width="3rem"
-              height="3rem"
+              class="cursor-pointer mr-4"
+              icon="mingcute:more-1-line"
+              width="2rem"
+              height="2rem"
             />
+          </div>
+          <div class="ml-6 flex items-center justify-between">
             <ReNormalCountTo
-              prefix=""
+              prefix="# "
               :duration="1000"
               :color="'var(--el-text-color-primary)'"
               :fontSize="'2em'"
               :startVal="1"
               :endVal="artistCount"
             />
-            <span class="text-xl font-bold"> 艺术家 </span>
+            <el-tag
+              size="small"
+              effect="dark"
+              class="mr-4"
+              color="#3cc8a8"
+              :hit="false"
+              :disable-transitions="true"
+              round
+              >+12.8% ↑</el-tag
+            >
           </div>
         </div>
       </div>
@@ -235,7 +311,11 @@ function setEchaerOption() {
         </div>
       </div>
       <div class="album-new">
-        <el-scrollbar v-loading="albumList == null || albumList.length === 0">
+        <el-scrollbar
+          v-loading="albumList == null || albumList.length === 0"
+          ref="albumRefScrollbar"
+          @wheel.prevent="albumHandleScroll"
+        >
           <div class="album-list" ref="albumInnerRef">
             <div
               class="album-item"
@@ -268,6 +348,8 @@ function setEchaerOption() {
       </div>
       <div class="artist-new">
         <el-scrollbar
+          ref="artistRefScrollbar"
+          @wheel.prevent="artistHandleScroll"
           v-loading="artistList.length == null || artistList.length === 0"
         >
           <div class="artist-list" ref="artistInnerRef">
@@ -361,23 +443,36 @@ function setEchaerOption() {
 
 .welcome {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   margin: 0 !important;
   width: 100%;
   height: 100%;
 }
 
 .data {
-  width: 60vw;
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+
+  @media screen and (max-width: 1440px) {
+    width: 100%;
+  }
 }
 
 .data-header {
-  display: flex;
+  display: grid;
+  /*  声明列的宽度  */
+  grid-template-columns: repeat(auto-fill, minmax(30%, 1fr));
+  /*  声明行间距和列间距  */
+  grid-gap: 25px;
+
+  @media screen and (max-width: 720px) {
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  }
 }
 
 .header {
   @apply shadow-2xl shadow-indigo-500/50;
-  width: 60vw;
   height: 7rem;
   margin: 1rem;
   background: var(--el-bg-color);
@@ -386,12 +481,16 @@ function setEchaerOption() {
 
 // 音乐数据显示
 .task-sidebar {
-  width: 40vw;
-  margin-left: 1rem;
-  margin-right: 1rem;
+  width: 30%;
+  margin-left: auto;
+  margin-right: auto;
   background: var(--el-bg-color);
-  //border: 1px solid var(--el-text-color-regular);
   border-radius: 1rem;
+
+  @media screen and (max-width: 1440px) {
+    width: 100%;
+    margin: 1rem;
+  }
 }
 
 // 音乐数据饼图
@@ -410,7 +509,7 @@ function setEchaerOption() {
 }
 
 .artist-new {
-  width: 60vw;
+  width: 100%;
   height: 14rem;
   background: var(--el-bg-color);
   //border: 1px solid var(--el-text-color-regular);
@@ -418,11 +517,16 @@ function setEchaerOption() {
 }
 
 .album-new {
-  width: 60vw;
+  width: 100%;
+  //width: fit-content;
   height: 14rem;
   background: var(--el-bg-color);
   //border: 1px solid var(--el-text-color-regular);
   border-radius: 1rem;
+}
+
+.album-list {
+  display: flex;
 }
 
 .artist-list {
@@ -441,10 +545,6 @@ function setEchaerOption() {
 
 .album-item {
   margin: 1rem;
-}
-
-.album-list {
-  display: flex;
 }
 
 .count-font {

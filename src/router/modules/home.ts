@@ -17,6 +17,7 @@ export default {
       name: "Welcome",
       component: () => import("@/views/welcome/index.vue"),
       meta: {
+        icon: "mingcute:home-3-fill",
         title: $t("menus.hshome")
       }
     }
