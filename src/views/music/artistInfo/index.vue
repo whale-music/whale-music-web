@@ -139,6 +139,7 @@ const toAlbum = res => {
 <style lang="scss" scoped>
 .show-artist-data {
   display: flex;
+  flex-wrap: wrap;
 }
 
 .title {
@@ -147,6 +148,10 @@ const toAlbum = res => {
 
 .info {
   margin-left: 2rem;
+
+  @media screen and (max-width: 720px) {
+    margin-left: 0;
+  }
 }
 
 .show-font {
@@ -174,6 +179,10 @@ const toAlbum = res => {
   grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
   /*  声明行间距和列间距  */
   grid-gap: 25px;
+
+  @media screen and (max-width: 720px) {
+    grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  }
 }
 
 .album-title {
