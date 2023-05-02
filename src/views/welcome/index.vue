@@ -20,6 +20,9 @@ import { dateFormater } from "@/utils/dateUtil";
 import { FriendlyTime } from "@/utils/DateFormat.ts";
 import Wbutton from "@/components/button/index.vue";
 import { ReNormalCountTo } from "@/components/ReCountTo";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 defineOptions({
   name: "Welcome"
@@ -168,6 +171,20 @@ function setEchaerOption() {
     ]
   });
 }
+
+const toAlbum = id => {
+  router.push({
+    path: "/music/albumInfo",
+    query: { id: id }
+  });
+};
+
+const toArtist = id => {
+  router.push({
+    path: "/music/artistInfo",
+    query: { id: id }
+  });
+};
 </script>
 
 <template>
@@ -322,8 +339,15 @@ function setEchaerOption() {
               v-for="(item, index) in albumList"
               :key="index"
             >
-              <LoadImg :src="item.pic" height="10rem" width="10rem" />
-              <span class="block truncate w-40">{{ item.albumName }}</span>
+              <LoadImg
+                @click="toAlbum(item.id)"
+                :src="item.pic"
+                height="10rem"
+                width="10rem"
+              />
+              <span @click="toAlbum(item.id)" class="block truncate w-40">{{
+                item.albumName
+              }}</span>
             </div>
           </div>
         </el-scrollbar>
@@ -358,10 +382,16 @@ function setEchaerOption() {
               v-for="(item, index) in artistList"
               :key="index"
             >
-              <el-avatar :size="150" :src="item.pic" />
-              <span class="text-center font-bold text-xl block truncate w-40">{{
-                item.artistName
-              }}</span>
+              <el-avatar
+                @click="toArtist(item.id)"
+                :size="150"
+                :src="item.pic"
+              />
+              <span
+                @click="toArtist(item.id)"
+                class="text-center font-bold text-xl block truncate w-40"
+                >{{ item.artistName }}</span
+              >
             </div>
           </div>
         </el-scrollbar>
