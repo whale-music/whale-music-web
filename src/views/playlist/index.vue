@@ -294,9 +294,9 @@ const deleteDialogVisible = ref(false);
     </el-dialog>
     <ShowLoading :loading="tableLoading" />
     <div v-if="!tableLoading">
-      <div class="flex">
+      <div class="flex flex-wrap">
         <LoadImg :src="playlistInfo.pic" />
-        <div class="ml-8 flex-auto">
+        <div class="playlist-title">
           <div class="title-name">
             <p class="playlist-name">{{ playlistInfo.playListName }}</p>
             <el-button
@@ -329,13 +329,19 @@ const deleteDialogVisible = ref(false);
               }}创建</span
             >
           </div>
-          <div class="mt-1 mb-3">
-            <el-button type="primary" round>播放歌单</el-button>
-            <el-button @click="editPlayInfoFlag = true" round
+          <div class="operate-button">
+            <el-button class="button" type="primary" round>播放歌单</el-button>
+            <el-button class="button" @click="editPlayInfoFlag = true" round
               >编辑歌单</el-button
             >
-            <el-button @click="aboutFlag = true" round>关于歌单</el-button>
-            <el-button @click="deleteDialogVisible = true" type="danger" round
+            <el-button class="button" @click="aboutFlag = true" round
+              >关于歌单</el-button
+            >
+            <el-button
+              class="button"
+              @click="deleteDialogVisible = true"
+              type="danger"
+              round
               >删除歌单</el-button
             >
             <el-dialog
@@ -560,6 +566,10 @@ const deleteDialogVisible = ref(false);
   grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
   /*  声明行间距和列间距  */
   grid-gap: 25px;
+
+  @media screen and (max-width: 720px) {
+    grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+  }
 }
 
 .option {
@@ -568,6 +578,33 @@ const deleteDialogVisible = ref(false);
   margin-top: 2rem;
   margin-right: 8rem;
   margin-bottom: 2rem;
+
+  @media screen and (max-width: 720px) {
+    display: grid;
+    /*  声明列的宽度  */
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+    /*  声明行间距和列间距  */
+    grid-gap: 25px;
+  }
+}
+
+.operate-button {
+  @apply mt-1 mb-3;
+
+  @media screen and (max-width: 720px) {
+    margin: 2rem 0 0;
+    display: grid;
+    /*  声明列的宽度  */
+    grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
+    /*  声明行间距和列间距  */
+    grid-gap: 25px;
+  }
+}
+
+.button {
+  @media screen and (max-width: 720px) {
+    margin: 0;
+  }
 }
 
 .playlist-name {
@@ -606,5 +643,14 @@ const deleteDialogVisible = ref(false);
 .desc {
   display: flex;
   justify-content: space-between;
+}
+
+.playlist-title {
+  @apply ml-9 flex-auto;
+
+  @media screen and (max-width: 720px) {
+    margin-left: 0;
+    margin-top: 1rem;
+  }
 }
 </style>
