@@ -1,6 +1,6 @@
 // import "@/utils/sso";
 import { getConfig } from "@/config";
-import NProgress from "@/utils/progress";
+// import NProgress from "@/utils/progress";
 import { transformI18n } from "@/plugins/i18n";
 import { sessionKey, type DataInfo } from "@/utils/auth";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
@@ -106,7 +106,7 @@ router.beforeEach((to: toRouteType, _from, next) => {
     }
   }
   const userInfo = storageSession().getItem<DataInfo>(sessionKey);
-  NProgress.start();
+  // NProgress.start();
   const externalLink = isUrl(to?.name as string);
   if (!externalLink) {
     to.matched.some(item => {
@@ -130,7 +130,7 @@ router.beforeEach((to: toRouteType, _from, next) => {
       // name为超链接
       if (externalLink) {
         openLink(to?.name as string);
-        NProgress.done();
+        // NProgress.done();
       } else {
         toCorrectRoute();
       }
@@ -175,7 +175,7 @@ router.beforeEach((to: toRouteType, _from, next) => {
 });
 
 router.afterEach(() => {
-  NProgress.done();
+  // NProgress.done();
 });
 
 export default router;

@@ -25,8 +25,8 @@ defineOptions({
   name: "Welcome"
 });
 
-const artistList = ref<Artist[]>();
-const albumList = ref<Album[]>();
+const artistList = ref<Artist[]>([]);
+const albumList = ref<Album[]>([]);
 
 const musicCount = ref<number>();
 const albumCount = ref<number>();
@@ -167,8 +167,9 @@ function setEchaerOption() {
               height="3rem"
             />
             <ReNormalCountTo
-              class="count-font"
+              prefix=""
               :duration="1000"
+              :color="'var(--el-text-color-primary)'"
               :fontSize="'2em'"
               :startVal="1"
               :endVal="musicCount"
@@ -185,8 +186,9 @@ function setEchaerOption() {
               height="3rem"
             />
             <ReNormalCountTo
-              class="count-font"
+              prefix=""
               :duration="1000"
+              :color="'var(--el-text-color-primary)'"
               :fontSize="'2em'"
               :startVal="1"
               :endVal="albumCount"
@@ -203,8 +205,9 @@ function setEchaerOption() {
               height="3rem"
             />
             <ReNormalCountTo
-              class="count-font"
+              prefix=""
               :duration="1000"
+              :color="'var(--el-text-color-primary)'"
               :fontSize="'2em'"
               :startVal="1"
               :endVal="artistCount"
@@ -232,7 +235,7 @@ function setEchaerOption() {
         </div>
       </div>
       <div class="album-new">
-        <el-scrollbar>
+        <el-scrollbar v-loading="albumList == null || albumList.length === 0">
           <div class="album-list" ref="albumInnerRef">
             <div
               class="album-item"
@@ -264,7 +267,9 @@ function setEchaerOption() {
         </div>
       </div>
       <div class="artist-new">
-        <el-scrollbar>
+        <el-scrollbar
+          v-loading="artistList.length == null || artistList.length === 0"
+        >
           <div class="artist-list" ref="artistInnerRef">
             <div
               class="artist-item"
@@ -283,7 +288,7 @@ function setEchaerOption() {
     <div class="task-sidebar">
       <div class="flex music-count">
         <div ref="pieDataChartRef" class="w-1/2" />
-        <div class="w-1/2 flex flex-col justify-between">
+        <div class="w-1/2 flex flex-col justify-between overflow-y-clip">
           <h1>音乐统计</h1>
           <div>
             <span> 有效音乐 </span>
@@ -298,11 +303,11 @@ function setEchaerOption() {
         </div>
       </div>
       <div class="music-task">
-        <el-scrollbar>
+        <el-scrollbar v-loading="pluginTask == null || pluginTask.length === 0">
           <h1 class="ml-6">插件运行任务</h1>
           <ul v-for="(item, index) in pluginTask" :key="index">
             <li>
-              <div class="flex justify-between items-center ml-6">
+              <div class="flex justify-between items-center ml-3">
                 <div class="flex justify-center items-center">
                   <IconifyIconOnline
                     color="#727272"
@@ -311,17 +316,23 @@ function setEchaerOption() {
                     height="4rem"
                   />
                   <div>
-                    <div>{{ item.id }}</div>
-                    <b class="text-sm">
-                      {{
-                        FriendlyTime(
-                          dateFormater("YYYY-MM-dd HH:mm:ss", item.updateTime),
-                          dayjs()
-                        )
-                      }}
-                    </b>
+                    <p class="text-xl font-bold">{{ item.pluginName }}</p>
+                    <p
+                      class="text-xs"
+                      style="color: var(--el-text-color-disabled)"
+                    >
+                      {{ item.id }}
+                    </p>
                   </div>
                 </div>
+                <b class="text-sm" style="color: var(--el-text-color-disabled)">
+                  {{
+                    FriendlyTime(
+                      dateFormater("YYYY-MM-dd HH:mm:ss", item.updateTime),
+                      dayjs()
+                    )
+                  }}
+                </b>
                 <div class="flex items-center mr-6">
                   <IconifyIconOnline
                     class="text-[#626aef]"
@@ -400,6 +411,7 @@ function setEchaerOption() {
 
 .artist-new {
   width: 60vw;
+  height: 14rem;
   background: var(--el-bg-color);
   //border: 1px solid var(--el-text-color-regular);
   border-radius: 1rem;
@@ -407,6 +419,7 @@ function setEchaerOption() {
 
 .album-new {
   width: 60vw;
+  height: 14rem;
   background: var(--el-bg-color);
   //border: 1px solid var(--el-text-color-regular);
   border-radius: 1rem;

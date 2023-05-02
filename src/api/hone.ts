@@ -37,13 +37,17 @@ export const getMusicStatistics = () => {
   );
 };
 
-export interface PluginTaskRes {
+export interface PluginTask {
   id: number;
   pluginId: number;
   status: number;
   userId: number;
   createTime: string;
   updateTime: string;
+}
+
+export interface PluginTaskRes extends PluginTask {
+  pluginName: string;
 }
 
 export const getPluginTask = () => {
