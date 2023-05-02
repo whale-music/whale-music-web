@@ -220,7 +220,7 @@ const toMusicPlay = res => {
             @click="toMusicPlay(item)"
           >
             <span class="index">{{ index + 1 }}</span>
-            <span class="ml-4 font-bold">{{ musicInfo.musicName }}</span>
+            <span class="music-name">{{ musicInfo.musicName }}</span>
             <span class="md5">{{ item.md5 }}</span>
           </div>
           <div class="grow h-full cursor-pointer" @click="toMusicPlay(item)" />
@@ -281,6 +281,7 @@ const toMusicPlay = res => {
 <style lang="scss" scoped>
 .info {
   display: flex;
+  flex-wrap: wrap;
 }
 
 .frontCover {
@@ -310,6 +311,11 @@ const toMusicPlay = res => {
   flex-direction: column;
   justify-content: space-between;
   margin-left: 2rem;
+
+  @media screen and (max-width: 720px) {
+    margin-top: 1rem;
+    margin-left: 0;
+  }
 }
 
 .item-list {
@@ -334,6 +340,10 @@ const toMusicPlay = res => {
   justify-content: center;
   align-items: center;
   margin-right: 2rem;
+
+  @media screen and (max-width: 720px) {
+    margin-right: 0;
+  }
 }
 
 .level {
@@ -344,8 +354,20 @@ const toMusicPlay = res => {
   color: var(--el-color-info-light-3);
 }
 
+.music-name {
+  @apply ml-4 font-bold;
+  @media screen and (max-width: 720px) {
+    @apply truncate;
+    width: 3rem;
+  }
+}
+
 .md5 {
   margin-left: 3rem;
   color: var(--el-color-info-light-3);
+
+  @media screen and (max-width: 720px) {
+    display: none;
+  }
 }
 </style>
