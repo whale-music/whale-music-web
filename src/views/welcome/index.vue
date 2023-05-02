@@ -481,7 +481,7 @@ function setEchaerOption() {
 
 // 音乐数据显示
 .task-sidebar {
-  width: 30%;
+  width: 28%;
   margin-left: auto;
   margin-right: auto;
   background: var(--el-bg-color);
