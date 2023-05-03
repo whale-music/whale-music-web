@@ -23,7 +23,7 @@ const router = useRouter();
 const id = ref();
 
 const musicInfo = ref<MusicSearchRes>({
-  album: undefined,
+  album: null,
   albumId: 0,
   albumName: "",
   aliaName: "",
@@ -144,12 +144,21 @@ const toMusicPlay = res => {
 };
 </script>
 <template>
-  <div>
+  <div
+    v-loading="
+      musicInfo == null ||
+      musicInfo.musicName === '' ||
+      musicUrl == null ||
+      musicUrl.length === 0
+    "
+  >
     <div class="info">
       <LoadImg :src="musicInfo.pic" />
       <div class="data">
         <div>
-          <p class="name">{{ musicInfo.musicName }}</p>
+          <p class="name">
+            {{ musicInfo.musicName === "" ? "加载中" : musicInfo.musicName }}
+          </p>
           <p class="name-alis">{{ musicInfo.musicNameAlias }}</p>
           <span class="show-font">专辑: </span>
           <el-link :underline="false" @click="toAlbum(musicInfo.albumId)"
@@ -171,7 +180,9 @@ const toMusicPlay = res => {
           <br />
           <span class="show-font">发行时间: </span>
           <span class="font-bold">{{
-            dateFormater("YYYY-MM-dd", musicInfo.publishTime)
+            musicInfo.publishTime === ""
+              ? "加载中"
+              : dateFormater("YYYY-MM-dd", musicInfo.publishTime)
           }}</span>
         </div>
         <div>
