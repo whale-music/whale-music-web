@@ -1,4 +1,4 @@
-import { InputInter } from "@/api/plugin";
+import { Params } from "@/api/plugin";
 import { useUserStore } from "@/store/modules/user";
 import { storageLocal } from "@pureadmin/utils";
 
@@ -7,7 +7,7 @@ import { storageLocal } from "@pureadmin/utils";
  * @param id 插件ID
  * @param data 插件入参
  */
-export const saveOrUpdateCache = (id: number, data: InputInter[]) => {
+export const saveOrUpdateCache = (id: number, data: Params[]) => {
   if (data == null) return;
   for (let index = 0; index < data.length; index++) {
     const element = data[index];

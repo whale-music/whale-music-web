@@ -27,14 +27,19 @@ export const savePluginInfo = (plugin: PluginList) => {
   });
 };
 
-export interface InputInter {
+export interface Params {
   label: string;
   key: string;
   value: string;
 }
 
-export const getPluginParams = (id: number) => {
-  return http.request<R<InputInter[]>>("get", "/admin/getPluginParams", {
+export interface PluginInput {
+  params: Params[];
+  pluginType: string;
+}
+
+export const getCommonPluginParams = (id: number) => {
+  return http.request<R<PluginInput>>("get", "/admin/getPluginParams/common", {
     params: {
       pluginId: id
     }
@@ -43,7 +48,7 @@ export const getPluginParams = (id: number) => {
 
 export const execPluginTask = (
   id: number,
-  data: InputInter[],
+  data: Params[],
   online?: boolean
 ) => {
   return http.request<R<any>>("post", "/admin/execPluginTask", {

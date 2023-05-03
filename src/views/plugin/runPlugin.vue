@@ -36,15 +36,15 @@ import { h, onMounted, ref } from "vue";
 import {
   execPluginTask,
   getPluginList,
-  getPluginParams,
-  InputInter,
+  getCommonPluginParams,
+  Params,
   PluginList
 } from "@/api/plugin";
 import { message } from "@/utils/message";
 import { saveOrUpdateCache } from "@/utils/pluginCache";
 import { ElNotification } from "element-plus";
 
-const inputs = ref<InputInter[]>();
+const inputs = ref<Params[]>();
 
 const pluginId = ref();
 const save = () => {
@@ -77,10 +77,10 @@ const loadFlag = ref<boolean>(false);
 onMounted(() => {
   pluginId.value = useRouter().currentRoute.value.query.id;
   loadFlag.value = false;
-  getPluginParams(Number.parseInt(pluginId.value)).then(res => {
+  getCommonPluginParams(Number.parseInt(pluginId.value)).then(res => {
     loadFlag.value = true;
     if (res.code === "200") {
-      inputs.value = res.data;
+      inputs.value = res.data.params;
       saveOrUpdateCache(pluginId.value, inputs.value);
     } else {
       message(`获取参数错误: ${res.message}`, { type: "error" });
