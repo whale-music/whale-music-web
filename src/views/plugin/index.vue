@@ -192,7 +192,7 @@ export default {
             <el-icon
               :size="25"
               class="cursor-pointer"
-              style="color: var(--el-bg-color)"
+              style="color: var(--el-color-primary-light-3)"
             >
               <a @click="toRunPlugin(i.id)">
                 <Icon icon="mingcute:play-fill" />
