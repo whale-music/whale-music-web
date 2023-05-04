@@ -25,10 +25,13 @@ import {
 import { message } from "@/utils/message";
 import { dateFormater } from "@/utils/dateUtil";
 import { saveOrUpdateCache } from "@/utils/pluginCache";
+import VueJsonPretty from "vue-json-pretty";
+import "vue-json-pretty/lib/styles.css";
 
 export default defineComponent({
   components: {
-    Codemirror
+    Codemirror,
+    VueJsonPretty
   },
   setup() {
     const extensions = [javascript(), oneDark];
@@ -466,8 +469,9 @@ export default defineComponent({
             <h1>保存数据</h1>
           </template>
           <el-scrollbar height="20rem">
-            <div class="scrollbar-error-content">
-              <span>{{ JSON.parse(searchValue.value) }}</span>
+            <div>
+              <!--              <span>{{ JSON.parse(searchValue.value) }}</span>-->
+              <vue-json-pretty :data="JSON.parse(searchValue.value)" />
             </div>
           </el-scrollbar>
           <template #footer>
