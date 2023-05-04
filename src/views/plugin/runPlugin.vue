@@ -70,7 +70,6 @@
         </template>
         <el-scrollbar height="20rem">
           <div class="scrollbar-error-content">
-            <!--            <span>{{ JSON.parse(searchValue.value) }}</span>-->
             <vue-json-pretty :data="JSON.parse(searchValue.value)" />
           </div>
         </el-scrollbar>

@@ -8,7 +8,7 @@ import {
 } from "vue";
 import { useRouter } from "vue-router";
 import { Codemirror } from "vue-codemirror";
-import { javascript } from "@codemirror/lang-javascript";
+import { java } from "@codemirror/lang-java";
 import { oneDark } from "@codemirror/theme-one-dark";
 import {
   execCommonPluginTask,
@@ -34,7 +34,7 @@ export default defineComponent({
     VueJsonPretty
   },
   setup() {
-    const extensions = [javascript(), oneDark];
+    const extensions = [java(), oneDark];
     const pluginInfo = ref<PluginList>({
       code: "",
       createName: "",
@@ -470,7 +470,6 @@ export default defineComponent({
           </template>
           <el-scrollbar height="20rem">
             <div>
-              <!--              <span>{{ JSON.parse(searchValue.value) }}</span>-->
               <vue-json-pretty :data="JSON.parse(searchValue.value)" />
             </div>
           </el-scrollbar>
