@@ -5,6 +5,7 @@ export interface PluginList {
   id: number;
   pluginName: string;
   createName: string;
+  type: string;
   code: string;
   description: string;
   userId: number;
@@ -38,26 +39,64 @@ export interface PluginInput {
   pluginType: string;
 }
 
-export const getCommonPluginParams = (id: number) => {
-  return http.request<R<PluginInput>>("get", "/admin/getPluginParams/common", {
+export const getPluginParams = (id: number) => {
+  return http.request<R<PluginInput>>("get", "/admin/getPluginParams", {
     params: {
       pluginId: id
     }
   });
 };
 
-export const execPluginTask = (
+export const getInteractiveSearch = (
+  id: number,
+  name: string,
+  data: Params[]
+) => {
+  return http.request<R<Params[]>>("post", "/admin/interactive/search", {
+    params: {
+      pluginId: id,
+      name: name
+    },
+    data
+  });
+};
+
+export const execCommonPluginTask = (
   id: number,
   data: Params[],
   online?: boolean
 ) => {
-  return http.request<R<any>>("post", "/admin/execPluginTask", {
+  return http.request<R<any>>("post", "/admin/execPluginTask/common", {
     params: {
       pluginId: id,
       onLine: online == null ? true : online
     },
     data: data
   });
+};
+
+export interface PluginTaskLogRes {
+  pluginMsg: PluginMsgRes;
+  html: string;
+}
+export const execInteractivePluginTask = (
+  pluginId: number,
+  data: Params[],
+  type?: string,
+  id?: number
+) => {
+  return http.request<R<PluginTaskLogRes>>(
+    "post",
+    "/admin/execPluginTask/interactive",
+    {
+      params: {
+        pluginId: pluginId,
+        type: type,
+        id: id
+      },
+      data: data
+    }
+  );
 };
 
 export interface PluginMsgRes {

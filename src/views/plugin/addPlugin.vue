@@ -11,10 +11,15 @@ import { Codemirror } from "vue-codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import { oneDark } from "@codemirror/theme-one-dark";
 import {
-  execPluginTask,
+  execCommonPluginTask,
+  execInteractivePluginTask,
+  getInteractiveSearch,
   getPluginList,
-  getCommonPluginParams,
+  getPluginParams,
+  Params,
   PluginInput,
+  PluginList,
+  PluginTaskLogRes,
   savePluginInfo
 } from "@/api/plugin";
 import { message } from "@/utils/message";
@@ -26,12 +31,18 @@ export default defineComponent({
     Codemirror
   },
   setup() {
-    const code = ref("");
     const extensions = [javascript(), oneDark];
-    const createName = ref("");
-    const id = ref();
-    const name = ref("");
-    const description = ref("");
+    const pluginInfo = ref<PluginList>({
+      code: "",
+      createName: "",
+      createTime: "",
+      description: "",
+      id: null,
+      pluginName: "",
+      type: null,
+      updateTime: "",
+      userId: null
+    });
 
     // Codemirror EditorView instance ref
     const view = shallowRef();
@@ -49,33 +60,32 @@ export default defineComponent({
     const interactivePluginDrawer = ref(false);
     const inputs = ref<PluginInput>({ params: [], pluginType: "" });
 
+    const searchName = ref<string>("");
+
     // 保存插件
     const save = () => {
-      savePluginInfo({
-        id: id.value,
-        code: code.value,
-        createName: createName.value,
-        pluginName: name.value,
-        description: description.value,
-        createTime: "",
-        updateTime: "",
-        userId: null
-      })
+      savePluginInfo(pluginInfo.value)
         .then(res => {
-          id.value = res.data.id;
-          message(`${name.value}保存成功`, { type: "success" });
+          pluginInfo.value.id = res.data.id;
+          message(`${pluginInfo.value.pluginName}保存成功`, {
+            type: "success"
+          });
         })
         .catch(() => {
-          message(`${name.value}保存失败`, { type: "error" });
+          message(`${pluginInfo.value.pluginName}保存失败`, { type: "error" });
         });
     };
 
     const errorFlag = ref(false);
     const errorMsg = ref("");
-    // 获取插件入参
+    // 运行按钮, 获取插件入参
     const run = () => {
+      if (pluginInfo.value.code == null || pluginInfo.value.code === "") {
+        message("代码为空", { type: "error" });
+        return;
+      }
       save();
-      getCommonPluginParams(id.value)
+      getPluginParams(pluginInfo.value.id)
         .then(res => {
           if (res.code === "200") {
             switch (res.data.pluginType) {
@@ -87,10 +97,11 @@ export default defineComponent({
                 break;
             }
             inputs.value = res.data;
-            saveOrUpdateCache(id.value, inputs.value.params);
+            saveOrUpdateCache(pluginInfo.value.id, inputs.value.params);
           } else {
             errorFlag.value = true;
             errorMsg.value = res.message;
+            message(`运行错误`, { type: "error" });
           }
         })
         .catch(reason => {
@@ -98,36 +109,90 @@ export default defineComponent({
         });
     };
 
-    // 代码存储变量
+    // 代码执行日志
     const resultTextarea = ref("");
 
     // 点击运行测试代码
-    const onRunSubmit = () => {
+    const onRunCommonSubmit = () => {
       save();
       resultTextarea.value = "";
-      execPluginTask(id.value, inputs.value.params).then(task => {
-        if (task.code !== "200") {
-          message(`插件运行错误: ${task.message}`, { type: "error" });
+      execCommonPluginTask(pluginInfo.value.id, inputs.value.params).then(
+        task => {
+          if (task.code !== "200") {
+            message(`插件运行错误: ${task.message}`, { type: "error" });
+          }
+          if (task.data !== null && task.data !== undefined) {
+            message("执行成功", { type: "success" });
+            task.data.forEach(i => {
+              console.log(
+                i.msg,
+                dateFormater("YYYY-MM-dd HH:mm:ss", i.createTime)
+              );
+              resultTextarea.value =
+                resultTextarea.value +
+                "\n" +
+                dateFormater("YYYY-MM-dd HH:mm:ss", i.createTime) +
+                ": " +
+                i.msg +
+                "\n";
+            });
+          }
         }
-        if (task.data !== null && task.data !== undefined) {
-          message("执行成功", { type: "success" });
-          task.data.forEach(i => {
-            console.log(
-              i.msg,
-              dateFormater("YYYY-MM-dd HH:mm:ss", i.createTime)
-            );
-            resultTextarea.value =
-              resultTextarea.value +
-              "\n" +
-              dateFormater("YYYY-MM-dd HH:mm:ss", i.createTime) +
-              ": " +
-              i.msg +
-              "\n";
-          });
-        }
-      });
+      );
     };
 
+    const itemHtml = ref<Params[]>([]);
+    const itemHtmlFlag = ref<boolean>(false);
+    const onRunInteractiveSearch = async () => {
+      save();
+      try {
+        itemHtmlFlag.value = true;
+        const r = await getInteractiveSearch(
+          pluginInfo.value.id,
+          searchName.value,
+          inputs.value.params
+        );
+        if (r.code === "200") {
+          itemHtml.value = r.data;
+        } else {
+          message(`搜索失败: ${r.message}`, { type: "error" });
+        }
+        itemHtmlFlag.value = false;
+      } catch (e) {
+        message(`请求失败: ${e}`, { type: "error" });
+        itemHtmlFlag.value = false;
+      }
+    };
+
+    const searchValueFlag = ref<boolean>(false);
+    const searchValue = ref<Params>();
+    // 查看提交搜索返回值
+    const checkSearchValue = (item: Params) => {
+      searchValueFlag.value = true;
+      searchValue.value = item;
+      console.log(item);
+    };
+
+    const showInteractiveSuccessFlag = ref<boolean>(false);
+    const showInteractiveSuccess = ref<PluginTaskLogRes>();
+    const submitSearchValue = async () => {
+      try {
+        const r = await execInteractivePluginTask(
+          pluginInfo.value.id,
+          [searchValue.value],
+          null,
+          null
+        );
+        if (r.code === "200") {
+          showInteractiveSuccess.value = r.data;
+          showInteractiveSuccessFlag.value = true;
+        } else {
+          message("保存失败", { type: "error" });
+        }
+      } catch (e) {
+        message("请求失败", { type: "error" });
+      }
+    };
     // 监听保存快捷键
     const saveContent = e => {
       const key =
@@ -150,15 +215,15 @@ export default defineComponent({
       if (plugin !== undefined) {
         getPluginList(plugin.toString()).then(res => {
           if (res.data.length === 0) {
-            code.value = `console.log('Hello, world!')`;
+            pluginInfo.value.code = `console.log('Hello, world!')`;
             return;
           }
-          const pluginInfo = res.data[0];
-          name.value = pluginInfo.pluginName;
-          createName.value = pluginInfo.createName;
-          code.value = pluginInfo.code;
-          id.value = pluginInfo.id;
-          description.value = pluginInfo.description;
+          pluginInfo.value = res.data[0];
+          // name.value = pluginInfo.value.pluginName;
+          // createName.value = pluginInfo.value.createName;
+          // code.value = pluginInfo.value.code;
+          // id.value = pluginInfo.value.id;
+          // description.value = pluginInfo.value.description;
         });
       }
       document.addEventListener("keydown", saveContent);
@@ -167,24 +232,30 @@ export default defineComponent({
       document.removeEventListener("keydown", saveContent);
     });
     return {
-      id,
+      showInteractiveSuccessFlag,
+      showInteractiveSuccess,
+      submitSearchValue,
+      searchValue,
+      searchValueFlag,
+      pluginInfo,
+      checkSearchValue,
+      itemHtmlFlag,
+      itemHtml,
+      searchName,
       saveOrUpdateCache,
       errorFlag,
       errorMsg,
-      createName,
       editNameFlag,
-      description,
       editDescribeFlag,
       editCreateNameFlag,
-      onRunSubmit,
+      onRunCommonSubmit,
+      onRunInteractiveSearch,
       run,
       commonPluginDrawer,
       interactivePluginDrawer,
       inputs,
       resultTextarea,
       save,
-      name,
-      code,
       extensions,
       handleReady,
       log: console.log
@@ -194,20 +265,20 @@ export default defineComponent({
 </script>
 <template>
   <div>
-    <el-dialog v-model="errorFlag" width="30%">
-      <template #footer>
-        <el-scrollbar>
-          <div class="scrollbar-error-content">
-            {{ errorMsg }}
-          </div>
-        </el-scrollbar>
-      </template>
+    <el-dialog v-model="errorFlag" width="30%" title="Run Error">
+      <el-scrollbar height="20rem">
+        <div class="scrollbar-error-content">
+          {{ errorMsg }}
+        </div>
+      </el-scrollbar>
     </el-dialog>
     <h1>添加插件</h1>
     <div class="top">
       <div class="flex items-center">
         <span class="mr-4 cursor-pointer" @click="editNameFlag = true">
-          {{ name === "" ? "未命名插件" : name }}
+          {{
+            pluginInfo.pluginName === "" ? "未命名插件" : pluginInfo.pluginName
+          }}
         </span>
         <div class="dialog">
           <el-dialog
@@ -220,7 +291,7 @@ export default defineComponent({
             <div class="flex justify-center w-full">
               <div class="w-48">
                 <el-input
-                  v-model="name"
+                  v-model="pluginInfo.pluginName"
                   placeholder="输入插件名"
                   @keyup.enter="editNameFlag = false"
                 />
@@ -239,7 +310,9 @@ export default defineComponent({
           class="text-xs cursor-pointer text-neutral-500"
           @click="editCreateNameFlag = true"
         >
-          {{ createName === "" ? "@未命名作者" : createName }}
+          {{
+            pluginInfo.createName === "" ? "@未命名作者" : pluginInfo.createName
+          }}
         </span>
 
         <div class="dialog">
@@ -253,7 +326,7 @@ export default defineComponent({
             <div class="flex justify-center w-full">
               <div class="w-48">
                 <el-input
-                  v-model="createName"
+                  v-model="pluginInfo.createName"
                   placeholder="输入作者"
                   @keyup.enter="editNameFlag = false"
                 />
@@ -291,7 +364,7 @@ export default defineComponent({
                 <el-input
                   rows="12"
                   resize="none"
-                  v-model="description"
+                  v-model="pluginInfo.description"
                   placeholder="输入描述"
                   @keyup.enter="editDescribeFlag = false"
                   type="textarea"
@@ -316,7 +389,7 @@ export default defineComponent({
       <el-drawer
         v-model="commonPluginDrawer"
         direction="rtl"
-        size="30%"
+        size="50%"
         title="I am the title"
         :with-header="false"
       >
@@ -331,7 +404,7 @@ export default defineComponent({
             />
           </el-row>
         </div>
-        <el-button class="mt-4" type="primary" @click="onRunSubmit">
+        <el-button class="mt-4" type="primary" @click="onRunCommonSubmit">
           运行
         </el-button>
         <el-input
@@ -347,23 +420,70 @@ export default defineComponent({
       <el-drawer
         v-model="interactivePluginDrawer"
         direction="rtl"
-        size="30%"
+        size="50%"
         title="I am the title"
         :with-header="false"
       >
         <div>
+          <h1>聚合插件</h1>
           <el-row :gutter="20" v-for="(i, index) in inputs.params" :key="index">
             <span>{{ i.label }}</span>
             <el-input
               v-model="i.value"
-              @change="saveOrUpdateCache(id, inputs.params)"
+              @change="saveOrUpdateCache(pluginInfo.id, inputs.params)"
               placeholder="请输入"
             />
           </el-row>
+          <br />
+          <div class="flex flex-nowrap items-center">
+            <h1>搜索</h1>
+            <span class="ml-2" v-show="itemHtmlFlag">
+              <IconifyIconOffline
+                icon="loading3Fill"
+                class="animate-spin"
+                style="color: var(--el-color-primary)"
+                width="2rem"
+                height="2rem"
+              />
+            </span>
+          </div>
+          <el-input v-model="searchName" placeholder="请输入搜索数据" />
         </div>
-        <el-button class="mt-4" type="primary" @click="onRunSubmit">
-          运行
+        <el-button
+          class="mt-4"
+          type="primary"
+          @click="onRunInteractiveSearch"
+          @keyup.enter="onRunInteractiveSearch"
+        >
+          搜索
         </el-button>
+        <h1>结果</h1>
+        <el-dialog v-model="showInteractiveSuccessFlag">
+          <div v-html="showInteractiveSuccess.html" />
+        </el-dialog>
+        <el-dialog v-model="searchValueFlag">
+          <template #header>
+            <h1>保存数据</h1>
+          </template>
+          <el-scrollbar height="20rem">
+            <div class="scrollbar-error-content">
+              <span>{{ JSON.parse(searchValue.value) }}</span>
+            </div>
+          </el-scrollbar>
+          <template #footer>
+            <el-button @click="searchValueFlag = false">取消</el-button>
+            <el-button type="primary" @click="submitSearchValue"
+              >保存</el-button
+            >
+          </template>
+        </el-dialog>
+        <div v-for="(item, index) in itemHtml" :key="index">
+          <div
+            class="m-1 p-2 rounded-xl hover:bg-black/30"
+            v-html="item.label"
+            @click="checkSearchValue(item)"
+          />
+        </div>
         <el-input
           v-if="resultTextarea !== ''"
           v-model="resultTextarea"
@@ -375,7 +495,7 @@ export default defineComponent({
       </el-drawer>
     </div>
     <codemirror
-      v-model="code"
+      v-model="pluginInfo.code"
       placeholder="Code goes here..."
       :style="{ height: '400px' }"
       :autofocus="true"
@@ -391,19 +511,16 @@ export default defineComponent({
 </template>
 
 <style lang="scss" scoped>
+@import "@/style/element/dialog.scss";
+
 .top {
   display: flex;
   justify-content: space-between;
 }
 
-.dialog {
-  :deep(.el-dialog) {
-    border-radius: 1rem;
-  }
-}
-
 .scrollbar-error-content {
   height: 20rem;
-  width: 80rem;
+  width: 20rem;
+  text-align: left;
 }
 </style>

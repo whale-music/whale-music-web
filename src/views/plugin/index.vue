@@ -149,6 +149,15 @@ export default {
             <el-form-item label="插件描述">
               <el-input v-model="this.pluginInfo.description" />
             </el-form-item>
+            <el-form-item label="插件类型">
+              <el-select
+                v-model="this.pluginInfo.type"
+                placeholder="选择插件类型"
+              >
+                <el-option label="普通插件" value="common-plugin" />
+                <el-option label="聚合插件" value="interactive-plugin" />
+              </el-select>
+            </el-form-item>
           </el-form>
           <Wbutton type="primary" @click="creatPlugin">创建</Wbutton>
         </el-dialog>

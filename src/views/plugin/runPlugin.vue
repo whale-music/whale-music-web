@@ -34,9 +34,9 @@
 import { useRouter } from "vue-router";
 import { h, onMounted, ref } from "vue";
 import {
-  execPluginTask,
+  execCommonPluginTask,
   getPluginList,
-  getCommonPluginParams,
+  getPluginParams,
   Params,
   PluginList
 } from "@/api/plugin";
@@ -49,7 +49,7 @@ const inputs = ref<Params[]>();
 const pluginId = ref();
 const save = () => {
   console.log("start run");
-  execPluginTask(pluginId.value, inputs.value, false).then(res => {
+  execCommonPluginTask(pluginId.value, inputs.value, false).then(res => {
     if (res.code == "200") {
       ElNotification({
         title: "成功",
@@ -66,6 +66,7 @@ const pluginInfo = ref<PluginList>({
   code: "",
   createName: "",
   createTime: "",
+  type: null,
   description: "",
   id: 0,
   pluginName: "Run Plugin",
@@ -77,7 +78,7 @@ const loadFlag = ref<boolean>(false);
 onMounted(() => {
   pluginId.value = useRouter().currentRoute.value.query.id;
   loadFlag.value = false;
-  getCommonPluginParams(Number.parseInt(pluginId.value)).then(res => {
+  getPluginParams(Number.parseInt(pluginId.value)).then(res => {
     loadFlag.value = true;
     if (res.code === "200") {
       inputs.value = res.data.params;
