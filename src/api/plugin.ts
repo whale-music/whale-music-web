@@ -127,6 +127,7 @@ export interface PluginTask {
   pluginId: number;
   status: number;
   userId: number;
+  params: string;
   createTime: string;
   updateTime: string;
 }

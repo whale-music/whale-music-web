@@ -10,24 +10,33 @@ import { useRouter } from "vue-router";
 import ContextMenu from "@imengyu/vue3-context-menu";
 import { message } from "@/utils/message";
 import Wbutton from "@/components/button/index.vue";
+import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
 
 export default {
   setup() {
     return {};
   },
   components: {
+    ShowLoading,
     Icon,
     Wbutton
   },
   mounted() {
-    getPluginList().then(res => {
-      if (res.data.length == 0) {
-        this.isPluginListShow = false;
-        return;
-      }
-      this.pluginList = res.data;
-      this.isPluginListShow = true;
-    });
+    this.pluginListLoadingFlag = true;
+    getPluginList()
+      .then(res => {
+        this.pluginListLoadingFlag = false;
+        if (res.data.length == 0) {
+          this.isPluginListShow = false;
+          return;
+        }
+        this.pluginList = res.data;
+        this.isPluginListShow = true;
+      })
+      .catch(reason => {
+        this.pluginListLoadingFlag = false;
+        message(`请求错误${reason}`, { type: "error" });
+      });
   },
   methods: {
     creatPlugin() {
@@ -102,6 +111,7 @@ export default {
       router: useRouter(),
       pluginSearch: "",
       isPluginListShow: false,
+      pluginListLoadingFlag: false,
       pluginList: [] as PropType<(PluginList | number)[]>,
       deletePlugin: false,
       tempDeletePlugin: null,
@@ -182,6 +192,7 @@ export default {
         </span>
       </template>
     </el-dialog>
+    <ShowLoading :loading="this.pluginListLoadingFlag" />
     <div class="plugin-grid" v-if="this.isPluginListShow">
       <div
         class="plugin-show"
@@ -219,7 +230,7 @@ export default {
         </p>
       </div>
     </div>
-    <div v-else>
+    <div v-show="!this.isPluginListShow && !this.pluginListLoadingFlag">
       <el-empty>
         <el-button type="primary">新建</el-button>
       </el-empty>

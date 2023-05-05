@@ -6,7 +6,8 @@ import {
   getPluginRuntimeMessages,
   getPluginTask,
   PluginList,
-  PluginMsgRes
+  PluginMsgRes,
+  PluginTask
 } from "@/api/plugin";
 import dayjs from "dayjs";
 import { dateFormater } from "@/utils/dateUtil";
@@ -16,18 +17,29 @@ import Wbutton from "@/components/button/index.vue";
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
 import { ElNotification } from "element-plus";
 import { ElScrollbar } from "element-plus";
+import VueJsonPretty from "vue-json-pretty";
+import "vue-json-pretty/lib/styles.css";
 
 const taskId = ref();
 let timing = null;
 
 const pluginTaskInfoList = ref<PluginMsgRes[]>();
-
+const pluginTask = ref<PluginTask>({
+  createTime: "",
+  id: 0,
+  params: "",
+  pluginId: 0,
+  status: 0,
+  updateTime: "",
+  userId: 0
+});
 onBeforeMount(() => {
   taskId.value = useRouter().currentRoute.value.query.id;
 });
 onMounted(() => {
   circulate(taskId.value);
   getPluginTask({
+    params: "",
     createTime: null,
     id: taskId.value,
     pluginId: null,
@@ -35,6 +47,7 @@ onMounted(() => {
     updateTime: "",
     userId: null
   }).then(res => {
+    pluginTask.value = res.data[0];
     getPluginList(res.data[0].pluginId.toString()).then(res => {
       plugin.value = res.data[0];
     });
@@ -54,6 +67,7 @@ const circulate = (id: any) => {
     refreshFlag.value = false;
     // 检测插件当前是否执行完成
     getPluginTask({
+      params: "",
       id: id,
       pluginId: null,
       status: null,
@@ -86,6 +100,7 @@ onUnmounted(() => {
   clearInterval(timing);
 });
 const plugin = ref<PluginList>({
+  type: null,
   code: "",
   createName: "",
   createTime: "",
@@ -108,6 +123,15 @@ const refreshButton = async (id: number) => {
     message("刷新失败", { type: "error" });
   }
   refreshFlag.value = false;
+};
+
+const showPluginParamsFlag = ref<boolean>(false);
+const pluginTaskShowParams = () => {
+  if (pluginTask.value.params == null || pluginTask.value.params === "") {
+    message("入参为空", { type: "success" });
+  } else {
+    showPluginParamsFlag.value = true;
+  }
 };
 
 const showLogLevel = (level: number) => {
@@ -160,6 +184,20 @@ const showLogLevelText = (level: number) => {
 <template>
   <div>
     <h1>{{ plugin.pluginName }}</h1>
+    <el-dialog v-model="showPluginParamsFlag">
+      <el-scrollbar height="20rem">
+        <div class="scrollbar-error-content">
+          <vue-json-pretty
+            :data="
+              JSON.parse(pluginTask.params === '' ? '{}' : pluginTask.params)
+            "
+          />
+        </div>
+      </el-scrollbar>
+    </el-dialog>
+    <Wbutton @click="pluginTaskShowParams" type="danger" class="mt-4 mb-4"
+      >插件入参</Wbutton
+    >
     <div class="flex items-center">
       <Wbutton
         :loading="refreshFlag"

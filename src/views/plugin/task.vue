@@ -23,15 +23,15 @@ interface PluginTaskList extends PluginTask {
 const taskList = ref<PluginTaskList[]>();
 
 function initPluginList() {
-  const data = {
-    createTime: "",
+  getPluginTask({
+    createTime: null,
     id: null,
+    params: null,
     pluginId: null,
     status: null,
-    updateTime: "",
+    updateTime: null,
     userId: null
-  };
-  getPluginTask(data)
+  })
     .then(value => {
       taskList.value = value.data;
       const pluginIdArr = [];
