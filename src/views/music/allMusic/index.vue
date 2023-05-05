@@ -562,7 +562,11 @@ const toArtist = res => {
                 content="刷新缓存，这需要一段时间"
                 placement="top-start"
               >
-                <el-button type="danger" :icon="RefreshIcon" round
+                <el-button
+                  @click="onSubmit(true)"
+                  type="danger"
+                  :icon="RefreshIcon"
+                  round
                   >刷新缓存</el-button
                 >
               </el-tooltip>
