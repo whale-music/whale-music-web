@@ -70,7 +70,7 @@ export default defineComponent({
       savePluginInfo(pluginInfo.value)
         .then(res => {
           pluginInfo.value.id = res.data.id;
-          message(`${pluginInfo.value.pluginName}保存成功`, {
+          message(`${pluginInfo.value.pluginName}保存成功: ${res.message}`, {
             type: "success"
           });
         })
@@ -190,7 +190,7 @@ export default defineComponent({
           showInteractiveSuccess.value = r.data;
           showInteractiveSuccessFlag.value = true;
         } else {
-          message("保存失败", { type: "error" });
+          message(`保存失败${r.message}`, { type: "error" });
         }
       } catch (e) {
         message("请求失败", { type: "error" });
