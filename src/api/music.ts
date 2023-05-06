@@ -77,22 +77,7 @@ export const getAllMusicList = (data?: MusicSearchReq) => {
   );
 };
 
-export interface MusicUrlRes {
-  id: number;
-  musicId: number;
-  rate: number;
-  level: string;
-  url: string;
-  md5: string;
-  encodeType: string;
-  size: number;
-  userId: number;
-  origin: string;
-  createTime: string;
-  updateTime: string;
-}
-
-export interface MusicUrlInfo extends MusicUrlRes {
+export interface MusicUrlInfo extends MusicUrl {
   rawUrl: string;
   exists: boolean;
 }

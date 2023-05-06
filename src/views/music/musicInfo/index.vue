@@ -231,14 +231,10 @@ const toMusicPlay = res => {
                 @closeDialog="playItemDialogVisible = false"
               />
             </div>
-            <el-button
-              type="primary"
-              class="edit-music-button"
-              @click="addPlaySongList"
-              round
+            <el-button class="edit-music-button" @click="addPlaySongList" round
               ><i
                 ><IconifyIconOnline
-                  color="#ffffff"
+                  color="#868686"
                   icon="solar:turntable-music-note-bold-duotone"
                   width="1.1rem"
                   height="1.1rem" /></i
