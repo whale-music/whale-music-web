@@ -34,7 +34,12 @@ const props = defineProps({
       />
     </template>
     <template #error>
-      <IconifyIconOnline icon="ep:picture-filled" width="2rem" height="2rem" />
+      <IconifyIconOnline
+        class="w-full h-full"
+        icon="ep:picture-filled"
+        width="2rem"
+        height="2rem"
+      />
     </template>
   </el-image>
 </template>
