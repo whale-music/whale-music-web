@@ -132,14 +132,21 @@ export interface PluginTask {
   updateTime: string;
 }
 
-export const getPluginTask = (data: PluginTask) => {
+export const getPluginTask = (data: PluginTask, type?: string) => {
   return http.request<R<PluginTask[]>>("post", "/admin/getTask", {
+    params: {
+      type: type
+    },
     data
   });
 };
 
-export const deletePluginTask = (id: number) => {
-  return http.request<R<PluginTask[]>>("get", `/admin/deleteTask/${id}`);
+export const deletePluginTask = (id: number[]) => {
+  return http.request<R<PluginTask[]>>("get", `/admin/deleteTask`, {
+    params: {
+      id: id.join(",")
+    }
+  });
 };
 
 export const deletePlugin = (id: number) => {

@@ -185,7 +185,7 @@ const toMusicPlay = res => {
               : dateFormater("YYYY-MM-dd", musicInfo.publishTime)
           }}</span>
         </div>
-        <div>
+        <div class="data-button">
           <el-button-group>
             <el-button
               style="height: 2.4rem"
@@ -305,6 +305,11 @@ const toMusicPlay = res => {
 
 .name {
   font-size: 3rem;
+
+  @media screen and (max-width: 720px) {
+    @apply truncate;
+    width: 25rem;
+  }
 }
 
 .name-alis {
@@ -323,7 +328,14 @@ const toMusicPlay = res => {
   justify-content: space-between;
   margin-left: 2rem;
 
-  @media screen and (max-width: 720px) {
+  @media screen and (max-width: 1280px) {
+    margin-top: 1rem;
+    margin-left: 0;
+  }
+}
+
+.data-button {
+  @media screen and (max-width: 1280px) {
     margin-top: 1rem;
     margin-left: 0;
   }

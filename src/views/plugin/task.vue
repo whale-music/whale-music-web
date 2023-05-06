@@ -18,20 +18,24 @@ const router = useRouter();
 interface PluginTaskList extends PluginTask {
   name?: string;
   loading?: boolean;
+  pluginType?: string;
 }
 
 const taskList = ref<PluginTaskList[]>();
 
 function initPluginList() {
-  getPluginTask({
-    createTime: null,
-    id: null,
-    params: null,
-    pluginId: null,
-    status: null,
-    updateTime: null,
-    userId: null
-  })
+  getPluginTask(
+    {
+      createTime: null,
+      id: null,
+      params: null,
+      pluginId: null,
+      status: pluginStatusOptions.value,
+      updateTime: null,
+      userId: null
+    },
+    pluginTypeOptions.value
+  )
     .then(value => {
       taskList.value = value.data;
       const pluginIdArr = [];
@@ -41,6 +45,7 @@ function initPluginList() {
           for (const datum of value1.data) {
             if (datum.id === element.pluginId) {
               element.name = datum.pluginName;
+              element.pluginType = datum.type;
             }
           }
         }
@@ -50,6 +55,60 @@ function initPluginList() {
       message(`接口错误${reason}`);
     });
 }
+
+const updateTypeSelect = () => {
+  initPluginList();
+};
+
+const typeOptions = [
+  {
+    value: "null",
+    label: "全部插件"
+  },
+  {
+    value: "common-plugin",
+    label: "普通插件"
+  },
+  {
+    value: "interactive-plugin",
+    label: "聚合插件"
+  }
+];
+
+const pluginTypeOptions = ref<string>("");
+
+const pluginStatusOptions = ref<number>(null);
+const statusOptions = [
+  {
+    value: "null",
+    label: "全部状态"
+  },
+  {
+    value: "0",
+    label: "stop"
+  },
+  {
+    value: "1",
+    label: "run"
+  },
+  {
+    value: "2",
+    label: "error"
+  }
+];
+
+const updateStatusSelect = () => {
+  initPluginList();
+};
+
+const showPluginType = (type: string) => {
+  switch (type) {
+    case "common-plugin":
+      return "solar:crown-minimalistic-outline";
+    case "interactive-plugin":
+      return "solar:magnifer-line-duotone";
+  }
+};
 
 onBeforeMount(() => {
   initPluginList();
@@ -79,10 +138,10 @@ const showStatus = (status: number) => {
   return tagClass;
 };
 
-const deleteTask = async (id: number, index: number) => {
+const deleteTaskArr = async (id: number, index: number) => {
   taskList.value[index].loading = true;
   try {
-    const r = await deletePluginTask(id);
+    const r = await deletePluginTask([id]);
     if (r.code === "200") {
       message("删除成功", { type: "success" });
       taskList.value[index].loading = false;
@@ -93,6 +152,20 @@ const deleteTask = async (id: number, index: number) => {
     taskList.value[index].loading = false;
   } catch (e) {
     taskList.value[index].loading = false;
+    message(`删除失败${e}`, { type: "error" });
+  }
+};
+
+const deleteTaskAll = async () => {
+  try {
+    const r = await deletePluginTask(taskList.value.map(value => value.id));
+    if (r.code === "200") {
+      taskList.value = [];
+      message("删除成功", { type: "success" });
+    } else {
+      message(`删除失败${r.message}`, { type: "success" });
+    }
+  } catch (e) {
     message(`删除失败${e}`, { type: "error" });
   }
 };
@@ -127,13 +200,57 @@ const showStatusText = (status: number) => {
 
 <template>
   <div>
+    <el-select
+      v-model="pluginStatusOptions"
+      class="m-2"
+      placeholder="Select"
+      size="large"
+      @change="updateStatusSelect"
+    >
+      <el-option
+        v-for="item in statusOptions"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value"
+      />
+    </el-select>
+    <el-select
+      v-model="pluginTypeOptions"
+      class="m-2"
+      placeholder="Select"
+      size="large"
+      @change="updateTypeSelect"
+    >
+      <el-option
+        v-for="item in typeOptions"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value"
+      />
+    </el-select>
+    <wbutton @click="deleteTaskAll">清楚所有插件任务</wbutton>
     <div class="task-grid">
       <div v-for="(item, index) in taskList" :key="item.id">
         <div class="task">
           <div class="title">
-            <p class="ml-3">
-              {{ item.name }}
-            </p>
+            <div class="flex items-center">
+              <span class="ml-3">
+                {{ item.name }}
+              </span>
+              <el-tooltip
+                effect="dark"
+                :content="item.pluginType"
+                placement="top"
+              >
+                <IconifyIconOnline
+                  class="cursor-pointer ml-1"
+                  style="color: var(--el-color-primary-light-3)"
+                  :icon="showPluginType(item.pluginType)"
+                  width="1rem"
+                  height="1rem"
+                />
+              </el-tooltip>
+            </div>
             <span class="mr-4 text-sm font-bold"
               >{{
                 FriendlyTime(
@@ -144,11 +261,13 @@ const showStatusText = (status: number) => {
             >
           </div>
           <div class="flex justify-around items-center">
-            <div>
-              <span>状态: </span>
-              <span :class="[{ tag: true }]" :style="showStatus(item.status)">
-                {{ showStatusText(item.status) }}
-              </span>
+            <div class="flex flex-col justify-center">
+              <div>
+                <span>状态: </span>
+                <span :class="[{ tag: true }]" :style="showStatus(item.status)">
+                  {{ showStatusText(item.status) }}
+                </span>
+              </div>
             </div>
           </div>
           <div class="flex justify-around">
@@ -160,7 +279,7 @@ const showStatusText = (status: number) => {
               cancel-button-text="否"
               icon-color="#626AEF"
               title="确定需要删除吗"
-              @confirm="deleteTask(item.id, index)"
+              @confirm="deleteTaskArr(item.id, index)"
             >
               <template #reference>
                 <Wbutton
