@@ -34,11 +34,7 @@ const props = defineProps({
       />
     </template>
     <template #error>
-      <div
-        element-loading-background="rgba(234, 236, 237, 0.8)"
-        class="w-full h-full"
-        v-loading="true"
-      />
+      <IconifyIconOnline icon="ep:picture-filled" width="2rem" height="2rem" />
     </template>
   </el-image>
 </template>
