@@ -41,6 +41,8 @@ const artistInnerRef = ref<HTMLDivElement>();
 const musicMusicStatistics = ref<MusicStatisticsRes[]>();
 
 const pluginTask = ref<PluginTaskRes[]>();
+const pluginTaskLoadingFlag = ref<boolean>(false);
+
 onBeforeMount(async () => {
   const _musicCount = await getMusicCount();
   const _albumCount = await getAlbumCount();
@@ -57,7 +59,9 @@ onBeforeMount(async () => {
   const _musicMusicStatistics = await getMusicStatistics();
   musicMusicStatistics.value = _musicMusicStatistics.data;
 
+  pluginTaskLoadingFlag.value = true;
   const _pluginTask = await getPluginTask();
+  pluginTaskLoadingFlag.value = false;
   pluginTask.value = _pluginTask.data;
 
   let _count = 0;
@@ -415,7 +419,7 @@ const toArtist = id => {
         </div>
       </div>
       <div class="music-task">
-        <el-scrollbar v-loading="pluginTask == null || pluginTask.length === 0">
+        <el-scrollbar v-loading="pluginTaskLoadingFlag">
           <h1 class="ml-6">插件运行任务</h1>
           <ul v-for="(item, index) in pluginTask" :key="index">
             <li>
@@ -460,6 +464,12 @@ const toArtist = id => {
               </div>
             </li>
           </ul>
+          <el-empty
+            v-show="
+              !pluginTaskLoadingFlag &&
+              (pluginTask == null || pluginTask.length === 0)
+            "
+          />
         </el-scrollbar>
       </div>
     </div>
