@@ -67,7 +67,6 @@ onBeforeMount(() => {
   }).then(res => {
     musicInfo.value = res.data.records[0];
     getMusicUrl(musicInfo.value.id.toString()).then(res => {
-      console.log(res, "url");
       musicUrl.value = res.data;
     });
   });
@@ -116,6 +115,18 @@ const getUserPlayInfo = (id: number) => {
     playItemDialogVisible.value = true;
     userPlayItem.value = res.data;
   });
+};
+
+const addPlaySongList = () => {
+  console.log("添加到播放歌单");
+};
+
+const editMusicInfo = () => {
+  console.log("编辑音乐信息");
+};
+
+const deleteSoundSource = () => {
+  console.log("编辑音乐信息");
 };
 
 const toAlbum = albumId => {
@@ -184,41 +195,70 @@ const toMusicPlay = res => {
               ? "加载中"
               : dateFormater("YYYY-MM-dd", musicInfo.publishTime)
           }}</span>
-        </div>
-        <div class="data-button">
-          <el-button-group>
+          <div class="edit-music">
+            <div class="flex mr-4">
+              <el-button-group>
+                <el-button
+                  class="edit-music-button"
+                  type="primary"
+                  size="default"
+                  round
+                  @click="playMusic"
+                >
+                  <i><PlayIcon class="w-5 h-5" /></i>
+                  <span v-html="'\u00a0' + '播放' + '\u00a0'"
+                /></el-button>
+                <el-button
+                  type="primary"
+                  class="edit-music-button"
+                  round
+                  size="default"
+                  @click="getUserPlayInfo(musicInfo.id)"
+                  ><i
+                    ><IconifyIconOnline
+                      color="#ffffff"
+                      icon="mingcute:add-fill"
+                      width="1.1rem"
+                      height="1.1rem" /></i
+                ></el-button>
+              </el-button-group>
+              <!--添加歌曲到歌单-->
+              <AddMusicToPlayList
+                v-if="playItemDialogVisible"
+                :play-item="userPlayItem"
+                :userId="Number.parseInt(userInfo.id)"
+                :music-id="addMusicId"
+                @closeDialog="playItemDialogVisible = false"
+              />
+            </div>
             <el-button
-              style="height: 2.4rem"
               type="primary"
-              size="default"
+              class="edit-music-button"
+              @click="addPlaySongList"
               round
-              @click="playMusic"
-            >
-              <i><PlayIcon class="w-5 h-5" /></i>
-              <span v-html="'\u00a0' + '播放' + '\u00a0'"
-            /></el-button>
-            <el-button
-              type="primary"
-              style="height: 2.4rem"
-              round
-              size="default"
-              @click="getUserPlayInfo(musicInfo.id)"
               ><i
                 ><IconifyIconOnline
                   color="#ffffff"
-                  icon="mingcute:add-fill"
+                  icon="solar:turntable-music-note-bold-duotone"
                   width="1.1rem"
                   height="1.1rem" /></i
-            ></el-button>
-          </el-button-group>
-          <!--添加歌曲到歌单-->
-          <AddMusicToPlayList
-            v-if="playItemDialogVisible"
-            :play-item="userPlayItem"
-            :userId="Number.parseInt(userInfo.id)"
-            :music-id="addMusicId"
-            @closeDialog="playItemDialogVisible = false"
-          />
+              >添加到播放歌单</el-button
+            >
+            <el-button
+              type="info"
+              class="edit-music-button"
+              @click="editMusicInfo"
+              round
+              >编辑音乐</el-button
+            >
+            <el-button
+              type="danger"
+              class="edit-music-button"
+              @click="deleteSoundSource"
+              round
+              >删除音源</el-button
+            >
+          </div>
         </div>
       </div>
     </div>
@@ -334,13 +374,6 @@ const toMusicPlay = res => {
   }
 }
 
-.data-button {
-  @media screen and (max-width: 1280px) {
-    margin-top: 1rem;
-    margin-left: 0;
-  }
-}
-
 .item-list {
   margin-top: 1rem;
 }
@@ -392,5 +425,14 @@ const toMusicPlay = res => {
   @media screen and (max-width: 720px) {
     display: none;
   }
+}
+
+.edit-music {
+  margin-top: 0.8rem;
+  display: flex;
+}
+
+.edit-music-button {
+  height: 2.2rem;
 }
 </style>
