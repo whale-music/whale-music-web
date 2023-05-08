@@ -1,6 +1,8 @@
 lockfileVersion: 5.4
 
 specifiers:
+  "@better-scroll/core": ^2.5.1
+  "@better-scroll/mouse-wheel": ^2.5.1
   "@codemirror/lang-java": ^6.0.1
   "@codemirror/lang-javascript": ^6.1.4
   "@codemirror/theme-one-dark": ^6.1.1
@@ -49,6 +51,7 @@ specifiers:
   husky: ^7.0.4
   js-cookie: ^3.0.1
   lint-staged: 11.1.2
+  lrc-kit: ^1.1.1
   mitt: ^3.0.0
   mockjs: ^1.1.0
   nprogress: ^0.2.0
@@ -95,6 +98,8 @@ specifiers:
   vue-types: ^5.0.2
 
 dependencies:
+  "@better-scroll/core": 2.5.1
+  "@better-scroll/mouse-wheel": 2.5.1
   "@codemirror/lang-java": 6.0.1
   "@codemirror/lang-javascript": 6.1.4
   "@codemirror/theme-one-dark": 6.1.1
@@ -114,6 +119,7 @@ dependencies:
   element-resize-detector: 1.2.4
   howler: 2.2.3
   js-cookie: 3.0.1
+  lrc-kit: 1.1.1
   mitt: 3.0.0
   mockjs: 1.1.0
   nprogress: 0.2.0
@@ -585,6 +591,31 @@ packages:
       "@babel/helper-string-parser": 7.19.4
       "@babel/helper-validator-identifier": 7.19.1
       to-fast-properties: 2.0.0
+
+  /@better-scroll/core/2.5.1:
+    resolution:
+      {
+        integrity: sha512-koKOuYA55dQ04FJRIVUpMGDr1hbCfWmfX0MGp1hKagkQSWSRpwblqACiwtggVauoj9aaJRJZ9hDsTM4weaavlg==
+      }
+    dependencies:
+      "@better-scroll/shared-utils": 2.5.1
+    dev: false
+
+  /@better-scroll/mouse-wheel/2.5.1:
+    resolution:
+      {
+        integrity: sha512-DGnrirRMY6zMM7xwgx09D/cA9A//3J1/uDkq8iBVEyE5p0sEr/keQpjEfFHGkBRa505BnbBwdbN6f5lugEDSPw==
+      }
+    dependencies:
+      "@better-scroll/core": 2.5.1
+    dev: false
+
+  /@better-scroll/shared-utils/2.5.1:
+    resolution:
+      {
+        integrity: sha512-AplkfSjXVYP9LZiD6JsKgmgQJ/mG4uuLmBuwLz8W5OsYc7AYTfN8kw6GqZ5OwCGoXkVhBGyd8NeC4xwYItp0aw==
+      }
+    dev: false
 
   /@codemirror/autocomplete/6.4.2:
     resolution:
@@ -5320,6 +5351,13 @@ packages:
       slice-ansi: 4.0.0
       wrap-ansi: 6.2.0
     dev: true
+
+  /lrc-kit/1.1.1:
+    resolution:
+      {
+        integrity: sha512-n7wRGLWWyjIXpgo4iZQkce/wzZlNUO7dzZKHvwZjFK3e4QaKYyVYasMfN6adpoOibkVVV2TniuGfAlqYf3vngg==
+      }
+    dev: false
 
   /lru-cache/5.1.1:
     resolution:

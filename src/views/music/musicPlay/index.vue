@@ -1,15 +1,17 @@
 <script lang="ts" setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { Lyric, MusicSearchRes, MusicUrlInfo } from "@/api/music";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { dateFormater } from "@/utils/dateUtil";
-import anime from "animejs/lib/anime.es.js";
 import ArrowDownBold from "@iconify-icons/solar/alt-arrow-down-outline";
 import { prominent } from "@/utils/color/color";
 import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
 import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
 import { getActualWidthOfChars } from "@/utils/textWidthUtil";
+import { Lrc } from "lrc-kit";
+import BScroll from "@better-scroll/core";
+import MouseWheel from "@better-scroll/mouse-wheel";
 
 const router = useRouter();
 
@@ -30,6 +32,11 @@ const currentMusicUrl = ref<MusicUrlInfo>({
   userId: 0
 });
 
+// 歌词容器
+const scroll = ref();
+const scrollBS = ref();
+const isScrollRolling = ref<boolean>(true);
+const lyricContentRef = ref([]);
 const currentMusicLyric = ref<Lyric>({
   createTime: "",
   id: 0,
@@ -111,19 +118,27 @@ async function initPlaySong() {
   musicTitleWidth.value = musicTitleRef.value.offsetWidth > titleWidth ? 1 : 2;
 
   lyricsArr.value = [];
-  // lyricsArr.value = currentMusicLyric.value.lyric.split("\n");
-  const strings = currentMusicLyric.value.lyric.split("\n");
-  for (let i = 0; i < strings.length; i++) {
-    const strings2 = strings[i].split("]");
-    const tempTime = strings2[0].replace("[", "");
-    const time = new Date(`1970T08:${tempTime}`).getTime();
-
-    strings2[1] = strings2[1] === "" ? "-" : strings2[1];
-    // duration为毫秒值
-    lyricsArr.value.push({
-      duration: time,
-      lyric: strings2[1]
-    });
+  if (
+    currentMusicLyric.value != null &&
+    currentMusicLyric.value.lyric != null &&
+    currentMusicLyric.value.lyric !== ""
+  ) {
+    const lrc = Lrc.parse(currentMusicLyric.value.lyric);
+    lyricsArr.value = lrc.lyrics;
+    lyricsArr.value.sort((a, b) => a.timestamp - b.timestamp);
+    // const strings = currentMusicLyric.value.lyric.split("\n");
+    // for (let i = 0; i < strings.length; i++) {
+    //   const strings2 = strings[i].split("]");
+    //   const tempTime = strings2[0].replace("[", "");
+    //   const time = new Date(`1970T08:${tempTime}`).getTime();
+    //
+    //   strings2[1] = strings2[1] === "" ? "-" : strings2[1];
+    //   // duration为毫秒值
+    //   lyricsArr.value.push({
+    //     duration: time,
+    //     lyric: strings2[1]
+    //   });
+    // }
   }
   // 背景渐变色
   await getBGColor();
@@ -131,6 +146,18 @@ async function initPlaySong() {
 
 onMounted(async () => {
   await initPlaySong();
+  BScroll.use(MouseWheel);
+  scrollBS.value = await new BScroll(".bscroll", {
+    probeType: 3,
+    click: true,
+    mouseWheel: true,
+    bounce: true
+  });
+  scrollBS.value.on("alterOptions", () => {
+    isScrollRolling.value = false;
+    console.log(isScrollRolling.value, "滚动中");
+    setTimeout(() => (isScrollRolling.value = true), 3000);
+  });
 });
 
 const getBGColor = async () => {
@@ -184,23 +211,23 @@ const onTimeupdate = event => {
   if (isChange.value == true) return;
   timeProgressBar.value = isNaN(currentTime) ? 0 : currentTime;
   // 转换成毫秒
-  const tempCurrentTime = currentTime * 1000;
+  // const tempCurrentTime = currentTime * 1000;
 
   // 匹配歌词
   for (let i = 0; i < lyricsArr.value.length; i++) {
     // 播放进度不断推进， 判断每个歌词节点, 如果大于当前播放的时间，则进入下一个节点
-    if (tempCurrentTime >= parseInt(lyricsArr.value[i].duration)) {
+    if (currentTime >= lyricsArr.value[i].timestamp) {
       if (i > lyricIndex.value) {
         lyricIndex.value = i;
-        rollFunc(true);
+        // rollFunc(true);
       } else {
         // 如果进度条回退， 当前值值绝对回比进度条到过的最大的值要小
-        const tempNum = parseInt(lyricsArr.value[lyricIndex.value].duration);
-        if (tempCurrentTime < tempNum) {
+        const tempNum = parseInt(lyricsArr.value[lyricIndex.value].timestamp);
+        if (currentTime < tempNum) {
           const number = lyricIndex.value - i;
           // 歌词回退
           for (let j = 0; j < number; j++) {
-            rollFunc(false);
+            // rollFunc(false);
           }
           // 浮标重新赋值
           lyricIndex.value = i;
@@ -209,13 +236,31 @@ const onTimeupdate = event => {
     }
   }
 };
-// 在加载的元数据上
-// const onLoadedmetadata = event => {
-//   // duration 总时长
-//   sumDuration.value = parseInt(event.target.duration);
-//   console.log(sumDuration.value, `总时长`);
-// };
-// const sumDuration = ref<number>(0);
+
+watch(lyricIndex, newValue => {
+  // 判断歌词是否切换到下一段或者跳转到其他章节
+  // console.log(isScrollRolling.value, "是否在滚动，滚动时不跳转歌词");
+  if (isScrollRolling.value) {
+    console.log("跳转歌词", newValue);
+    scrollBS.value.scrollToElement(
+      lyricContentRef.value[newValue],
+      500,
+      true,
+      true
+    );
+  }
+});
+
+// 设置空歌词显示动画
+const loadingTime = (item, index, arr) => {
+  if (arr != null && arr.length > 0 && index !== arr.length - 1) {
+    const number = arr[index + 1].timestamp - item.timestamp;
+    console.log(number, "number");
+    return number;
+  } else {
+    return 2;
+  }
+};
 
 // 当前音乐循环选项
 const loopType = ref<number>(0);
@@ -359,29 +404,9 @@ const changeMusicDuration = () => {
   isChange.value = false;
 };
 
-// 滚动步长
-const rollProgress = ref<number>(0);
-
-// 滚动到歌词播放地方
-const rollFunc = flag => {
-  console.log(flag, "flag");
-  // 越大滚动间隔越长
-  const step = 6.6;
-  rollProgress.value = rollProgress.value - (flag ? step : -step);
-
-  const duration = audioRef.value.duration - audioRef.value.currentTime;
-  anime({
-    targets: [".lyric-item"],
-    translateY: `${rollProgress.value}rem`,
-    duration: duration * 5,
-    easing: "cubicBezier(.3, .5, .2, 1)",
-    autoplay: true
-  });
-};
-
 // 播放到歌词点击的时间点
-const toLyrics = item => {
-  audioRef.value.currentTime = Math.ceil(item.duration / 1000);
+const toLyrics = timestamp => {
+  audioRef.value.currentTime = timestamp;
   console.log(audioRef.value.currentTime, "item");
   isChange.value = false;
 };
@@ -579,31 +604,69 @@ const toLyrics = item => {
             <div
               v-if="
                 lyricsArr.length === 0 ||
-                lyricsArr[0].lyric === '' ||
-                lyricsArr[0].duration == null ||
+                lyricsArr[0].content === '' ||
+                lyricsArr[0].timestamp == null ||
                 currentMusicLyric.lyric == null ||
                 currentMusicLyric.lyric === ''
               "
             >
               <div class="mt-[36vh]" />
-              <span class="lyric-item">纯音乐， 请欣赏</span>
+              <span class="currently-playing">纯音乐， 请欣赏</span>
               <div class="mb-24" />
             </div>
             <div v-else>
-              <div v-for="(item, index) in lyricsArr" :key="index">
-                <div class="mt-[36vh]" v-if="index === 0" />
-                <span
-                  :class="{
-                    'lyric-item': true,
-                    'currently-playing': lyricIndex === index
-                  }"
-                  class="select-none"
-                  @mousedown="isChange = true"
-                  @mouseup="toLyrics(item)"
-                >
-                  {{ item.lyric }}
-                </span>
-                <div class="mb-24" v-if="index === lyricsArr.length - 1" />
+              <div ref="scroll" class="bscroll">
+                <div class="scroll-content">
+                  <div
+                    v-for="(item, index) in lyricsArr"
+                    :key="index"
+                    class="bscroll-container"
+                    ref="lyricContentRef"
+                  >
+                    <div
+                      v-if="item.content === ''"
+                      :style="{
+                        '--lyric-loading': `${loadingTime(
+                          item,
+                          index,
+                          lyricsArr
+                        )}s`
+                      }"
+                    >
+                      <div class="load-container">
+                        <div
+                          class="loader__circle"
+                          :class="{ 'loading-anima': lyricIndex === index }"
+                        />
+                        <div
+                          class="loader__circle"
+                          :class="{ 'loading-anima': lyricIndex === index }"
+                        />
+                        <div
+                          class="loader__circle"
+                          :class="{ 'loading-anima': lyricIndex === index }"
+                        />
+                        <div
+                          class="loader__circle"
+                          :class="{ 'loading-anima': lyricIndex === index }"
+                        />
+                      </div>
+                      <br />
+                    </div>
+                    <p
+                      v-else
+                      :class="{
+                        'lyric-item': true,
+                        'currently-playing': lyricIndex === index
+                      }"
+                      class="select-none"
+                      @mousedown="isChange = true"
+                      @mouseup="toLyrics(item.timestamp)"
+                    >
+                      {{ item.content }}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -659,9 +722,11 @@ $lyricPadding: 0.8rem;
   background-color: #464646;
   transition: all 2s;
   width: 100%;
+  height: 100%;
 }
 
 .shadowMask {
+  height: 100%;
   background-color: rgba(202, 198, 198, 0.5);
   backdrop-filter: blur(50px);
 }
@@ -689,6 +754,10 @@ $lyricPadding: 0.8rem;
   height: 100%;
   width: 55rem;
   margin-left: 2rem;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .music-font {
@@ -780,8 +849,31 @@ $lyricPadding: 0.8rem;
 }
 
 .scrollbar {
-  height: 100vh;
-  overflow-y: hidden;
+  height: 90vh;
+  -webkit-mask: linear-gradient(
+    180deg,
+    hsla(0, 0%, 100%, 0),
+    hsla(0, 0%, 100%, 0.6) 15%,
+    #fff 25%,
+    #fff 75%,
+    hsla(0, 0%, 100%, 0.6) 85%,
+    hsla(0, 0%, 100%, 0)
+  );
+  mask: linear-gradient(
+    180deg,
+    hsla(0, 0%, 100%, 0),
+    hsla(0, 0%, 100%, 0.6) 15%,
+    #fff 25%,
+    #fff 75%,
+    hsla(0, 0%, 100%, 0.6) 85%,
+    hsla(0, 0%, 100%, 0)
+  );
+}
+
+.bscroll {
+  height: 90vh;
+  overflow: hidden;
+  position: relative;
 }
 
 :deep(.el-dialog) {
@@ -855,5 +947,44 @@ $lyricPadding: 0.8rem;
   animation: scroll-animate 12s linear 3s infinite;
   display: flex;
   gap: 0 var(--gap);
+}
+
+.load-container {
+  @keyframes loader_901 {
+    0% {
+      transform: scale(1);
+      background: rgba(200, 200, 200, 0.5);
+    }
+
+    50% {
+      transform: scale(1.8);
+    }
+
+    100% {
+      transform: scale(1);
+      background: #ffffff;
+    }
+  }
+  display: flex;
+  margin-left: 1rem;
+  justify-content: start;
+  align-items: center;
+  height: 100%;
+  gap: 14px;
+
+  .ball {
+    background: rgba(200, 200, 200, 0.5);
+  }
+
+  .loader__circle {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(200, 200, 200, 0.5);
+  }
+
+  .loading-anima {
+    animation: loader_901 var(--lyric-loading) ease-in-out infinite;
+  }
 }
 </style>

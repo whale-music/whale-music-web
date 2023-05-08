@@ -29,6 +29,8 @@
     "not op_mini all"
   ],
   "dependencies": {
+    "@better-scroll/core": "^2.5.1",
+    "@better-scroll/mouse-wheel": "^2.5.1",
     "@codemirror/lang-java": "^6.0.1",
     "@codemirror/lang-javascript": "^6.1.4",
     "@codemirror/theme-one-dark": "^6.1.1",
@@ -48,6 +50,7 @@
     "element-resize-detector": "^1.2.4",
     "howler": "^2.2.3",
     "js-cookie": "^3.0.1",
+    "lrc-kit": "^1.1.1",
     "mitt": "^3.0.0",
     "mockjs": "^1.1.0",
     "nprogress": "^0.2.0",
