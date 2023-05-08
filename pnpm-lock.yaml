@@ -55,6 +55,7 @@ specifiers:
   path: ^0.12.7
   picocolors: ^1.0.0
   pinia: ^2.0.32
+  pinia-plugin-persistedstate: ^3.1.0
   postcss: ^8.4.21
   postcss-html: ^1.5.0
   postcss-import: ^15.1.0
@@ -118,6 +119,7 @@ dependencies:
   nprogress: 0.2.0
   path: 0.12.7
   pinia: 2.0.32_hmuptsblhheur2tugfgucj7gc4
+  pinia-plugin-persistedstate: 3.1.0_pinia@2.0.32
   qs: 6.11.0
   responsive-storage: 2.2.0
   vue: 3.2.47
@@ -5974,6 +5976,17 @@ packages:
       }
     engines: { node: ">=0.10.0" }
     dev: true
+
+  /pinia-plugin-persistedstate/3.1.0_pinia@2.0.32:
+    resolution:
+      {
+        integrity: sha512-8UN+vYMEPBdgNLwceY08mi5olI0wkYaEb8b6hD6xW7SnBRuPydWHlEhZvUWgNb/ibuf4PvufpvtS+dmhYjJQOw==
+      }
+    peerDependencies:
+      pinia: ^2.0.0
+    dependencies:
+      pinia: 2.0.32_hmuptsblhheur2tugfgucj7gc4
+    dev: false
 
   /pinia/2.0.32_hmuptsblhheur2tugfgucj7gc4:
     resolution:

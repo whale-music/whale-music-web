@@ -1,23 +1,18 @@
 <script lang="ts" setup>
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import {
-  getAllMusicList,
-  getMusicLyric,
-  getMusicUrl,
-  MusicLyricRes,
-  MusicSearchRes,
-  MusicUrlInfo
-} from "@/api/music";
+import { Lyric, MusicSearchRes, MusicUrlInfo } from "@/api/music";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { dateFormater } from "@/utils/dateUtil";
 import anime from "animejs/lib/anime.es.js";
 import ArrowDownBold from "@iconify-icons/solar/alt-arrow-down-outline";
 import { prominent } from "@/utils/color/color";
+import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
+import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
+import { getActualWidthOfChars } from "@/utils/textWidthUtil";
 
 const router = useRouter();
 
-const idValue = ref();
 const currentMusicUrl = ref<MusicUrlInfo>({
   createTime: "",
   encodeType: "",
@@ -35,7 +30,7 @@ const currentMusicUrl = ref<MusicUrlInfo>({
   userId: 0
 });
 
-const currentMusicLyric = ref<MusicLyricRes>({
+const currentMusicLyric = ref<Lyric>({
   createTime: "",
   id: 0,
   lyric: "",
@@ -74,31 +69,48 @@ const musicInfo = ref<MusicSearchRes>({
 const imgColorStyle = ref();
 
 const musicUrlList = ref<MusicUrlInfo[]>();
-const musicLyricList = ref<MusicLyricRes[]>();
+const musicLyricList = ref<Lyric[]>();
 const lyricsArr = ref([]);
-onMounted(async () => {
-  idValue.value = router.currentRoute.value.query.id;
-  const tempUrl = await getMusicUrl(idValue.value);
-  musicUrlList.value = tempUrl.data;
-  const tempMusicInfo = await getAllMusicList({
-    refresh: false,
-    afterDate: "",
-    albumName: "",
-    artistName: "",
-    beforeDate: "",
-    musicIds: [idValue.value],
-    musicName: "",
-    order: false,
-    orderBy: "",
-    page: { pageIndex: 0, pageNum: 0 }
-  });
-  musicInfo.value = tempMusicInfo.data.records[0];
-  const tempMusicLyric = await getMusicLyric(idValue.value);
-  musicLyricList.value = tempMusicLyric.data;
 
+const currentIndex = ref<number>(0);
+async function initMusicInfo(musicInfoRes: MusicSearchRes) {
+  // 获取当前歌单播放音乐
+  const playSongListStore = usePlaySongListStoreHook();
+  musicInfo.value = musicInfoRes;
+  currentIndex.value = playSongListStore.currentIndex;
+  musicUrlList.value = await playSongListStore.getAllMusicUrl(
+    musicInfo.value.id
+  );
+  musicLyricList.value = await playSongListStore.getLyric(musicInfo.value.id);
+  const musicLyricIndex = musicLyricList.value.findIndex(
+    value => value.type === "lyric"
+  );
+  if (musicLyricIndex === -1 || musicLyricList.value.length === 0) {
+    currentMusicLyric.value = {
+      createTime: "",
+      id: 0,
+      lyric: null,
+      musicId: 0,
+      type: "",
+      updateTime: ""
+    };
+  } else {
+    currentMusicLyric.value = musicLyricList.value[musicLyricIndex];
+  }
+  // currentMusicLyric.value =
+  //   musicLyricIndex === -1
+  //     ? currentMusicLyric.value
+  //     : musicLyricList.value[musicLyricIndex];
   currentMusicUrl.value = musicUrlList.value[0];
-  currentMusicLyric.value = musicLyricList.value[0];
+}
 
+async function initPlaySong() {
+  const storeHook = usePlaySongListStoreHook();
+  await initMusicInfo(storeHook.getCurrentMusic);
+  const titleWidth = getActualWidthOfChars(musicInfo.value.musicName);
+  musicTitleWidth.value = musicTitleRef.value.offsetWidth > titleWidth ? 1 : 2;
+
+  lyricsArr.value = [];
   // lyricsArr.value = currentMusicLyric.value.lyric.split("\n");
   const strings = currentMusicLyric.value.lyric.split("\n");
   for (let i = 0; i < strings.length; i++) {
@@ -113,15 +125,12 @@ onMounted(async () => {
       lyric: strings2[1]
     });
   }
-  // background-color: #21D4FD;
-  // background-image: -webkit-linear-gradient(19deg, #21D4FD 0%, #B721FF 50%, #ffffff 100%);
-  // background-image: -moz-linear-gradient(19deg, #21D4FD 0%, #B721FF 50%, #ffffff 100%);
-  // background-image: -o-linear-gradient(19deg, #21D4FD 0%, #B721FF 50%, #ffffff 100%);
-  // background-image: linear-gradient(19deg, #21D4FD 0%, #B721FF 50%, #ffffff 100%);
-
-  // background-image: linear-gradient(25deg, #4457b7, #6385a7, #6fb393, #6ce37b)
-  // background-image: linear-gradient(312deg, #4457b7, #6385a7, #6fb393, #6ce37b)
+  // 背景渐变色
   await getBGColor();
+}
+
+onMounted(async () => {
+  await initPlaySong();
 });
 
 const getBGColor = async () => {
@@ -131,9 +140,6 @@ const getBGColor = async () => {
     group: 30
   });
 
-  // imgColorStyle.value = {
-  //   backgroundColor: colors[0]
-  // };
   imgColorStyle.value = {
     backgroundImage: `linear-gradient(312deg, ${colors[0]} 0%, ${colors[1]} 50%, ${colors[2]} 100%)`
   };
@@ -148,7 +154,12 @@ const audioRef = ref({
   // 音频最大播放时长
   maxTime: 0,
   minTime: 0,
-  step: 0.1
+  step: 0.1,
+  isLoading: false,
+  buffered: null,
+  isLoop: false,
+  pause: () => {},
+  play: () => {}
 });
 
 //判断是否被拖动
@@ -160,6 +171,13 @@ const lyricIndex = ref<number>(0);
 
 // 进度条
 const onTimeupdate = event => {
+  // 获取缓冲进度
+  if (audioRef.value.buffered != null && audioRef.value.buffered.length > 0) {
+    const currentBuffer =
+      audioRef.value.buffered.end(audioRef.value.buffered.length - 1) * 100;
+    audioBufferProgress.value = currentBuffer / audioRef.value.duration;
+  }
+
   const currentTime = event.target.currentTime;
   // state.sliderTime= formatProcessToolTip(state.sliderTime)
   // const value = (event.target.currentTime / event.target.duration) * 100;
@@ -199,6 +217,34 @@ const onTimeupdate = event => {
 // };
 // const sumDuration = ref<number>(0);
 
+// 当前音乐循环选项
+const loopType = ref<number>(0);
+const loopTypeIcon = ref<string>("solar:arrow-right-bold");
+const musicLoopType = () => {
+  if (loopType.value == 3) {
+    loopType.value = -1;
+  }
+  loopType.value++;
+  switch (loopType.value) {
+    // 自动完播放音乐
+    case 0:
+      loopTypeIcon.value = "solar:arrow-right-bold";
+      break;
+    // 循环播放歌单音乐
+    case 1:
+      loopTypeIcon.value = "solar:repeat-bold";
+      break;
+    // 循环播放当前音乐
+    case 2:
+      loopTypeIcon.value = "solar:repeat-one-bold";
+      break;
+    // 随机当前歌单音乐
+    case 3:
+      loopTypeIcon.value = "solar:shuffle-linear";
+      break;
+  }
+};
+
 const playing = ref<boolean>(true);
 // 开始播放
 const onPlay = () => {
@@ -212,6 +258,100 @@ const onPause = () => {
   console.log(playing.value);
   audioRef.value.pause();
 };
+
+const onEnded = async () => {
+  const storeHook = usePlaySongListStoreHook();
+  onPause();
+  // 根据当前选项选择下一首音乐
+  switch (loopType.value) {
+    // 自动完播放音乐，关闭
+    case 0:
+      if (storeHook.isNextMusic) {
+        storeHook.nextMusic();
+        await initPlaySong();
+      }
+      break;
+    // 循环播放歌单音乐
+    case 1:
+      // eslint-disable-next-line no-case-declarations
+      if (storeHook.isNextMusic) {
+        storeHook.nextMusic();
+      } else {
+        storeHook.currentIndex = 0;
+      }
+      await initPlaySong();
+      break;
+    // 循环播放当前音乐
+    case 2:
+      audioRef.value.isLoop = true;
+      break;
+    // 随机当前歌单音乐
+    case 3:
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const randomNum = parseInt(
+          Math.random() * storeHook.getPlayListMusic.length - 1
+        );
+        if (randomNum !== currentIndex.value) {
+          storeHook.currentIndex = randomNum;
+          break;
+        }
+      }
+      await initPlaySong();
+      break;
+  }
+  onPlay();
+};
+
+const lastMusic = async () => {
+  console.log("上一首");
+  onPause();
+  const storeHook = usePlaySongListStoreHook();
+  if (storeHook.isLastMusic) {
+    storeHook.lastMusic();
+  } else {
+    storeHook.currentIndex = storeHook.playListMusicArr.length - 1;
+  }
+  await initPlaySong();
+};
+
+const nextMusic = async () => {
+  console.log("下一首");
+  onPause();
+  const storeHook = usePlaySongListStoreHook();
+  if (storeHook.isNextMusic) {
+    storeHook.nextMusic();
+  } else {
+    storeHook.currentIndex = 0;
+  }
+  await initPlaySong();
+  onPlay();
+};
+
+const canplay = () => {
+  audioRef.value.isLoading = true;
+  if (musicInfo.value.timeLength == null) {
+    musicInfo.value.timeLength = audioRef.value.duration * 1000;
+    return;
+  }
+  // 不相等时取音频文件的时长
+  if (musicInfo.value.timeLength !== audioRef.value.duration * 100) {
+    musicInfo.value.timeLength = audioRef.value.duration * 1000;
+  }
+};
+
+const editPlaySongListFlag = ref<boolean>(false);
+const editPlaySongList = (index: number) => {
+  usePlaySongListStoreHook().currentIndex = index;
+  initPlaySong();
+  editPlaySongListFlag.value = false;
+};
+
+const audioBufferProgress = ref(0);
+
+// 音乐标题长度
+const musicTitleRef = ref();
+const musicTitleWidth = ref<number>(1);
 
 //鼠标拖拽松开时
 const changeMusicDuration = () => {
@@ -230,7 +370,6 @@ const rollFunc = flag => {
   rollProgress.value = rollProgress.value - (flag ? step : -step);
 
   const duration = audioRef.value.duration - audioRef.value.currentTime;
-  console.log(duration, "duration");
   anime({
     targets: [".lyric-item"],
     translateY: `${rollProgress.value}rem`,
@@ -250,8 +389,9 @@ const toLyrics = item => {
 
 <template>
   <div class="main-box" :style="imgColorStyle">
-    <div class="toBack">
+    <div class="toBack icon-bg">
       <IconifyIconOffline
+        class="icon-scale"
         :icon="ArrowDownBold"
         width="3rem"
         height="3rem"
@@ -262,7 +402,17 @@ const toLyrics = item => {
       <div class="container-box">
         <div class="controller">
           <LoadImg :src="musicInfo.pic" height="23rem" width=" 23rem" />
-          <span class="music-font">{{ musicInfo.musicName }}</span>
+          <div class="w-[24rem]" ref="musicTitleRef">
+            <div class="overflow-hidden flex">
+              <div v-for="item in musicTitleWidth" :key="item">
+                <span
+                  class="music-font"
+                  :class="{ animate: musicTitleWidth === 2 }"
+                  >{{ musicInfo.musicName }}</span
+                >
+              </div>
+            </div>
+          </div>
           <div class="flex w-full">
             <span class="album-font">{{ musicInfo.albumName }}</span>
             <span
@@ -282,6 +432,9 @@ const toLyrics = item => {
           </div>
           <div class="progress">
             <el-slider
+              :style="{
+                '--slider-progress': `${audioBufferProgress}%`
+              }"
               :min="0"
               :max="musicInfo.timeLength / 1000"
               :step="1"
@@ -290,47 +443,121 @@ const toLyrics = item => {
               @mousedown="isChange = true"
               @mouseup="changeMusicDuration"
             />
-            <div class="flex justify-between">
-              <span>{{ dateFormater("mm:ss", timeProgressBar * 1000) }}</span>
-              <span>
+            <div class="flex justify-between mt-2">
+              <span class="select-none">{{
+                dateFormater("mm:ss", timeProgressBar * 1000)
+              }}</span>
+              <span class="select-none">
                 {{ dateFormater("mm:ss", musicInfo.timeLength) }}
               </span>
             </div>
-            <div class="flex justify-center items-center">
-              <IconifyIconOnline
-                @click="rollFunc(false)"
-                class="cursor-pointer mr-4"
-                icon="solar:rewind-back-bold-duotone"
-                width="2.8rem"
-                height="2.8rem"
-              />
-              <div>
-                <div v-if="playing">
+            <div class="flex justify-between items-center">
+              <div class="icon-bg">
+                <a>
                   <IconifyIconOnline
-                    @click="onPlay"
-                    class="cursor-pointer"
-                    icon="solar:play-bold"
+                    class="icon-scale"
+                    @click="musicLoopType"
+                    :icon="loopTypeIcon"
+                    width="2rem"
+                    height="2rem"
+                  />
+                </a>
+              </div>
+              <div class="flex justify-center items-center">
+                <div class="icon-bg mr-2">
+                  <IconifyIconOnline
+                    @click="lastMusic"
+                    class="cursor-pointer icon-scale"
+                    icon="solar:rewind-back-bold-duotone"
+                    width="2.8rem"
+                    height="2.8rem"
+                  />
+                </div>
+                <div>
+                  <div v-if="audioRef.isLoading">
+                    <div v-if="playing">
+                      <div class="icon-bg">
+                        <IconifyIconOnline
+                          @click="onPlay"
+                          class="cursor-pointer icon-scale"
+                          icon="solar:play-bold"
+                          width="3.25rem"
+                          height="3.25rem"
+                        />
+                      </div>
+                    </div>
+                    <div v-else>
+                      <div class="icon-bg">
+                        <IconifyIconOnline
+                          @click="onPause"
+                          class="cursor-pointer icon-scale"
+                          icon="solar:pause-circle-bold"
+                          width="3.25rem"
+                          height="3.25rem"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <IconifyIconOffline
+                    v-else
+                    :icon="Loading3Fill"
+                    class="animate-spin"
                     width="3.25rem"
                     height="3.25rem"
                   />
                 </div>
-                <div v-else>
+                <div class="icon-bg ml-2">
                   <IconifyIconOnline
-                    @click="onPause"
-                    class="cursor-pointer"
-                    icon="solar:pause-circle-bold"
-                    width="3.25rem"
-                    height="3.25rem"
+                    @click="nextMusic"
+                    class="cursor-pointer icon-scale"
+                    icon="solar:rewind-forward-bold-duotone"
+                    width="2.8rem"
+                    height="2.8rem"
                   />
                 </div>
               </div>
-              <IconifyIconOnline
-                @click="rollFunc(true)"
-                class="cursor-pointer ml-4"
-                icon="solar:rewind-forward-bold-duotone"
-                width="2.8rem"
-                height="2.8rem"
-              />
+              <div>
+                <el-dialog
+                  v-model="editPlaySongListFlag"
+                  :show-close="false"
+                  :modal="false"
+                >
+                  <div>
+                    <h1 class="text-black">当前播放</h1>
+                    <el-scrollbar height="20rem">
+                      <div
+                        v-for="(item, index) in usePlaySongListStoreHook()
+                          .getPlayListMusic"
+                        :key="item.id"
+                        class="dialog-play-song-list"
+                        @click="editPlaySongList(index)"
+                      >
+                        <LoadImg
+                          height="3rem"
+                          width="3rem"
+                          radius="10px"
+                          :src="item.pic"
+                        />
+                        <div>
+                          <span class="font-bold ml-4">{{
+                            item.musicName
+                          }}</span>
+                          <span>{{ item.aliaName }}</span>
+                        </div>
+                      </div>
+                    </el-scrollbar>
+                  </div>
+                </el-dialog>
+                <div class="icon-bg">
+                  <IconifyIconOnline
+                    @click="editPlaySongListFlag = true"
+                    class="cursor-pointer icon-scale"
+                    icon="solar:playlist-2-bold"
+                    width="2rem"
+                    height="2rem"
+                  />
+                </div>
+              </div>
             </div>
           </div>
           <audio
@@ -338,6 +565,10 @@ const toLyrics = item => {
             @timeupdate="onTimeupdate"
             @play="onPlay"
             @pause="onPause"
+            @ended="onEnded"
+            @canplay="canplay"
+            @loop="audioRef.isLoop"
+            autofocus
             ref="audioRef"
           >
             您的浏览器不支持 audio 元素。
@@ -345,19 +576,35 @@ const toLyrics = item => {
         </div>
         <div class="lyric">
           <div class="scrollbar">
-            <div v-for="(item, index) in lyricsArr" :key="index">
-              <div class="mt-[36vh]" v-if="index === 0" />
-              <span
-                :class="{
-                  'lyric-item': true,
-                  'currently-playing': lyricIndex === index
-                }"
-                @mousedown="isChange = true"
-                @mouseup="toLyrics(item)"
-              >
-                {{ item.lyric }}
-              </span>
-              <div class="mb-24" v-if="index === lyricsArr.length - 1" />
+            <div
+              v-if="
+                lyricsArr.length === 0 ||
+                lyricsArr[0].lyric === '' ||
+                lyricsArr[0].duration == null ||
+                currentMusicLyric.lyric == null ||
+                currentMusicLyric.lyric === ''
+              "
+            >
+              <div class="mt-[36vh]" />
+              <span class="lyric-item">纯音乐， 请欣赏</span>
+              <div class="mb-24" />
+            </div>
+            <div v-else>
+              <div v-for="(item, index) in lyricsArr" :key="index">
+                <div class="mt-[36vh]" v-if="index === 0" />
+                <span
+                  :class="{
+                    'lyric-item': true,
+                    'currently-playing': lyricIndex === index
+                  }"
+                  class="select-none"
+                  @mousedown="isChange = true"
+                  @mouseup="toLyrics(item)"
+                >
+                  {{ item.lyric }}
+                </span>
+                <div class="mb-24" v-if="index === lyricsArr.length - 1" />
+              </div>
             </div>
           </div>
         </div>
@@ -369,6 +616,23 @@ const toLyrics = item => {
 <style lang="scss" scoped>
 $lyricPadding: 0.8rem;
 
+@keyframes progress-1a35f519 {
+  to {
+    background-position: 25px 0;
+  }
+}
+
+@keyframes scroll-animate {
+  80%,
+  to {
+    transform: translate3d(calc((100% + var(--gap)) / -2), 0, 0);
+  }
+}
+
+* {
+  @apply select-none;
+}
+
 .toBack {
   z-index: 1;
   position: absolute;
@@ -377,13 +641,8 @@ $lyricPadding: 0.8rem;
 }
 
 .toBack:hover {
-  z-index: 1;
-  position: absolute;
-  top: 1rem;
-  right: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #c4c4c440;
   border-radius: 1rem;
-  background-color: rgba(0, 0, 0, 0.2);
 }
 
 .main-box {
@@ -433,18 +692,22 @@ $lyricPadding: 0.8rem;
 }
 
 .music-font {
-  display: inline-block;
-  width: 100%;
+  --gap: 1.5625em;
+  @apply w-max will-change-transform;
+  width: max-content;
   font-size: 2rem;
+  animation: animate 12s linear 3s infinite;
+  display: flex;
+  gap: 0 var(--gap);
 }
 
 .album-font {
-  @apply font-bold;
+  @apply font-bold select-none;
   font-size: 0.8rem;
 }
 
 .artist-font {
-  @apply font-bold;
+  @apply font-bold select-none;
   font-size: 0.8rem;
 }
 
@@ -461,7 +724,7 @@ $lyricPadding: 0.8rem;
 
 :deep(.el-slider) {
   --el-slider-main-bg-color: #ffffff;
-  --el-slider-runway-bg-color: rgba(255, 255, 255, 0.4);
+  --el-slider-runway-bg-color: rgba(255, 255, 255, 0.1);
   --el-slider-stop-bg-color: var(--el-color-white);
   --el-slider-disabled-color: var(--el-text-color-placeholder);
   --el-slider-border-radius: 3px;
@@ -469,6 +732,29 @@ $lyricPadding: 0.8rem;
   --el-slider-button-size: 20px;
   --el-slider-button-wrapper-size: 36px;
   --el-slider-button-wrapper-offset: -15px;
+  background-color: transparent;
+  height: var(--el-slider-height);
+}
+
+:deep(.el-slider__runway) {
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.1);
+  flex: none;
+}
+
+:deep(.el-slider__runway::before) {
+  content: "";
+  transition: width ease-in 0.5s;
+  width: var(--slider-progress);
+  height: var(--el-slider-height);
+  border-radius: var(--el-slider-border-radius);
+  background-color: rgba(255, 255, 255, 0.4);
+  flex: none;
+  display: block;
+}
+
+:deep(.el-slider__bar) {
+  top: 0;
 }
 
 .lyric-item:hover {
@@ -496,5 +782,78 @@ $lyricPadding: 0.8rem;
 .scrollbar {
   height: 100vh;
   overflow-y: hidden;
+}
+
+:deep(.el-dialog) {
+  border-radius: 1rem;
+  height: 30rem;
+  backdrop-filter: blur(20px);
+  background-color: var(--el-bg-color);
+}
+
+.dialog-play-song-list {
+  display: flex;
+  align-items: center;
+  padding: 0.8rem;
+  border-radius: 1rem;
+  z-index: 100;
+}
+
+.dialog-play-song-list:hover {
+  background: rgba(98, 97, 97, 0.37);
+}
+
+.icon-bg {
+  height: 4rem;
+  width: 4rem;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: nowrap;
+  border-radius: 1rem;
+  transition: all ease-in-out 0.2s;
+}
+
+.icon-bg:hover {
+  background: #dedede7c;
+  border-radius: 1rem;
+}
+
+.icon-bg:active {
+  background-color: #cecececb;
+  border-radius: 1rem;
+}
+
+.icon-scale {
+  transition: transform cubic-bezier(0.4, 0, 0.2, 1) 0.15s;
+}
+
+.icon-scale:active {
+  transform: scale(0.8, 0.8);
+}
+
+// 背景渐变动画
+.seekbar.loading .buffer[data-v-1a35f519] {
+  animation: progress-1a35f519 1s linear infinite;
+  background-color: rgba(193, 200, 209, 0.6);
+  background-image: linear-gradient(
+    -45deg,
+    rgba(58, 66, 78, 0.6) 25%,
+    transparent 0,
+    transparent 50%,
+    rgba(58, 66, 78, 0.6) 0,
+    rgba(58, 66, 78, 0.6) 75%,
+    transparent 0,
+    transparent
+  );
+  background-repeat: repeat-x;
+  background-size: 25px 25px;
+}
+
+.animate {
+  --gap: 1.5625em;
+  animation: scroll-animate 12s linear 3s infinite;
+  display: flex;
+  gap: 0 var(--gap);
 }
 </style>

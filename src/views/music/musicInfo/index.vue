@@ -18,6 +18,7 @@ import PlayIcon from "@/assets/svg/play.svg?component";
 import AddMusicToPlayList from "@/components/addMusicToPlayList/addMusicToPlayList.vue";
 import { getUserPlayList, UserPlayListRes } from "@/api/playlist";
 import { DataInfo, sessionKey } from "@/utils/auth";
+import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
 
 const router = useRouter();
 const id = ref();
@@ -119,6 +120,8 @@ const getUserPlayInfo = (id: number) => {
 
 const addPlaySongList = () => {
   console.log("添加到播放歌单");
+  usePlaySongListStoreHook().addMusicToNextPlaySongList(musicInfo.value.id);
+  message("成功添加音乐到歌单", { type: "success" });
 };
 
 const editMusicInfo = () => {
@@ -143,14 +146,19 @@ const toArtist = res => {
   });
 };
 
-const toMusicPlay = res => {
+const toMusicPlay = async res => {
   if (res.url == null || res.url === "") {
     message(`该音源无效`, { type: "error" });
     return;
   }
-  router.push({
-    path: "/musicPlay",
-    query: { id: res.id }
+  try {
+    await usePlaySongListStoreHook().playSongList(musicInfo.value.id);
+  } catch (e) {
+    message(e, { type: "error" });
+    return;
+  }
+  await router.push({
+    path: "/musicPlay"
   });
 };
 </script>

@@ -86,21 +86,9 @@ export const getMusicUrl = (musicId?: string) => {
   return http.request<R<MusicUrlInfo[]>>("get", "/admin/music/url/" + musicId);
 };
 
-export interface MusicLyricRes {
-  id: number;
-  musicId: number;
-  type: string;
-  lyric: string;
-  createTime: string;
-  updateTime: string;
-}
-
 // 获取歌曲lyric
 export const getMusicLyric = (musicId?: string) => {
-  return http.request<R<MusicLyricRes[]>>(
-    "get",
-    `/admin/music/lyric/${musicId}`
-  );
+  return http.request<R<Lyric[]>>("get", `/admin/music/lyric/${musicId}`);
 };
 
 export interface Singer {
