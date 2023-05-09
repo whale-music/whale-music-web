@@ -284,6 +284,12 @@ function handleAliveRoute(matched: RouteRecordNormalized[], mode?: string) {
         name: matched[matched.length - 1].name
       });
       break;
+    case "refresh":
+      usePermissionStoreHook().cacheOperate({
+        mode: "refresh",
+        name
+      });
+      break;
     default:
       usePermissionStoreHook().cacheOperate({
         mode: "delete",

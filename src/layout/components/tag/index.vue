@@ -167,6 +167,7 @@ function onFresh() {
     path: "/redirect" + fullPath,
     query: query
   });
+  handleAliveRoute(route as toRouteType, "refresh");
 }
 
 function deleteDynamicTag(obj: any, current: any, tag?: string) {
