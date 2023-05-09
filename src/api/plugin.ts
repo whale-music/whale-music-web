@@ -14,10 +14,11 @@ export interface PluginList {
 }
 
 /** 获取所有插件 */
-export const getPluginList = (id?: string | string[]) => {
+export const getPluginList = (id?: string | string[], name?: string) => {
   return http.request<R<PluginList[]>>("get", "/admin/getAllPlugins", {
     params: {
-      id: Array.isArray(id) ? id.join(",") : id
+      id: Array.isArray(id) ? id.join(",") : id,
+      name: name
     }
   });
 };

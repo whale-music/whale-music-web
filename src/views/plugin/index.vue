@@ -22,23 +22,26 @@ export default {
     Wbutton
   },
   mounted() {
-    this.pluginListLoadingFlag = true;
-    getPluginList()
-      .then(res => {
-        this.pluginListLoadingFlag = false;
-        if (res.data.length == 0) {
-          this.isPluginListShow = false;
-          return;
-        }
-        this.pluginList = res.data;
-        this.isPluginListShow = true;
-      })
-      .catch(reason => {
-        this.pluginListLoadingFlag = false;
-        message(`请求错误${reason}`, { type: "error" });
-      });
+    this.initPluginList();
   },
   methods: {
+    initPluginList(name?: string) {
+      this.pluginListLoadingFlag = true;
+      getPluginList(null, name)
+        .then(res => {
+          this.pluginListLoadingFlag = false;
+          if (res.data.length == 0) {
+            this.isPluginListShow = false;
+            return;
+          }
+          this.pluginList = res.data;
+          this.isPluginListShow = true;
+        })
+        .catch(reason => {
+          this.pluginListLoadingFlag = false;
+          message(`请求错误${reason}`, { type: "error" });
+        });
+    },
     creatPlugin() {
       savePluginInfo(this.pluginInfo)
         .then(res => {
@@ -104,6 +107,22 @@ export default {
           }
         ]
       });
+    },
+    showPluginTypeText(type: string) {
+      switch (type) {
+        case "common-plugin":
+          return "普通插件";
+        case "interactive-plugin":
+          return "聚合插件";
+      }
+    },
+    showPluginTypeColor(type: string) {
+      switch (type) {
+        case "common-plugin":
+          return "primary";
+        case "interactive-plugin":
+          return "warning";
+      }
     }
   },
   data() {
@@ -131,10 +150,32 @@ export default {
           <el-input
             size="large"
             v-model="pluginSearch"
-            placeholder="Please input"
+            placeholder="输入搜索插件名"
             class="plugin-input-with-select"
-          />
-          <el-button type="primary" size="large">搜索</el-button>
+            @keydown.enter="this.initPluginList(this.pluginSearch)"
+          >
+            <template #suffix>
+              <IconifyIconOnline
+                v-show="this.pluginSearch != null && this.pluginSearch !== ''"
+                @click="
+                  () => {
+                    this.initPluginList();
+                    this.pluginSearch = '';
+                  }
+                "
+                class="cursor-pointer"
+                icon="solar:close-circle-outline"
+                width="1rem"
+                height="1rem"
+              />
+            </template>
+          </el-input>
+          <el-button
+            @click="this.initPluginList(this.pluginSearch)"
+            type="primary"
+            size="large"
+            >搜索</el-button
+          >
         </div>
         <el-button
           type="primary"
@@ -193,7 +234,10 @@ export default {
       </template>
     </el-dialog>
     <ShowLoading :loading="this.pluginListLoadingFlag" />
-    <div class="plugin-grid" v-if="this.isPluginListShow">
+    <div
+      class="plugin-grid"
+      v-if="this.isPluginListShow && !this.pluginListLoadingFlag"
+    >
       <div
         class="plugin-show"
         v-for="(i, index) in pluginList"
@@ -201,13 +245,18 @@ export default {
         @contextmenu="onContextMenu($event, i.id, index)"
       >
         <div class="flex justify-between mb-4">
-          <IconifyIconOnline
-            class="cursor-pointer"
-            style="color: var(--el-color-primary)"
-            icon="solar:plug-circle-bold-duotone"
-            width="3rem"
-            height="3rem"
-          />
+          <div class="flex flex-nowrap items-center">
+            <IconifyIconOnline
+              class="cursor-pointer"
+              style="color: var(--el-color-primary)"
+              icon="solar:plug-circle-bold-duotone"
+              width="3rem"
+              height="3rem"
+            />
+            <el-tag :type="this.showPluginTypeColor(i.type)" round>
+              {{ this.showPluginTypeText(i.type) }}
+            </el-tag>
+          </div>
           <div class="flex items-center">
             <el-icon
               :size="25"
@@ -223,7 +272,7 @@ export default {
             </el-button>
           </div>
         </div>
-        <h3>{{ i.pluginName }}</h3>
+        <h3 class="w-[7rem] truncate">{{ i.pluginName }}</h3>
         <p class="text-xs font-bold text-neutral-500">{{ i.createName }}</p>
         <p class="h-5 truncate">
           {{ i.description }}
