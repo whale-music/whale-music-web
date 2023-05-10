@@ -119,7 +119,7 @@ export default {
     showPluginTypeColor(type: string) {
       switch (type) {
         case "common-plugin":
-          return "primary";
+          return "";
         case "interactive-plugin":
           return "warning";
       }
