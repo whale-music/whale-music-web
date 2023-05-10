@@ -3,7 +3,6 @@ import { R, MusicSearchReq, Page, Data } from "@/api/common";
 
 // 音乐搜索返回
 export interface MusicSearchRes {
-  artistName: string[];
   publishTime: string;
   order: boolean;
   artistIds: number[];
@@ -12,7 +11,7 @@ export interface MusicSearchRes {
   musicNameAlias: string;
   isExist: boolean;
   albumName: string;
-  singerList: Artist[];
+  artistList: Artist[];
   album: Album;
   musicUrlList: MusicUrlList[];
   isPlaying: boolean;
@@ -89,6 +88,43 @@ export const getMusicUrl = (musicId?: string) => {
 // 获取歌曲lyric
 export const getMusicLyric = (musicId?: string) => {
   return http.request<R<Lyric[]>>("get", `/admin/music/lyric/${musicId}`);
+};
+
+export const saveOrUpdateLyric = (
+  musicId: number,
+  type: string,
+  lyric: string
+) => {
+  return http.request<R<Lyric[]>>("post", `/admin/music/lyric/${musicId}`, {
+    params: {
+      type: type
+    },
+    data: {
+      lyric
+    }
+  });
+};
+
+export interface UpdateMusicInfo {
+  id: number;
+  musicName: string;
+  musicNameAlias: string;
+  pic: string;
+  artistIds: number[];
+  artistNames: string[];
+  albumId: number;
+  albumName: string;
+  order: boolean;
+  isExist: boolean;
+  musicRawUrl: string;
+  timeLength: number;
+  publishTime: string;
+  createTime: string;
+}
+export const updateMusic = (data: UpdateMusicInfo) => {
+  return http.request<R<Lyric[]>>("post", `/admin/music`, {
+    data: data
+  });
 };
 
 export interface Singer {

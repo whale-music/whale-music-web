@@ -52,7 +52,6 @@ const musicInfo = ref<MusicSearchRes>({
   albumName: "",
   aliaName: "",
   artistIds: [],
-  artistName: [],
   artistNames: [],
   createTime: "",
   id: 0,
@@ -66,7 +65,7 @@ const musicInfo = ref<MusicSearchRes>({
   order: false,
   pic: "",
   publishTime: "",
-  singerList: [],
+  artistList: [],
   sort: 0,
   timeLength: 0,
   updateTime: ""

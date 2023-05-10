@@ -69,9 +69,9 @@ export const getAlbumPage = (data?: AlbumReq) => {
 };
 
 export const getSelectAlbumList = (name: string) => {
-  return http.request<R<selectAlbum>>(
+  return http.request<R<selectAlbum[]>>(
     "get",
-    "/admin/album/select?name=" + name
+    `/admin/album/select?name=${name}`
   );
 };
 export interface ArtistRes {

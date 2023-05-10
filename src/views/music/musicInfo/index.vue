@@ -1,11 +1,14 @@
 <script lang="ts" setup>
-import { onBeforeMount, ref, unref } from "vue";
+import { onBeforeMount, ref, unref, watch } from "vue";
 import { useRouter } from "vue-router";
 import {
   getAllMusicList,
+  getMusicLyric,
   getMusicUrl,
   MusicSearchRes,
-  MusicUrlInfo
+  MusicUrlInfo,
+  saveOrUpdateLyric,
+  updateMusic
 } from "@/api/music";
 import { dateFormater } from "@/utils/dateUtil";
 import { Icon } from "@iconify/vue";
@@ -19,6 +22,9 @@ import AddMusicToPlayList from "@/components/addMusicToPlayList/addMusicToPlayLi
 import { getUserPlayList, UserPlayListRes } from "@/api/playlist";
 import { DataInfo, sessionKey } from "@/utils/auth";
 import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
+import { getSelectAlbumList } from "@/api/album";
+import { getSelectSingerList } from "@/api/singer";
+import { clone } from "@pureadmin/utils";
 
 const router = useRouter();
 const id = ref();
@@ -29,7 +35,6 @@ const musicInfo = ref<MusicSearchRes>({
   albumName: "",
   aliaName: "",
   artistIds: [],
-  artistName: [],
   artistNames: [],
   createTime: "",
   id: 0,
@@ -44,7 +49,7 @@ const musicInfo = ref<MusicSearchRes>({
   order: false,
   pic: "",
   publishTime: "",
-  singerList: [],
+  artistList: [],
   sort: 0,
   timeLength: 0,
   updateTime: ""
@@ -52,6 +57,7 @@ const musicInfo = ref<MusicSearchRes>({
 
 const musicUrl = ref<MusicUrlInfo[]>();
 
+const publishTime = ref<Date>();
 onBeforeMount(() => {
   id.value = useRouter().currentRoute.value.query.id;
   getAllMusicList({
@@ -67,6 +73,9 @@ onBeforeMount(() => {
     artistName: ""
   }).then(res => {
     musicInfo.value = res.data.records[0];
+    modifyMusicInfo.value = clone(res.data.records[0], true);
+    publishTime.value = clone(modifyMusicInfo.value.publishTime);
+
     getMusicUrl(musicInfo.value.id.toString()).then(res => {
       musicUrl.value = res.data;
     });
@@ -124,13 +133,118 @@ const addPlaySongList = () => {
   message("成功添加音乐到歌单", { type: "success" });
 };
 
-const editMusicInfo = () => {
-  console.log("编辑音乐信息");
-};
+const editMusicInfoFlag = ref<boolean>(false);
+const modifyMusicInfo = ref<MusicSearchRes>();
 
 const deleteSoundSource = () => {
-  console.log("编辑音乐信息");
+  console.log("删除音乐");
 };
+
+interface LinkItem {
+  value: string;
+  link: number;
+  display: string;
+}
+
+const artistSearch = ref<string>("");
+// 获取歌手数据
+const artistQuerySearchAsync = async (
+  queryString: string,
+  cb: (arg: any) => void
+) => {
+  const selectAlbumR = await getSelectSingerList(queryString);
+  console.log(selectAlbumR, "select Album");
+  if (selectAlbumR.code === "200" && selectAlbumR.data.length !== 0) {
+    cb(selectAlbumR.data);
+  }
+};
+
+// 删除歌手数据
+const artistHandleClose = index => {
+  modifyMusicInfo.value.artistNames.splice(index, 1);
+  modifyMusicInfo.value.artistIds.splice(index, 1);
+};
+
+// 歌手添加到保存数据中
+const artistHandleSelect = (item: LinkItem) => {
+  modifyMusicInfo.value.artistNames.push(item.value);
+  modifyMusicInfo.value.artistIds.push(item.link);
+  artistSearch.value = "";
+};
+
+const albumSearch = ref<string>("");
+// 专辑搜索
+const albumQuerySearchAsync = async (
+  queryString: string,
+  cb: (arg: any) => void
+) => {
+  const selectAlbumR = await getSelectAlbumList(queryString);
+  if (selectAlbumR.code === "200" && selectAlbumR.data.length !== 0) {
+    cb(selectAlbumR.data);
+  }
+};
+
+// 选择专辑
+const albumHandleSelect = (item: LinkItem) => {
+  modifyMusicInfo.value.albumName = item.value;
+  modifyMusicInfo.value.albumId = item.link;
+  albumSearch.value = "";
+};
+
+const lyricType = ref("lyric");
+const klyricType = ref("klyric");
+
+const lyricValueFlag = ref<boolean>(false);
+const kLyricValueFlag = ref<boolean>(false);
+const lyricValue = ref<string>(null);
+const kLyricValue = ref<string>(null);
+const getLyricList = async () => {
+  if (lyricValue.value == null || kLyricValue.value == null) {
+    const r = await getMusicLyric(musicInfo.value.id.toString());
+    const lyricIndex = r.data.findIndex(
+      value => value.type === lyricType.value
+    );
+    const kyricIndex = r.data.findIndex(
+      value => value.type === klyricType.value
+    );
+    lyricValue.value = r.data[lyricIndex]?.lyric;
+    kLyricValue.value = r.data[kyricIndex]?.lyric;
+  }
+};
+const updateLyric = async (type: string, lyric: string) => {
+  try {
+    const r = await saveOrUpdateLyric(musicInfo.value.id, type, lyric);
+    if (r.code === "200") {
+      message("更新成功", { type: "success" });
+    } else {
+      message(`更新失败${r.message}`, { type: "error" });
+    }
+  } catch (e) {
+    message(`更新失败${e}`, { type: "error" });
+  }
+};
+
+const updateMusicButton = async () => {
+  try {
+    const r = await updateMusic(modifyMusicInfo.value);
+    if (r.code === "200") {
+      message("更新成功", { type: "success" });
+      editMusicInfoFlag.value = false;
+      musicInfo.value = modifyMusicInfo.value;
+    } else {
+      message(`更新失败${r.message}`, { type: "error" });
+    }
+  } catch (e) {
+    message(`请求失败${e}`, { type: "error" });
+  }
+};
+
+watch(publishTime, value => {
+  modifyMusicInfo.value.publishTime = dateFormater(
+    "YYYY-MM-ddTHH:mm:ss",
+    value
+  );
+});
 
 const toAlbum = albumId => {
   router.push({
@@ -163,14 +277,138 @@ const toMusicPlay = async res => {
 };
 </script>
 <template>
-  <div
-    v-loading="
-      musicInfo == null ||
-      musicInfo.musicName === '' ||
-      musicUrl == null ||
-      musicUrl.length === 0
-    "
-  >
+  <div>
+    <el-dialog v-model="lyricValueFlag">
+      <template #header> <h1>普通歌词</h1> </template>
+      <el-input v-model="lyricValue" :rows="10" type="textarea" />
+      <template #footer>
+        <el-button @click="lyricValueFlag = false">取消</el-button>
+        <el-button
+          @click="
+            lyricValueFlag = false;
+            updateLyric(lyricType, lyricValue);
+          "
+          type="primary"
+          >更新</el-button
+        >
+      </template>
+    </el-dialog>
+
+    <el-dialog v-model="kLyricValueFlag">
+      <template #header> <h1>逐字歌词</h1> </template>
+      <el-input v-model="kLyricValue" type="textarea" :rows="10" />
+      <template #footer>
+        <el-button @click="kLyricValueFlag = false">取消</el-button>
+        <el-button
+          @click="
+            lyricValueFlag = false;
+            updateLyric(klyricType, kLyricValue);
+          "
+          type="primary"
+          >更新</el-button
+        >
+      </template>
+    </el-dialog>
+
+    <el-dialog v-model="editMusicInfoFlag" width="37%" :show-close="false">
+      <el-scrollbar height="20rem">
+        <h1>音乐名</h1>
+        <el-input v-model="modifyMusicInfo.musicName" />
+        <h1>音乐别名</h1>
+        <el-input v-model="modifyMusicInfo.musicNameAlias" />
+        <h1>封面</h1>
+        <el-input v-model="modifyMusicInfo.pic" />
+        <div class="flex flex-nowrap items-end">
+          <h1>艺术家</h1>
+        </div>
+        <el-tag
+          v-for="(item, index) in modifyMusicInfo.artistNames"
+          :key="item"
+          @close="artistHandleClose(index)"
+          effect="dark"
+          closable
+          round
+          >{{ item }}</el-tag
+        >
+        <el-autocomplete
+          class="w-full mt-1"
+          v-model="artistSearch"
+          :fetch-suggestions="artistQuerySearchAsync"
+          placeholder="请输入歌手名"
+          @select="artistHandleSelect"
+        />
+        <div class="flex flex-nowrap items-center">
+          <h1>专辑</h1>
+          <span class="text-black/30 text-sm font-bold"
+            >#符号仅提示,防止相同专辑名引起用户选择困扰</span
+          >
+        </div>
+        <el-tag effect="dark" round>{{ modifyMusicInfo.albumName }}</el-tag>
+        <el-autocomplete
+          class="w-full mt-1"
+          v-model="albumSearch"
+          :fetch-suggestions="albumQuerySearchAsync"
+          placeholder="请输入专辑名"
+          @select="albumHandleSelect"
+        >
+          <template #default="{ item }">
+            <span v-html="item.display" />
+          </template>
+        </el-autocomplete>
+        <h1>歌词</h1>
+        <div class="flex items-center justify-around">
+          <div class="flex items-center flex-nowrap">
+            <el-tag :type="lyricValue === undefined ? 'info' : ''"
+              >普通歌词</el-tag
+            >
+            <el-button
+              @click="lyricValueFlag = true"
+              class="ml-2"
+              type="primary"
+              round
+              >修改</el-button
+            >
+          </div>
+          <div class="flex items-center flex-nowrap">
+            <el-tag :type="kLyricValue === undefined ? 'info' : ''"
+              >逐字歌词</el-tag
+            >
+            <el-button
+              @click="kLyricValueFlag = true"
+              class="ml-2"
+              type="primary"
+              round
+              >修改</el-button
+            >
+          </div>
+        </div>
+        <div class="flex flex-nowrap items-center">
+          <h1>音乐时长</h1>
+          <span class="text-sm">(毫秒值)</span>
+        </div>
+        <div class="flex flex-nowrap items-center">
+          <span class="text-xl font-bold">{{
+            dateFormater("mm:ss", modifyMusicInfo.timeLength)
+          }}</span>
+          <el-input-number
+            class="ml-4"
+            :step="1000"
+            v-model="modifyMusicInfo.timeLength"
+          />
+        </div>
+        <h1>发布时间(与专辑同步)</h1>
+        <el-date-picker
+          v-model="publishTime"
+          type="date"
+          placeholder="Pick a day"
+          size="default"
+        />
+      </el-scrollbar>
+      <template #footer>
+        <el-button @click="editMusicInfoFlag = false">取消</el-button>
+        <el-button @click="updateMusicButton" type="primary">更新</el-button>
+      </template>
+    </el-dialog>
     <div class="info">
       <LoadImg :src="musicInfo.pic" />
       <div class="data">
@@ -239,7 +477,12 @@ const toMusicPlay = async res => {
                 @closeDialog="playItemDialogVisible = false"
               />
             </div>
-            <el-button class="edit-music-button" @click="addPlaySongList" round
+            <el-button
+              type="primary"
+              class="edit-music-button"
+              @click="addPlaySongList"
+              plain
+              round
               ><i
                 ><IconifyIconOnline
                   color="#868686"
@@ -251,7 +494,10 @@ const toMusicPlay = async res => {
             <el-button
               type="info"
               class="edit-music-button"
-              @click="editMusicInfo"
+              @click="
+                getLyricList();
+                editMusicInfoFlag = true;
+              "
               round
               >编辑音乐</el-button
             >
@@ -334,6 +580,8 @@ const toMusicPlay = async res => {
 </template>
 
 <style lang="scss" scoped>
+@import "@/style/element/dialog.scss";
+
 .info {
   display: flex;
   flex-wrap: wrap;

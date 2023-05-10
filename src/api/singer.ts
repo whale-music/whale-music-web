@@ -27,22 +27,23 @@ export const getSingerPage = (data?: SingerReq) => {
 };
 
 export interface selectSinger {
+  link: string;
+  value: string;
+
   artistName: string;
   createTime: string;
   sex?: any;
-  link: string;
   alias: string;
   birth?: any;
   location?: any;
   updateTime: string;
   id: number;
   pic: string;
-  value: string;
   introduction: string;
 }
 
 export const getSelectSingerList = (name: string) => {
-  return http.request<R<selectSinger>>(
+  return http.request<R<selectSinger[]>>(
     "get",
     "/admin/singer/select?name=" + name
   );
