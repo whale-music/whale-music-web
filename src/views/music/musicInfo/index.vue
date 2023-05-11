@@ -2,10 +2,10 @@
 import { onBeforeMount, ref, unref, watch } from "vue";
 import { useRouter } from "vue-router";
 import {
-  getAllMusicList,
+  getMusicInfo,
   getMusicLyric,
   getMusicUrl,
-  MusicSearchRes,
+  MusicDetailInfo,
   MusicUrlInfo,
   saveOrUpdateLyric,
   updateMusic
@@ -29,57 +29,34 @@ import { clone } from "@pureadmin/utils";
 const router = useRouter();
 const id = ref();
 
-const musicInfo = ref<MusicSearchRes>({
-  album: null,
+const musicInfo = ref<MusicDetailInfo>({
+  albumArtist: [],
   albumId: 0,
   albumName: "",
-  aliaName: "",
-  artistIds: [],
-  artistNames: [],
   createTime: "",
-  id: 0,
-  isExist: false,
-  isPlaying: false,
-  kLyric: "",
-  lyric: "",
+  id: null,
+  musicArtist: [],
   musicName: "",
   musicNameAlias: "",
-  musicRawUrl: "",
-  musicUrlList: [],
   order: false,
   pic: "",
   publishTime: "",
-  artistList: [],
-  sort: 0,
-  timeLength: 0,
-  updateTime: ""
+  timeLength: 0
 });
+const modifyMusicInfo = ref<MusicDetailInfo>();
 
 const musicUrl = ref<MusicUrlInfo[]>();
 
 const publishTime = ref<Date>();
-onBeforeMount(() => {
+onBeforeMount(async () => {
   id.value = useRouter().currentRoute.value.query.id;
-  getAllMusicList({
-    refresh: false,
-    musicIds: [id.value],
-    afterDate: "",
-    albumName: "",
-    beforeDate: "",
-    musicName: "",
-    order: false,
-    orderBy: "",
-    page: { pageIndex: 0, pageNum: 1 },
-    artistName: ""
-  }).then(res => {
-    musicInfo.value = res.data.records[0];
-    modifyMusicInfo.value = clone(res.data.records[0], true);
-    publishTime.value = clone(modifyMusicInfo.value.publishTime);
+  const _musicInfo = await getMusicInfo(id.value);
 
-    getMusicUrl(musicInfo.value.id.toString()).then(res => {
-      musicUrl.value = res.data;
-    });
-  });
+  musicInfo.value = _musicInfo.data;
+  modifyMusicInfo.value = clone(_musicInfo.data, true);
+  publishTime.value = clone(modifyMusicInfo.value.publishTime);
+
+  musicUrl.value = (await getMusicUrl(musicInfo.value.id.toString())).data;
 });
 
 const { clipboardValue, copied } = useCopyToClipboard();
@@ -134,7 +111,6 @@ const addPlaySongList = () => {
 };
 
 const editMusicInfoFlag = ref<boolean>(false);
-const modifyMusicInfo = ref<MusicSearchRes>();
 
 const deleteSoundSource = () => {
   console.log("删除音乐");
@@ -146,30 +122,74 @@ interface LinkItem {
   display: string;
 }
 
-const artistSearch = ref<string>("");
-// 获取歌手数据
-const artistQuerySearchAsync = async (
+// 获取专辑歌手数据
+const musicArtistQuerySearchAsync = async (
   queryString: string,
   cb: (arg: any) => void
 ) => {
   const selectAlbumR = await getSelectSingerList(queryString);
-  console.log(selectAlbumR, "select Album");
+  if (selectAlbumR.code === "200" && selectAlbumR.data.length !== 0) {
+    cb(selectAlbumR.data);
+  }
+};
+
+const musicArtistSearch = ref<string>("");
+// 歌手添加到保存数据中
+const musicArtistHandleSelect = (item: LinkItem) => {
+  const items = {
+    alias: "",
+    artistName: item.value,
+    birth: "",
+    createTime: "",
+    id: item.link,
+    introduction: "",
+    location: "",
+    pic: "",
+    sex: "",
+    updateTime: ""
+  };
+  modifyMusicInfo.value.musicArtist.push(items);
+  musicArtistSearch.value = "";
+};
+
+// 获取专辑歌手数据
+const albumArtistQuerySearchAsync = async (
+  queryString: string,
+  cb: (arg: any) => void
+) => {
+  const selectAlbumR = await getSelectSingerList(queryString);
   if (selectAlbumR.code === "200" && selectAlbumR.data.length !== 0) {
     cb(selectAlbumR.data);
   }
 };
 
 // 删除歌手数据
-const artistHandleClose = index => {
-  modifyMusicInfo.value.artistNames.splice(index, 1);
-  modifyMusicInfo.value.artistIds.splice(index, 1);
+const albumArtistHandleClose = index => {
+  modifyMusicInfo.value.albumArtist.splice(index, 1);
 };
 
+// 删除歌手数据
+const musicArtistHandleClose = index => {
+  modifyMusicInfo.value.musicArtist.splice(index, 1);
+};
+
+const albumArtistSearch = ref<string>("");
 // 歌手添加到保存数据中
-const artistHandleSelect = (item: LinkItem) => {
-  modifyMusicInfo.value.artistNames.push(item.value);
-  modifyMusicInfo.value.artistIds.push(item.link);
-  artistSearch.value = "";
+const albumArtistHandleSelect = (item: LinkItem) => {
+  const items = {
+    alias: "",
+    artistName: item.value,
+    birth: "",
+    createTime: "",
+    id: item.link,
+    introduction: "",
+    location: "",
+    pic: "",
+    sex: "",
+    updateTime: ""
+  };
+  modifyMusicInfo.value.albumArtist.push(items);
+  albumArtistSearch.value = "";
 };
 
 const albumSearch = ref<string>("");
@@ -318,24 +338,41 @@ const toMusicPlay = async res => {
         <el-input v-model="modifyMusicInfo.musicNameAlias" />
         <h1>封面</h1>
         <el-input v-model="modifyMusicInfo.pic" />
-        <div class="flex flex-nowrap items-end">
-          <h1>艺术家</h1>
-        </div>
+        <h1>艺术家</h1>
         <el-tag
-          v-for="(item, index) in modifyMusicInfo.artistNames"
-          :key="item"
-          @close="artistHandleClose(index)"
+          v-for="(item, index) in modifyMusicInfo.musicArtist"
+          :key="item.id"
+          @close="musicArtistHandleClose(index)"
           effect="dark"
           closable
           round
-          >{{ item }}</el-tag
+          >{{ item.artistName }}</el-tag
         >
         <el-autocomplete
           class="w-full mt-1"
-          v-model="artistSearch"
-          :fetch-suggestions="artistQuerySearchAsync"
+          v-model="musicArtistSearch"
+          :fetch-suggestions="musicArtistQuerySearchAsync"
           placeholder="请输入歌手名"
-          @select="artistHandleSelect"
+          @select="musicArtistHandleSelect"
+        />
+        <div class="flex flex-nowrap items-end">
+          <h1>专辑艺术家</h1>
+        </div>
+        <el-tag
+          v-for="(item, index) in modifyMusicInfo.albumArtist"
+          :key="item"
+          @close="albumArtistHandleClose(index)"
+          effect="dark"
+          closable
+          round
+          >{{ item.artistName }}</el-tag
+        >
+        <el-autocomplete
+          class="w-full mt-1"
+          v-model="musicArtistSearch"
+          :fetch-suggestions="albumArtistQuerySearchAsync"
+          placeholder="请输入歌手名"
+          @select="albumArtistHandleSelect"
         />
         <div class="flex flex-nowrap items-center">
           <h1>专辑</h1>
@@ -410,11 +447,11 @@ const toMusicPlay = async res => {
       </template>
     </el-dialog>
     <div class="info">
-      <LoadImg :src="musicInfo.pic" />
+      <LoadImg :src="musicInfo?.pic" />
       <div class="data">
         <div>
           <p class="name">
-            {{ musicInfo.musicName === "" ? "加载中" : musicInfo.musicName }}
+            {{ musicInfo?.musicName === "" ? "加载中" : musicInfo.musicName }}
           </p>
           <p class="name-alis">{{ musicInfo.musicNameAlias }}</p>
           <span class="show-font">专辑: </span>
@@ -427,12 +464,12 @@ const toMusicPlay = async res => {
           <span class="show-font">艺术家: </span>
           <el-link
             :underline="false"
-            v-for="(item, index) in musicInfo.artistNames"
+            v-for="(item, index) in musicInfo.musicArtist"
             :key="index"
             ><span
-              @click="toArtist(musicInfo.artistIds[index])"
+              @click="toArtist(item.id)"
               class="cursor-pointer font-semibold"
-              v-html="item + '\u00a0'"
+              v-html="item.artistName + '\u00a0'"
           /></el-link>
           <br />
           <span class="show-font">发行时间: </span>

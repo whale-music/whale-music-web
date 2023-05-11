@@ -76,6 +76,28 @@ export const getAllMusicList = (data?: MusicSearchReq) => {
   );
 };
 
+export interface MusicDetailInfo {
+  id: number;
+  musicName: string;
+  musicNameAlias: string;
+  pic: string;
+  musicArtist: Artist[];
+  albumArtist: Artist[];
+  albumId: number;
+  albumName: string;
+  order: boolean;
+  timeLength: number;
+  publishTime: string;
+  createTime: string;
+}
+/** 获取歌曲信息 */
+export const getMusicInfo = (id: number) => {
+  return http.request<R<MusicDetailInfo>>(
+    "get",
+    `/admin/music/musicInfo/${id}`
+  );
+};
+
 export interface MusicUrlInfo extends MusicUrl {
   rawUrl: string;
   exists: boolean;
@@ -105,23 +127,7 @@ export const saveOrUpdateLyric = (
   });
 };
 
-export interface UpdateMusicInfo {
-  id: number;
-  musicName: string;
-  musicNameAlias: string;
-  pic: string;
-  artistIds: number[];
-  artistNames: string[];
-  albumId: number;
-  albumName: string;
-  order: boolean;
-  isExist: boolean;
-  musicRawUrl: string;
-  timeLength: number;
-  publishTime: string;
-  createTime: string;
-}
-export const updateMusic = (data: UpdateMusicInfo) => {
+export const updateMusic = (data: MusicDetailInfo) => {
   return http.request<R<Lyric[]>>("post", `/admin/music`, {
     data: data
   });
