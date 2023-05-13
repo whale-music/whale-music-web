@@ -15,7 +15,7 @@ import { CellStyle } from "element-plus/es";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
-import { storageSession, useDark } from "@pureadmin/utils";
+import { storageSession, useDark, storageLocal } from "@pureadmin/utils";
 import ContextMenu from "@imengyu/vue3-context-menu";
 import AddMusicToPlayList from "@/components/addMusicToPlayList/addMusicToPlayList.vue";
 import { getUserPlayList, UserPlayListRes } from "@/api/playlist";
@@ -25,7 +25,6 @@ import RadioIcon from "@/assets/svg/radio.svg?component";
 import MultipleSelectionIcon from "@/assets/svg/multiple_selection.svg?component";
 import RefreshIcon from "@/assets/svg/refresh.svg?component";
 import { FriendlyTime } from "@/utils/DateFormat.ts";
-import { storageLocal } from "@pureadmin/utils";
 import dayjs from "dayjs";
 
 const { isDark } = useDark();
@@ -104,6 +103,11 @@ function getMusicList(param: MusicSearchReq) {
     });
 }
 
+const isShowExist = ref<boolean>(false);
+watch(isShowExist, () => {
+  onSubmit(false);
+});
+
 const searchName = ref<string>("");
 // 点击按钮查询
 const onSubmit = (refresh?: boolean) => {
@@ -117,6 +121,7 @@ const onSubmit = (refresh?: boolean) => {
     beforeDate: "",
     afterDate: "",
     refresh: refresh == null || typeof refresh != "boolean" ? false : refresh,
+    isShowNoExist: isShowExist.value,
     page: {
       pageIndex: pageConfig.pageIndex,
       pageNum: pageConfig.pageSize
@@ -557,19 +562,44 @@ const toArtist = res => {
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
               />
-              <el-tooltip
-                class="box-item"
-                content="刷新缓存，这需要一段时间"
-                placement="top-start"
-              >
-                <el-button
-                  @click="onSubmit(true)"
-                  type="danger"
-                  :icon="RefreshIcon"
-                  round
-                  >刷新缓存</el-button
+              <div class="flex flex-nowrap items-center gap-1">
+                <el-tooltip
+                  class="box-item"
+                  content="刷新缓存，这需要一段时间"
+                  placement="top-start"
                 >
-              </el-tooltip>
+                  <el-button
+                    @click="onSubmit(true)"
+                    type="warning"
+                    :icon="RefreshIcon"
+                    round
+                    >刷新缓存
+                  </el-button>
+                </el-tooltip>
+                <el-dropdown :hide-on-click="false">
+                  <el-button size="default" round>
+                    <IconifyIconOnline
+                      @click="cancelButton"
+                      class="cursor-pointer"
+                      icon="solar:filter-broken"
+                    />
+                    过滤</el-button
+                  >
+                  <template #dropdown>
+                    <el-dropdown-menu>
+                      <el-dropdown-item>
+                        <div
+                          @click="isShowExist = !isShowExist"
+                          class="flex flex-nowrap items-center gap-1"
+                        >
+                          <el-checkbox v-model="isShowExist" />
+                          <span>只显示无音源</span>
+                        </div>
+                      </el-dropdown-item>
+                    </el-dropdown-menu>
+                  </template>
+                </el-dropdown>
+              </div>
             </div>
           </div>
         </el-collapse-transition>
