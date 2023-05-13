@@ -103,8 +103,9 @@ function getMusicList(param: MusicSearchReq) {
     });
 }
 
-const isShowExist = ref<boolean>(false);
-watch(isShowExist, () => {
+const isShowExist = ref<boolean>(storageSession().getItem("isShowExist"));
+watch(isShowExist, value => {
+  storageSession().setItem("isShowExist", value);
   onSubmit(false);
 });
 
@@ -588,12 +589,11 @@ const toArtist = res => {
                   <template #dropdown>
                     <el-dropdown-menu>
                       <el-dropdown-item>
-                        <div
-                          @click="isShowExist = !isShowExist"
-                          class="flex flex-nowrap items-center gap-1"
-                        >
+                        <div class="flex flex-nowrap items-center gap-1">
                           <el-checkbox v-model="isShowExist" />
-                          <span>只显示无音源</span>
+                          <span @click="isShowExist = !isShowExist"
+                            >只显示无音源</span
+                          >
                         </div>
                       </el-dropdown-item>
                     </el-dropdown-menu>
