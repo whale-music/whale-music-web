@@ -667,7 +667,6 @@ const toMusicPlay = async res => {
               />
             </div>
             <el-button
-              type="primary"
               class="edit-music-button"
               @click="addPlaySongList"
               plain
@@ -681,7 +680,6 @@ const toMusicPlay = async res => {
               >添加到播放歌单</el-button
             >
             <el-button
-              type="primary"
               class="edit-music-button"
               @click="
                 getLyricList();
@@ -691,7 +689,6 @@ const toMusicPlay = async res => {
               >编辑音乐</el-button
             >
             <el-button
-              type="primary"
               class="edit-music-button"
               @click="addSoundSourceFlag = true"
               round
