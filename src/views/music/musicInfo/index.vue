@@ -34,6 +34,8 @@ import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
 import { getSelectAlbumList } from "@/api/album";
 import { getSelectSingerList } from "@/api/singer";
 import { ElLoading, ElMessage, ElMessageBox, UploadProps } from "element-plus";
+import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
 const { VITE_PROXY_HOST } = import.meta.env;
 
 const router = useRouter();
@@ -179,7 +181,7 @@ const editMusicInfoFlag = ref<boolean>(false);
 const addSoundSourceFlag = ref<boolean>(false);
 const switchUploadFlag = ref<boolean>(false);
 
-const addSource = ref<UploadManualMusic>({
+const tempSource = {
   createTime: "",
   encodeType: "",
   id: null,
@@ -193,10 +195,13 @@ const addSource = ref<UploadManualMusic>({
   updateTime: "",
   url: "",
   userId: null
-});
+};
+const addSource = ref<UploadManualMusic>(clone(tempSource));
+const addSourceLoadingBottomFlag = ref<boolean>(false);
 const addSoundSource = async () => {
   console.log("添加音源");
   try {
+    addSourceLoadingBottomFlag.value = true;
     addSource.value.musicId = musicInfo.value.id;
     addSource.value.userId = parseInt(userInfo.id);
     const r = await manualUploadMusic(addSource.value);
@@ -204,12 +209,14 @@ const addSoundSource = async () => {
       message("上传成功", { type: "success" });
       addSoundSourceFlag.value = false;
       await intiGetMusicLyric();
+      addSource.value = clone(tempSource);
     } else {
       message(`上传失败${r.message}`, { type: "error" });
     }
   } catch (e) {
     message(`请求失败${e}`, { type: "error" });
   }
+  addSourceLoadingBottomFlag.value = false;
 };
 
 interface LinkItem {
@@ -498,7 +505,13 @@ const toMusicPlay = async res => {
           </el-form>
         </el-scrollbar>
         <div class="flex flex-row-reverse mt-4">
-          <el-button type="primary" @click="addSoundSource">添加</el-button>
+          <el-button
+            type="primary"
+            @click="addSoundSource"
+            :loading="addSourceLoadingBottomFlag"
+            :loading-icon="useRenderIcon(Loading3Fill)"
+            >添加</el-button
+          >
           <el-button class="mr-4" @click="addSoundSourceFlag = false"
             >取消</el-button
           >
