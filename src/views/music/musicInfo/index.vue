@@ -774,6 +774,7 @@ const toMusicPlay = async res => {
 .info {
   display: flex;
   flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .frontCover {
