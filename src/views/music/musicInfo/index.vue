@@ -538,13 +538,8 @@ const toMusicPlay = async res => {
               height="2rem"
           /></el-icon>
           <div class="el-upload__text">
-            Drop file here or <em>click to upload</em>
+            托动音乐文件到此 或 <em>点击上传音乐</em>
           </div>
-          <template #tip>
-            <div class="el-upload__tip">
-              jpg/png files with a size less than 500kb
-            </div>
-          </template>
         </el-upload>
       </div>
     </el-dialog>
@@ -670,27 +665,34 @@ const toMusicPlay = async res => {
             >
           </div>
         </div>
-        <div class="flex flex-nowrap items-center">
-          <h1>音乐时长</h1>
-          <span class="text-sm">(毫秒值)</span>
+        <br />
+        <div class="flex flex-nowrap justify-between mt-4 mb-4">
+          <div>
+            <div class="flex flex-nowrap items-center">
+              <h1>音乐时长</h1>
+              <span class="text-sm">(毫秒值)</span>
+            </div>
+            <div class="flex flex-nowrap items-center">
+              <span class="text-xl font-bold">{{
+                dateFormater("mm:ss", modifyMusicInfo.timeLength)
+              }}</span>
+              <el-input-number
+                class="ml-4"
+                :step="1000"
+                v-model="modifyMusicInfo.timeLength"
+              />
+            </div>
+          </div>
+          <div>
+            <h1>发布时间(与专辑同步)</h1>
+            <el-date-picker
+              v-model="publishTime"
+              type="date"
+              placeholder="Pick a day"
+              size="default"
+            />
+          </div>
         </div>
-        <div class="flex flex-nowrap items-center">
-          <span class="text-xl font-bold">{{
-            dateFormater("mm:ss", modifyMusicInfo.timeLength)
-          }}</span>
-          <el-input-number
-            class="ml-4"
-            :step="1000"
-            v-model="modifyMusicInfo.timeLength"
-          />
-        </div>
-        <h1>发布时间(与专辑同步)</h1>
-        <el-date-picker
-          v-model="publishTime"
-          type="date"
-          placeholder="Pick a day"
-          size="default"
-        />
       </el-scrollbar>
       <template #footer>
         <el-button @click="editMusicInfoFlag = false">取消</el-button>
