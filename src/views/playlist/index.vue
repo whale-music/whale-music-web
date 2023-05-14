@@ -10,12 +10,11 @@ import {
 } from "@/api/playlist";
 import { getMusicUrl } from "@/api/music";
 import { useRoute, useRouter } from "vue-router"; //1.先在需要跳转的页面引入useRouter
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, watch } from "vue";
 import { dateFormater } from "@/utils/dateUtil";
 import { message } from "@/utils/message";
 import { CellStyle } from "element-plus/es";
 import DownloadIcon from "@/components/DownloadIcon/download.vue";
-import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
 import { Page } from "@/api/common";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { getUserInfo, UserInfoRes } from "@/api/user";
@@ -24,12 +23,12 @@ import LayoutList from "@/assets/svg/layout_list.svg?component";
 import { handleAliveRoute } from "@/router/utils";
 import { removeMenusRouter } from "@/utils/removeRouter";
 import Wbutton from "@/components/button/index.vue";
+import { storageSession } from "@pureadmin/utils";
 
 const route = useRoute(); //2.在跳转页面定义router变量，解构得到指定的query和params传参的参数
 const router = useRouter();
 
 const tableData = ref<PlayListRes[]>();
-const layoutFlag = ref<boolean>(false);
 const emptyFlag = ref<boolean>(false);
 const tableLoading = ref<boolean>(true);
 const multipleSelection = ref([]);
@@ -38,6 +37,12 @@ const handleSelectionChange = val => {
   multipleSelection.value = val;
 };
 
+const layoutSwitchKey = "layoutSwitch";
+const layoutFlag = ref(storageSession().getItem(layoutSwitchKey));
+watch(layoutFlag, value => {
+  console.log(value, "value");
+  storageSession().setItem(layoutSwitchKey, value);
+});
 // 表格颜色
 const cellStyle = ({ columnIndex }): CellStyle<any> => {
   if (columnIndex === 0) {
@@ -77,7 +82,8 @@ const getPlay = (id: string) => {
     orderBy: "",
     page: pageConfig.value,
     artistName: "",
-    refresh: false
+    refresh: false,
+    isShowNoExist: false
   })
     .then(res => {
       tableLoading.value = false;
@@ -126,17 +132,22 @@ const userInfo = ref<UserInfoRes>({
   updateTime: "",
   username: ""
 });
+const playListInfoFlag = ref(true);
 // 生命周期挂载
-onMounted(() => {
-  // 查询歌单信息
-  getPlayListInfo(route.name.toString()).then(res => {
-    playlistInfo.value = res.data;
-
+onMounted(async () => {
+  playListInfoFlag.value = true;
+  try {
+    // 查询歌单信息
+    const playInfoResR = await getPlayListInfo(route.name.toString());
+    playlistInfo.value = playInfoResR.data;
     // 查询用户信息
-    getUserInfo(res.data.userId).then(res => {
-      userInfo.value = res.data;
-    });
-  });
+    const userInfoResR = await getUserInfo(playInfoResR.data.userId);
+    userInfo.value = userInfoResR.data;
+    playListInfoFlag.value = false;
+  } catch (e) {
+    message(`请求出错${e}`, { type: "error" });
+    playListInfoFlag.value = false;
+  }
   // 查询表格
   onSubmit();
 });
@@ -292,129 +303,178 @@ const deleteDialogVisible = ref(false);
         </div>
       </template>
     </el-dialog>
-    <ShowLoading :loading="tableLoading" />
-    <div v-if="!tableLoading">
-      <div class="flex flex-wrap">
-        <LoadImg :src="playlistInfo.pic" />
-        <div class="playlist-title">
-          <div class="title-name">
-            <p class="playlist-name">{{ playlistInfo.playListName }}</p>
-            <el-button
-              class="mr-8 mt-2"
-              type="primary"
-              @click="addPlayListDialogVisible = true"
-              >新建歌单</el-button
-            >
-            <el-dialog
-              v-model="addPlayListDialogVisible"
-              width="30%"
-              align-center
-            >
-              <h1 class="text-center">新建歌单</h1>
-              <el-input v-model="playListInput" placeholder="输入新建歌单名" />
-              <template #footer>
-                <span class="flex justify-center">
-                  <el-button type="primary" @click="createPlayListButton">
-                    添加
-                  </el-button>
-                </span>
-              </template>
-            </el-dialog>
-          </div>
-          <div class="mt-2 mb-2">
-            <span class="mr-4">{{ userInfo.nickname }}</span>
-            <span class="text-sm text-[var(--el-color-info-light-3)]"
-              >{{
-                dateFormater("YYYY-MM-dd HH:mm:ss", playlistInfo.createTime)
-              }}创建</span
-            >
-          </div>
-          <div class="operate-button">
-            <el-button class="button" type="primary" round>播放歌单</el-button>
-            <el-button class="button" @click="editPlayInfoFlag = true" round
-              >编辑歌单</el-button
-            >
-            <el-button class="button" @click="aboutFlag = true" round
-              >关于歌单</el-button
-            >
-            <el-button
-              class="button"
-              @click="deleteDialogVisible = true"
-              type="danger"
-              round
-              >删除歌单</el-button
-            >
-            <el-dialog
-              v-model="deleteDialogVisible"
-              title="确定删除歌单吗? "
-              width="30%"
-              center
-            >
-              <template #footer>
-                <span class="dialog-footer">
-                  <el-button @click="deleteDialogVisible = false"
-                    >取消</el-button
-                  >
-                  <el-button type="danger" @click="deletePlayListButton">
-                    删除
-                  </el-button>
-                </span>
-              </template>
-            </el-dialog>
-          </div>
-          <div>
-            <div class="flex">
-              <p class="content">
-                <span class="mr-1">简介:</span>
-                <span class="text-desc font-bold"
-                  >{{ playlistInfo.description }}
-                </span>
-              </p>
-              <el-link
-                v-if="
-                  playlistInfo.description !== '' &&
-                  playlistInfo.description !== null
-                "
-                class="tail"
-                :underline="false"
-                @click="centerDialogVisible = !centerDialogVisible"
-                >[详情]
-              </el-link>
-              <el-link
-                v-else
-                :underline="false"
-                type="primary"
-                @click="editPlayInfoFlag = true"
-                >添加简介</el-link
-              >
+    <div>
+      <div class="flex flex-wrap gap-2">
+        <el-skeleton animated :loading="playListInfoFlag" class="w-[30rem]">
+          <template #template>
+            <div class="flex flex-wrap gap-4">
+              <el-skeleton-item
+                variant="image"
+                style="width: 20rem; height: 20rem; border-radius: 1rem"
+              />
+              <div class="w-[60%] gap-1 flex flex-col">
+                <div>
+                  <el-skeleton-item
+                    variant="h1"
+                    style="width: 30rem; height: 4rem; border-radius: 5px"
+                  />
+                  <br />
+                  <el-skeleton-item variant="h1" />
+                </div>
+                <div class="flex gap-4">
+                  <el-skeleton-item
+                    variant="button"
+                    style="height: 3rem; width: 8rem; border-radius: 1rem"
+                  />
+                  <el-skeleton-item
+                    variant="button"
+                    style="height: 3rem; width: 8rem; border-radius: 1rem"
+                  />
+                  <el-skeleton-item
+                    variant="button"
+                    style="height: 3rem; width: 8rem; border-radius: 1rem"
+                  />
+                  <el-skeleton-item
+                    variant="button"
+                    style="height: 3rem; width: 8rem; border-radius: 1rem"
+                  />
+                </div>
+                <br />
+                <el-skeleton-item variant="h1" class="h-[3rem] w-[5rem]" />
+              </div>
             </div>
-
-            <!--显示专辑详细信息-->
-            <el-dialog
-              class="showDialog"
-              v-model="centerDialogVisible"
-              width="30%"
-              :show-close="false"
-            >
-              <template #header>
-                <h2>{{ playlistInfo.playListName }}</h2>
-                <span class="font-bold text-sm text-neutral-400">{{
-                  userInfo.nickname
-                }}</span>
-                <span class="text-sm text-neutral-400">&#32;·&#32;</span>
-                <span class="text-sm text-neutral-400">
-                  {{ dateFormater("YYYY", playlistInfo.createTime) }}</span
+          </template>
+          <template #default>
+            <LoadImg :src="playlistInfo.pic" />
+            <div class="playlist-title">
+              <div class="title-name">
+                <p class="playlist-name">{{ playlistInfo.playListName }}</p>
+                <el-button
+                  class="mr-8 mt-2"
+                  type="primary"
+                  @click="addPlayListDialogVisible = true"
+                  >新建歌单</el-button
                 >
-              </template>
-              <el-scrollbar class="show-desc">
-                <span>{{ playlistInfo.description }}</span>
-              </el-scrollbar>
-            </el-dialog>
-          </div>
-        </div>
+                <el-dialog
+                  v-model="addPlayListDialogVisible"
+                  width="30%"
+                  align-center
+                >
+                  <h1 class="text-center">新建歌单</h1>
+                  <el-input
+                    v-model="playListInput"
+                    placeholder="输入新建歌单名"
+                  />
+                  <template #footer>
+                    <span class="flex justify-center">
+                      <el-button type="primary" @click="createPlayListButton">
+                        添加
+                      </el-button>
+                    </span>
+                  </template>
+                </el-dialog>
+              </div>
+              <div class="mt-2 mb-2">
+                <span class="mr-4">{{ userInfo.nickname }}</span>
+                <span class="text-sm text-[var(--el-color-info-light-3)]"
+                  >{{
+                    dateFormater(
+                      "YYYY-MM-dd HH:mm:ss",
+                      playlistInfo.createTime
+                    )
+                  }}创建</span
+                >
+              </div>
+              <div class="operate-button">
+                <el-button class="button" type="primary" round
+                  >播放歌单</el-button
+                >
+                <el-button class="button" @click="editPlayInfoFlag = true" round
+                  >编辑歌单</el-button
+                >
+                <el-button class="button" @click="aboutFlag = true" round
+                  >关于歌单</el-button
+                >
+                <el-button
+                  class="button"
+                  @click="deleteDialogVisible = true"
+                  type="danger"
+                  round
+                  >删除歌单</el-button
+                >
+                <el-dialog
+                  v-model="deleteDialogVisible"
+                  title="确定删除歌单吗? "
+                  width="30%"
+                  center
+                >
+                  <template #footer>
+                    <span class="dialog-footer">
+                      <el-button @click="deleteDialogVisible = false"
+                        >取消</el-button
+                      >
+                      <el-button type="danger" @click="deletePlayListButton">
+                        删除
+                      </el-button>
+                    </span>
+                  </template>
+                </el-dialog>
+              </div>
+              <div>
+                <div class="flex">
+                  <p class="content">
+                    <span class="mr-1">简介:</span>
+                    <span class="text-desc font-bold"
+                      >{{ playlistInfo.description }}
+                    </span>
+                  </p>
+                  <el-link
+                    v-if="
+                      playlistInfo.description !== '' &&
+                      playlistInfo.description !== null
+                    "
+                    class="tail"
+                    :underline="false"
+                    @click="centerDialogVisible = !centerDialogVisible"
+                    >[详情]
+                  </el-link>
+                  <el-link
+                    v-else
+                    :underline="false"
+                    type="primary"
+                    @click="editPlayInfoFlag = true"
+                    >添加简介</el-link
+                  >
+                </div>
+
+                <!--显示专辑详细信息-->
+                <el-dialog
+                  class="showDialog"
+                  v-model="centerDialogVisible"
+                  width="30%"
+                  :show-close="false"
+                >
+                  <template #header>
+                    <h2>{{ playlistInfo.playListName }}</h2>
+                    <span class="font-bold text-sm text-neutral-400">{{
+                      userInfo.nickname
+                    }}</span>
+                    <span class="text-sm text-neutral-400">&#32;·&#32;</span>
+                    <span class="text-sm text-neutral-400">
+                      {{ dateFormater("YYYY", playlistInfo.createTime) }}</span
+                    >
+                  </template>
+                  <el-scrollbar class="show-desc">
+                    <span>{{ playlistInfo.description }}</span>
+                  </el-scrollbar>
+                </el-dialog>
+              </div>
+            </div>
+          </template>
+        </el-skeleton>
       </div>
       <div class="mt-12">
-        <div class="desc" v-show="!tableLoading">
+        <div class="desc">
           <p class="playlist-item-name">歌曲列表</p>
           <el-switch
             class="mr-4"
@@ -431,116 +491,146 @@ const deleteDialogVisible = ref(false);
         </div>
       </div>
       <div class="mt-6">
-        <el-table
-          v-if="layoutFlag"
-          class="table-data"
-          :data="tableData"
-          highlight-current-row
-          @selection-change="handleSelectionChange"
-          :cell-style="cellStyle"
-          @row-dblclick="rowDoubleClick"
-        >
-          <el-table-column fixed type="index" width="60" />
-
-          <el-table-column fixed width="40" :show-overflow-tooltip="true">
-            <template #default="scope">
-              <DownloadIcon :muiscId="scope.row.id" />
-            </template>
-          </el-table-column>
-
-          <el-table-column
-            fixed
-            label="名称"
-            :show-overflow-tooltip="true"
-            width="450"
-          >
-            <template #default="scope">
-              <span class="font-sans subpixel-antialiased">{{
-                scope.row.musicName
-              }}</span>
-              <span class="font">&emsp;{{ scope.row.aliasName }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column label="歌手" :show-overflow-tooltip="true">
-            <template #default="scope">
-              <el-tag
-                disable-transitions
-                v-for="item in scope.row.artists"
-                :key="item.id"
-                >{{ item.artistName }}</el-tag
-              >
-            </template>
-          </el-table-column>
-          <el-table-column label="专辑" :show-overflow-tooltip="true">
-            <template #default="scope">
-              <el-tag>
-                {{ scope.row.album.albumName }}
-              </el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="歌曲时长"
-            width="80"
-            :show-overflow-tooltip="true"
-          >
-            <template #default="scope">
-              <span class="font-light">{{
-                dateFormater("mm:ss", scope.row.timeLength)
-              }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="createTime"
-            label="上传时间"
-            :show-overflow-tooltip="true"
-          >
-            <template #default="scope">
-              <span>{{
-                dateFormater("YYYY-MM-dd HH:mm:ss", scope.row.createTime)
-              }}</span>
-            </template>
-          </el-table-column>
-        </el-table>
-        <div v-else class="list-grid">
-          <div v-for="(item, index) in tableData" :key="index">
-            <LoadImg
-              class="cursor-pointer"
-              :src="item.pic"
-              width="10rem"
-              height="10rem"
-              @click="toMusicInfo(item.id)"
-            />
-            <p
-              class="cursor-pointer truncate hover:underline"
-              @click="toMusicInfo(item.id)"
+        <el-skeleton animated :loading="tableLoading" v-if="layoutFlag">
+          <template #template>
+            <div class="flex flex-col items-center gap-4">
+              <el-skeleton-item
+                v-for="item in pageConfig.pageNum"
+                :key="item"
+                variant="h1"
+                style="width: 80%; height: 2rem; border-radius: 0.6rem"
+              />
+            </div>
+          </template>
+          <template #default>
+            <el-table
+              class="table-data"
+              :data="tableData"
+              highlight-current-row
+              @selection-change="handleSelectionChange"
+              :cell-style="cellStyle"
+              @row-dblclick="rowDoubleClick"
             >
-              {{ item.musicName }}
-            </p>
-            <el-link :underline="false" @click="toAlbum(item.album.id)">
-              <p class="truncate w-40 font-bold text-sm">
-                {{ item.album.albumName }}
-              </p>
-            </el-link>
-          </div>
-        </div>
+              <el-table-column fixed type="index" width="60" />
+
+              <el-table-column fixed width="40" :show-overflow-tooltip="true">
+                <template #default="scope">
+                  <DownloadIcon :muiscId="scope.row.id" />
+                </template>
+              </el-table-column>
+
+              <el-table-column
+                fixed
+                label="名称"
+                :show-overflow-tooltip="true"
+                width="450"
+              >
+                <template #default="scope">
+                  <span class="font-sans subpixel-antialiased">{{
+                    scope.row.musicName
+                  }}</span>
+                  <span class="font">&emsp;{{ scope.row.aliasName }}</span>
+                </template>
+              </el-table-column>
+
+              <el-table-column label="歌手" :show-overflow-tooltip="true">
+                <template #default="scope">
+                  <el-tag
+                    disable-transitions
+                    v-for="item in scope.row.artists"
+                    :key="item.id"
+                    >{{ item.artistName }}</el-tag
+                  >
+                </template>
+              </el-table-column>
+              <el-table-column label="专辑" :show-overflow-tooltip="true">
+                <template #default="scope">
+                  <el-tag>
+                    {{ scope.row.album.albumName }}
+                  </el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="歌曲时长"
+                width="80"
+                :show-overflow-tooltip="true"
+              >
+                <template #default="scope">
+                  <span class="font-light">{{
+                    dateFormater("mm:ss", scope.row.timeLength)
+                  }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                prop="createTime"
+                label="上传时间"
+                :show-overflow-tooltip="true"
+              >
+                <template #default="scope">
+                  <span>{{
+                    dateFormater("YYYY-MM-dd HH:mm:ss", scope.row.createTime)
+                  }}</span>
+                </template>
+              </el-table-column>
+            </el-table>
+          </template>
+        </el-skeleton>
+        <el-skeleton v-else :loading="tableLoading" animated :throttle="500">
+          <template #template>
+            <div class="list-grid">
+              <div v-for="item in pageConfig.pageNum" :key="item">
+                <el-skeleton-item
+                  variant="image"
+                  style="width: 10rem; height: 10rem; border-radius: 1rem"
+                />
+                <el-skeleton-item variant="text" style="width: 10rem" />
+                <br />
+                <el-skeleton-item variant="text" style="width: 5rem" />
+              </div>
+            </div>
+          </template>
+          <template #default>
+            <div class="list-grid">
+              <div v-for="(item, index) in tableData" :key="index">
+                <LoadImg
+                  class="cursor-pointer"
+                  :src="item.pic"
+                  width="10rem"
+                  height="10rem"
+                  @click="toMusicInfo(item.id)"
+                />
+                <p
+                  class="cursor-pointer truncate hover:underline"
+                  @click="toMusicInfo(item.id)"
+                >
+                  {{ item.musicName }}
+                </p>
+                <el-link :underline="false" @click="toAlbum(item.album.id)">
+                  <p class="truncate w-40 font-bold text-sm">
+                    {{ item.album.albumName }}
+                  </p>
+                </el-link>
+              </div>
+            </div>
+          </template>
+        </el-skeleton>
+      </div>
+      <div class="option" id="toPage">
+        <el-pagination
+          background
+          :hide-on-single-page="pageConfig.total === 0"
+          :default-current-page="pageConfig.pageIndex"
+          :default-page-size="pageConfig.pageNum"
+          :current-page="pageConfig.pageIndex"
+          :page-size="pageConfig.pageNum"
+          layout="prev, pager, next"
+          :total="pageConfig.total"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
       </div>
     </div>
     <el-empty description="description" v-if="emptyFlag" />
-    <div class="option" v-show="!tableLoading" id="toPage">
-      <el-pagination
-        background
-        :hide-on-single-page="pageConfig.total === 0"
-        :default-current-page="pageConfig.pageIndex"
-        :default-page-size="pageConfig.pageNum"
-        :current-page="pageConfig.pageIndex"
-        :page-size="pageConfig.pageNum"
-        layout="prev, pager, next"
-        :total="pageConfig.total"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
-    </div>
   </div>
 </template>
 <style lang="scss" scoped>
@@ -646,10 +736,9 @@ const deleteDialogVisible = ref(false);
 }
 
 .playlist-title {
-  @apply ml-9 flex-auto;
+  @apply flex-auto;
 
-  @media screen and (max-width: 720px) {
-    margin-left: 0;
+  @media screen and (max-width: 1024px) {
     margin-top: 1rem;
   }
 }
