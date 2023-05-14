@@ -23,7 +23,7 @@ import LayoutList from "@/assets/svg/layout_list.svg?component";
 import { handleAliveRoute } from "@/router/utils";
 import { removeMenusRouter } from "@/utils/removeRouter";
 import Wbutton from "@/components/button/index.vue";
-import { storageSession } from "@pureadmin/utils";
+import { clone, storageSession } from "@pureadmin/utils";
 
 const route = useRoute(); //2.在跳转页面定义router变量，解构得到指定的query和params传参的参数
 const router = useRouter();
@@ -123,6 +123,8 @@ const playlistInfo = ref<PlayInfoRes>({
   userId: 0
 });
 
+const modifyPlayListInfo = ref<PlayInfoRes>(null);
+
 const userInfo = ref<UserInfoRes>({
   createTime: "",
   id: 0,
@@ -140,6 +142,7 @@ onMounted(async () => {
     // 查询歌单信息
     const playInfoResR = await getPlayListInfo(route.name.toString());
     playlistInfo.value = playInfoResR.data;
+    modifyPlayListInfo.value = clone(playlistInfo.value);
     // 查询用户信息
     const userInfoResR = await getUserInfo(playInfoResR.data.userId);
     userInfo.value = userInfoResR.data;
@@ -204,13 +207,14 @@ const rowDoubleClick = (data: any) => {
 
 const editPlayInfoFlag = ref<boolean>(false);
 const updatePlayInfo = async () => {
-  editPlayInfoFlag.value = false;
   try {
-    const res = await updatePlayListInfo(playlistInfo.value);
+    const res = await updatePlayListInfo(modifyPlayListInfo.value);
     if (res.code === "200") {
       message("修改成功", { type: "success" });
+      editPlayInfoFlag.value = false;
     } else {
       message(`修改失败: ${res.message}`, { type: "error" });
+      modifyPlayListInfo.value = clone(playlistInfo.value);
     }
   } catch (e) {
     message(`请求失败: ${e}`, { type: "error" });
@@ -228,6 +232,21 @@ const handleCurrentChange = val => {
   pageConfig.value.pageIndex = val;
   onSubmit();
 };
+
+const playListStatusOptions = [
+  {
+    value: 0,
+    label: "普通歌单"
+  },
+  {
+    value: 1,
+    label: "喜爱歌单"
+  },
+  {
+    value: 2,
+    label: "推荐歌单"
+  }
+];
 
 const toMusicInfo = id => {
   router.push({
@@ -251,19 +270,30 @@ const deleteDialogVisible = ref(false);
 </script>
 <template>
   <div ref="divRef">
-    <el-dialog v-model="editPlayInfoFlag" title="Tips" width="30%">
-      <el-form label-position="top" :model="playlistInfo">
+    <el-dialog
+      v-model="editPlayInfoFlag"
+      title="歌单信息"
+      width="45%"
+      :show-close="false"
+    >
+      <el-form label-position="top" :model="modifyPlayListInfo">
         <el-form-item label="歌单名">
-          <el-input v-model="playlistInfo.playListName" placeholder="歌单名" />
+          <el-input
+            v-model="modifyPlayListInfo.playListName"
+            placeholder="歌单名"
+          />
         </el-form-item>
         <el-form-item label="封面">
-          <el-input v-model="playlistInfo.pic" placeholder="https://" />
+          <el-input v-model="modifyPlayListInfo.pic" placeholder="https://" />
         </el-form-item>
         <el-form-item label="歌单状态">
-          <el-select v-model="playlistInfo.type" placeholder="">
-            <el-option label="普通歌单" value="0" />
-            <el-option label="喜爱歌单" value="1" />
-            <el-option label="推荐歌单" value="2" />
+          <el-select v-model="modifyPlayListInfo.type" placeholder="">
+            <el-option
+              v-for="item in playListStatusOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="歌单描述" prop="desc">
@@ -304,7 +334,7 @@ const deleteDialogVisible = ref(false);
       </template>
     </el-dialog>
     <div>
-      <div class="flex flex-wrap gap-2">
+      <div class="flex flex-wrap gap-8">
         <el-skeleton animated :loading="playListInfoFlag" class="w-[30rem]">
           <template #template>
             <div class="flex flex-wrap gap-4">

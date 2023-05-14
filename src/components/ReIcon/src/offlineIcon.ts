@@ -11,6 +11,9 @@ import Lollipop from "@iconify-icons/ep/lollipop";
 import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
 import ArrowLeftBold from "@iconify-icons/solar/alt-arrow-left-bold";
 import ArrowRightBold from "@iconify-icons/solar/alt-arrow-right-bold";
+import Playlist2Bold from "@iconify-icons/solar/playlist-2-bold";
+import HeartBold from "@iconify-icons/solar/heart-bold";
+import PlainBoldDuotone from "@iconify-icons/solar/plain-bold-duotone";
 
 addIcon("homeFilled", HomeFilled);
 addIcon("informationLine", InformationLine);
@@ -18,3 +21,6 @@ addIcon("lollipop", Lollipop);
 addIcon("loading3Fill", Loading3Fill);
 addIcon("arrowLeftBold", ArrowLeftBold);
 addIcon("arrowRightBold", ArrowRightBold);
+addIcon("playlist2Bold", Playlist2Bold);
+addIcon("heartBold", HeartBold);
+addIcon("plainBoldDuotone", PlainBoldDuotone);
