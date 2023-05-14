@@ -2,6 +2,7 @@
 import { onBeforeMount, ref, unref, watch } from "vue";
 import { useRouter } from "vue-router";
 import {
+  deleteSourceMusic,
   getMusicInfo,
   getMusicLyric,
   getMusicUrl,
@@ -32,7 +33,7 @@ import { DataInfo, sessionKey } from "@/utils/auth";
 import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
 import { getSelectAlbumList } from "@/api/album";
 import { getSelectSingerList } from "@/api/singer";
-import { ElLoading, ElMessage, UploadProps } from "element-plus";
+import { ElLoading, ElMessage, ElMessageBox, UploadProps } from "element-plus";
 const { VITE_PROXY_HOST } = import.meta.env;
 
 const router = useRouter();
@@ -137,6 +138,22 @@ const updateSource = async () => {
     editSourceFlag.value = false;
   }
   editSourceFlag.value = false;
+};
+
+const deleteSource = async (id: number, index: number) => {
+  ElMessageBox.confirm("是否删除音源", "确认", {
+    confirmButtonText: "确认",
+    cancelButtonText: "取消",
+    type: "error"
+  }).then(async () => {
+    const r = await deleteSourceMusic(id);
+    if (r.code === "200") {
+      message("删除成功", { type: "success" });
+      musicUrl.value.splice(index, 1);
+    } else {
+      message(`删除失败${r.message}`, { type: "success" });
+    }
+  });
 };
 
 const playItemDialogVisible = ref(false);
@@ -403,6 +420,7 @@ const toMusicPlay = async res => {
 </script>
 <template>
   <div>
+    <!--编辑音源-->
     <el-dialog v-model="editSourceFlag" title="编辑音源" :show-close="false">
       <el-scrollbar height="20rem">
         <el-form label-position="top">
@@ -827,6 +845,9 @@ const toMusicPlay = async res => {
                       </el-dropdown-item>
                       <el-dropdown-item @click="editSource(item)"
                         >编辑音源
+                      </el-dropdown-item>
+                      <el-dropdown-item @click="deleteSource(item.id, index)"
+                        >删除音源
                       </el-dropdown-item>
                     </el-dropdown-menu>
                   </template>

@@ -292,3 +292,7 @@ export const updateSourceMusic = (data: MusicUrl) => {
     data
   });
 };
+
+export const deleteSourceMusic = (id: number) => {
+  return http.request<R<string>>("delete", `/admin/music/delete/source/${id}`);
+};
