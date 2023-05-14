@@ -170,9 +170,11 @@ const getUserPlayInfo = (id: number) => {
   });
 };
 
-const addPlaySongList = () => {
+const addPlaySongList = async () => {
   console.log("添加到播放歌单");
-  usePlaySongListStoreHook().addMusicToNextPlaySongList(musicInfo.value.id);
+  await usePlaySongListStoreHook().addMusicToNextPlaySongList(
+    musicInfo.value.id
+  );
   message("成功添加音乐到歌单", { type: "success" });
 };
 

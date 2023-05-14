@@ -6,7 +6,8 @@ import {
   PlayInfoRes,
   createPlayList,
   deletePlayList,
-  updatePlayListInfo
+  updatePlayListInfo,
+  tracksMusicToPlayList
 } from "@/api/playlist";
 import { getMusicUrl } from "@/api/music";
 import { useRoute, useRouter } from "vue-router"; //1.先在需要跳转的页面引入useRouter
@@ -23,18 +24,23 @@ import LayoutList from "@/assets/svg/layout_list.svg?component";
 import { handleAliveRoute } from "@/router/utils";
 import { removeMenusRouter } from "@/utils/removeRouter";
 import Wbutton from "@/components/button/index.vue";
-import { clone, storageSession } from "@pureadmin/utils";
+import { clone, storageSession, useDark } from "@pureadmin/utils";
+import { ElTable } from "element-plus";
+import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
 
 const route = useRoute(); //2.在跳转页面定义router变量，解构得到指定的query和params传参的参数
 const router = useRouter();
+const { isDark } = useDark();
 
 const tableData = ref<PlayListRes[]>();
 const emptyFlag = ref<boolean>(false);
 const tableLoading = ref<boolean>(true);
-const multipleSelection = ref([]);
-
-const handleSelectionChange = val => {
+const multipleSelection = ref<PlayListRes[]>([]);
+// 表格Ref
+const multipleTableRef = ref<InstanceType<typeof ElTable>>();
+const handleSelectionChange = (val: PlayListRes[]) => {
   multipleSelection.value = val;
+  console.log(multipleSelection.value, "multiple");
 };
 
 const layoutSwitchKey = "layoutSwitch";
@@ -54,6 +60,24 @@ const cellStyle = ({ columnIndex }): CellStyle<any> => {
       "font-size": "0.6rem",
       "text-align": "center"
     };
+  }
+};
+// 设置表头样式
+const tableHeaderCellStyle = ({ columnIndex }): CellStyle<any> => {
+  const style = {};
+  style["color"] = "white";
+  style["font-weight"] = "bold";
+  style["text-align"] = "left";
+  style["border-bottom"] = "none";
+  if (columnIndex === 0) {
+    style["textAlign"] = "center";
+  }
+  if (isDark.value) {
+    style["color"] = "white";
+    return style;
+  } else {
+    style["color"] = "black";
+    return style;
   }
 };
 
@@ -248,6 +272,31 @@ const playListStatusOptions = [
   }
 ];
 
+const deletePlayListMusicMethod = async () => {
+  const map = multipleSelection.value.map(value => value.id);
+  const r = await tracksMusicToPlayList(
+    playlistInfo.value.id.toString(),
+    map,
+    false
+  );
+  if (r.code === "200") {
+    message("删除成功", { type: "success" });
+    onSubmit();
+  } else {
+    message(`删除失败${r.message}`, { type: "error" });
+  }
+};
+
+const addPlaySongList = async () => {
+  console.log("添加到播放歌单");
+  for (const valueElement of multipleSelection.value) {
+    await usePlaySongListStoreHook().addMusicToNextPlaySongList(
+      valueElement.id
+    );
+  }
+  message("成功添加音乐到歌单", { type: "success" });
+};
+
 const toMusicInfo = id => {
   router.push({
     path: "/music/musicInfo",
@@ -262,6 +311,21 @@ const toAlbum = id => {
   });
 };
 
+const toMusicPlay = async () => {
+  try {
+    for (const valueElement of multipleSelection.value) {
+      await usePlaySongListStoreHook().addMusicToNextPlaySongList(
+        valueElement.id
+      );
+    }
+  } catch (e) {
+    message(e, { type: "error" });
+    return;
+  }
+  await router.push({
+    path: "/musicPlay"
+  });
+};
 const centerDialogVisible = ref(false);
 
 const addPlayListDialogVisible = ref(false);
@@ -270,6 +334,60 @@ const deleteDialogVisible = ref(false);
 </script>
 <template>
   <div ref="divRef">
+    <!--歌单操作面板-->
+    <div
+      class="operation-panel-bg"
+      v-show="multipleSelection.length > 0 && !emptyFlag"
+    >
+      <div class="operation-panel">
+        <div class="flex items-center rounded">
+          <span class="p-4">
+            <span class="text-sm" style="color: var(--el-text-color-regular)"
+              >已选择</span
+            >
+            {{ multipleSelection.length }}
+          </span>
+          <IconifyIconOnline
+            @click="multipleTableRef.clearSelection()"
+            class="cursor-pointer"
+            style="color: #636e72"
+            icon="solar:close-circle-bold-duotone"
+            width="2rem"
+            height="2rem"
+          />
+        </div>
+        <div class="flex items-center rounded">
+          <IconifyIconOnline
+            @click="toMusicPlay"
+            class="cursor-pointer"
+            style="color: #636e72"
+            icon="solar:play-circle-bold-duotone"
+            width="2rem"
+            height="2rem"
+          />
+        </div>
+        <div class="flex items-center rounded">
+          <IconifyIconOnline
+            @click="addPlaySongList"
+            class="cursor-pointer"
+            style="color: #636e72"
+            icon="solar:turntable-music-note-bold-duotone"
+            width="2rem"
+            height="2rem"
+          />
+        </div>
+        <div class="flex items-center rounded">
+          <IconifyIconOnline
+            @click="deletePlayListMusicMethod"
+            class="cursor-pointer"
+            style="color: #d63031"
+            icon="solar:trash-bin-minimalistic-2-bold-duotone"
+            width="2rem"
+            height="2rem"
+          />
+        </div>
+      </div>
+    </div>
     <el-dialog
       v-model="editPlayInfoFlag"
       title="歌单信息"
@@ -520,7 +638,7 @@ const deleteDialogVisible = ref(false);
           />
         </div>
       </div>
-      <div class="mt-6">
+      <div class="mt-6" v-if="!emptyFlag">
         <el-skeleton animated :loading="tableLoading" v-if="layoutFlag">
           <template #template>
             <div class="flex flex-col items-center gap-4">
@@ -534,15 +652,17 @@ const deleteDialogVisible = ref(false);
           </template>
           <template #default>
             <el-table
+              ref="multipleTableRef"
               class="table-data"
               :data="tableData"
               highlight-current-row
               @selection-change="handleSelectionChange"
               :cell-style="cellStyle"
+              :header-cell-style="tableHeaderCellStyle"
               @row-dblclick="rowDoubleClick"
             >
+              <el-table-column type="selection" width="55" />
               <el-table-column fixed type="index" width="60" />
-
               <el-table-column fixed width="40" :show-overflow-tooltip="true">
                 <template #default="scope">
                   <DownloadIcon :muiscId="scope.row.id" />
@@ -771,5 +891,27 @@ const deleteDialogVisible = ref(false);
   @media screen and (max-width: 1024px) {
     margin-top: 1rem;
   }
+}
+
+.operation-panel-bg {
+  display: flex;
+  justify-content: center;
+}
+
+.operation-panel {
+  padding-left: 1rem;
+  padding-right: 1rem;
+  position: absolute;
+  display: flex;
+  z-index: 200;
+  bottom: 0;
+  justify-content: center;
+  align-items: center;
+  height: 3.2rem;
+  background: var(--el-bg-color);
+  border-radius: 1rem;
+  border: 1px solid rgba(142, 142, 142, 0.2);
+  margin-bottom: 20px;
+  gap: 1rem;
 }
 </style>
