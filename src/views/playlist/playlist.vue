@@ -50,6 +50,27 @@ const sortData = reactive([
   }
 ]);
 
+const typeSortConfig = ref<number>(-1);
+// 排序
+const typeSortData = reactive([
+  {
+    value: -1,
+    label: "全部歌单"
+  },
+  {
+    value: 0,
+    label: "普通歌单"
+  },
+  {
+    value: 1,
+    label: "喜爱歌单"
+  },
+  {
+    value: 2,
+    label: "推荐歌单"
+  }
+]);
+
 const sortConfig = ref("sort");
 
 const loadingFlag = ref<boolean>(false);
@@ -69,7 +90,7 @@ const getAlbumPageList = async () => {
       playListName: "",
       sort: null,
       subscribed: false,
-      type: null,
+      type: typeSortConfig.value,
       updateTime: "",
       userId: null
     });
@@ -307,9 +328,8 @@ const toPlayList = id => {
           </div>
         </div>
 
-        <div class="flex justify-center items-center flex-wrap">
+        <div class="flex justify-center items-center flex-wrap gap-4">
           <el-switch
-            class="mr-4"
             size="large"
             inline-prompt
             :active-icon="MultipleSelectionIcon"
@@ -331,6 +351,22 @@ const toPlayList = id => {
           >
             <el-option
               v-for="item in sortData"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+              suffix-icon="download"
+            />
+          </el-select>
+
+          <el-select
+            v-model="typeSortConfig"
+            placeholder="歌单类型"
+            size="large"
+            style="width: 8rem"
+            @change="sortOnSubmit"
+          >
+            <el-option
+              v-for="item in typeSortData"
               :key="item.value"
               :label="item.label"
               :value="item.value"
