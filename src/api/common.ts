@@ -34,6 +34,7 @@ export interface MusicSearchReq {
   beforeDate: string;
   afterDate: string;
   refresh: boolean;
+  isShowNoExist: boolean;
   page: {
     pageIndex: number;
     pageNum: number;

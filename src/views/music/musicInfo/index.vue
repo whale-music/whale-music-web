@@ -5,18 +5,24 @@ import {
   getMusicInfo,
   getMusicLyric,
   getMusicUrl,
+  manualUploadMusic,
   MusicDetailInfo,
   MusicUrlInfo,
   saveOrUpdateLyric,
-  updateMusic
+  updateMusic,
+  UploadManualMusic
 } from "@/api/music";
 import { dateFormater } from "@/utils/dateUtil";
 import { Icon } from "@iconify/vue";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
-import { storageSession, useCopyToClipboard } from "@pureadmin/utils";
+import {
+  storageSession,
+  useCopyToClipboard,
+  downloadByData,
+  clone
+} from "@pureadmin/utils";
 import { message } from "@/utils/message";
 import axios from "axios";
-import { downloadByData } from "@pureadmin/utils";
 import PlayIcon from "@/assets/svg/play.svg?component";
 import AddMusicToPlayList from "@/components/addMusicToPlayList/addMusicToPlayList.vue";
 import { getUserPlayList, UserPlayListRes } from "@/api/playlist";
@@ -24,7 +30,8 @@ import { DataInfo, sessionKey } from "@/utils/auth";
 import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
 import { getSelectAlbumList } from "@/api/album";
 import { getSelectSingerList } from "@/api/singer";
-import { clone } from "@pureadmin/utils";
+import { ElLoading, ElMessage, UploadProps } from "element-plus";
+const { VITE_PROXY_HOST } = import.meta.env;
 
 const router = useRouter();
 const id = ref();
@@ -48,6 +55,11 @@ const modifyMusicInfo = ref<MusicDetailInfo>();
 const musicUrl = ref<MusicUrlInfo[]>();
 
 const publishTime = ref<Date>();
+
+async function intiGetMusicLyric() {
+  musicUrl.value = (await getMusicUrl(musicInfo.value.id.toString())).data;
+}
+
 onBeforeMount(async () => {
   id.value = useRouter().currentRoute.value.query.id;
   const _musicInfo = await getMusicInfo(id.value);
@@ -56,7 +68,7 @@ onBeforeMount(async () => {
   modifyMusicInfo.value = clone(_musicInfo.data, true);
   publishTime.value = clone(modifyMusicInfo.value.publishTime);
 
-  musicUrl.value = (await getMusicUrl(musicInfo.value.id.toString())).data;
+  await intiGetMusicLyric();
 });
 
 const { clipboardValue, copied } = useCopyToClipboard();
@@ -112,8 +124,40 @@ const addPlaySongList = () => {
 
 const editMusicInfoFlag = ref<boolean>(false);
 
-const deleteSoundSource = () => {
-  console.log("删除音乐");
+const addSoundSourceFlag = ref<boolean>(false);
+const switchUploadFlag = ref<boolean>(false);
+
+const addSource = ref<UploadManualMusic>({
+  createTime: "",
+  encodeType: "",
+  id: null,
+  level: "",
+  md5: "",
+  musicId: null,
+  name: "",
+  origin: "",
+  rate: null,
+  size: null,
+  updateTime: "",
+  url: "",
+  userId: null
+});
+const addSoundSource = async () => {
+  console.log("添加音源");
+  try {
+    addSource.value.musicId = musicInfo.value.id;
+    addSource.value.userId = parseInt(userInfo.id);
+    const r = await manualUploadMusic(addSource.value);
+    if (r.code === "200") {
+      message("上传成功", { type: "success" });
+      addSoundSourceFlag.value = false;
+      await intiGetMusicLyric();
+    } else {
+      message(`上传失败${r.message}`, { type: "error" });
+    }
+  } catch (e) {
+    message(`请求失败${e}`, { type: "error" });
+  }
 };
 
 interface LinkItem {
@@ -266,6 +310,32 @@ watch(publishTime, value => {
   );
 });
 
+const proxyHost = VITE_PROXY_HOST == null ? "" : VITE_PROXY_HOST;
+const uploadAction = ref(`${proxyHost}/admin/music/auto/upload`);
+const uploadLoadingFlag = ref();
+const handleAvatarSuccess: UploadProps["onSuccess"] = async response => {
+  console.log(response, "onSuccess");
+  if (response?.response == null) return;
+  uploadLoadingFlag.value?.close();
+  if (response.response.code === "200") {
+    ElMessage.success("上传成功");
+    addSoundSourceFlag.value = false;
+    await intiGetMusicLyric();
+  } else {
+    ElMessage.error(`上传失败${response.response.message}`);
+  }
+};
+
+const beforeAvatarUpload: UploadProps["beforeUpload"] = () => {
+  console.log(`beforeAvatarUpload`);
+  uploadLoadingFlag.value = ElLoading.service({
+    lock: true,
+    text: "Loading",
+    background: "rgba(0, 0, 0, 0.7)"
+  });
+  return true;
+};
+
 const toAlbum = albumId => {
   router.push({
     path: "/music/albumInfo",
@@ -298,6 +368,88 @@ const toMusicPlay = async res => {
 </script>
 <template>
   <div>
+    <el-dialog v-model="addSoundSourceFlag" :show-close="false">
+      <template #header="{ titleId, titleClass }">
+        <div class="flex flex-nowrap justify-between">
+          <div class="">
+            <h1>添加音源</h1>
+          </div>
+          <!--切换上传方式-->
+          <div class="flex items-center">
+            <h1 :id="titleId" :class="titleClass" class="mr-4">手动上传</h1>
+            <el-switch v-model="switchUploadFlag" size="large" />
+          </div>
+        </div>
+      </template>
+      <div v-if="switchUploadFlag">
+        <el-scrollbar height="20rem">
+          <!--输入添加音源-->
+          <el-form label-position="top">
+            <el-alert type="info" show-icon :closable="false">
+              <p>
+                手动上传需要用户自己上传到对于存储中，然后复制文件名粘贴于此
+              </p>
+            </el-alert>
+            <el-form-item
+              label="文件名(请以md5+文件格式命名)"
+              :rules="[{ required: true }]"
+            >
+              <el-input v-model="addSource.name" />
+            </el-form-item>
+            <el-form-item label="MD5" :rules="[{ required: true }]">
+              <el-input v-model="addSource.md5" />
+            </el-form-item>
+            <el-form-item label="Rate(比特率)" :rules="[{ required: true }]">
+              <el-input v-model="addSource.rate" />
+            </el-form-item>
+            <el-form-item
+              label="文件大小(Byte)"
+              :rules="[
+                { required: true, type: 'number', message: '请输入数字' }
+              ]"
+            >
+              <el-input v-model="addSource.size" />
+            </el-form-item>
+          </el-form>
+        </el-scrollbar>
+        <div class="flex flex-row-reverse mt-4">
+          <el-button type="primary" @click="addSoundSource">添加</el-button>
+          <el-button class="mr-4" @click="addSoundSourceFlag = false"
+            >取消</el-button
+          >
+        </div>
+      </div>
+      <div v-else>
+        <el-upload
+          drag
+          :multiple="false"
+          :data="{
+            userId: userInfo.id,
+            id: musicInfo.id
+          }"
+          :action="uploadAction"
+          :on-change="handleAvatarSuccess"
+          :before-upload="beforeAvatarUpload"
+        >
+          <el-icon class="el-icon--upload"
+            ><IconifyIconOnline
+              class="cursor-pointer"
+              style="color: #636e72"
+              icon="solar:cloud-upload-bold-duotone"
+              width="2rem"
+              height="2rem"
+          /></el-icon>
+          <div class="el-upload__text">
+            Drop file here or <em>click to upload</em>
+          </div>
+          <template #tip>
+            <div class="el-upload__tip">
+              jpg/png files with a size less than 500kb
+            </div>
+          </template>
+        </el-upload>
+      </div>
+    </el-dialog>
     <el-dialog v-model="lyricValueFlag">
       <template #header> <h1>普通歌词</h1> </template>
       <el-input v-model="lyricValue" :rows="10" type="textarea" />
@@ -529,7 +681,7 @@ const toMusicPlay = async res => {
               >添加到播放歌单</el-button
             >
             <el-button
-              type="info"
+              type="primary"
               class="edit-music-button"
               @click="
                 getLyricList();
@@ -539,11 +691,11 @@ const toMusicPlay = async res => {
               >编辑音乐</el-button
             >
             <el-button
-              type="danger"
+              type="primary"
               class="edit-music-button"
-              @click="deleteSoundSource"
+              @click="addSoundSourceFlag = true"
               round
-              >删除音源</el-button
+              >添加音源</el-button
             >
           </div>
         </div>

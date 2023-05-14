@@ -276,3 +276,13 @@ export const deleteMusic = (musicId: number[], compel?: boolean) => {
     }
   );
 };
+
+export interface UploadManualMusic extends MusicUrl {
+  name: string;
+}
+
+export const manualUploadMusic = (data: UploadManualMusic) => {
+  return http.request<R<string>>("post", `/admin/music/manual/upload`, {
+    data
+  });
+};
