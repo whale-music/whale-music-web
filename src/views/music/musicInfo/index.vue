@@ -7,9 +7,11 @@ import {
   getMusicUrl,
   manualUploadMusic,
   MusicDetailInfo,
+  MusicUrl,
   MusicUrlInfo,
   saveOrUpdateLyric,
   updateMusic,
+  updateSourceMusic,
   UploadManualMusic
 } from "@/api/music";
 import { dateFormater } from "@/utils/dateUtil";
@@ -86,7 +88,7 @@ function copy(value) {
 const playMusic = () => {
   for (const musicUrlInfo of musicUrl.value) {
     // 只取第一条数据
-    if (musicUrlInfo !== null && musicUrlInfo.url !== "") {
+    if (musicUrlInfo !== null && musicUrlInfo.rawUrl !== "") {
       toMusicPlay(musicUrlInfo);
       return;
     }
@@ -102,6 +104,39 @@ const download = (name, suffix, url) => {
     .then(({ data }) => {
       downloadByData(data, `${name}.${suffix}`);
     });
+};
+
+const editSourceFlag = ref<boolean>(false);
+const editSourceValue = ref<MusicUrl>({
+  createTime: "",
+  encodeType: "",
+  id: 0,
+  level: "",
+  md5: "",
+  musicId: 0,
+  origin: "",
+  rate: 0,
+  size: 0,
+  updateTime: "",
+  url: "",
+  userId: 0
+});
+const editSource = async (url: MusicUrl) => {
+  editSourceFlag.value = true;
+  editSourceValue.value = url;
+};
+const updateSource = async () => {
+  try {
+    const r = await updateSourceMusic(editSourceValue.value);
+    if (r.code === "200") {
+      message("更新成功", { type: "success" });
+    } else {
+      message("更新失败", { type: "error" });
+    }
+  } catch (e) {
+    editSourceFlag.value = false;
+  }
+  editSourceFlag.value = false;
 };
 
 const playItemDialogVisible = ref(false);
@@ -351,7 +386,7 @@ const toArtist = res => {
 };
 
 const toMusicPlay = async res => {
-  if (res.url == null || res.url === "") {
+  if (res.rawUrl == null || res.rawUrl === "" || !res.exists) {
     message(`该音源无效`, { type: "error" });
     return;
   }
@@ -368,6 +403,38 @@ const toMusicPlay = async res => {
 </script>
 <template>
   <div>
+    <el-dialog v-model="editSourceFlag" title="编辑音源" :show-close="false">
+      <el-scrollbar height="20rem">
+        <el-form label-position="top">
+          <el-form-item label="关联音乐ID">
+            <el-input v-model="editSourceValue.musicId" />
+          </el-form-item>
+          <el-form-item label="地址">
+            <el-input v-model="editSourceValue.url" />
+          </el-form-item>
+          <el-form-item label="MD5">
+            <el-input v-model="editSourceValue.md5" />
+          </el-form-item>
+          <el-form-item label="文件格式">
+            <el-input v-model="editSourceValue.encodeType" />
+          </el-form-item>
+          <el-form-item label="音乐存储大小(字节)">
+            <el-input v-model="editSourceValue.size" />
+          </el-form-item>
+          <el-form-item label="比特率">
+            <el-input v-model="editSourceValue.rate" />
+          </el-form-item>
+          <el-form-item label="音乐来源">
+            <el-input v-model="editSourceValue.origin" />
+          </el-form-item>
+        </el-form>
+      </el-scrollbar>
+      <template #footer>
+        <el-button @click="editSourceFlag = false">取消</el-button>
+        <el-button type="primary" @click="updateSource">更新</el-button>
+      </template>
+    </el-dialog>
+    <!--添加音源提示框-->
     <el-dialog v-model="addSoundSourceFlag" :show-close="false">
       <template #header="{ titleId, titleClass }">
         <div class="flex flex-nowrap justify-between">
@@ -450,6 +517,7 @@ const toMusicPlay = async res => {
         </el-upload>
       </div>
     </el-dialog>
+    <!--编辑普通歌曲框-->
     <el-dialog v-model="lyricValueFlag">
       <template #header> <h1>普通歌词</h1> </template>
       <el-input v-model="lyricValue" :rows="10" type="textarea" />
@@ -465,7 +533,7 @@ const toMusicPlay = async res => {
         >
       </template>
     </el-dialog>
-
+    <!--编辑逐字歌曲框-->
     <el-dialog v-model="kLyricValueFlag">
       <template #header> <h1>逐字歌词</h1> </template>
       <el-input v-model="kLyricValue" type="textarea" :rows="10" />
@@ -481,7 +549,7 @@ const toMusicPlay = async res => {
         >
       </template>
     </el-dialog>
-
+    <!--编辑音乐信息框-->
     <el-dialog v-model="editMusicInfoFlag" width="37%" :show-close="false">
       <el-scrollbar height="20rem">
         <h1>音乐名</h1>
@@ -716,7 +784,9 @@ const toMusicPlay = async res => {
               class="box-item"
               effect="dark"
               :content="
-                item.url == null || item.url === '' ? '不可播放' : '可播放'
+                item.rawUrl == null || item.rawUrl === ''
+                  ? '不可播放'
+                  : '可播放'
               "
               placement="top-start"
             >
@@ -724,7 +794,9 @@ const toMusicPlay = async res => {
                 class="mr-4"
                 :style="{
                   color:
-                    item.url == null || item.url === '' ? '#7d7d7d' : '#626aef'
+                    item.rawUrl == null || item.rawUrl === '' || !item.exists
+                      ? '#7d7d7d'
+                      : '#626aef'
                 }"
                 icon="solar:play-stream-bold"
                 width="2rem"
@@ -733,7 +805,7 @@ const toMusicPlay = async res => {
             </el-tooltip>
             <span class="mr-4 font-medium level">{{ item.level }}</span>
             <div class="flex items-center">
-              <el-button round class="mr-4" @click="copy(item.url)"
+              <el-button round class="mr-4" @click="copy(item.rawUrl)"
                 >复制</el-button
               >
               <el-link :underline="false">
@@ -748,10 +820,13 @@ const toMusicPlay = async res => {
                           download(
                             musicInfo.musicName,
                             item.encodeType,
-                            item.url
+                            item.rawUrl
                           )
                         "
                         >下载音源
+                      </el-dropdown-item>
+                      <el-dropdown-item @click="editSource(item)"
+                        >编辑音源
                       </el-dropdown-item>
                     </el-dropdown-menu>
                   </template>

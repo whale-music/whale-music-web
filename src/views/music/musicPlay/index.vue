@@ -585,7 +585,7 @@ const toLyrics = timestamp => {
             </div>
           </div>
           <audio
-            :src="currentMusicUrl.url"
+            :src="currentMusicUrl.rawUrl"
             @timeupdate="onTimeupdate"
             @play="onPlay"
             @pause="onPause"

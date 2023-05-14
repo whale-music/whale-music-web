@@ -286,3 +286,9 @@ export const manualUploadMusic = (data: UploadManualMusic) => {
     data
   });
 };
+
+export const updateSourceMusic = (data: MusicUrl) => {
+  return http.request<R<string>>("post", "/admin/music/update/source", {
+    data
+  });
+};
