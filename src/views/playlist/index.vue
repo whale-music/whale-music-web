@@ -48,6 +48,7 @@ const layoutFlag = ref(storageSession().getItem(layoutSwitchKey));
 watch(layoutFlag, value => {
   console.log(value, "value");
   storageSession().setItem(layoutSwitchKey, value);
+  multipleTableRef.value?.clearSelection();
 });
 // 表格颜色
 const cellStyle = ({ columnIndex }): CellStyle<any> => {
