@@ -65,6 +65,7 @@ export const userPlaySongList = defineStore({
           musicName: "",
           order: false,
           orderBy: "",
+          isShowNoExist: false,
           page: { pageIndex: 0, pageNum: 0 }
         });
         this.playListMusicArr.splice(
@@ -90,6 +91,7 @@ export const userPlaySongList = defineStore({
         musicName: "",
         order: false,
         orderBy: "",
+        isShowNoExist: false,
         page: { pageIndex: 0, pageNum: 1 }
       });
       if (tempMusicInfo.code === "200") {
