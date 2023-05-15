@@ -104,8 +104,12 @@ watch(
         />
       </el-menu>
     </el-scrollbar>
-    <leftCollapse
+    <!--<leftCollapse
       v-if="device !== 'mobile'"
+      :is-active="pureApp.sidebar.opened"
+      @toggleClick="toggleSideBar"
+    />-->
+    <leftCollapse
       :is-active="pureApp.sidebar.opened"
       @toggleClick="toggleSideBar"
     />
