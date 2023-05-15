@@ -110,7 +110,7 @@ const toAlbum = res => {
       </template>
     </el-dialog>
     <div class="show-artist-data">
-      <LoadImg :src="artistInfo.pic" />
+      <LoadImg :src="artistInfo.pic" class="flex-2" />
       <div class="info">
         <div class="flex flex-nowrap items-center justify-between">
           <p class="title">{{ artistInfo.artistName }}</p>
@@ -224,6 +224,14 @@ const toAlbum = res => {
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
+
+  @media screen and (max-width: 1024px) {
+    flex-direction: column;
+  }
+}
+
+.info {
+  flex: 3;
 }
 
 .title {
