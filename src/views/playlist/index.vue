@@ -34,7 +34,6 @@ const { isDark } = useDark();
 
 const tableData = ref<PlayListRes[]>();
 const emptyFlag = ref<boolean>(false);
-const tableLoading = ref<boolean>(true);
 const multipleSelection = ref<PlayListRes[]>([]);
 // 表格Ref
 const multipleTableRef = ref<InstanceType<typeof ElTable>>();
@@ -96,7 +95,6 @@ const pageConfig = ref<Page>({
   total: 0
 });
 const getPlay = (id: string) => {
-  tableLoading.value = true;
   getPlayListById(id, {
     afterDate: "",
     albumName: "",
@@ -111,7 +109,6 @@ const getPlay = (id: string) => {
     isShowNoExist: false
   })
     .then(res => {
-      tableLoading.value = false;
       if (res.code === "200") {
         tableData.value = res.data.records.reverse();
         emptyFlag.value =
@@ -126,7 +123,6 @@ const getPlay = (id: string) => {
       }
     })
     .catch(res => {
-      tableLoading.value = true;
       message(res, { type: "error" });
     });
 };
@@ -171,13 +167,12 @@ onMounted(async () => {
     // 查询用户信息
     const userInfoResR = await getUserInfo(playInfoResR.data.userId);
     userInfo.value = userInfoResR.data;
-    playListInfoFlag.value = false;
   } catch (e) {
     message(`请求出错${e}`, { type: "error" });
-    playListInfoFlag.value = false;
   }
   // 查询表格
   onSubmit();
+  playListInfoFlag.value = false;
 });
 
 const playListInput = ref("");
@@ -639,8 +634,8 @@ const deleteDialogVisible = ref(false);
           />
         </div>
       </div>
-      <div class="mt-6" v-if="!emptyFlag">
-        <el-skeleton animated :loading="tableLoading" v-if="layoutFlag">
+      <div class="mt-6" v-show="!emptyFlag">
+        <el-skeleton animated :loading="playListInfoFlag" v-if="layoutFlag">
           <template #template>
             <div class="flex flex-col items-center gap-4">
               <el-skeleton-item
@@ -726,7 +721,7 @@ const deleteDialogVisible = ref(false);
             </el-table>
           </template>
         </el-skeleton>
-        <el-skeleton v-else :loading="tableLoading" animated :throttle="500">
+        <el-skeleton v-else :loading="playListInfoFlag" animated>
           <template #template>
             <div class="list-grid">
               <div v-for="item in pageConfig.pageNum" :key="item">
