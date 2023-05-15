@@ -135,7 +135,7 @@ const toArtist = id => {
         <el-button @click="saveOrUpdate" type="primary">更新</el-button>
       </template>
     </el-dialog>
-    <el-skeleton :loading="skeletonLoadingFlag">
+    <el-skeleton :loading="skeletonLoadingFlag" animated>
       <template #template>
         <div class="layout-container">
           <el-skeleton-item
@@ -257,7 +257,7 @@ const toArtist = id => {
       </template>
     </el-skeleton>
     <!--专辑音乐列表-->
-    <el-skeleton :loading="skeletonLoadingFlag">
+    <el-skeleton :loading="skeletonLoadingFlag" animated>
       <template #template>
         <el-skeleton-item
           variant="h1"

@@ -706,7 +706,7 @@ const toMusicPlay = async res => {
       </template>
     </el-dialog>
     <div class="info">
-      <el-skeleton :loading="skeletonLoadingFlag">
+      <el-skeleton :loading="skeletonLoadingFlag" animated>
         <template #template>
           <div class="skeleton-info">
             <el-skeleton-item
@@ -858,7 +858,7 @@ const toMusicPlay = async res => {
       </el-skeleton>
     </div>
     <div class="text-2xl mt-4">音源</div>
-    <el-skeleton :loading="skeletonLoadingFlag">
+    <el-skeleton :loading="skeletonLoadingFlag" animated>
       <template #template>
         <div class="mt-4">
           <el-skeleton-item
