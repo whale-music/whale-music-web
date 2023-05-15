@@ -327,6 +327,9 @@ const centerDialogVisible = ref(false);
 const addPlayListDialogVisible = ref(false);
 
 const deleteDialogVisible = ref(false);
+
+// 骨架屏延时加载时间
+const throttle = ref(0);
 </script>
 <template>
   <div ref="divRef">
@@ -448,8 +451,13 @@ const deleteDialogVisible = ref(false);
       </template>
     </el-dialog>
     <div>
-      <div class="flex flex-wrap gap-8">
-        <el-skeleton animated :loading="playListInfoFlag" class="w-[30rem]">
+      <div class="layout-container">
+        <el-skeleton
+          animated
+          :loading="playListInfoFlag"
+          class="w-[30rem]"
+          :throttle="throttle"
+        >
           <template #template>
             <div class="flex flex-wrap gap-4">
               <el-skeleton-item
@@ -635,7 +643,12 @@ const deleteDialogVisible = ref(false);
         </div>
       </div>
       <div class="mt-6" v-show="!emptyFlag">
-        <el-skeleton animated :loading="playListInfoFlag" v-if="layoutFlag">
+        <el-skeleton
+          animated
+          :loading="playListInfoFlag"
+          v-if="layoutFlag"
+          :throttle="throttle"
+        >
           <template #template>
             <div class="flex flex-col items-center gap-4">
               <el-skeleton-item
@@ -721,7 +734,12 @@ const deleteDialogVisible = ref(false);
             </el-table>
           </template>
         </el-skeleton>
-        <el-skeleton v-else :loading="playListInfoFlag" animated>
+        <el-skeleton
+          v-else
+          :loading="playListInfoFlag"
+          animated
+          :throttle="throttle"
+        >
           <template #template>
             <div class="list-grid">
               <div v-for="item in pageConfig.pageNum" :key="item">
@@ -781,6 +799,17 @@ const deleteDialogVisible = ref(false);
 </template>
 <style lang="scss" scoped>
 @import url("@/style/pagination.scss");
+
+.layout-container {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 2rem;
+  flex-direction: row;
+
+  @media screen and (max-width: 1024px) {
+    flex-direction: column;
+  }
+}
 
 .font {
   color: #a3a39cc3;
