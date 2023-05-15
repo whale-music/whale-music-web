@@ -119,3 +119,20 @@ export const deleteAlbum = (id: number[], compel?: boolean) => {
     }
   );
 };
+
+export interface Album {
+  id: number;
+  albumName: string;
+  subType: string;
+  description: string;
+  company: string;
+  pic: string;
+  publishTime: string;
+  updateTime: string;
+  createTime: string;
+}
+export const saveOrUpdateAlbum = (data: Album) => {
+  return http.request<R<AlbumDataRes>>("post", "/admin/album/", {
+    data
+  });
+};

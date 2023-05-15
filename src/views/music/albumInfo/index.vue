@@ -1,10 +1,17 @@
 <script lang="ts" setup>
-import { onBeforeMount, ref } from "vue";
+import { onBeforeMount, ref, watch } from "vue";
 import { useRouter } from "vue-router";
-import { AlbumDataRes, getAlbumDataInfo } from "@/api/album";
+import {
+  Album,
+  AlbumDataRes,
+  getAlbumDataInfo,
+  saveOrUpdateAlbum
+} from "@/api/album";
 import { dateFormater } from "@/utils/dateUtil";
 import { Icon } from "@iconify/vue";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
+import { clone } from "@pureadmin/utils";
+import { message } from "@/utils/message";
 
 const router = useRouter();
 
@@ -29,12 +36,47 @@ onBeforeMount(() => {
   albumId.value = useRouter().currentRoute.value.query.id;
   console.log(albumId);
   getAlbumDataInfo(albumId.value).then(res => {
-    console.log(res);
     albumInfo.value = res.data;
+    modifyAlbumInfo.value = clone(albumInfo.value, true);
+    publishTime.value = clone(modifyAlbumInfo.value.publishTime, true);
   });
 });
 
+const publishTime = ref<Date>();
+watch(publishTime, value => {
+  modifyAlbumInfo.value.publishTime = dateFormater(
+    "YYYY-MM-ddTHH:mm:ss",
+    value
+  );
+});
+
+const editAlbumInfoFlag = ref<boolean>(false);
+const modifyAlbumInfo = ref<AlbumDataRes>();
+
 const centerDialogVisible = ref(false);
+
+const saveOrUpdate = async () => {
+  const data: Album = {
+    albumName: modifyAlbumInfo.value.albumName,
+    company: modifyAlbumInfo.value.company,
+    createTime: modifyAlbumInfo.value.createTime,
+    description: modifyAlbumInfo.value.description,
+    id: modifyAlbumInfo.value.id,
+    pic: modifyAlbumInfo.value.pic,
+    publishTime: modifyAlbumInfo.value.publishTime,
+    subType: modifyAlbumInfo.value.subType,
+    updateTime: modifyAlbumInfo.value.updateTime
+  };
+  const r = await saveOrUpdateAlbum(data);
+  if (r.code === "200") {
+    message("更新成功", { type: "success" });
+    albumInfo.value = modifyAlbumInfo.value;
+    editAlbumInfoFlag.value = false;
+  } else {
+    message(`更新失败${r.message}`, { type: "error" });
+    modifyAlbumInfo.value = albumInfo.value;
+  }
+};
 
 const toMusicInfo = id => {
   router.push({
@@ -52,6 +94,44 @@ const toArtist = id => {
 </script>
 <template>
   <div>
+    <!--编辑专辑信息-->
+    <el-dialog v-model="editAlbumInfoFlag" :show-close="false">
+      <el-scrollbar height="20rem">
+        <el-form label-position="top">
+          <el-form-item label="专辑名">
+            <el-input v-model="modifyAlbumInfo.albumName" />
+          </el-form-item>
+          <el-form-item label="封面">
+            <el-input v-model="modifyAlbumInfo.pic" />
+          </el-form-item>
+          <el-form-item label="专辑版本">
+            <el-input v-model="modifyAlbumInfo.subType" />
+          </el-form-item>
+          <el-form-item label="唱片公司">
+            <el-input v-model="modifyAlbumInfo.company" />
+          </el-form-item>
+          <el-form-item label="发布时间">
+            <el-date-picker
+              v-model="publishTime"
+              type="date"
+              placeholder="Pick a day"
+              size="default"
+            />
+          </el-form-item>
+          <el-form-item label="专辑描述">
+            <el-input
+              v-model="modifyAlbumInfo.description"
+              type="textarea"
+              :autosize="{ maxRows: 10, minRows: 4 }"
+            />
+          </el-form-item>
+        </el-form>
+      </el-scrollbar>
+      <template #footer>
+        <el-button @click="editAlbumInfoFlag = false">取消</el-button>
+        <el-button @click="saveOrUpdate" type="primary">更新</el-button>
+      </template>
+    </el-dialog>
     <div class="flex">
       <LoadImg :src="albumInfo.pic" />
       <div class="show-artist-data">
@@ -81,6 +161,12 @@ const toArtist = id => {
             <span>唱片公司: </span>
             <span>{{ albumInfo.company }}</span>
           </div>
+          <div>
+            <span
+              >发布时间:
+              {{ dateFormater("YYYY-MM-dd", albumInfo.publishTime) }}</span
+            >
+          </div>
           <br />
           <div>
             <p class="content">
@@ -97,7 +183,7 @@ const toArtist = id => {
             <el-dialog
               class="showDialog"
               v-model="centerDialogVisible"
-              width="30%"
+              width="45%"
               :show-close="false"
             >
               <template #header>
@@ -114,10 +200,17 @@ const toArtist = id => {
                 >
               </template>
               <el-scrollbar class="show-desc">
-                <span>{{ albumInfo.description }}</span>
+                <span class="whitespace-pre-wrap">{{
+                  albumInfo.description
+                }}</span>
               </el-scrollbar>
             </el-dialog>
           </div>
+        </div>
+        <div class="mt-2">
+          <el-button @click="editAlbumInfoFlag = true" type="primary" round
+            >编辑专辑</el-button
+          >
         </div>
       </div>
     </div>
@@ -170,6 +263,8 @@ const toArtist = id => {
   </div>
 </template>
 <style lang="scss" scoped>
+@import "@/style/element/dialog.scss";
+
 .info {
   width: 20rem;
   height: 20rem;
@@ -201,10 +296,6 @@ const toArtist = id => {
 .show-desc {
   height: 20rem;
   overflow-y: auto;
-}
-
-:deep(.el-dialog) {
-  border-radius: 1rem;
 }
 
 .tail {
