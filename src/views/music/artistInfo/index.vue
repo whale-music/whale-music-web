@@ -118,22 +118,29 @@ const toAlbum = res => {
             >编辑信息</el-button
           >
         </div>
-        <el-link
-          :underline="false"
-          v-for="(item, index) in artistInfo.artistNames"
-          :key="index"
-          ><span class="align-middle font-semibold" v-html="item + '\u00a0'"
-        /></el-link>
-        <br />
+        <div class="flex flex-nowrap gap-2">
+          <el-link
+            :underline="false"
+            v-for="(item, index) in artistInfo.artistNames"
+            :key="index"
+            ><span class="align-middle font-semibold">{{ item }}</span></el-link
+          >
+        </div>
         <span
           class="show-font"
           v-show="artistInfo.birth !== '' && artistInfo.birth !== null"
-          >出生年月:
+          >出生年月:<span>{{ artistInfo.birth }}</span>
         </span>
-        <span>{{ artistInfo.birth }}</span>
-        <span>{{ artistInfo.sex }}</span>
-
+        <p
+          class="show-font"
+          v-show="artistInfo.sex !== null && artistInfo.sex !== ''"
+        >
+          性别: {{ artistInfo.sex }}
+        </p>
         <div>
+          <h2 class="mt-4" style="color: var(--el-color-info-light-3)">
+            介绍:
+          </h2>
           <p class="content">
             <span class="text-desc font-bold"
               >{{ artistInfo.introduction }}
@@ -211,6 +218,8 @@ const toAlbum = res => {
 </template>
 
 <style lang="scss" scoped>
+@import "@/style/element/dialog.scss";
+
 .show-artist-data {
   display: flex;
   flex-wrap: wrap;
@@ -224,10 +233,6 @@ const toAlbum = res => {
 .show-font {
   font-size: 1rem;
   color: var(--el-color-info-light-3);
-}
-
-:deep(.el-dialog) {
-  border-radius: 1rem;
 }
 
 .content {
