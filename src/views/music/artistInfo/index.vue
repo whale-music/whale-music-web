@@ -27,13 +27,15 @@ const artistInfo = ref<ArtistInfoRes>({
   updateTime: ""
 });
 
+const skeletonLoadingFlag = ref<boolean>(false);
 onBeforeMount(() => {
   idValue.value = useRouter().currentRoute.value.query.id;
-
+  skeletonLoadingFlag.value = true;
   getArtistInfo(idValue.value).then(res => {
     console.log(res);
     artistInfo.value = res.data;
     modifyArtistInfo.value = clone(artistInfo.value, true);
+    skeletonLoadingFlag.value = false;
   });
 });
 
@@ -109,111 +111,159 @@ const toAlbum = res => {
         <el-button @click="editArtistInfo" type="primary">更新</el-button>
       </template>
     </el-dialog>
-    <div class="show-artist-data">
-      <LoadImg :src="artistInfo.pic" class="flex-2" />
-      <div class="info">
-        <div class="flex flex-nowrap items-center justify-between">
-          <p class="title">{{ artistInfo.artistName }}</p>
-          <el-button @click="editArtistInfoFlag = true" type="primary" round
-            >编辑信息</el-button
-          >
-        </div>
-        <div class="flex flex-nowrap gap-2">
-          <el-link
-            :underline="false"
-            v-for="(item, index) in artistInfo.artistNames"
-            :key="index"
-            ><span class="align-middle font-semibold">{{ item }}</span></el-link
-          >
-        </div>
-        <span
-          class="show-font"
-          v-show="artistInfo.birth !== '' && artistInfo.birth !== null"
-          >出生年月:<span>{{ artistInfo.birth }}</span>
-        </span>
-        <p
-          class="show-font"
-          v-show="artistInfo.sex !== null && artistInfo.sex !== ''"
-        >
-          性别: {{ artistInfo.sex }}
-        </p>
-        <div>
-          <h2 class="mt-4" style="color: var(--el-color-info-light-3)">
-            介绍:
-          </h2>
-          <p class="content">
-            <span class="text-desc font-bold"
-              >{{ artistInfo.introduction }}
-            </span>
-          </p>
-          <el-link
-            class="tail"
-            :underline="false"
-            v-if="
-              artistInfo.introduction != null && artistInfo.introduction !== ''
-            "
-            @click="centerDialogVisible = !centerDialogVisible"
-            >[详情]
-          </el-link>
-
-          <!--显示专辑详细信息-->
-          <el-dialog
-            class="showDialog"
-            v-model="centerDialogVisible"
-            width="30%"
-            :show-close="false"
-          >
-            <template #header>
-              <h2>{{ artistInfo.artistName }}</h2>
-              <span
-                class="text-sm text-neutral-400"
-                v-for="(item, index) in artistInfo.artistNames"
-                :key="index"
-                >{{ item }}&#32;</span
-              >
-              <span
-                class="text-sm text-neutral-400"
-                v-if="
-                  artistInfo.birth !== '' &&
-                  artistInfo.birth !== null &&
-                  artistInfo.birth !== undefined
-                "
-                >&#32;·&#32;</span
-              >
-              <span
-                class="text-sm text-neutral-400"
-                v-if="
-                  artistInfo.birth !== '' &&
-                  artistInfo.birth !== null &&
-                  artistInfo.birth !== undefined
-                "
-              >
-                {{ dateFormater("YYYY-MM-dd", artistInfo.birth) }}</span
-              >
-            </template>
-            <el-scrollbar class="show-desc">
-              <span>{{ artistInfo.introduction }}</span>
-            </el-scrollbar>
-          </el-dialog>
-        </div>
-      </div>
-    </div>
-    <div>
-      <p class="album-title">专辑</p>
-      <div class="show-album">
-        <div v-for="(item, index) in artistInfo.albumList" :key="index">
-          <div class="album-info cursor-pointer" @click="toAlbum(item.id)">
-            <el-image :src="item.pic" fit="cover" class="album-img" />
-            <p class="album-name">
-              {{ item.albumName }}
-            </p>
-            <p class="album-publish">
-              {{ dateFormater("YYYY", item.publishTime) }}
-            </p>
+    <el-skeleton :loading="skeletonLoadingFlag" animated>
+      <template #template>
+        <div class="show-artist-data">
+          <el-skeleton-item
+            variant="image"
+            style="width: 20rem; height: 20rem; border-radius: 2rem"
+          />
+          <div class="flex flex-col gap-2">
+            <el-skeleton-item
+              variant="h1"
+              style="width: 20rem; height: 3rem; border-radius: 1rem"
+            />
+            <div class="flex flex-col gap-1">
+              <el-skeleton-item
+                variant="text"
+                style="width: 10rem; height: 1rem"
+              />
+              <el-skeleton-item
+                variant="text"
+                style="width: 8rem; height: 1rem"
+              />
+              <el-skeleton-item
+                variant="text"
+                style="width: 11rem; height: 1rem"
+              />
+            </div>
+            <el-skeleton />
           </div>
         </div>
-      </div>
-    </div>
+      </template>
+      <template #default>
+        <div class="show-artist-data">
+          <LoadImg :src="artistInfo.pic" class="flex-2" />
+          <div class="info">
+            <div class="flex flex-nowrap items-center justify-between">
+              <p class="title">{{ artistInfo.artistName }}</p>
+              <el-button @click="editArtistInfoFlag = true" type="primary" round
+                >编辑信息
+              </el-button>
+            </div>
+            <div class="flex flex-nowrap gap-2">
+              <el-link
+                :underline="false"
+                v-for="(item, index) in artistInfo.artistNames"
+                :key="index"
+                ><span class="align-middle font-semibold">{{
+                  item
+                }}</span></el-link
+              >
+            </div>
+            <span
+              class="show-font"
+              v-show="artistInfo.birth !== '' && artistInfo.birth !== null"
+              >出生年月:<span>{{ artistInfo.birth }}</span>
+            </span>
+            <p
+              class="show-font"
+              v-show="artistInfo.sex !== null && artistInfo.sex !== ''"
+            >
+              性别: {{ artistInfo.sex }}
+            </p>
+            <div>
+              <h2 class="mt-4" style="color: var(--el-color-info-light-3)">
+                介绍:
+              </h2>
+              <p class="content">
+                <span class="text-desc font-bold"
+                  >{{ artistInfo.introduction }}
+                </span>
+              </p>
+              <el-link
+                class="tail"
+                :underline="false"
+                v-if="
+                  artistInfo.introduction != null &&
+                  artistInfo.introduction !== ''
+                "
+                @click="centerDialogVisible = !centerDialogVisible"
+                >[详情]
+              </el-link>
+
+              <!--显示专辑详细信息-->
+              <el-dialog
+                class="showDialog"
+                v-model="centerDialogVisible"
+                width="30%"
+                :show-close="false"
+              >
+                <template #header>
+                  <h2>{{ artistInfo.artistName }}</h2>
+                  <span
+                    class="text-sm text-neutral-400"
+                    v-for="(item, index) in artistInfo.artistNames"
+                    :key="index"
+                    >{{ item }}&#32;</span
+                  >
+                  <span
+                    class="text-sm text-neutral-400"
+                    v-if="
+                      artistInfo.birth !== '' &&
+                      artistInfo.birth !== null &&
+                      artistInfo.birth !== undefined
+                    "
+                    >&#32;·&#32;</span
+                  >
+                  <span
+                    class="text-sm text-neutral-400"
+                    v-if="
+                      artistInfo.birth !== '' &&
+                      artistInfo.birth !== null &&
+                      artistInfo.birth !== undefined
+                    "
+                  >
+                    {{ dateFormater("YYYY-MM-dd", artistInfo.birth) }}</span
+                  >
+                </template>
+                <el-scrollbar class="show-desc">
+                  <span>{{ artistInfo.introduction }}</span>
+                </el-scrollbar>
+              </el-dialog>
+            </div>
+          </div>
+        </div>
+      </template>
+    </el-skeleton>
+    <p class="album-title">专辑</p>
+    <el-skeleton :loading="skeletonLoadingFlag" animated>
+      <template #default>
+        <div class="show-album">
+          <div v-for="(item, index) in artistInfo.albumList" :key="index">
+            <div class="album-info cursor-pointer" @click="toAlbum(item.id)">
+              <el-image :src="item.pic" fit="cover" class="album-img" />
+              <p class="album-name">
+                {{ item.albumName }}
+              </p>
+              <p class="album-publish">
+                {{ dateFormater("YYYY", item.publishTime) }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </template>
+      <template #template>
+        <div class="show-album">
+          <el-skeleton-item
+            v-for="item in 4"
+            :key="item"
+            variant="image"
+            style="width: 10rem; height: 10rem; border-radius: 1rem"
+          />
+        </div>
+      </template>
+    </el-skeleton>
   </div>
 </template>
 
