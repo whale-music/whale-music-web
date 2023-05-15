@@ -186,7 +186,7 @@
     & .el-sub-menu .el-menu-item {
       font-size: 12px;
       min-width: $sideBarWidth !important;
-      background-color: $subMenuBg !important;
+      //background-color: $subMenuBg !important;
     }
 
     /* 有子集的激活菜单左侧小竖条 */
@@ -326,11 +326,11 @@
     }
 
     .el-menu--popup {
-      background-color: $subMenuBg !important;
+      //background-color: $subMenuBg !important;
 
       .el-menu-item {
         color: $menuText;
-        background-color: $subMenuBg;
+        //background-color: $subMenuBg;
 
         span {
           font-size: 12px;
