@@ -65,8 +65,11 @@ async function intiGetMusicLyric() {
   musicUrl.value = (await getMusicUrl(musicInfo.value.id.toString())).data;
 }
 
+const skeletonLoadingFlag = ref();
 onBeforeMount(async () => {
   id.value = useRouter().currentRoute.value.query.id;
+
+  skeletonLoadingFlag.value = true;
   const _musicInfo = await getMusicInfo(id.value);
 
   musicInfo.value = _musicInfo.data;
@@ -74,6 +77,7 @@ onBeforeMount(async () => {
   publishTime.value = clone(modifyMusicInfo.value.publishTime);
 
   await intiGetMusicLyric();
+  skeletonLoadingFlag.value = false;
 });
 
 const { clipboardValue, copied } = useCopyToClipboard();
@@ -702,179 +706,249 @@ const toMusicPlay = async res => {
       </template>
     </el-dialog>
     <div class="info">
-      <LoadImg :src="musicInfo?.pic" />
-      <div class="data">
-        <div>
-          <p class="name">
-            {{ musicInfo?.musicName === "" ? "加载中" : musicInfo.musicName }}
-          </p>
-          <p class="name-alis">{{ musicInfo.musicNameAlias }}</p>
-          <span class="show-font">专辑: </span>
-          <el-link :underline="false" @click="toAlbum(musicInfo.albumId)"
-            ><span class="cursor-pointer font-semibold">{{
-              musicInfo.albumName
-            }}</span></el-link
-          >
-          <br />
-          <span class="show-font">艺术家: </span>
-          <el-link
-            :underline="false"
-            v-for="(item, index) in musicInfo.musicArtist"
-            :key="index"
-            ><span
-              @click="toArtist(item.id)"
-              class="cursor-pointer font-semibold"
-              v-html="item.artistName + '\u00a0'"
-          /></el-link>
-          <br />
-          <span class="show-font">发行时间: </span>
-          <span class="font-bold">{{
-            musicInfo.publishTime === ""
-              ? "加载中"
-              : dateFormater("YYYY-MM-dd", musicInfo.publishTime)
-          }}</span>
-          <div class="edit-music">
-            <div class="flex mr-4">
-              <el-button-group>
+      <el-skeleton :loading="skeletonLoadingFlag">
+        <template #template>
+          <div class="skeleton-info">
+            <el-skeleton-item
+              variant="image"
+              style="width: 20rem; height: 20rem; border-radius: 2rem"
+            />
+            <div class="flex flex-col gap-3">
+              <el-skeleton-item
+                variant="h1"
+                style="height: 3rem; width: 20rem"
+              />
+              <div class="flex flex-col gap-1">
+                <el-skeleton-item
+                  variant="text"
+                  style="height: 1rem; width: 10rem"
+                />
+                <el-skeleton-item
+                  variant="text"
+                  style="height: 1rem; width: 8rem"
+                />
+                <el-skeleton-item
+                  variant="text"
+                  style="height: 1rem; width: 9rem"
+                />
+              </div>
+              <div class="flex flex-nowrap gap-4">
+                <el-skeleton-item
+                  variant="button"
+                  style="height: 2.25rem; width: 6rem; border-radius: 1rem"
+                />
+                <el-skeleton-item
+                  variant="button"
+                  style="height: 2.25rem; width: 6rem; border-radius: 1rem"
+                />
+                <el-skeleton-item
+                  variant="button"
+                  style="height: 2.25rem; width: 6rem; border-radius: 1rem"
+                />
+                <el-skeleton-item
+                  variant="button"
+                  style="height: 2.25rem; width: 6rem; border-radius: 1rem"
+                />
+              </div>
+            </div>
+          </div>
+        </template>
+        <template #default>
+          <LoadImg :src="musicInfo?.pic" />
+          <div class="data">
+            <div>
+              <p class="name">
+                {{
+                  musicInfo?.musicName === "" ? "加载中" : musicInfo.musicName
+                }}
+              </p>
+              <p class="name-alis">{{ musicInfo.musicNameAlias }}</p>
+              <span class="show-font">专辑: </span>
+              <el-link :underline="false" @click="toAlbum(musicInfo.albumId)"
+                ><span class="cursor-pointer font-semibold">{{
+                  musicInfo.albumName
+                }}</span></el-link
+              >
+              <br />
+              <span class="show-font">艺术家: </span>
+              <el-link
+                :underline="false"
+                v-for="(item, index) in musicInfo.musicArtist"
+                :key="index"
+                ><span
+                  @click="toArtist(item.id)"
+                  class="cursor-pointer font-semibold"
+                  v-html="item.artistName + '\u00a0'"
+              /></el-link>
+              <br />
+              <span class="show-font">发行时间: </span>
+              <span class="font-bold">{{
+                musicInfo.publishTime === ""
+                  ? "加载中"
+                  : dateFormater("YYYY-MM-dd", musicInfo.publishTime)
+              }}</span>
+              <div class="edit-music">
+                <div class="flex mr-4">
+                  <el-button-group>
+                    <el-button
+                      class="edit-music-button"
+                      type="primary"
+                      size="default"
+                      round
+                      @click="playMusic"
+                    >
+                      <i><PlayIcon class="w-5 h-5" /></i>
+                      <span v-html="'\u00a0' + '播放' + '\u00a0'"
+                    /></el-button>
+                    <el-button
+                      type="primary"
+                      class="edit-music-button"
+                      round
+                      size="default"
+                      @click="getUserPlayInfo(musicInfo.id)"
+                      ><i
+                        ><IconifyIconOnline
+                          color="#ffffff"
+                          icon="mingcute:add-fill"
+                          width="1.1rem"
+                          height="1.1rem" /></i
+                    ></el-button>
+                  </el-button-group>
+                  <!--添加歌曲到歌单-->
+                  <AddMusicToPlayList
+                    v-if="playItemDialogVisible"
+                    :play-item="userPlayItem"
+                    :userId="Number.parseInt(userInfo.id)"
+                    :music-id="addMusicId"
+                    @closeDialog="playItemDialogVisible = false"
+                  />
+                </div>
                 <el-button
                   class="edit-music-button"
-                  type="primary"
-                  size="default"
+                  @click="addPlaySongList"
+                  plain
                   round
-                  @click="playMusic"
-                >
-                  <i><PlayIcon class="w-5 h-5" /></i>
-                  <span v-html="'\u00a0' + '播放' + '\u00a0'"
-                /></el-button>
-                <el-button
-                  type="primary"
-                  class="edit-music-button"
-                  round
-                  size="default"
-                  @click="getUserPlayInfo(musicInfo.id)"
                   ><i
                     ><IconifyIconOnline
-                      color="#ffffff"
-                      icon="mingcute:add-fill"
+                      color="#868686"
+                      icon="solar:turntable-music-note-bold-duotone"
                       width="1.1rem"
                       height="1.1rem" /></i
-                ></el-button>
-              </el-button-group>
-              <!--添加歌曲到歌单-->
-              <AddMusicToPlayList
-                v-if="playItemDialogVisible"
-                :play-item="userPlayItem"
-                :userId="Number.parseInt(userInfo.id)"
-                :music-id="addMusicId"
-                @closeDialog="playItemDialogVisible = false"
-              />
+                  >添加到播放歌单</el-button
+                >
+                <el-button
+                  class="edit-music-button"
+                  @click="
+                    getLyricList();
+                    editMusicInfoFlag = true;
+                  "
+                  round
+                  >编辑音乐</el-button
+                >
+                <el-button
+                  class="edit-music-button"
+                  @click="addSoundSourceFlag = true"
+                  round
+                  >添加音源</el-button
+                >
+              </div>
             </div>
-            <el-button
-              class="edit-music-button"
-              @click="addPlaySongList"
-              plain
-              round
-              ><i
-                ><IconifyIconOnline
-                  color="#868686"
-                  icon="solar:turntable-music-note-bold-duotone"
-                  width="1.1rem"
-                  height="1.1rem" /></i
-              >添加到播放歌单</el-button
-            >
-            <el-button
-              class="edit-music-button"
-              @click="
-                getLyricList();
-                editMusicInfoFlag = true;
-              "
-              round
-              >编辑音乐</el-button
-            >
-            <el-button
-              class="edit-music-button"
-              @click="addSoundSourceFlag = true"
-              round
-              >添加音源</el-button
-            >
           </div>
-        </div>
-      </div>
+        </template>
+      </el-skeleton>
     </div>
     <div class="text-2xl mt-4">音源</div>
-    <div class="item-list">
-      <div v-for="(item, index) in musicUrl" :key="index">
-        <div class="show-item">
-          <div
-            class="ml-4 flex items-center h-full cursor-pointer"
-            @click="toMusicPlay(item)"
-          >
-            <span class="index">{{ index + 1 }}</span>
-            <span class="music-name">{{ musicInfo.musicName }}</span>
-            <span class="md5">{{ item.md5 }}</span>
-          </div>
-          <div class="grow h-full cursor-pointer" @click="toMusicPlay(item)" />
-          <div class="operate-info">
-            <el-tooltip
-              class="box-item"
-              effect="dark"
-              :content="
-                item.rawUrl == null || item.rawUrl === ''
-                  ? '不可播放'
-                  : '可播放'
-              "
-              placement="top-start"
-            >
-              <IconifyIconOnline
-                class="mr-4"
-                :style="{
-                  color:
-                    item.rawUrl == null || item.rawUrl === '' || !item.exists
-                      ? '#7d7d7d'
-                      : '#626aef'
-                }"
-                icon="solar:play-stream-bold"
-                width="2rem"
-                height="2rem"
-              />
-            </el-tooltip>
-            <span class="mr-4 font-medium level">{{ item.level }}</span>
-            <div class="flex items-center">
-              <el-button round class="mr-4" @click="copy(item.rawUrl)"
-                >复制</el-button
+    <el-skeleton :loading="skeletonLoadingFlag">
+      <template #template>
+        <div class="mt-4">
+          <el-skeleton-item
+            variant="rect"
+            style="height: 3.6rem; width: 100%; border-radius: 1rem"
+          />
+        </div>
+      </template>
+      <template #default>
+        <div class="item-list">
+          <div v-for="(item, index) in musicUrl" :key="index">
+            <div class="show-item">
+              <div
+                class="ml-4 flex items-center h-full cursor-pointer"
+                @click="toMusicPlay(item)"
               >
-              <el-link :underline="false">
-                <el-dropdown>
-                  <el-icon :size="20" class="cursor-pointer">
-                    <Icon icon="ep:more-filled" />
-                  </el-icon>
-                  <template #dropdown>
-                    <el-dropdown-menu>
-                      <el-dropdown-item
-                        @click="
-                          download(
-                            musicInfo.musicName,
-                            item.encodeType,
-                            item.rawUrl
-                          )
-                        "
-                        >下载音源
-                      </el-dropdown-item>
-                      <el-dropdown-item @click="editSource(item)"
-                        >编辑音源
-                      </el-dropdown-item>
-                      <el-dropdown-item @click="deleteSource(item.id, index)"
-                        >删除音源
-                      </el-dropdown-item>
-                    </el-dropdown-menu>
-                  </template>
-                </el-dropdown>
-              </el-link>
+                <span class="index">{{ index + 1 }}</span>
+                <span class="music-name">{{ musicInfo.musicName }}</span>
+                <span class="md5">{{ item.md5 }}</span>
+              </div>
+              <div
+                class="grow h-full cursor-pointer"
+                @click="toMusicPlay(item)"
+              />
+              <div class="operate-info">
+                <el-tooltip
+                  class="box-item"
+                  effect="dark"
+                  :content="
+                    item.rawUrl == null || item.rawUrl === ''
+                      ? '不可播放'
+                      : '可播放'
+                  "
+                  placement="top-start"
+                >
+                  <IconifyIconOnline
+                    class="mr-4"
+                    :style="{
+                      color:
+                        item.rawUrl == null ||
+                        item.rawUrl === '' ||
+                        !item.exists
+                          ? '#7d7d7d'
+                          : '#626aef'
+                    }"
+                    icon="solar:play-stream-bold"
+                    width="2rem"
+                    height="2rem"
+                  />
+                </el-tooltip>
+                <span class="mr-4 font-medium level">{{ item.level }}</span>
+                <div class="flex items-center">
+                  <el-button round class="mr-4" @click="copy(item.rawUrl)"
+                    >复制</el-button
+                  >
+                  <el-link :underline="false">
+                    <el-dropdown>
+                      <el-icon :size="20" class="cursor-pointer">
+                        <Icon icon="ep:more-filled" />
+                      </el-icon>
+                      <template #dropdown>
+                        <el-dropdown-menu>
+                          <el-dropdown-item
+                            @click="
+                              download(
+                                musicInfo.musicName,
+                                item.encodeType,
+                                item.rawUrl
+                              )
+                            "
+                            >下载音源
+                          </el-dropdown-item>
+                          <el-dropdown-item @click="editSource(item)"
+                            >编辑音源
+                          </el-dropdown-item>
+                          <el-dropdown-item
+                            @click="deleteSource(item.id, index)"
+                            >删除音源
+                          </el-dropdown-item>
+                        </el-dropdown-menu>
+                      </template>
+                    </el-dropdown>
+                  </el-link>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </template>
+    </el-skeleton>
   </div>
 </template>
 
@@ -884,7 +958,11 @@ const toMusicPlay = async res => {
 .info {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 3rem;
+
+  @media screen and (max-width: 1024px) {
+    flex-direction: column;
+  }
 }
 
 .frontCover {
@@ -918,12 +996,6 @@ const toMusicPlay = async res => {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  margin-left: 2rem;
-
-  @media screen and (max-width: 1280px) {
-    margin-top: 1rem;
-    margin-left: 0;
-  }
 }
 
 .item-list {
@@ -986,5 +1058,15 @@ const toMusicPlay = async res => {
 
 .edit-music-button {
   height: 2.2rem;
+}
+
+.skeleton-info {
+  display: flex;
+  flex-direction: row;
+  gap: 3rem;
+
+  @media screen and (max-width: 1024px) {
+    flex-direction: column;
+  }
 }
 </style>
