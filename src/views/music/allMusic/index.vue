@@ -656,7 +656,9 @@ const toArtist = res => {
                   @click="toMusicInfo(scope.row.id)"
                   >{{ scope.row.musicName }}</el-link
                 >
-                <span class="font">{{ scope.row.musicNameAlias }}</span>
+                <span class="font select-none">{{
+                  scope.row.musicNameAlias
+                }}</span>
               </div>
             </template>
           </el-table-column>
