@@ -646,14 +646,17 @@ const toArtist = res => {
             width="450"
           >
             <template #default="scope">
-              <div @contextmenu="onContextMenu($event, scope.row.id)">
+              <div
+                class="flex flex-nowrap gap-4"
+                @contextmenu="onContextMenu($event, scope.row.id)"
+              >
                 <el-link
                   :underline="false"
                   class="font-sans"
                   @click="toMusicInfo(scope.row.id)"
                   >{{ scope.row.musicName }}</el-link
                 >
-                <span class="font">&emsp;{{ scope.row.musicNameAlias }}</span>
+                <span class="font">{{ scope.row.musicNameAlias }}</span>
               </div>
             </template>
           </el-table-column>
