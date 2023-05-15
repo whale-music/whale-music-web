@@ -2,8 +2,15 @@
 import { onBeforeMount, ref } from "vue";
 import { useRouter } from "vue-router";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
-import { ArtistInfoRes, getArtistInfo } from "@/api/singer";
+import {
+  Artist,
+  ArtistInfoRes,
+  getArtistInfo,
+  saveOrUpdateArtist
+} from "@/api/singer";
 import { dateFormater } from "@/utils/dateUtil";
+import { clone } from "@pureadmin/utils";
+import { message } from "@/utils/message";
 const router = useRouter();
 
 const idValue = ref();
@@ -26,10 +33,38 @@ onBeforeMount(() => {
   getArtistInfo(idValue.value).then(res => {
     console.log(res);
     artistInfo.value = res.data;
+    modifyArtistInfo.value = clone(artistInfo.value, true);
   });
 });
 
+const modifyArtistInfo = ref<ArtistInfoRes>();
+const editArtistInfoFlag = ref<boolean>(false);
+
 const centerDialogVisible = ref<boolean>();
+
+const editArtistInfo = async () => {
+  const data: Artist = {
+    aliasName: modifyArtistInfo.value.aliasName,
+    artistName: modifyArtistInfo.value.artistName,
+    birth: modifyArtistInfo.value.birth,
+    createTime: modifyArtistInfo.value.createTime,
+    id: modifyArtistInfo.value.id,
+    introduction: modifyArtistInfo.value.introduction,
+    location: modifyArtistInfo.value.location,
+    pic: modifyArtistInfo.value.pic,
+    sex: modifyArtistInfo.value.sex,
+    updateTime: modifyArtistInfo.value.updateTime
+  };
+  const r = await saveOrUpdateArtist(data);
+  if (r.code == "200") {
+    message("更新成功", { type: "success" });
+    editArtistInfoFlag.value = false;
+    artistInfo.value = modifyArtistInfo.value;
+  } else {
+    message(`更新失败: ${r.message}`, { type: "error" });
+    modifyArtistInfo.value = artistInfo.value;
+  }
+};
 
 const toAlbum = res => {
   router.push({
@@ -40,10 +75,49 @@ const toAlbum = res => {
 </script>
 <template>
   <div>
+    <el-dialog v-model="editArtistInfoFlag" :show-close="false">
+      <div>
+        <el-scrollbar height="20rem">
+          <el-form label-position="top">
+            <el-form-item label="歌手名">
+              <el-input v-model="modifyArtistInfo.artistName" />
+            </el-form-item>
+            <el-form-item label="歌手名别名(请用英文,逗号分割)">
+              <el-input v-model="modifyArtistInfo.aliasName" />
+            </el-form-item>
+            <el-form-item label="封面">
+              <el-input v-model="modifyArtistInfo.pic" />
+            </el-form-item>
+            <el-form-item label="出生日期">
+              <el-input v-model="modifyArtistInfo.birth" />
+            </el-form-item>
+            <el-form-item label="居住地">
+              <el-input v-model="modifyArtistInfo.location" />
+            </el-form-item>
+            <el-form-item label="介绍">
+              <el-input
+                v-model="modifyArtistInfo.introduction"
+                type="textarea"
+                :autosize="{ maxRows: 10, minRows: 4 }"
+              />
+            </el-form-item>
+          </el-form>
+        </el-scrollbar>
+      </div>
+      <template #footer>
+        <el-button @click="editArtistInfoFlag = false">取消</el-button>
+        <el-button @click="editArtistInfo" type="primary">更新</el-button>
+      </template>
+    </el-dialog>
     <div class="show-artist-data">
       <LoadImg :src="artistInfo.pic" />
       <div class="info">
-        <p class="title">{{ artistInfo.artistName }}</p>
+        <div class="flex flex-nowrap items-center justify-between">
+          <p class="title">{{ artistInfo.artistName }}</p>
+          <el-button @click="editArtistInfoFlag = true" type="primary" round
+            >编辑信息</el-button
+          >
+        </div>
         <el-link
           :underline="false"
           v-for="(item, index) in artistInfo.artistNames"
@@ -140,18 +214,11 @@ const toAlbum = res => {
 .show-artist-data {
   display: flex;
   flex-wrap: wrap;
+  gap: 2rem;
 }
 
 .title {
   font-size: 3rem;
-}
-
-.info {
-  margin-left: 2rem;
-
-  @media screen and (max-width: 720px) {
-    margin-left: 0;
-  }
 }
 
 .show-font {

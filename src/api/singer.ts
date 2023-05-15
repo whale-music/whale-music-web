@@ -26,7 +26,7 @@ export const getSingerPage = (data?: SingerReq) => {
   });
 };
 
-export interface selectSinger {
+export interface SelectSinger {
   link: string;
   value: string;
 
@@ -43,7 +43,7 @@ export interface selectSinger {
 }
 
 export const getSelectSingerList = (name: string) => {
-  return http.request<R<selectSinger[]>>(
+  return http.request<R<SelectSinger[]>>(
     "get",
     "/admin/singer/select?name=" + name
   );
@@ -68,7 +68,7 @@ export interface MusicList {
   createTime: string;
 }
 
-export interface AlbumList {
+export interface Album {
   id: number;
   albumName: string;
   subType: string;
@@ -93,7 +93,7 @@ export interface ArtistInfoRes {
   createTime: string;
   updateTime: string;
   musicList: MusicList[];
-  albumList: AlbumList[];
+  albumList: Album[];
 }
 
 export const getArtistInfo = (id: number) => {
@@ -105,4 +105,20 @@ export const deleteArtist = (id: number[]) => {
     "delete",
     `/admin/singer/${id.join(",")}`
   );
+};
+
+export interface Artist {
+  id: number;
+  artistName: string;
+  aliasName: string;
+  sex: string;
+  pic: string;
+  birth: string;
+  location: string;
+  introduction: string;
+  createTime: string;
+  updateTime: string;
+}
+export const saveOrUpdateArtist = (data: Artist) => {
+  return http.request<R<ArtistInfoRes>>("post", "/admin/singer/", { data });
 };
