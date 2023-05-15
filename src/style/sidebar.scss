@@ -240,7 +240,7 @@
   /* vertical 菜单折叠 */
   .el-menu--vertical {
     .el-menu--popup {
-      background-color: $subMenuBg !important;
+      //background-color: $subMenuBg !important;
 
       .el-menu-item {
         span {
@@ -268,7 +268,7 @@
     .el-menu .el-sub-menu__title {
       font-size: 12px;
       min-width: $sideBarWidth !important;
-      background-color: $subMenuBg !important;
+      //background-color: $subMenuBg !important;
     }
 
     .el-menu-item,
@@ -276,7 +276,7 @@
       height: 50px;
       line-height: 50px;
       color: $menuText;
-      background-color: $subMenuBg;
+      //background-color: $subMenuBg;
 
       &:hover {
         color: $menuTitleHover !important;
@@ -352,7 +352,7 @@
     .el-menu .el-sub-menu__title {
       font-size: 12px;
       min-width: $sideBarWidth !important;
-      background-color: $subMenuBg !important;
+      //background-color: $subMenuBg !important;
 
       &:hover {
         color: $menuTitleHover !important;
