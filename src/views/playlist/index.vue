@@ -91,7 +91,7 @@ const musicPlayConfig = reactive({
 const musicName = ref("");
 const pageConfig = ref<Page>({
   pageIndex: 0,
-  pageNum: 12,
+  pageNum: 14,
   total: 0
 });
 const getPlay = (id: string) => {
@@ -110,7 +110,7 @@ const getPlay = (id: string) => {
   })
     .then(res => {
       if (res.code === "200") {
-        tableData.value = res.data.records.reverse();
+        tableData.value = res.data.records;
         emptyFlag.value =
           res.data.records == null || res.data.records.length === 0;
         pageConfig.value.pageIndex = res.data.current;
