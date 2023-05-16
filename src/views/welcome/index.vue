@@ -563,7 +563,11 @@ const toArtist = id => {
                           height="4rem"
                         />
                         <div>
-                          <p class="text-xl font-bold">{{ item.pluginName }}</p>
+                          <el-tooltip :content="item.pluginName" raw-content>
+                            <p class="text-xl font-bold w-20 truncate">
+                              {{ item.pluginName }}
+                            </p>
+                          </el-tooltip>
                           <p
                             class="text-xs"
                             style="color: var(--el-text-color-disabled)"
