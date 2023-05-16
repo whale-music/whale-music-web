@@ -124,13 +124,6 @@ const switchTableAndRadio = val => {
 const deleteMusicFlag = ref<boolean>(false);
 const deleteCompelMusicFlag = ref<boolean>(false);
 
-const deleteButton = () => {
-  deleteAlbumList(false);
-};
-const deleteCompelButton = () => {
-  deleteAlbumList(true);
-};
-
 const multipleSelection = ref<AlbumRes[]>([]);
 const selectFlag = ref<boolean>(false);
 // 监听是否选择音乐
@@ -247,43 +240,29 @@ const toArtist = id => {
     <div class="operation-panel-bg" v-show="selectFlag">
       <div class="operation-panel">
         <el-dialog
-          v-model="deleteMusicFlag"
-          width="30%"
-          title="确认需要删除吗?"
-        >
-          <b
-            >该删除会删除<b class="text-rose-800">专辑</b>本身，如果有关联<b
-              class="text-rose-800"
-              >歌曲</b
-            >会删除失败</b
-          >
-          <template #footer>
-            <span class="dialog-footer">
-              <el-button @click="deleteMusicFlag = false">否</el-button>
-              <el-button
-                type="primary"
-                @click="
-                  deleteMusicFlag = false;
-                  deleteButton();
-                "
-              >
-                是
-              </el-button>
-            </span>
-          </template>
-        </el-dialog>
-
-        <el-dialog
           v-model="deleteCompelMusicFlag"
-          width="30%"
+          width="45%"
           title="确认需要删除吗?"
         >
-          <b
-            >该操作会删除<b class="text-rose-800">歌曲</b>和<b
-              class="text-rose-800"
-              >歌单</b
-            >关联的音乐，并不会删除歌手专辑</b
+          <b>
+            该删除会删除
+            <b class="text-rose-800">专辑</b>
+            本身，如果有关联
+            <b class="text-rose-800">歌曲</b>
+            会删除失败
+          </b>
+          <br />
+          <el-tooltip
+            effect="dark"
+            content="<b>该操作会删除<b class='text-rose-800'>歌曲</b>和<b class='text-rose-800'>歌单</b>关联的<b class='text-rose-800'>音乐</b>，并不会删除歌手专辑</b>"
+            raw-content
           >
+            <el-checkbox
+              v-model="deleteMusicFlag"
+              label="强制删除"
+              size="large"
+            />
+          </el-tooltip>
           <template #footer>
             <span class="dialog-footer">
               <el-button @click="deleteCompelMusicFlag = false">否</el-button>
@@ -291,7 +270,7 @@ const toArtist = id => {
                 type="danger"
                 @click="
                   deleteCompelMusicFlag = false;
-                  deleteCompelButton();
+                  deleteAlbumList(deleteMusicFlag);
                 "
               >
                 是
@@ -311,16 +290,6 @@ const toArtist = id => {
             class="cursor-pointer"
             style="color: #636e72"
             icon="solar:close-circle-bold-duotone"
-            width="2rem"
-            height="2rem"
-          />
-        </div>
-        <div class="flex items-center ml-2 mr-2 rounded">
-          <IconifyIconOnline
-            @click="deleteMusicFlag = true"
-            class="cursor-pointer"
-            style="color: #636e72"
-            icon="solar:trash-bin-2-outline"
             width="2rem"
             height="2rem"
           />
