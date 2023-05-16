@@ -249,8 +249,8 @@ const toArtist = res => {
           <IconifyIconOnline
             @click="deleteMusicFlag = true"
             class="cursor-pointer"
-            style="color: #636e72"
-            icon="solar:trash-bin-2-outline"
+            style="color: #d63031"
+            icon="solar:trash-bin-minimalistic-2-bold-duotone"
             width="2rem"
             height="2rem"
           />
