@@ -2,16 +2,13 @@ import { http } from "@/utils/http";
 import { R } from "@/api/common";
 import { Album, Artist, Music } from "@/api/music";
 
-export const getMusicCount = () => {
-  return http.request<R<number>>("get", "/admin/home/music/count");
-};
-
-export const getAlbumCount = () => {
-  return http.request<R<number>>("get", "/admin/home/album/count");
-};
-
-export const getArtistCount = () => {
-  return http.request<R<number>>("get", "/admin/home/artist/count");
+export interface Count {
+  count: number;
+  percent: string;
+  fluctuate: boolean;
+}
+export const getCount = () => {
+  return http.request<R<Map<string, Count>>>("get", "/admin/home/count");
 };
 
 export const getMusicTop = () => {

@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { ref, onBeforeMount, Ref, computed } from "vue";
 import {
-  getAlbumCount,
+  Count,
   getAlbumTop,
-  getArtistCount,
   getArtistTop,
-  getMusicCount,
+  getCount,
   getMusicStatistics,
   getPluginTask,
   MusicStatisticsRes,
@@ -31,9 +30,9 @@ defineOptions({
 const artistList = ref<Artist[]>([]);
 const albumList = ref<Album[]>([]);
 
-const musicCount = ref<number>();
-const albumCount = ref<number>();
-const artistCount = ref<number>();
+const musicCount = ref<Count>();
+const albumCount = ref<Count>();
+const artistCount = ref<Count>();
 
 const albumInnerRef = ref<HTMLDivElement>();
 const artistInnerRef = ref<HTMLDivElement>();
@@ -45,13 +44,11 @@ const pluginTask = ref<PluginTaskRes[]>();
 const skeletonLoadingFlag = ref<boolean>(false);
 onBeforeMount(async () => {
   skeletonLoadingFlag.value = true;
-  const _musicCount = await getMusicCount();
-  const _albumCount = await getAlbumCount();
-  const _artistCount = await getArtistCount();
+  const countMap = await getCount();
 
-  musicCount.value = _musicCount.data;
-  albumCount.value = _albumCount.data;
-  artistCount.value = _artistCount.data;
+  musicCount.value = countMap.data["music"];
+  albumCount.value = countMap.data["album"];
+  artistCount.value = countMap.data["artist"];
   const album = await getAlbumTop();
   const artist = await getArtistTop();
   albumList.value = album.data;
@@ -177,6 +174,16 @@ function setEchaerOption() {
   });
 }
 
+const getType = (
+  type: boolean,
+  zero: string,
+  positive: string,
+  negative: string
+): string => {
+  if (type === undefined || type == null) return zero;
+  return type ? positive : negative;
+};
+
 const toAlbum = id => {
   router.push({
     path: "/music/albumInfo",
@@ -221,18 +228,22 @@ const toArtist = id => {
               :color="'var(--el-text-color-primary)'"
               :fontSize="'2em'"
               :startVal="1"
-              :endVal="musicCount"
+              :endVal="musicCount?.count"
             />
             <el-tag
               size="small"
               effect="dark"
               class="mr-4"
-              color="#3cc8a8"
+              v-show="musicCount?.percent != null"
+              :type="getType(musicCount?.fluctuate, 'info', '', 'danger')"
               :hit="false"
               :disable-transitions="true"
               round
-              >+12.8% ↑</el-tag
             >
+              {{ getType(musicCount?.fluctuate, "", "+", "-") }}
+              {{ musicCount?.percent }}
+              {{ getType(musicCount?.fluctuate, "", "↑", "↓") }}
+            </el-tag>
           </div>
         </div>
         <div class="header">
@@ -260,18 +271,22 @@ const toArtist = id => {
               :color="'var(--el-text-color-primary)'"
               :fontSize="'2em'"
               :startVal="1"
-              :endVal="albumCount"
+              :endVal="albumCount?.count"
             />
             <el-tag
               size="small"
               effect="dark"
               class="mr-4"
-              color="#3cc8a8"
+              v-show="musicCount?.percent != null"
+              :type="getType(albumCount?.fluctuate, 'info', '', 'danger')"
               :hit="false"
               :disable-transitions="true"
               round
-              >+12.8% ↑</el-tag
             >
+              {{ getType(albumCount?.fluctuate, "", "+", "-") }}
+              {{ albumCount?.percent }}
+              {{ getType(albumCount?.fluctuate, "", "↑", "↓") }}
+            </el-tag>
           </div>
         </div>
         <div class="header">
@@ -299,18 +314,22 @@ const toArtist = id => {
               :color="'var(--el-text-color-primary)'"
               :fontSize="'2em'"
               :startVal="1"
-              :endVal="artistCount"
+              :endVal="artistCount?.count"
             />
             <el-tag
               size="small"
               effect="dark"
               class="mr-4"
-              color="#3cc8a8"
+              v-show="artistCount?.percent != null"
+              :type="getType(artistCount?.fluctuate, 'info', '', 'danger')"
               :hit="false"
               :disable-transitions="true"
               round
-              >+12.8% ↑</el-tag
             >
+              {{ getType(artistCount?.fluctuate, "", "+", "-") }}
+              {{ artistCount?.percent }}
+              {{ getType(artistCount?.fluctuate, "", "↑", "↓") }}
+            </el-tag>
           </div>
         </div>
       </div>
