@@ -577,6 +577,7 @@ const toArtist = id => {
   margin: 1rem;
   will-change: filter;
   transition: filter 300ms;
+  cursor: pointer;
 }
 
 .artist-item:hover {
@@ -584,7 +585,14 @@ const toArtist = id => {
 }
 
 .album-item {
+  cursor: pointer;
   margin: 1rem;
+}
+
+.album-item:hover {
+  will-change: filter;
+  transition: filter 300ms;
+  filter: drop-shadow(0 0 0.8em var(--el-color-primary));
 }
 
 .count-font {
