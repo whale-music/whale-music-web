@@ -214,7 +214,7 @@ const toArtist = id => {
               height="2rem"
             />
           </div>
-          <div class="ml-6 flex items-center justify-between">
+          <div class="ml-6 flex items-center justify-between whitespace-nowrap">
             <ReNormalCountTo
               prefix="# "
               :duration="1000"
@@ -253,7 +253,7 @@ const toArtist = id => {
               height="2rem"
             />
           </div>
-          <div class="ml-6 flex items-center justify-between">
+          <div class="ml-6 flex items-center justify-between whitespace-nowrap">
             <ReNormalCountTo
               prefix="# "
               :duration="1000"
@@ -292,7 +292,7 @@ const toArtist = id => {
               height="2rem"
             />
           </div>
-          <div class="ml-6 flex items-center justify-between">
+          <div class="ml-6 flex items-center justify-between whitespace-nowrap">
             <ReNormalCountTo
               prefix="# "
               :duration="1000"
@@ -447,7 +447,7 @@ const toArtist = id => {
     </div>
     <div class="task-sidebar">
       <div class="flex music-count">
-        <el-skeleton :loading="skeletonLoadingFlag">
+        <el-skeleton :loading="skeletonLoadingFlag" animated>
           <template #template>
             <div class="w-full h-full flex justify-center items-center">
               <div class="w-1/2 flex justify-center">
@@ -492,7 +492,7 @@ const toArtist = id => {
       </div>
       <div class="music-task">
         <el-scrollbar>
-          <el-skeleton :loading="skeletonLoadingFlag">
+          <el-skeleton :loading="skeletonLoadingFlag" animated>
             <template #template>
               <div>
                 <el-skeleton-item
