@@ -197,6 +197,13 @@ const toArtist = id => {
     query: { id: id }
   });
 };
+
+const toPluginTaskInfo = id => {
+  router.push({
+    path: "/plugin/taskInfo",
+    query: { id: id }
+  });
+};
 </script>
 
 <template>
@@ -555,7 +562,10 @@ const toArtist = id => {
                 <ul v-for="(item, index) in pluginTask" :key="index">
                   <li>
                     <div class="flex justify-between items-center ml-3">
-                      <div class="flex justify-center items-center">
+                      <div
+                        class="flex justify-center items-center cursor-pointer"
+                        @click="toPluginTaskInfo(item.id)"
+                      >
                         <IconifyIconOnline
                           color="#727272"
                           icon="solar:user-circle-bold"

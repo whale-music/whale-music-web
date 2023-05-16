@@ -228,7 +228,7 @@ const showStatusText = (status: number) => {
         :value="item.value"
       />
     </el-select>
-    <wbutton @click="deleteTaskAll">清楚所有插件任务</wbutton>
+    <wbutton @click="deleteTaskAll">清除所有插件任务</wbutton>
     <div class="task-grid">
       <div v-for="(item, index) in taskList" :key="item.id">
         <div class="task">
