@@ -15,17 +15,23 @@ import { CellStyle } from "element-plus/es";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
-import { storageSession, useDark, storageLocal } from "@pureadmin/utils";
+import {
+  storageSession,
+  useDark,
+  storageLocal,
+  downloadByData
+} from "@pureadmin/utils";
 import ContextMenu from "@imengyu/vue3-context-menu";
 import AddMusicToPlayList from "@/components/addMusicToPlayList/addMusicToPlayList.vue";
 import { getUserPlayList, UserPlayListRes } from "@/api/playlist";
 import { DataInfo, sessionKey } from "@/utils/auth";
-import { ElTable } from "element-plus";
+import { ElLoading, ElTable } from "element-plus";
 import RadioIcon from "@/assets/svg/radio.svg?component";
 import MultipleSelectionIcon from "@/assets/svg/multiple_selection.svg?component";
 import RefreshIcon from "@/assets/svg/refresh.svg?component";
 import { FriendlyTime } from "@/utils/DateFormat.ts";
 import dayjs from "dayjs";
+import axios from "axios";
 
 const { isDark } = useDark();
 const router = useRouter();
@@ -211,9 +217,9 @@ const tableHeaderCellStyle = ({ columnIndex }): CellStyle<any> => {
 
 const playItemDialogVisible = ref(false);
 const userPlayItem = ref<UserPlayListRes[]>();
-const addMusicId = ref<number>();
+const addMusicId = ref<number | number[]>();
 const userInfo = storageSession().getItem<DataInfo>(sessionKey);
-const getUserPlayInfo = (id: number) => {
+const getUserPlayInfo = (id: number | number[]) => {
   addMusicId.value = id;
   getUserPlayList(userInfo.id).then(res => {
     playItemDialogVisible.value = true;
@@ -272,12 +278,17 @@ watch(selectTableList, async newQuestion => {
   selectFlag.value = newQuestion.length > 0;
 });
 const selectFlag = ref<boolean>(false);
-const deleteMusicList = async (id: number[], compel: boolean) => {
+const deleteMusicList = async (
+  id: number[],
+  compel: boolean
+): Promise<boolean> => {
   const res = await deleteMusic(id, compel);
   if (res.code === "200") {
     message("删除成功", { type: "success" });
+    return true;
   } else {
     message(`删除失败: ${res.message}`, { type: "error" });
+    return false;
   }
 };
 
@@ -286,46 +297,55 @@ const cancelButton = () => {
 };
 
 const deleteCompelMusicFlag = ref<boolean>(false);
-const deleteMusicFlag = ref<boolean>(false);
-// 删除
-const deleteButton = async () => {
-  const id = [];
-  selectTableList.value.forEach(value => id.push(value.id));
+const deleteFlag = ref<boolean>(false);
+
+// 强制删除
+const deleteCompelButton = async (flag: boolean) => {
+  deleteCompelMusicFlag.value = false;
   try {
-    await deleteMusicList(id, false);
-    if (selectTableList.value.length === pageConfig.pageSize) {
-      await onSubmit();
-      return;
+    const id = [];
+    selectTableList.value.forEach(value => id.push(value.id));
+    const b = await deleteMusicList(id, flag);
+    if (b) {
+      if (selectTableList.value.length === pageConfig.pageSize) {
+        await onSubmit();
+        return;
+      }
+      for (const valueElement of selectTableList.value) {
+        tableData.value = tableData.value.filter(
+          value => value.id !== valueElement.id
+        );
+      }
     }
-    for (const valueElement of selectTableList.value) {
-      tableData.value = tableData.value.filter(
-        value => value.id !== valueElement.id
-      );
-    }
-    // onSubmit();
   } catch (e) {
     message(`请求失败: ${e}`, { type: "error" });
   }
 };
-// 强制删除
-const deleteCompelButton = async () => {
-  try {
-    const id = [];
-    selectTableList.value.forEach(value => id.push(value.id));
-    await deleteMusicList(id, true);
-    if (selectTableList.value.length === pageConfig.pageSize) {
-      await onSubmit();
-      return;
+
+const downloads = async () => {
+  const loading = ElLoading.service({
+    lock: true,
+    text: "下载中",
+    background: "rgba(0, 0, 0, 0.7)"
+  });
+  for (let i = 0; i < selectTableList.value.length; i++) {
+    const valueElement = selectTableList.value[i];
+    console.log(valueElement.musicRawUrl);
+    const element = valueElement.musicRawUrl;
+    if (element != null && element != "") {
+      const strings = element.split(".");
+      const splice = strings[strings.length - 1].split("?");
+      try {
+        const { data } = await axios.get(element, {
+          responseType: "blob"
+        });
+        downloadByData(data, `${valueElement.musicName}.${splice[0]}`);
+      } catch (e) {
+        message(`下载错误${e}`, { type: "error" });
+      }
     }
-    for (const valueElement of selectTableList.value) {
-      tableData.value = tableData.value.filter(
-        value => value.id !== valueElement.id
-      );
-    }
-    // onSubmit();
-  } catch (e) {
-    message(`请求失败: ${e}`, { type: "error" });
   }
+  loading.close();
 };
 
 const toMusicInfo = id => {
@@ -363,100 +383,84 @@ const toArtist = res => {
     <div class="operation-panel-bg" v-show="selectFlag">
       <div class="operation-panel">
         <el-dialog
-          v-model="deleteMusicFlag"
-          width="30%"
-          title="确认需要删除吗?"
-        >
-          <b
-            >该删除会删除<b class="text-rose-800">歌曲</b
-            >本身，如果有关联歌单会删除失败</b
-          >
-          <template #footer>
-            <span class="dialog-footer">
-              <el-button @click="deleteMusicFlag = false">否</el-button>
-              <el-button
-                type="primary"
-                @click="
-                  deleteMusicFlag = false;
-                  deleteButton();
-                "
-              >
-                是
-              </el-button>
-            </span>
-          </template>
-        </el-dialog>
-
-        <el-dialog
           v-model="deleteCompelMusicFlag"
-          width="30%"
+          width="45%"
           title="确认需要删除吗?"
         >
-          <b
-            >该操作会删除<b class="text-rose-800">歌曲</b>和<b
-              class="text-rose-800"
-              >歌单</b
-            >关联的音乐，并不会删除歌手专辑</b
+          <b>
+            该删除会删除
+            <b class="text-rose-800">歌曲</b>
+            本身，如果有关联歌单会删除失败
+          </b>
+          <br />
+          <i>
+            如需要同时删除歌单请点击
+            <b class="text-rose-800">强制删除</b>
+          </i>
+          <br />
+          <el-tooltip
+            effect="dark"
+            content="<b>该操作只会删除<b class='text-rose-800'>歌曲</b>和<b class='text-rose-800'>歌单</b>关联的音乐，并不会删除歌手专辑</b>"
+            raw-content
           >
+            <el-checkbox v-model="deleteFlag" label="强制删除" size="large" />
+          </el-tooltip>
           <template #footer>
             <span class="dialog-footer">
               <el-button @click="deleteCompelMusicFlag = false">否</el-button>
-              <el-button
-                type="danger"
-                @click="
-                  deleteCompelMusicFlag = false;
-                  deleteCompelButton();
-                "
-              >
+              <el-button type="danger" @click="deleteCompelButton(deleteFlag)">
                 是
               </el-button>
             </span>
           </template>
         </el-dialog>
-        <div class="flex items-center ml-2 mr-2 rounded">
-          <span class="p-4">
-            <span class="text-sm" style="color: var(--el-text-color-regular)"
-              >已选择</span
-            >
-            {{ selectTableList.length }}
-          </span>
-          <IconifyIconOnline
-            @click="cancelButton"
-            class="cursor-pointer"
-            style="color: #636e72"
-            icon="solar:close-circle-bold-duotone"
-            width="2rem"
-            height="2rem"
-          />
-        </div>
-        <div class="flex items-center ml-2 mr-2 rounded">
-          <IconifyIconOnline
-            @click="deleteMusicFlag = true"
-            class="cursor-pointer"
-            style="color: #636e72"
-            icon="solar:trash-bin-2-outline"
-            width="2rem"
-            height="2rem"
-          />
-        </div>
-        <div class="flex items-center ml-2 mr-2 rounded">
-          <IconifyIconOnline
-            @click="deleteCompelMusicFlag = true"
-            class="cursor-pointer"
-            style="color: #d63031"
-            icon="solar:trash-bin-minimalistic-2-bold-duotone"
-            width="2rem"
-            height="2rem"
-          />
-        </div>
-        <div class="flex items-center ml-2 mr-2 rounded">
-          <IconifyIconOnline
-            class="cursor-pointer"
-            style="color: var(--el-color-primary-light-3)"
-            icon="solar:download-outline"
-            width="2rem"
-            height="2rem"
-          />
+        <div class="flex gap-1 p-2">
+          <div class="flex items-center rounded">
+            <span class="p-4">
+              <span class="text-sm" style="color: var(--el-text-color-regular)">
+                已选择
+              </span>
+              {{ selectTableList.length }}
+            </span>
+            <IconifyIconOnline
+              @click="cancelButton"
+              class="cursor-pointer"
+              style="color: #636e72"
+              icon="solar:close-circle-bold-duotone"
+              width="2rem"
+              height="2rem"
+            />
+          </div>
+          <div class="flex items-center rounded">
+            <IconifyIconOnline
+              @click="deleteCompelMusicFlag = true"
+              class="cursor-pointer"
+              style="color: #d63031"
+              icon="solar:trash-bin-minimalistic-2-bold-duotone"
+              width="2rem"
+              height="2rem"
+            />
+          </div>
+          <div class="flex items-center rounded">
+            <IconifyIconOnline
+              @click="getUserPlayInfo(selectTableList.map(value => value.id))"
+              class="cursor-pointer"
+              style="color: var(--el-color-primary-light-3)"
+              icon="solar:playlist-2-bold-duotone"
+              width="2rem"
+              height="2rem"
+            />
+          </div>
+          <div class="flex items-center rounded">
+            <IconifyIconOnline
+              @click="downloads"
+              class="cursor-pointer"
+              style="color: var(--el-color-primary-light-3)"
+              icon="solar:download-square-bold"
+              width="2rem"
+              height="2rem"
+            />
+          </div>
         </div>
       </div>
     </div>

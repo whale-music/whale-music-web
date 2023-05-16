@@ -7,15 +7,16 @@ import { ref } from "vue";
 const props = defineProps<{
   playItem: UserPlayListRes[];
   userId: number;
-  musicId: number;
+  musicId: number | number[];
 }>();
 
 const emit = defineEmits(["closeDialog"]);
 
 const playItemDialogVisible = ref<boolean>(true);
 const addMusicToPlayList = (pid: string) => {
-  tracksMusicToPlayList(pid, [props.musicId], true).then(res => {
-    console.log(res.data);
+  const numbers: number[] =
+    props.musicId instanceof Array ? props.musicId : [props.musicId];
+  tracksMusicToPlayList(pid, numbers, true).then(res => {
     if (res.code === "200") {
       message("添加成功", { type: "success" });
       playItemDialogVisible.value = false;
@@ -36,7 +37,7 @@ const closeDialog = () => {
   <div>
     <el-dialog
       v-model="playItemDialogVisible"
-      width="30%"
+      width="45%"
       center
       @close="closeDialog"
     >
