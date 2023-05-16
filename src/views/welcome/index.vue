@@ -228,7 +228,7 @@ const toArtist = id => {
               :color="'var(--el-text-color-primary)'"
               :fontSize="'2em'"
               :startVal="1"
-              :endVal="musicCount?.count"
+              :endVal="musicCount?.sumCount"
             />
             <el-tag
               size="small"
@@ -271,7 +271,7 @@ const toArtist = id => {
               :color="'var(--el-text-color-primary)'"
               :fontSize="'2em'"
               :startVal="1"
-              :endVal="albumCount?.count"
+              :endVal="albumCount?.sumCount"
             />
             <el-tag
               size="small"
@@ -314,7 +314,7 @@ const toArtist = id => {
               :color="'var(--el-text-color-primary)'"
               :fontSize="'2em'"
               :startVal="1"
-              :endVal="artistCount?.count"
+              :endVal="artistCount?.sumCount"
             />
             <el-tag
               size="small"

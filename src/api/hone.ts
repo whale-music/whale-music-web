@@ -3,7 +3,7 @@ import { R } from "@/api/common";
 import { Album, Artist, Music } from "@/api/music";
 
 export interface Count {
-  count: number;
+  sumCount: number;
   percent: string;
   fluctuate: boolean;
 }
