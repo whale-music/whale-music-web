@@ -672,13 +672,14 @@ const toMusicPlay = async res => {
           </div>
         </div>
         <br />
-        <div class="flex flex-nowrap justify-between mt-4 mb-4">
-          <div>
-            <div class="flex flex-nowrap items-center">
-              <h1>音乐时长</h1>
-              <span class="text-sm">(毫秒值)</span>
-            </div>
-            <div class="flex flex-nowrap items-center">
+        <div>
+          <div class="flex flex-nowrap items-center">
+            <h1>音乐时长</h1>
+            <span class="text-sm">(毫秒值)</span>
+          </div>
+          <div class="flex flex-nowrap items-center justify-between">
+            <div>显示音乐毫秒，可以手动修改</div>
+            <div>
               <span class="text-xl font-bold">{{
                 dateFormater("mm:ss", modifyMusicInfo.timeLength)
               }}</span>
@@ -689,12 +690,15 @@ const toMusicPlay = async res => {
               />
             </div>
           </div>
-          <div>
-            <h1>发布时间(与专辑同步)</h1>
+        </div>
+        <div>
+          <h1>发布时间</h1>
+          <div class="flex flex-row flex-nowrap justify-between">
+            <div>该发布时间与专辑同步</div>
             <el-date-picker
               v-model="publishTime"
               type="date"
-              placeholder="Pick a day"
+              placeholder="请选择发布时间"
               size="default"
             />
           </div>
