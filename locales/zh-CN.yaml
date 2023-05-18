@@ -54,6 +54,8 @@ list:
   task: 任务
   taskInfo: 运行日志
   playList: 全部歌单
+  schedule: 定时任务
+  scheduleEdit: 定时任务编辑
 msg:
   loginSuccess: 登录成功
   serverError: 请检查服务器是否启动

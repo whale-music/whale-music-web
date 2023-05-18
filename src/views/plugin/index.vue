@@ -258,14 +258,15 @@ export default {
             </el-tag>
           </div>
           <div class="flex items-center">
-            <el-icon
-              :size="25"
-              class="cursor-pointer"
-              style="color: var(--el-color-primary-light-3)"
-            >
+            <el-icon :size="25" class="cursor-pointer icon">
               <a @click="toRunPlugin(i.id)">
                 <Icon icon="mingcute:play-fill" />
               </a>
+            </el-icon>
+            <el-icon :size="25" class="icon">
+              <router-link :to="{ name: 'ScheduleEdit', query: { id: i.id } }">
+                <Icon icon="mingcute:time-fill" />
+              </router-link>
             </el-icon>
             <el-button link type="primary" @click="toEditCode(i)">
               编辑
@@ -293,12 +294,14 @@ export default {
   display: flex;
   margin-right: 0;
   align-items: center;
+  min-width: 10rem;
 }
 
 .search {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
 }
 
 .plugin-input-with-select {
@@ -309,7 +312,7 @@ export default {
 
 .plugin-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(15rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
 }
 
 .plugin-show {
@@ -324,5 +327,13 @@ export default {
 /* 选择框样式，没有生效 */
 :deep(.el-dialog) {
   border-radius: 1rem !important;
+}
+
+.icon {
+  color: var(--el-color-primary);
+}
+
+.icon:hover {
+  color: var(--el-color-primary-light-3);
 }
 </style>

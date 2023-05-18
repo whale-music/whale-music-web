@@ -153,3 +153,45 @@ export const deletePluginTask = (id: number[]) => {
 export const deletePlugin = (id: number) => {
   return http.request<R<PluginTask[]>>("get", `/admin/deletePlugin/${id}`);
 };
+
+export interface Schedule {
+  id: number;
+  name: string;
+  pluginId: number;
+  cron: string;
+  params: string;
+  status: boolean;
+  userId: number;
+  createTime: string;
+  updateTime: string;
+}
+export const saveOrUpdateSchedule = (data: Schedule, isRun: boolean) => {
+  return http.request<R<string>>("post", `/admin/schedule/task`, {
+    data,
+    params: {
+      isRun: isRun
+    }
+  });
+};
+
+export interface ScheduleInfo extends Schedule {
+  pluginName: string;
+}
+export const getScheduleList = (data: Schedule) => {
+  return http.request<R<ScheduleInfo[]>>("post", `/admin/schedule/get/task`, {
+    data
+  });
+};
+
+export const deleteSchedule = (id: number) => {
+  return http.request<R<string>>("delete", `/admin/schedule/task/${id}`);
+};
+
+export const modifyStateDynamicTask = (id: number, status: boolean) => {
+  return http.request<R<string>>("get", `/admin/schedule/task/status`, {
+    params: {
+      id: id,
+      status: status
+    }
+  });
+};

@@ -54,6 +54,8 @@ list:
   task: Task
   taskInfo: Run Log
   playList: Play List
+  schedule: Schedule
+  scheduleEdit: Schedule Edit
 msg:
   loginSuccess: Login Success
   serverError: Please check whether the server is started

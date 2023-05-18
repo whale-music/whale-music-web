@@ -60,6 +60,25 @@ export default {
         title: $t("list.taskInfo"),
         showLink: false
       }
+    },
+    {
+      path: "/plugin/schedule/index",
+      name: "ScheduleIndex",
+      component: () => import("@/views/plugin/schedule/index.vue"),
+      meta: {
+        icon: "mingcute:alarm-2-fill",
+        title: $t("list.schedule")
+      }
+    },
+    {
+      path: "/plugin/schedule/edit",
+      name: "ScheduleEdit",
+      component: () => import("@/views/plugin/schedule/edit.vue"),
+      meta: {
+        icon: "solar:alarm-bold-duotone",
+        title: $t("list.scheduleEdit"),
+        showLink: false
+      }
     }
   ]
 } as RouteConfigsTable;
