@@ -1,13 +1,7 @@
 <script setup lang="ts">
-import {
-  deleteMusic,
-  getAllMusicList,
-  getMusicUrl,
-  MusicSearchRes
-} from "@/api/music";
+import { deleteMusic, getAllMusicList, MusicSearchRes } from "@/api/music";
 import { MusicSearchReq } from "@/api/common";
 import DownloadIcon from "@/components/DownloadIcon/download.vue";
-import MusicPlay from "./components/music.play.vue";
 import { ref, reactive, onMounted, watch } from "vue";
 import { message } from "@/utils/message";
 import { dateFormater } from "@/utils/dateUtil";
@@ -33,20 +27,85 @@ import { FriendlyTime } from "@/utils/DateFormat.ts";
 import dayjs from "dayjs";
 import axios from "axios";
 
+const { t } = useI18n();
 const { isDark } = useDark();
 const router = useRouter();
 
-const { t } = useI18n();
-
-// 每页显示行数
-const pageConfig = reactive({
-  pageSize: 50,
-  pageIndex: 1,
-  total: 0
+// 生命周期挂载
+onMounted(() => {
+  // 查询表格
+  onSubmit();
 });
 
+// 表格Ref
+const multipleTableRef = ref<InstanceType<typeof ElTable>>();
+const state = reactive<{
+  req: MusicSearchReq;
+  menuFlag: boolean;
+  // 排序
+  sortData: {
+    value: string;
+    label: string;
+  }[];
+  table: {
+    musicName: string;
+    data: MusicSearchRes[];
+    loading: boolean;
+    multipleSelectionFlag: boolean; // 开启选择数据
+    filter: string;
+    selectTableList: MusicSearchRes[];
+  };
+  dialog: {
+    playItemDialogVisible: boolean;
+    deleteCompelMusicFlag: boolean;
+  };
+  userPlayItem: UserPlayListRes[];
+  addMusicId: number | number[];
+  userInfo: DataInfo;
+  isForceDeleteFlag: boolean;
+  isInvalid: boolean;
+}>({
+  req: undefined,
+  menuFlag: false,
+  sortData: undefined,
+  table: {
+    musicName: "",
+    data: [],
+    loading: false,
+    multipleSelectionFlag: storageLocal().getItem("switchTableAndRadio"),
+    filter: "",
+    selectTableList: []
+  },
+  dialog: {
+    playItemDialogVisible: false,
+    deleteCompelMusicFlag: false
+  },
+  userPlayItem: undefined,
+  addMusicId: undefined,
+  userInfo: storageSession().getItem<DataInfo>(sessionKey),
+  isForceDeleteFlag: false,
+  isInvalid: storageSession().getItem("isInvalid")
+});
+
+state.req = {
+  afterDate: "",
+  albumName: "",
+  artistName: "",
+  beforeDate: "",
+  isShowNoExist: false,
+  musicIds: undefined,
+  musicName: "",
+  order: false,
+  orderBy: "sort",
+  page: {
+    pageIndex: 0,
+    pageNum: 25,
+    total: 0
+  },
+  refresh: false
+};
 // 排序
-const sortData = reactive([
+state.sortData = [
   {
     value: "sort",
     label: "正常排序"
@@ -63,101 +122,64 @@ const sortData = reactive([
     value: "id",
     label: "歌曲ID排序"
   }
-]);
+];
 
-const musicPlayConfig = reactive({
-  url: "",
-  totalTime: 0,
-  isPlay: true,
-  isDisplay: false
+// 监听是否选择音乐
+watch(state.table.selectTableList, async newQuestion => {
+  selectFlag.value = newQuestion.length > 0;
 });
 
-const sortConfig = ref("sort");
-
-const tableData = ref<MusicSearchRes[]>();
-const tableLoading = ref<boolean>();
-
-// 表格Ref
-const multipleTableRef = ref<InstanceType<typeof ElTable>>();
-// 开启选择数据
-const multipleSelectionFlag = ref<boolean>(
-  storageLocal().getItem("switchTableAndRadio")
+watch(
+  () => state.isInvalid,
+  value => {
+    storageSession().setItem("isInvalid", value);
+    onSubmit(false);
+  }
 );
 
 const switchTableAndRadio = val => {
-  selectTableList.value = [];
+  state.table.selectTableList = [];
   storageLocal().setItem("switchTableAndRadio", val);
 };
 
-function getMusicList(param: MusicSearchReq) {
-  tableLoading.value = true;
-  getAllMusicList(param)
-    .then(res => {
-      tableLoading.value = false;
-      if (res.code === "200") {
-        tableData.value = res.data.records;
-        pageConfig.total = res.data.total;
-        pageConfig.pageSize = res.data.size;
-        pageConfig.pageIndex = res.data.current;
-      } else {
-        message(res.message, { type: "error" });
-      }
-    })
-    .catch(res => {
-      tableLoading.value = false;
-      message(`查询失败${res}`, { type: "error" });
-    });
-}
+const getMusicList = async (param: MusicSearchReq) => {
+  state.table.loading = true;
+  try {
+    const r = await getAllMusicList(param);
+    state.table.loading = false;
+    if (r.code === "200") {
+      state.table.data = r.data.records;
+      state.req.page.total = r.data.total;
+      state.req.page.pageNum = r.data.size;
+      state.req.page.pageIndex = r.data.current;
+    } else {
+      message(r.message, { type: "error" });
+    }
+  } catch (e) {
+    state.table.loading = false;
+    message(`查询失败${e}`, { type: "error" });
+  }
+};
 
-const isShowExist = ref<boolean>(storageSession().getItem("isShowExist"));
-watch(isShowExist, value => {
-  storageSession().setItem("isShowExist", value);
-  onSubmit(false);
-});
-
-const searchName = ref<string>("");
 // 点击按钮查询
 const onSubmit = (refresh?: boolean) => {
-  getMusicList({
-    musicIds: [],
-    musicName: searchName.value,
-    artistName: searchName.value,
-    albumName: searchName.value,
-    orderBy: sortConfig.value,
-    order: false,
-    beforeDate: "",
-    afterDate: "",
-    refresh: refresh == null || typeof refresh != "boolean" ? false : refresh,
-    isShowNoExist: isShowExist.value,
-    page: {
-      pageIndex: pageConfig.pageIndex,
-      pageNum: pageConfig.pageSize
-    }
-  });
+  state.req.refresh =
+    refresh == null || typeof refresh != "boolean" ? false : refresh;
+  state.req.musicName = state.table.musicName;
+  state.req.albumName = state.table.musicName;
+  state.req.artistName = state.table.musicName;
+  getMusicList(state.req);
 };
-
-// 表格变更时重新查询
-const sortOnSubmit = () => {
-  onSubmit();
-};
-
-// 生命周期挂载
-onMounted(() => {
-  // 查询表格
-  onSubmit();
-});
 
 const handleSizeChange = val => {
-  pageConfig.pageSize = val;
+  state.req.page.pageNum = val;
   onSubmit();
 };
 
 const handleCurrentChange = val => {
-  pageConfig.pageIndex = val;
+  state.req.page.pageIndex = val;
   onSubmit();
 };
-
-const menuFlag = ref<boolean>(false);
 
 // 表格颜色
 const cellStyle = ({ row, columnIndex }): CellStyle<any> => {
@@ -176,7 +198,7 @@ const cellStyle = ({ row, columnIndex }): CellStyle<any> => {
     };
   }
   // 设置序号样式
-  if (columnIndex === 1 && multipleSelectionFlag.value) {
+  if (columnIndex === 1 && state.table.multipleSelectionFlag) {
     styles = {
       color: "#bfbfbf",
       padding: "0",
@@ -215,16 +237,11 @@ const tableHeaderCellStyle = ({ columnIndex }): CellStyle<any> => {
   }
 };
 
-const playItemDialogVisible = ref(false);
-const userPlayItem = ref<UserPlayListRes[]>();
-const addMusicId = ref<number | number[]>();
-const userInfo = storageSession().getItem<DataInfo>(sessionKey);
-const getUserPlayInfo = (id: number | number[]) => {
-  addMusicId.value = id;
-  getUserPlayList(userInfo.id).then(res => {
-    playItemDialogVisible.value = true;
-    userPlayItem.value = res.data;
-  });
+const getUserPlayInfo = async (id: number | number[]) => {
+  state.addMusicId = id;
+  const r = await getUserPlayList(state.userInfo.id);
+  state.dialog.playItemDialogVisible = true;
+  state.userPlayItem = r.data;
 };
 
 // 右键菜单
@@ -246,37 +263,17 @@ const onContextMenu = (e: MouseEvent, id: number) => {
   });
 };
 
-// 播放音乐
-const rowDoubleClick = data => {
-  console.log(data);
-  musicPlayConfig.isDisplay = false;
-  getMusicUrl(data.id).then(res => {
-    musicPlayConfig.url = res.data[0].rawUrl;
-    console.log(musicPlayConfig);
-    musicPlayConfig.isDisplay = true;
-  });
-  musicPlayConfig.totalTime = data.timeLength;
-  musicPlayConfig.isPlay = true;
-};
-
 // 复选框
 const rowClick = row => {
   // 多选时不进入详情页面
-  if (multipleSelectionFlag.value) {
+  if (state.table.multipleSelectionFlag) {
     multipleTableRef.value.toggleRowSelection(row, null);
-  } else {
-    toMusicInfo(row.id);
   }
 };
 
-const selectTableList = ref<MusicSearchRes[]>([]);
 const handleSelectionChange = val => {
-  selectTableList.value = val;
+  state.table.selectTableList = val;
 };
-// 监听是否选择音乐
-watch(selectTableList, async newQuestion => {
-  selectFlag.value = newQuestion.length > 0;
-});
 const selectFlag = ref<boolean>(false);
 const deleteMusicList = async (
   id: number[],
@@ -296,23 +293,19 @@ const cancelButton = () => {
   multipleTableRef.value.clearSelection();
 };
 
-const deleteCompelMusicFlag = ref<boolean>(false);
-const deleteFlag = ref<boolean>(false);
-
 // 强制删除
 const deleteCompelButton = async (flag: boolean) => {
-  deleteCompelMusicFlag.value = false;
+  state.dialog.deleteCompelMusicFlag = false;
   try {
-    const id = [];
-    selectTableList.value.forEach(value => id.push(value.id));
+    const id = state.table.selectTableList.map(value => value.id);
     const b = await deleteMusicList(id, flag);
     if (b) {
-      if (selectTableList.value.length === pageConfig.pageSize) {
+      if (state.table.selectTableList.length === state.req.page.pageNum) {
         await onSubmit();
         return;
       }
-      for (const valueElement of selectTableList.value) {
-        tableData.value = tableData.value.filter(
+      for (const valueElement of state.table.selectTableList) {
+        state.table.data = state.table.data.filter(
           value => value.id !== valueElement.id
         );
       }
@@ -328,8 +321,8 @@ const downloads = async () => {
     text: "下载中",
     background: "rgba(0, 0, 0, 0.7)"
   });
-  for (let i = 0; i < selectTableList.value.length; i++) {
-    const valueElement = selectTableList.value[i];
+  for (let i = 0; i < state.table.selectTableList.length; i++) {
+    const valueElement = state.table.selectTableList[i];
     console.log(valueElement.musicRawUrl);
     const element = valueElement.musicRawUrl;
     if (element != null && element != "") {
@@ -354,36 +347,22 @@ const toMusicInfo = id => {
     query: { id: id }
   });
 };
-
-const toAlbum = res => {
-  router.push({
-    path: "/music/albumInfo",
-    query: { id: res.albumId }
-  });
-};
-const toArtist = res => {
-  console.log(res);
-  router.push({
-    path: "/music/artistInfo",
-    query: { id: res }
-  });
-};
 </script>
 
 <template>
   <div class="absolute-container">
     <!--添加歌曲到歌单-->
     <AddMusicToPlayList
-      v-if="playItemDialogVisible"
-      :play-item="userPlayItem"
-      :userId="Number.parseInt(userInfo.id)"
-      :music-id="addMusicId"
-      @closeDialog="playItemDialogVisible = false"
+      v-if="state.dialog.playItemDialogVisible"
+      :play-item="state.userPlayItem"
+      :userId="Number.parseInt(state.userInfo.id)"
+      :music-id="state.addMusicId"
+      @closeDialog="() => (state.dialog.playItemDialogVisible = false)"
     />
     <div class="operation-panel-bg" v-show="selectFlag">
       <div class="operation-panel">
         <el-dialog
-          v-model="deleteCompelMusicFlag"
+          v-model="state.dialog.deleteCompelMusicFlag"
           width="45%"
           title="确认需要删除吗?"
         >
@@ -403,12 +382,21 @@ const toArtist = res => {
             content="<b>该操作只会删除<b class='text-rose-800'>歌曲</b>和<b class='text-rose-800'>歌单</b>关联的音乐，并不会删除歌手专辑</b>"
             raw-content
           >
-            <el-checkbox v-model="deleteFlag" label="强制删除" size="large" />
+            <el-checkbox
+              v-model="state.isForceDeleteFlag"
+              label="强制删除"
+              size="large"
+            />
           </el-tooltip>
           <template #footer>
             <span class="dialog-footer">
-              <el-button @click="deleteCompelMusicFlag = false">否</el-button>
-              <el-button type="danger" @click="deleteCompelButton(deleteFlag)">
+              <el-button @click="state.dialog.deleteCompelMusicFlag = false">
+                否
+              </el-button>
+              <el-button
+                type="danger"
+                @click="deleteCompelButton(state.isForceDeleteFlag)"
+              >
                 是
               </el-button>
             </span>
@@ -420,7 +408,7 @@ const toArtist = res => {
               <span class="text-sm" style="color: var(--el-text-color-regular)">
                 已选择
               </span>
-              {{ selectTableList.length }}
+              {{ state.table.selectTableList.length }}
             </span>
             <IconifyIconOnline
               @click="cancelButton"
@@ -433,7 +421,7 @@ const toArtist = res => {
           </div>
           <div class="flex items-center rounded">
             <IconifyIconOnline
-              @click="deleteCompelMusicFlag = true"
+              @click="state.dialog.deleteCompelMusicFlag = true"
               class="cursor-pointer"
               style="color: #d63031"
               icon="solar:trash-bin-minimalistic-2-bold-duotone"
@@ -443,7 +431,11 @@ const toArtist = res => {
           </div>
           <div class="flex items-center rounded">
             <IconifyIconOnline
-              @click="getUserPlayInfo(selectTableList.map(value => value.id))"
+              @click="
+                getUserPlayInfo(
+                  state.table.selectTableList.map(value => value.id)
+                )
+              "
               class="cursor-pointer"
               style="color: var(--el-color-primary-light-3)"
               icon="solar:playlist-2-bold-duotone"
@@ -464,21 +456,9 @@ const toArtist = res => {
         </div>
       </div>
     </div>
-    <div class="table">
+    <div class="table-view">
       <div class="search">
         <div>
-          <div class="data">
-            <div
-              class="play music animate__animated animate__fadeIn"
-              v-if="musicPlayConfig.isDisplay"
-            >
-              <MusicPlay
-                :url="musicPlayConfig.url"
-                :totalTime="musicPlayConfig.totalTime"
-                :isPlay="musicPlayConfig.isPlay"
-              />
-            </div>
-          </div>
           <div class="data">
             <div class="demo-form-inline">
               <div class="group">
@@ -487,9 +467,11 @@ const toArtist = res => {
                   placeholder="搜索音乐专辑歌手名"
                   type="search"
                   class="input"
-                  :style="{ 'padding-right': tableLoading ? '2rem' : '6.5rem' }"
+                  :style="{
+                    'padding-right': state.table.loading ? '2rem' : '6.5rem'
+                  }"
                   @keyup.enter="onSubmit"
-                  v-model="searchName"
+                  v-model="state.table.musicName"
                 />
                 <Transition name="slide-fade">
                   <div
@@ -499,7 +481,7 @@ const toArtist = res => {
                       class="search-button"
                       type="primary"
                       size="large"
-                      :loading="tableLoading"
+                      :loading="state.table.loading"
                       @click="onSubmit"
                       >{{ t("buttons.search") }}
                     </el-button>
@@ -510,9 +492,8 @@ const toArtist = res => {
           </div>
         </div>
       </div>
-
       <div class="option">
-        <div @click="menuFlag = !menuFlag">
+        <div @click="state.menuFlag = !state.menuFlag">
           <button class="menu-button focus:ring-4 var(--el-color-primary)">
             <span>{{ t("input.menuBotton") }}</span>
           </button>
@@ -529,18 +510,18 @@ const toArtist = res => {
               --el-switch-on-color: var(--el-color-primary);
               --el-switch-off-color: #a55eea;
             "
-            v-model="multipleSelectionFlag"
+            v-model="state.table.multipleSelectionFlag"
             @change="switchTableAndRadio"
           />
           <el-select
-            v-model="sortConfig"
+            v-model="state.req.orderBy"
             placeholder="排序"
             size="large"
             style="width: 8rem"
-            @change="sortOnSubmit"
+            @change="onSubmit"
           >
             <el-option
-              v-for="item in sortData"
+              v-for="item in state.sortData"
               :key="item.value"
               :label="item.label"
               :value="item.value"
@@ -549,24 +530,11 @@ const toArtist = res => {
           </el-select>
         </div>
       </div>
-
+      <!--隐藏菜单-->
       <div>
         <el-collapse-transition>
-          <div v-show="menuFlag">
+          <div v-show="state.menuFlag">
             <div class="flex justify-between p-4">
-              <el-pagination
-                background
-                :hide-on-single-page="pageConfig.total === 0"
-                :default-current-page="pageConfig.pageIndex"
-                :default-page-size="pageConfig.pageSize"
-                :current-page="pageConfig.pageIndex"
-                :page-size="pageConfig.pageSize"
-                :page-sizes="[100, 200, 500, 1000]"
-                layout="prev, pager, next, total, sizes, jumper"
-                :total="pageConfig.total"
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-              />
               <div class="flex flex-nowrap items-center gap-1">
                 <el-tooltip
                   class="box-item"
@@ -594,8 +562,8 @@ const toArtist = res => {
                     <el-dropdown-menu>
                       <el-dropdown-item>
                         <div class="flex flex-nowrap items-center gap-1">
-                          <el-checkbox v-model="isShowExist" />
-                          <span @click="isShowExist = !isShowExist"
+                          <el-checkbox v-model="state.isInvalid" />
+                          <span @click="state.isInvalid = !state.isInvalid"
                             >只显示无音源</span
                           >
                         </div>
@@ -608,43 +576,46 @@ const toArtist = res => {
           </div>
         </el-collapse-transition>
       </div>
-
       <!--加载遮罩-->
       <transition name="el-fade-in">
-        <ShowLoading :loading="tableLoading" />
+        <ShowLoading :loading="state.table.loading" />
       </transition>
       <el-empty
-        v-if="(tableData == null || tableData.length === 0) && !tableLoading"
+        v-if="
+          (state.table.data == null || state.table.data.length === 0) &&
+          !state.table.loading
+        "
         description="这里没有音乐, 你可以首页添加音乐"
       />
       <transition name="el-zoom-in-top" class="tableDataShow">
         <el-table
           ref="multipleTableRef"
-          :data="tableData"
+          :data="state.table.data"
           @selection-change="handleSelectionChange"
           :cell-style="cellStyle"
           :header-cell-style="tableHeaderCellStyle"
-          v-show="!tableLoading && tableData != null && tableData.length !== 0"
-          :key="multipleSelectionFlag"
-          @row-dblclick="rowDoubleClick"
+          v-show="
+            !state.table.loading &&
+            state.table.data != null &&
+            state.table.data.length !== 0
+          "
+          :key="state.table.multipleSelectionFlag"
           @row-click="rowClick"
         >
           <el-table-column
             type="selection"
             width="55"
-            v-if="multipleSelectionFlag"
+            v-if="state.table.multipleSelectionFlag"
           />
-          <el-table-column fixed type="index" width="50" />
+          <el-table-column type="index" width="50" />
 
-          <el-table-column fixed width="50" :show-overflow-tooltip="true">
+          <el-table-column width="50" :show-overflow-tooltip="true">
             <template #default="scope">
               <DownloadIcon :muiscId="scope.row.id" />
             </template>
           </el-table-column>
 
           <el-table-column
-            fixed
-            prop="musicName"
             label="名称"
             :show-overflow-tooltip="true"
             width="450"
@@ -676,9 +647,14 @@ const toArtist = res => {
                 v-for="(item, index) in scope.row.artistNames"
                 :key="index"
               >
-                <span @click="toArtist(scope.row.artistIds[index])">{{
-                  item
-                }}</span>
+                <router-link
+                  :to="{
+                    name: 'ArtistInfo',
+                    query: { id: scope.row.artistIds[index] }
+                  }"
+                >
+                  <span>{{ item }}</span>
+                </router-link>
               </el-link>
             </template>
           </el-table-column>
@@ -688,9 +664,14 @@ const toArtist = res => {
             :show-overflow-tooltip="true"
           >
             <template #default="scope">
-              <span @click="toAlbum(scope.row)">
+              <router-link
+                :to="{
+                  name: 'AlbumInfo',
+                  query: { id: scope.row.albumId }
+                }"
+              >
                 <el-link :underline="false">{{ scope.row.albumName }}</el-link>
-              </span>
+              </router-link>
             </template>
           </el-table-column>
           <el-table-column
@@ -721,18 +702,17 @@ const toArtist = res => {
           </el-table-column>
         </el-table>
       </transition>
-
-      <div class="demo-pagination-block" v-show="!tableLoading">
+      <div class="demo-pagination-block" v-show="!state.table.loading">
         <el-pagination
           background
-          :hide-on-single-page="pageConfig.total === 0"
-          :default-current-page="pageConfig.pageIndex"
-          :default-page-size="pageConfig.pageSize"
-          :current-page="pageConfig.pageIndex"
-          :page-size="pageConfig.pageSize"
+          :hide-on-single-page="state.req.page.total === 0"
+          :default-current-page="state.req.page.pageIndex"
+          :default-page-size="state.req.page.pageNum"
+          :current-page="state.req.page.pageIndex"
+          :page-size="state.req.page.pageNum"
           :page-sizes="[50, 100, 500, 1000]"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="pageConfig.total"
+          :total="state.req.page.total"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
         />
@@ -780,15 +760,11 @@ $searchHeight: 90%;
   flex-direction: column;
   /*主轴上的对齐方式为居中*/
   justify-content: center;
-  /*交叉轴上对齐方式为居中*/
-  // align-items: center;
-
-  .table {
-    width: $searchWidth;
-    margin: 0 auto;
-    overflow-x: scroll;
-  }
 }
+
+//.table-view {
+//  height: 75%;
+//}
 
 .search {
   .data {
