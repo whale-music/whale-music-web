@@ -8,12 +8,12 @@ import { dateFormater } from "@/utils/dateUtil";
 import { CellStyle } from "element-plus/es";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
-import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
 import {
   storageSession,
   useDark,
   storageLocal,
-  downloadByData
+  downloadByData,
+  deviceDetection
 } from "@pureadmin/utils";
 import ContextMenu from "@imengyu/vue3-context-menu";
 import AddMusicToPlayList from "@/components/addMusicToPlayList/addMusicToPlayList.vue";
@@ -26,27 +26,53 @@ import RefreshIcon from "@/assets/svg/refresh.svg?component";
 import { FriendlyTime } from "@/utils/DateFormat.ts";
 import dayjs from "dayjs";
 import axios from "axios";
+import { emitter } from "@/utils/mitt";
+import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
+import nameSearch from "@/components/nameSearch/index.vue";
 
 const { t } = useI18n();
 const { isDark } = useDark();
 const router = useRouter();
+const isMobile = deviceDetection();
 
 // 生命周期挂载
-onMounted(() => {
+onMounted(async () => {
+  state.initLoading = true;
   // 查询表格
-  onSubmit();
+  await onSubmit();
+  state.initLoading = false;
+});
+
+// 监听容器
+emitter.on("resize", ({ detail }) => {
+  if (isMobile) return;
+  const { width } = detail;
+  if (width > 0 && width <= 1200) {
+    state.table.titleWidth = 200;
+  }
+  if (width > 1024) {
+    state.table.titleWidth = 380;
+  }
 });
 
 // 表格Ref
 const multipleTableRef = ref<InstanceType<typeof ElTable>>();
 const state = reactive<{
   req: MusicSearchReq;
+  initLoading: boolean;
   menuFlag: boolean;
   // 排序
   sortData: {
     value: string;
     label: string;
   }[];
+  search: {
+    typeData: {
+      value: string;
+      label: string;
+    }[];
+    searchType: string;
+  };
   table: {
     musicName: string;
     data: MusicSearchRes[];
@@ -54,6 +80,7 @@ const state = reactive<{
     multipleSelectionFlag: boolean; // 开启选择数据
     filter: string;
     selectTableList: MusicSearchRes[];
+    titleWidth: number;
   };
   dialog: {
     playItemDialogVisible: boolean;
@@ -66,15 +93,21 @@ const state = reactive<{
   isInvalid: boolean;
 }>({
   req: undefined,
+  initLoading: false,
   menuFlag: false,
   sortData: undefined,
+  search: {
+    typeData: undefined,
+    searchType: "all"
+  },
   table: {
     musicName: "",
     data: [],
     loading: false,
     multipleSelectionFlag: storageLocal().getItem("switchTableAndRadio"),
     filter: "",
-    selectTableList: []
+    selectTableList: [],
+    titleWidth: 450
   },
   dialog: {
     playItemDialogVisible: false,
@@ -99,7 +132,7 @@ state.req = {
   orderBy: "sort",
   page: {
     pageIndex: 0,
-    pageNum: 25,
+    pageNum: 10,
     total: 0
   },
   refresh: false
@@ -121,6 +154,25 @@ state.sortData = [
   {
     value: "id",
     label: "歌曲ID排序"
+  }
+];
+
+state.search.typeData = [
+  {
+    value: "all",
+    label: "全部"
+  },
+  {
+    value: "music",
+    label: "音乐"
+  },
+  {
+    value: "album",
+    label: "专辑"
+  },
+  {
+    value: "artist",
+    label: "歌手"
   }
 ];
 
@@ -162,13 +214,31 @@ const getMusicList = async (param: MusicSearchReq) => {
 };
 
 // 点击按钮查询
-const onSubmit = (refresh?: boolean) => {
+const onSubmit = async (refresh?: boolean) => {
   state.req.refresh =
     refresh == null || typeof refresh != "boolean" ? false : refresh;
-  state.req.musicName = state.table.musicName;
-  state.req.albumName = state.table.musicName;
-  state.req.artistName = state.table.musicName;
-  getMusicList(state.req);
+
+  state.req.musicName = "";
+  state.req.albumName = "";
+  state.req.artistName = "";
+  switch (state.search.searchType) {
+    case "music":
+      state.req.musicName = state.table.musicName;
+      break;
+    case "album":
+      state.req.albumName = state.table.musicName;
+      break;
+    case "artist":
+      state.req.artistName = state.table.musicName;
+      break;
+    default:
+    case "all":
+      state.req.albumName = state.table.musicName;
+      state.req.artistName = state.table.musicName;
+      state.req.musicName = state.table.musicName;
+      break;
+  }
+  await getMusicList(state.req);
 };
 
 const handleSizeChange = val => {
@@ -321,10 +391,8 @@ const downloads = async () => {
     text: "下载中",
     background: "rgba(0, 0, 0, 0.7)"
   });
-  for (let i = 0; i < state.table.selectTableList.length; i++) {
-    const valueElement = state.table.selectTableList[i];
-    console.log(valueElement.musicRawUrl);
-    const element = valueElement.musicRawUrl;
+  for (const selectTableListElement of state.table.selectTableList) {
+    const element = selectTableListElement.musicRawUrl;
     if (element != null && element != "") {
       const strings = element.split(".");
       const splice = strings[strings.length - 1].split("?");
@@ -332,7 +400,10 @@ const downloads = async () => {
         const { data } = await axios.get(element, {
           responseType: "blob"
         });
-        downloadByData(data, `${valueElement.musicName}.${splice[0]}`);
+        downloadByData(
+          data,
+          `${selectTableListElement.musicName}.${splice[0]}`
+        );
       } catch (e) {
         message(`下载错误${e}`, { type: "error" });
       }
@@ -456,47 +527,25 @@ const toMusicInfo = id => {
         </div>
       </div>
     </div>
+
+    <div>
+      <name-search
+        v-model="state.table.musicName"
+        v-model:dropdownValue="state.search.searchType"
+        :loading="state.table.loading"
+        :dropdown="state.search.typeData"
+        :buttonName="t('buttons.search')"
+        @onSearch="onSubmit"
+      />
+    </div>
     <div class="table-view">
-      <div class="search">
-        <div>
-          <div class="data">
-            <div class="demo-form-inline">
-              <div class="group">
-                <IconifyIconOnline class="icon" icon="solar:magnifer-linear" />
-                <input
-                  placeholder="搜索音乐专辑歌手名"
-                  type="search"
-                  class="input"
-                  :style="{
-                    'padding-right': state.table.loading ? '2rem' : '6.5rem'
-                  }"
-                  @keyup.enter="onSubmit"
-                  v-model="state.table.musicName"
-                />
-                <Transition name="slide-fade">
-                  <div
-                    class="absolute right-0 flex flex-col justify-center m-1"
-                  >
-                    <el-button
-                      class="search-button"
-                      type="primary"
-                      size="large"
-                      :loading="state.table.loading"
-                      @click="onSubmit"
-                      >{{ t("buttons.search") }}
-                    </el-button>
-                  </div>
-                </Transition>
-              </div>
-            </div>
+      <div class="option mb-0.5">
+        <div class="flex flex-nowrap">
+          <div @click="state.menuFlag = !state.menuFlag">
+            <button class="menu-button focus:ring-4 var(--el-color-primary)">
+              <span>{{ t("input.menuBotton") }}</span>
+            </button>
           </div>
-        </div>
-      </div>
-      <div class="option">
-        <div @click="state.menuFlag = !state.menuFlag">
-          <button class="menu-button focus:ring-4 var(--el-color-primary)">
-            <span>{{ t("input.menuBotton") }}</span>
-          </button>
         </div>
 
         <div class="flex items-center">
@@ -534,7 +583,7 @@ const toMusicInfo = id => {
       <div>
         <el-collapse-transition>
           <div v-show="state.menuFlag">
-            <div class="flex justify-between p-4">
+            <div class="flex flex-row-reverse p-4">
               <div class="flex flex-nowrap items-center gap-1">
                 <el-tooltip
                   class="box-item"
@@ -578,7 +627,7 @@ const toMusicInfo = id => {
       </div>
       <!--加载遮罩-->
       <transition name="el-fade-in">
-        <ShowLoading :loading="state.table.loading" />
+        <ShowLoading :loading="state.initLoading" />
       </transition>
       <el-empty
         v-if="
@@ -589,13 +638,14 @@ const toMusicInfo = id => {
       />
       <transition name="el-zoom-in-top" class="tableDataShow">
         <el-table
+          v-loading="state.table.loading"
           ref="multipleTableRef"
           :data="state.table.data"
           @selection-change="handleSelectionChange"
           :cell-style="cellStyle"
           :header-cell-style="tableHeaderCellStyle"
           v-show="
-            !state.table.loading &&
+            !state.initLoading &&
             state.table.data != null &&
             state.table.data.length !== 0
           "
@@ -618,7 +668,7 @@ const toMusicInfo = id => {
           <el-table-column
             label="名称"
             :show-overflow-tooltip="true"
-            width="450"
+            :width="state.table.titleWidth"
           >
             <template #default="scope">
               <div
@@ -702,28 +752,30 @@ const toMusicInfo = id => {
           </el-table-column>
         </el-table>
       </transition>
-      <div class="demo-pagination-block" v-show="!state.table.loading">
-        <el-pagination
-          background
-          :hide-on-single-page="state.req.page.total === 0"
-          :default-current-page="state.req.page.pageIndex"
-          :default-page-size="state.req.page.pageNum"
-          :current-page="state.req.page.pageIndex"
-          :page-size="state.req.page.pageNum"
-          :page-sizes="[50, 100, 500, 1000]"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="state.req.page.total"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
+      <div class="demo-pagination-block">
+        <el-scrollbar>
+          <div class="flex">
+            <el-pagination
+              background
+              :hide-on-single-page="state.req.page.total === 0"
+              :default-current-page="state.req.page.pageIndex"
+              :default-page-size="state.req.page.pageNum"
+              :current-page="state.req.page.pageIndex"
+              :page-size="state.req.page.pageNum"
+              :page-sizes="[10, 50, 100, 500, 1000]"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="state.req.page.total"
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+            />
+          </div>
+        </el-scrollbar>
       </div>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-$searchWidth: 90%;
-$searchHeight: 90%;
 @import url("@/style/pagination.scss");
 
 .refresh {
@@ -760,24 +812,8 @@ $searchHeight: 90%;
   flex-direction: column;
   /*主轴上的对齐方式为居中*/
   justify-content: center;
-}
-
-//.table-view {
-//  height: 75%;
-//}
-
-.search {
-  .data {
-    display: flex;
-    justify-content: center;
-
-    .play.music {
-      position: absolute;
-      z-index: 100;
-      bottom: 0;
-      margin: 4rem;
-    }
-  }
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 :deep(.hover-row) {
@@ -795,7 +831,7 @@ $searchHeight: 90%;
 
 // 底部分页条
 .demo-pagination-block {
-  margin: 2rem;
+  margin-top: 0.6rem;
   display: flex;
   justify-content: center;
 }
@@ -811,60 +847,6 @@ $searchHeight: 90%;
   justify-content: space-between;
   flex-wrap: nowrap;
   align-items: center;
-}
-
-.demo-form-inline {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-.group {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  line-height: 28px;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  position: relative;
-  width: 50%;
-}
-
-.input {
-  width: 100%;
-  height: 3.2rem;
-  line-height: 28px;
-  padding: 0 0 0 2.5rem;
-  border: 2px solid transparent;
-  border-radius: 1rem;
-  outline: none;
-  background-color: var(--el-bg-color);
-  color: var(--el-text-color-primary);
-  -webkit-transition: 0.3s ease;
-  transition: 0.3s ease;
-}
-
-.input::placeholder {
-  color: #9e9ea7;
-}
-
-.input:focus,
-input:hover {
-  outline: none;
-  border-color: rgba(var(--el-color-primary-rgb), 0.4);
-  //border-color: rgba(234, 76, 137, 0.4);
-  background-color: var(--el-bg-color);
-  //box-shadow: 0 0 0 4px rgb(234 76 137 / 10%);
-  box-shadow: 0 0 0 4px var(--el-color-primary-light-8);
-}
-
-.icon {
-  position: absolute;
-  left: 1rem;
-  fill: #9e9ea7;
-  width: 1rem;
-  height: 1rem;
 }
 
 .search-button {
@@ -946,7 +928,7 @@ input:hover {
 
 // 输入框样式
 :deep(.el-input__wrapper) {
-  border-radius: 1rem;
+  //border-radius: 1rem;
 }
 
 // 表格样式
