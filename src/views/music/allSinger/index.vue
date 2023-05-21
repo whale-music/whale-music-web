@@ -452,7 +452,6 @@ const toArtist = res => {
 $searchWidth: 90%;
 $searchHeight: 90%;
 @import url("@/style/pagination.scss");
-@import url("@/style/element/dialog.scss");
 
 .font {
   color: #a3a39cc3;

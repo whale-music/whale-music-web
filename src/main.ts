@@ -22,6 +22,8 @@ import "element-plus/dist/index.css";
 // 导入字体图标
 import "./assets/iconfont/iconfont.js";
 import "./assets/iconfont/iconfont.css";
+// 自定义element 样式
+import "./style/element/index.scss";
 
 const app = createApp(App);
 

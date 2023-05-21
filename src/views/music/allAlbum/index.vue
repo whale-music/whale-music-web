@@ -523,7 +523,6 @@ const toArtist = id => {
 $searchWidth: 90%;
 $searchHeight: 90%;
 @import url("@/style/pagination.scss");
-@import url("@/style/element/dialog.scss");
 
 .album {
   display: flex;

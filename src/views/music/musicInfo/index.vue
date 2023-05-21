@@ -1059,8 +1059,6 @@ const toMusicPlay = async res => {
 </template>
 
 <style lang="scss" scoped>
-@import "@/style/element/dialog.scss";
-
 .info {
   display: flex;
   flex-wrap: wrap;

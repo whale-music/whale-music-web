@@ -514,8 +514,6 @@ export default defineComponent({
 </template>
 
 <style lang="scss" scoped>
-@import "@/style/element/dialog.scss";
-
 .top {
   display: flex;
   justify-content: space-between;

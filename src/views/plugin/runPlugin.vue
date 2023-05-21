@@ -206,8 +206,6 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-@import "@/style/element/dialog.scss";
-
 .inputs {
   transition: height ease 1s;
 }

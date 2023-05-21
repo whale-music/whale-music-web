@@ -268,8 +268,6 @@ const toAlbum = res => {
 </template>
 
 <style lang="scss" scoped>
-@import "@/style/element/dialog.scss";
-
 .show-artist-data {
   display: flex;
   flex-wrap: wrap;

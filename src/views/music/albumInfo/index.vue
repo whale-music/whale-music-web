@@ -326,8 +326,6 @@ const toArtist = id => {
   </div>
 </template>
 <style lang="scss" scoped>
-@import "@/style/element/dialog.scss";
-
 .layout-container {
   display: flex;
   flex-direction: row;
