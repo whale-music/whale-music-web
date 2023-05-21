@@ -53,12 +53,6 @@ onMounted(async () => {
 
 function reDrawLayout(width: number) {
   const isMobile = deviceDetection();
-  const modifyShow = (status: boolean) => {
-    state.table.show.artist = status;
-    state.table.show.album = status;
-    state.table.show.duration = status;
-    state.table.show.download = status;
-  };
   if (width < 720) {
     state.dialog.width = "90%";
   } else {
@@ -72,9 +66,7 @@ function reDrawLayout(width: number) {
     if (width < 420) {
       state.table.titleWidth = 140;
     }
-    modifyShow(false);
   } else {
-    modifyShow(true);
     // 小于1200
     if (width > 0 && width <= 1200) {
       state.table.titleWidth = 200;
@@ -84,6 +76,7 @@ function reDrawLayout(width: number) {
       state.table.titleWidth = 350;
     }
   }
+  modifyShow(true);
 }
 
 // 监听容器
@@ -500,13 +493,22 @@ const like = async (id: number, status: boolean) => {
   }
 };
 
+const modifyShow = (status: boolean) => {
+  state.table.show.artist = status;
+  state.table.show.album = status;
+  state.table.show.duration = status;
+  state.table.show.download = status;
+};
+
 const tableLayout = val => {
-  if (val !== "grid") {
-    state.req.page.pageIndex = 1;
-    onSubmit(false);
-  }
+  const isMobile = deviceDetection();
+  if (isMobile) modifyShow(false);
+
   if (val === "grid") {
     state.req.page.pageIndex = 1;
+  } else {
+    state.req.page.pageIndex = 1;
+    onSubmit(false);
   }
   storageLocal().setItem("music-table-layout", val);
 };
@@ -651,6 +653,7 @@ const toMusicInfo = id => {
     </div>
 
     <div>
+      <!--搜索框-->
       <name-search
         v-model="state.table.musicName"
         v-model:dropdownValue="state.search.searchType"
