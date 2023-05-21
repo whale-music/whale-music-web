@@ -32,13 +32,20 @@ const state = reactive({
 const emits = defineEmits([
   "update:modelValue",
   "on-search",
-  "update:dropdownValue"
+  "update:dropdownValue",
+  "onClean"
 ]);
 
 watch(
   () => state.musicSearchName,
   value => {
     emits("update:modelValue", value);
+  }
+);
+watch(
+  () => props.modelValue,
+  value => {
+    state.musicSearchName = value;
   }
 );
 
@@ -101,7 +108,9 @@ state.dropdownMap = map;
       />
       <transition name="el-fade-in-linear">
         <i
-          v-show="state.musicSearchName != null && state.musicSearchName !== ''"
+          @click="emits('on-clean')"
+          class="m-1"
+          v-show="state.musicSearchName !== ''"
         >
           <IconifyIconOnline icon="solar:close-circle-outline" />
         </i>
@@ -112,7 +121,6 @@ state.dropdownMap = map;
             class="search-button"
             type="primary"
             size="large"
-            :loading="props.loading"
             @click="emits('on-search')"
             round
           >

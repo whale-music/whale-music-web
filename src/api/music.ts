@@ -10,6 +10,7 @@ export interface MusicSearchRes {
   musicRawUrl: string;
   musicNameAlias: string;
   isExist: boolean;
+  isLike: boolean;
   albumName: string;
   artistList: Artist[];
   album: Album;

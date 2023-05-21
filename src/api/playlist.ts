@@ -121,3 +121,15 @@ export const getPlayListPage = (data: PlayInfoReq) => {
     data
   });
 };
+
+export const musicLike = (id: number, status: boolean) => {
+  return http.request<R<Data<PlayInfoRes>>>(
+    "get",
+    `/admin/playlist/like/${status == true ? "add" : "del"}`,
+    {
+      params: {
+        id: id
+      }
+    }
+  );
+};

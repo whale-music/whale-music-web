@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { deleteMusic, getAllMusicList, MusicSearchRes } from "@/api/music";
-import { MusicSearchReq } from "@/api/common";
+import { MusicSearchReq, Page } from "@/api/common";
 import DownloadIcon from "@/components/DownloadIcon/download.vue";
 import { ref, reactive, onMounted, watch } from "vue";
 import { message } from "@/utils/message";
@@ -17,42 +17,74 @@ import {
 } from "@pureadmin/utils";
 import ContextMenu from "@imengyu/vue3-context-menu";
 import AddMusicToPlayList from "@/components/addMusicToPlayList/addMusicToPlayList.vue";
-import { getUserPlayList, UserPlayListRes } from "@/api/playlist";
+import { getUserPlayList, musicLike, UserPlayListRes } from "@/api/playlist";
 import { DataInfo, sessionKey } from "@/utils/auth";
 import { ElLoading, ElTable } from "element-plus";
-import RadioIcon from "@/assets/svg/radio.svg?component";
-import MultipleSelectionIcon from "@/assets/svg/multiple_selection.svg?component";
 import RefreshIcon from "@/assets/svg/refresh.svg?component";
 import { FriendlyTime } from "@/utils/DateFormat.ts";
 import dayjs from "dayjs";
 import axios from "axios";
 import { emitter } from "@/utils/mitt";
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
-import nameSearch from "@/components/nameSearch/index.vue";
+import NameSearch from "@/components/nameSearch/index.vue";
+import LoadImg from "@/components/LoadImg/LoadImg.vue";
 
 const { t } = useI18n();
 const { isDark } = useDark();
 const router = useRouter();
-const isMobile = deviceDetection();
 
 // 生命周期挂载
 onMounted(async () => {
+  if (state.table.show.layout === "grid") {
+    state.req.page.pageIndex = 1;
+  }
+
   state.initLoading = true;
   // 查询表格
   await onSubmit();
   state.initLoading = false;
+
+  const width =
+    window.innerWidth ||
+    document.documentElement.clientWidth ||
+    document.body.clientWidth;
+  reDrawLayout(width);
 });
+
+function reDrawLayout(width: number) {
+  const isMobile = deviceDetection();
+  const modifyShow = (status: boolean) => {
+    state.table.show.artist = status;
+    state.table.show.album = status;
+    state.table.show.duration = status;
+    state.table.show.download = status;
+  };
+  // 小于500时过滤进入菜单栏
+  state.option = width < 500;
+  if (isMobile) {
+    // 移动端默认grid显示
+    state.table.show.layout = "grid";
+    if (width < 420) {
+      state.table.titleWidth = 140;
+    }
+    modifyShow(false);
+  } else {
+    modifyShow(true);
+    // 小于1200
+    if (width > 0 && width <= 1200) {
+      state.table.titleWidth = 200;
+    }
+    // 大于1024重新设置标题宽度
+    if (width > 1024) {
+      state.table.titleWidth = 350;
+    }
+  }
+}
 
 // 监听容器
 emitter.on("resize", ({ detail }) => {
-  if (isMobile) return;
   const { width } = detail;
-  if (width > 0 && width <= 1200) {
-    state.table.titleWidth = 200;
-  }
-  if (width > 1024) {
-    state.table.titleWidth = 380;
-  }
+  reDrawLayout(width);
 });
 
 // 表格Ref
@@ -61,6 +93,7 @@ const state = reactive<{
   req: MusicSearchReq;
   initLoading: boolean;
   menuFlag: boolean;
+  option: boolean;
   // 排序
   sortData: {
     value: string;
@@ -77,10 +110,20 @@ const state = reactive<{
     musicName: string;
     data: MusicSearchRes[];
     loading: boolean;
-    multipleSelectionFlag: boolean; // 开启选择数据
     filter: string;
     selectTableList: MusicSearchRes[];
     titleWidth: number;
+    gridLoading: boolean;
+    show: {
+      artist: boolean;
+      album: boolean;
+      duration: boolean;
+      uploadTime: boolean;
+      isInvalid: boolean;
+      download: boolean;
+      layout: string;
+      autoRoll: boolean;
+    };
   };
   dialog: {
     playItemDialogVisible: boolean;
@@ -90,12 +133,12 @@ const state = reactive<{
   addMusicId: number | number[];
   userInfo: DataInfo;
   isForceDeleteFlag: boolean;
-  isInvalid: boolean;
 }>({
   req: undefined,
   initLoading: false,
   menuFlag: false,
   sortData: undefined,
+  option: false,
   search: {
     typeData: undefined,
     searchType: "all"
@@ -104,10 +147,20 @@ const state = reactive<{
     musicName: "",
     data: [],
     loading: false,
-    multipleSelectionFlag: storageLocal().getItem("switchTableAndRadio"),
+    gridLoading: false,
     filter: "",
     selectTableList: [],
-    titleWidth: 450
+    titleWidth: 450,
+    show: {
+      uploadTime: true,
+      duration: true,
+      album: true,
+      artist: true,
+      isInvalid: false,
+      download: true,
+      layout: storageLocal().getItem("music-table-layout") ?? "radio",
+      autoRoll: storageLocal().getItem("music-table-grid") ?? true
+    }
   },
   dialog: {
     playItemDialogVisible: false,
@@ -116,10 +169,17 @@ const state = reactive<{
   userPlayItem: undefined,
   addMusicId: undefined,
   userInfo: storageSession().getItem<DataInfo>(sessionKey),
-  isForceDeleteFlag: false,
-  isInvalid: storageSession().getItem("isInvalid")
+  isForceDeleteFlag: false
 });
 
+const page: Page =
+  storageLocal().getItem<Page>("music-page") == null
+    ? {
+        pageIndex: 0,
+        pageNum: 10,
+        total: 0
+      }
+    : storageLocal().getItem("music-page");
 state.req = {
   afterDate: "",
   albumName: "",
@@ -130,11 +190,7 @@ state.req = {
   musicName: "",
   order: false,
   orderBy: "sort",
-  page: {
-    pageIndex: 0,
-    pageNum: 10,
-    total: 0
-  },
+  page: page,
   refresh: false
 };
 // 排序
@@ -182,25 +238,39 @@ watch(state.table.selectTableList, async newQuestion => {
 });
 
 watch(
-  () => state.isInvalid,
+  () => state.table.show.isInvalid,
   value => {
     storageSession().setItem("isInvalid", value);
     onSubmit(false);
   }
 );
 
-const switchTableAndRadio = val => {
-  state.table.selectTableList = [];
-  storageLocal().setItem("switchTableAndRadio", val);
-};
+watch(
+  () => state.req.page,
+  value => {
+    storageLocal().setItem<Page>("music-page", value);
+  },
+  { deep: true }
+);
 
-const getMusicList = async (param: MusicSearchReq) => {
+watch(
+  () => state.req.page.pageIndex,
+  value => {
+    console.log(value);
+  }
+);
+
+const getMusicList = async (param: MusicSearchReq, load?: boolean) => {
   state.table.loading = true;
   try {
     const r = await getAllMusicList(param);
     state.table.loading = false;
     if (r.code === "200") {
-      state.table.data = r.data.records;
+      if (load === true) {
+        state.table.data.push(...r.data.records);
+      } else {
+        state.table.data = r.data.records;
+      }
       state.req.page.total = r.data.total;
       state.req.page.pageNum = r.data.size;
       state.req.page.pageIndex = r.data.current;
@@ -214,9 +284,10 @@ const getMusicList = async (param: MusicSearchReq) => {
 };
 
 // 点击按钮查询
-const onSubmit = async (refresh?: boolean) => {
+const onSubmit = async (refresh?: boolean, load?: boolean) => {
   state.req.refresh =
     refresh == null || typeof refresh != "boolean" ? false : refresh;
+  state.req.isShowNoExist = state.table.show.isInvalid;
 
   state.req.musicName = "";
   state.req.albumName = "";
@@ -238,7 +309,7 @@ const onSubmit = async (refresh?: boolean) => {
       state.req.musicName = state.table.musicName;
       break;
   }
-  await getMusicList(state.req);
+  await getMusicList(state.req, load);
 };
 
 const handleSizeChange = val => {
@@ -267,8 +338,8 @@ const cellStyle = ({ row, columnIndex }): CellStyle<any> => {
       "text-align": "center"
     };
   }
-  // 设置序号样式
-  if (columnIndex === 1 && state.table.multipleSelectionFlag) {
+  // 设置序号样式 必须为单选
+  if (columnIndex === 1 && state.table.show.layout === "radio") {
     styles = {
       color: "#bfbfbf",
       padding: "0",
@@ -336,7 +407,7 @@ const onContextMenu = (e: MouseEvent, id: number) => {
 // 复选框
 const rowClick = row => {
   // 多选时不进入详情页面
-  if (state.table.multipleSelectionFlag) {
+  if (state.table.show.layout === "multiple") {
     multipleTableRef.value.toggleRowSelection(row, null);
   }
 };
@@ -410,6 +481,56 @@ const downloads = async () => {
     }
   }
   loading.close();
+};
+
+const like = async (id: number, status: boolean) => {
+  const r = await musicLike(id, status);
+  if (r.code === "200") {
+    const index = state.table.data.findIndex(value => value.id === id);
+    if (index !== -1) {
+      message(`${status === true ? "添加成功" : "删除成功"}`, {
+        type: "success"
+      });
+      state.table.data[index].isLike = status;
+    } else {
+      await onSubmit(false);
+    }
+  } else {
+    message(`添加错误${r.message}`, { type: "error" });
+  }
+};
+
+const tableLayout = val => {
+  if (val !== "grid") {
+    state.req.page.pageIndex = 1;
+    onSubmit(false);
+  }
+  if (val === "grid") {
+    state.req.page.pageIndex = 1;
+  }
+  storageLocal().setItem("music-table-layout", val);
+};
+
+const gridLoad = async () => {
+  // 判断是否需要自动滚动
+  if (
+    state.table.show.autoRoll ||
+    state.req.page.pageIndex * state.req.page.pageNum >= state.req.page.total
+  )
+    return;
+
+  if (state.req.page.total > state.req.page.pageIndex) {
+    state.req.page.pageIndex++;
+  }
+  state.table.gridLoading = true;
+  await onSubmit(false, true);
+  state.table.gridLoading = false;
+};
+
+const autoRollChange = val => {
+  storageLocal().setItem("music-table-grid", val);
+  state.req.page.pageIndex = 0;
+  onSubmit(false);
 };
 
 const toMusicInfo = id => {
@@ -535,12 +656,24 @@ const toMusicInfo = id => {
         :loading="state.table.loading"
         :dropdown="state.search.typeData"
         :buttonName="t('buttons.search')"
-        @onSearch="onSubmit"
+        @onSearch="
+          () => {
+            state.req.page.pageIndex = 0;
+            onSubmit();
+          }
+        "
+        @onClean="
+          () => {
+            state.table.musicName = '';
+            state.req.page.pageIndex = 0;
+            onSubmit();
+          }
+        "
       />
     </div>
     <div class="table-view">
       <div class="option mb-0.5">
-        <div class="flex flex-nowrap">
+        <div class="">
           <div @click="state.menuFlag = !state.menuFlag">
             <button class="menu-button focus:ring-4 var(--el-color-primary)">
               <span>{{ t("input.menuBotton") }}</span>
@@ -548,21 +681,35 @@ const toMusicInfo = id => {
           </div>
         </div>
 
-        <div class="flex items-center">
-          <el-switch
-            class="mr-4"
-            size="large"
-            inline-prompt
-            :active-icon="MultipleSelectionIcon"
-            :inactive-icon="RadioIcon"
-            style="
-              --el-switch-on-color: var(--el-color-primary);
-              --el-switch-off-color: #a55eea;
-            "
-            v-model="state.table.multipleSelectionFlag"
-            @change="switchTableAndRadio"
-          />
+        <div class="flex items-center gap-2">
+          <el-radio-group
+            v-model="state.table.show.layout"
+            @change="tableLayout"
+          >
+            <el-radio-button label="radio">
+              <IconifyIconOnline
+                icon="solar:hamburger-menu-linear"
+                width="1.1rem"
+                height="1.1rem"
+              />
+            </el-radio-button>
+            <el-radio-button label="multiple">
+              <IconifyIconOnline
+                icon="solar:checklist-bold"
+                width="1.1rem"
+                height="1.1rem"
+              />
+            </el-radio-button>
+            <el-radio-button label="grid">
+              <IconifyIconOnline
+                icon="mingcute:grid-fill"
+                width="1.1rem"
+                height="1.1rem"
+              />
+            </el-radio-button>
+          </el-radio-group>
           <el-select
+            v-if="!state.option"
             v-model="state.req.orderBy"
             placeholder="排序"
             size="large"
@@ -577,13 +724,109 @@ const toMusicInfo = id => {
               suffix-icon="download"
             />
           </el-select>
+          <el-dropdown v-if="!state.option" trigger="click">
+            <el-button class="rounded-md" size="large">过滤</el-button>
+            <template #dropdown>
+              <div class="pt-1 pb-1" style="border-radius: 1rem">
+                <div class="dropdown-item">
+                  <el-checkbox
+                    v-model="state.table.show.isInvalid"
+                    size="large"
+                    label="显示无音源"
+                  />
+                </div>
+                <div class="dropdown-item">
+                  <el-checkbox v-model="state.table.show.artist" label="歌手" />
+                </div>
+                <div class="dropdown-item">
+                  <el-checkbox v-model="state.table.show.album" label="专辑" />
+                </div>
+                <div class="dropdown-item">
+                  <el-checkbox
+                    :disabled="state.table.show.layout === 'grid'"
+                    v-model="state.table.show.duration"
+                    label="歌曲时长"
+                  />
+                </div>
+                <div class="dropdown-item">
+                  <el-checkbox
+                    :disabled="state.table.show.layout === 'grid'"
+                    v-model="state.table.show.uploadTime"
+                    label="上传时间"
+                  />
+                </div>
+              </div>
+            </template>
+          </el-dropdown>
         </div>
       </div>
       <!--隐藏菜单-->
       <div>
         <el-collapse-transition>
           <div v-show="state.menuFlag">
-            <div class="flex flex-row-reverse p-4">
+            <div class="flex flex-row-reverse p-4 gap-2">
+              <div>
+                <el-switch
+                  v-model="state.table.show.autoRoll"
+                  active-text="手动滚动"
+                  inactive-text="自动滚动"
+                  @change="autoRollChange"
+                />
+              </div>
+              <el-select
+                v-if="state.option"
+                v-model="state.req.orderBy"
+                placeholder="排序"
+                size="large"
+                style="width: 8rem"
+                @change="onSubmit"
+              >
+                <el-option
+                  v-for="item in state.sortData"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                  suffix-icon="download"
+                />
+              </el-select>
+              <el-dropdown v-if="state.option" trigger="click">
+                <el-button class="rounded-md" size="large">过滤</el-button>
+                <template #dropdown>
+                  <div class="pt-1 pb-1" style="border-radius: 1rem">
+                    <div class="dropdown-item">
+                      <el-checkbox
+                        v-model="state.table.show.isInvalid"
+                        size="large"
+                        label="显示无音源"
+                      />
+                    </div>
+                    <div class="dropdown-item">
+                      <el-checkbox
+                        v-model="state.table.show.artist"
+                        label="歌手"
+                      />
+                    </div>
+                    <div class="dropdown-item">
+                      <el-checkbox
+                        v-model="state.table.show.album"
+                        label="专辑"
+                      />
+                    </div>
+                    <div class="dropdown-item">
+                      <el-checkbox
+                        v-model="state.table.show.duration"
+                        label="歌曲时长"
+                      />
+                    </div>
+                    <div class="dropdown-item">
+                      <el-checkbox
+                        v-model="state.table.show.uploadTime"
+                        label="上传时间"
+                      />
+                    </div>
+                  </div>
+                </template>
+              </el-dropdown>
               <div class="flex flex-nowrap items-center gap-1">
                 <el-tooltip
                   class="box-item"
@@ -592,34 +835,12 @@ const toMusicInfo = id => {
                 >
                   <el-button
                     @click="onSubmit(true)"
-                    type="warning"
+                    type="primary"
                     :icon="RefreshIcon"
                     round
-                    >刷新缓存
+                    >刷新
                   </el-button>
                 </el-tooltip>
-                <el-dropdown :hide-on-click="false">
-                  <el-button size="default" round>
-                    <IconifyIconOnline
-                      @click="cancelButton"
-                      class="cursor-pointer"
-                      icon="solar:filter-broken"
-                    />
-                    过滤</el-button
-                  >
-                  <template #dropdown>
-                    <el-dropdown-menu>
-                      <el-dropdown-item>
-                        <div class="flex flex-nowrap items-center gap-1">
-                          <el-checkbox v-model="state.isInvalid" />
-                          <span @click="state.isInvalid = !state.isInvalid"
-                            >只显示无音源</span
-                          >
-                        </div>
-                      </el-dropdown-item>
-                    </el-dropdown-menu>
-                  </template>
-                </el-dropdown>
               </div>
             </div>
           </div>
@@ -636,8 +857,91 @@ const toMusicInfo = id => {
         "
         description="这里没有音乐, 你可以首页添加音乐"
       />
-      <transition name="el-zoom-in-top" class="tableDataShow">
+      <div>
+        <div v-if="state.table.show.layout === 'grid'">
+          <ul
+            class="table-grid"
+            v-infinite-scroll="gridLoad"
+            infinite-scroll-delay="1000"
+            infinite-scroll-distance="-10"
+          >
+            <li v-for="item in state.table.data" :key="item.id">
+              <LoadImg
+                @click="toMusicInfo(item.id)"
+                :src="item.pic"
+                height="10rem"
+                width="10rem"
+                class="cursor-pointer"
+                :class="{ grayscale: !item.isExist }"
+              />
+              <!--音乐名-->
+              <span
+                class="block w-40 truncate font-bold hover:underline cursor-pointer"
+                @click="toMusicInfo(item.id)"
+              >
+                {{ item.musicName }}
+              </span>
+              <!--专辑名-->
+              <div
+                v-if="state.table.show.album"
+                class="flex flex-nowrap items-center gap-1"
+              >
+                <IconifyIconOnline
+                  class="cursor-pointer"
+                  style="color: var(--el-text-color-primary)"
+                  icon="mingcute:album-line"
+                  width="1rem"
+                  height="1rem"
+                />
+                <span
+                  style="color: var(--el-text-color-placeholder)"
+                  class="w-40 font-medium truncate hover:underline cursor-pointer"
+                >
+                  <router-link
+                    :to="{
+                      name: 'AlbumInfo',
+                      query: { id: item.albumId }
+                    }"
+                  >
+                    {{ item.albumName }}
+                  </router-link>
+                </span>
+              </div>
+              <!--歌手-->
+              <div
+                v-if="state.table.show.artist"
+                class="flex flex-nowrap gap-1"
+              >
+                <IconifyIconOnline
+                  class="cursor-pointer"
+                  style="color: var(--el-text-color-primary)"
+                  icon="mingcute:mic-fill"
+                  width="1rem"
+                  height="1rem"
+                />
+                <div class="w-40 truncate text-xs flex flex-nowrap gap-1">
+                  <span
+                    v-for="(artist, index) in item.artistNames"
+                    :key="index"
+                    style="color: var(--el-text-color-disabled)"
+                    class="hover:underline cursor-pointer"
+                  >
+                    <router-link
+                      :to="{
+                        name: 'ArtistInfo',
+                        query: { id: item.artistIds[index] }
+                      }"
+                    >
+                      {{ artist }}</router-link
+                    >
+                  </span>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
         <el-table
+          v-else
           v-loading="state.table.loading"
           ref="multipleTableRef"
           :data="state.table.data"
@@ -649,17 +953,34 @@ const toMusicInfo = id => {
             state.table.data != null &&
             state.table.data.length !== 0
           "
-          :key="state.table.multipleSelectionFlag"
+          :key="state.table.show.layout"
           @row-click="rowClick"
         >
           <el-table-column
             type="selection"
             width="55"
-            v-if="state.table.multipleSelectionFlag"
+            v-if="state.table.show.layout === 'multiple'"
           />
           <el-table-column type="index" width="50" />
 
           <el-table-column width="50" :show-overflow-tooltip="true">
+            <template #default="scope">
+              <IconifyIconOnline
+                @click="like(scope.row.id, !scope.row.isLike)"
+                class="cursor-pointer"
+                :style="{ color: scope.row.isLike === true ? 'red' : 'grey' }"
+                icon="solar:heart-bold"
+                width="1.3rem"
+                height="1.3rem"
+              />
+            </template>
+          </el-table-column>
+
+          <el-table-column
+            width="50"
+            :show-overflow-tooltip="true"
+            v-if="state.table.show.download"
+          >
             <template #default="scope">
               <DownloadIcon :muiscId="scope.row.id" />
             </template>
@@ -679,16 +1000,20 @@ const toMusicInfo = id => {
                   :underline="false"
                   class="font-sans"
                   @click="toMusicInfo(scope.row.id)"
-                  >{{ scope.row.musicName }}</el-link
-                >
-                <span class="font select-none">{{
-                  scope.row.musicNameAlias
-                }}</span>
+                  >{{ scope.row.musicName }}
+                </el-link>
+                <span class="font select-none">
+                  {{ scope.row.musicNameAlias }}
+                </span>
               </div>
             </template>
           </el-table-column>
 
-          <el-table-column label="歌手" :show-overflow-tooltip="true">
+          <el-table-column
+            v-if="state.table.show.artist"
+            label="歌手"
+            :show-overflow-tooltip="true"
+          >
             <template #default="scope">
               <el-link
                 class="mr-1"
@@ -709,6 +1034,7 @@ const toMusicInfo = id => {
             </template>
           </el-table-column>
           <el-table-column
+            v-if="state.table.show.album"
             prop="albumName"
             label="专辑"
             :show-overflow-tooltip="true"
@@ -725,9 +1051,9 @@ const toMusicInfo = id => {
             </template>
           </el-table-column>
           <el-table-column
+            v-if="state.table.show.duration"
             prop="timeLength"
             label="歌曲时长"
-            width="80"
             :show-overflow-tooltip="true"
           >
             <template #default="scope">
@@ -737,6 +1063,7 @@ const toMusicInfo = id => {
             </template>
           </el-table-column>
           <el-table-column
+            v-if="state.table.show.uploadTime"
             prop="createTime"
             label="上传时间"
             :show-overflow-tooltip="true"
@@ -751,8 +1078,11 @@ const toMusicInfo = id => {
             </template>
           </el-table-column>
         </el-table>
-      </transition>
-      <div class="demo-pagination-block">
+      </div>
+      <div
+        class="demo-pagination-block"
+        v-if="state.table.show.layout !== 'grid' || state.table.show.autoRoll"
+      >
         <el-scrollbar>
           <div class="flex">
             <el-pagination
@@ -770,6 +1100,18 @@ const toMusicInfo = id => {
             />
           </div>
         </el-scrollbar>
+      </div>
+      <div v-if="state.table.gridLoading">
+        <div class="pt-4 w-full h-15 flex items-center justify-center">
+          <IconifyIconOnline
+            class="animate-spin"
+            style="color: var(--el-color-primary)"
+            icon="mingcute:loading-3-fill"
+            width="1rem"
+            height="1rem"
+          />
+          <h1>加载中</h1>
+        </div>
       </div>
     </div>
   </div>
@@ -814,6 +1156,18 @@ const toMusicInfo = id => {
   justify-content: center;
   margin-left: 10px;
   margin-right: 10px;
+}
+
+.table-grid {
+  display: grid;
+  /*  声明列的宽度  */
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  /*  声明行间距和列间距  */
+  grid-gap: 25px;
+
+  @media screen and (max-width: 720px) {
+    grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+  }
 }
 
 :deep(.hover-row) {
@@ -926,17 +1280,28 @@ const toMusicInfo = id => {
   border-radius: 1rem !important;
 }
 
-// 输入框样式
-:deep(.el-input__wrapper) {
-  //border-radius: 1rem;
-}
-
 // 表格样式
 :deep(.el-table__row td) {
   border: 1px solid transparent;
 }
 
+:deep(.el-radio-group) {
+  flex-wrap: nowrap;
+}
+
 .tableDataShow {
   border-radius: 1rem;
+}
+
+.dropdown-item {
+  @apply pl-1 pr-1 flex flex-nowrap items-center;
+}
+
+.dropdown-item:hover {
+  background: var(--el-fill-color);
+}
+
+.dropdown-item-font {
+  @apply pl-1 font-bold whitespace-nowrap;
 }
 </style>
