@@ -8,7 +8,7 @@ import { type multipleScopeVarsOptions } from "@pureadmin/theme";
 const themeColors = {
   default: {
     subMenuActiveText: "#626aef",
-    menuBg: "#f5f4f5",
+    menuBg: "#fff",
     menuHover: "#e0ebf6",
     subMenuBg: "#fff",
     subMenuActiveBg: "#e0ebf6",
