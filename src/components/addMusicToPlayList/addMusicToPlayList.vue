@@ -8,6 +8,7 @@ const props = defineProps<{
   playItem: UserPlayListRes[];
   userId: number;
   musicId: number | number[];
+  width: string;
 }>();
 
 const emit = defineEmits(["closeDialog"]);
@@ -37,7 +38,7 @@ const closeDialog = () => {
   <div>
     <el-dialog
       v-model="playItemDialogVisible"
-      width="45%"
+      :width="props.width ?? '45%'"
       center
       @close="closeDialog"
     >

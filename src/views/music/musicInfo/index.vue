@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onBeforeMount, ref, unref, watch } from "vue";
+import { onMounted, reactive, ref, unref, watch } from "vue";
 import { useRouter } from "vue-router";
 import {
   deleteSourceMusic,
@@ -36,10 +36,33 @@ import { getSelectSingerList } from "@/api/singer";
 import { ElLoading, ElMessage, ElMessageBox, UploadProps } from "element-plus";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
+import { emitter } from "@/utils/mitt";
 const { VITE_PROXY_HOST } = import.meta.env;
 
 const router = useRouter();
 const id = ref();
+
+// 监听容器
+emitter.on("resize", ({ detail }) => {
+  const { width } = detail;
+  reLayout(width);
+});
+
+const reLayout = (width: number) => {
+  state.operateButton = width < 720;
+  if (width < 720) {
+    state.dialog.width = "90%";
+  } else {
+    state.dialog.width = "45%";
+  }
+};
+
+const state = reactive({
+  operateButton: false,
+  dialog: {
+    width: "45%"
+  }
+});
 
 const musicInfo = ref<MusicDetailInfo>({
   albumArtist: [],
@@ -66,7 +89,7 @@ async function intiGetMusicLyric() {
 }
 
 const skeletonLoadingFlag = ref();
-onBeforeMount(async () => {
+onMounted(async () => {
   id.value = useRouter().currentRoute.value.query.id;
 
   skeletonLoadingFlag.value = true;
@@ -78,6 +101,12 @@ onBeforeMount(async () => {
 
   await intiGetMusicLyric();
   skeletonLoadingFlag.value = false;
+
+  const width =
+    window.innerWidth ||
+    document.documentElement.clientWidth ||
+    document.body.clientWidth;
+  reLayout(width);
 });
 
 const { clipboardValue, copied } = useCopyToClipboard();
@@ -434,7 +463,12 @@ const toMusicPlay = async res => {
 <template>
   <div>
     <!--编辑音源-->
-    <el-dialog v-model="editSourceFlag" title="编辑音源" :show-close="false">
+    <el-dialog
+      :width="state.dialog.width"
+      v-model="editSourceFlag"
+      title="编辑音源"
+      :show-close="false"
+    >
       <el-scrollbar height="20rem">
         <el-form label-position="top">
           <el-form-item label="关联音乐ID">
@@ -466,7 +500,11 @@ const toMusicPlay = async res => {
       </template>
     </el-dialog>
     <!--添加音源提示框-->
-    <el-dialog v-model="addSoundSourceFlag" :show-close="false">
+    <el-dialog
+      :width="state.dialog.width"
+      v-model="addSoundSourceFlag"
+      :show-close="false"
+    >
       <template #header="{ titleId, titleClass }">
         <div class="flex flex-nowrap justify-between">
           <div class="">
@@ -550,7 +588,7 @@ const toMusicPlay = async res => {
       </div>
     </el-dialog>
     <!--编辑普通歌曲框-->
-    <el-dialog v-model="lyricValueFlag">
+    <el-dialog :width="state.dialog.width" v-model="lyricValueFlag">
       <template #header> <h1>普通歌词</h1> </template>
       <el-input v-model="lyricValue" :rows="10" type="textarea" />
       <template #footer>
@@ -566,7 +604,7 @@ const toMusicPlay = async res => {
       </template>
     </el-dialog>
     <!--编辑逐字歌曲框-->
-    <el-dialog v-model="kLyricValueFlag">
+    <el-dialog :width="state.dialog.width" v-model="kLyricValueFlag">
       <template #header> <h1>逐字歌词</h1> </template>
       <el-input v-model="kLyricValue" type="textarea" :rows="10" />
       <template #footer>
@@ -582,7 +620,11 @@ const toMusicPlay = async res => {
       </template>
     </el-dialog>
     <!--编辑音乐信息框-->
-    <el-dialog v-model="editMusicInfoFlag" width="37%" :show-close="false">
+    <el-dialog
+      :width="state.dialog.width"
+      v-model="editMusicInfoFlag"
+      :show-close="false"
+    >
       <el-scrollbar height="20rem">
         <h1>音乐名</h1>
         <el-input v-model="modifyMusicInfo.musicName" />
@@ -761,38 +803,40 @@ const toMusicPlay = async res => {
           <LoadImg :src="musicInfo?.pic" />
           <div class="data">
             <div>
-              <p class="name">
-                {{
-                  musicInfo?.musicName === "" ? "加载中" : musicInfo.musicName
-                }}
-              </p>
-              <p class="name-alis">{{ musicInfo.musicNameAlias }}</p>
-              <span class="show-font">专辑: </span>
-              <el-link :underline="false" @click="toAlbum(musicInfo.albumId)"
-                ><span class="cursor-pointer font-semibold">{{
-                  musicInfo.albumName
-                }}</span></el-link
-              >
-              <br />
-              <span class="show-font">艺术家: </span>
-              <el-link
-                :underline="false"
-                v-for="(item, index) in musicInfo.musicArtist"
-                :key="index"
-                ><span
-                  @click="toArtist(item.id)"
-                  class="cursor-pointer font-semibold"
-                  v-html="item.artistName + '\u00a0'"
-              /></el-link>
-              <br />
-              <span class="show-font">发行时间: </span>
-              <span class="font-bold">{{
-                musicInfo.publishTime === ""
-                  ? "加载中"
-                  : dateFormater("YYYY-MM-dd", musicInfo.publishTime)
-              }}</span>
+              <div>
+                <p class="name">
+                  {{
+                    musicInfo?.musicName === "" ? "加载中" : musicInfo.musicName
+                  }}
+                </p>
+                <p class="name-alis">{{ musicInfo.musicNameAlias }}</p>
+                <span class="show-font">专辑: </span>
+                <el-link :underline="false" @click="toAlbum(musicInfo.albumId)">
+                  <span class="cursor-pointer font-semibold">
+                    {{ musicInfo.albumName }}
+                  </span>
+                </el-link>
+                <br />
+                <span class="show-font">艺术家: </span>
+                <el-link
+                  :underline="false"
+                  v-for="(item, index) in musicInfo.musicArtist"
+                  :key="index"
+                  ><span
+                    @click="toArtist(item.id)"
+                    class="cursor-pointer font-semibold"
+                    v-html="item.artistName + '\u00a0'"
+                /></el-link>
+                <br />
+                <span class="show-font">发行时间: </span>
+                <span class="font-bold">{{
+                  musicInfo.publishTime === ""
+                    ? "加载中"
+                    : dateFormater("YYYY-MM-dd", musicInfo.publishTime)
+                }}</span>
+              </div>
               <div class="edit-music">
-                <div class="flex mr-4">
+                <div>
                   <el-button-group>
                     <el-button
                       class="edit-music-button"
@@ -819,42 +863,100 @@ const toMusicPlay = async res => {
                     ></el-button>
                   </el-button-group>
                   <!--添加歌曲到歌单-->
-                  <AddMusicToPlayList
+                  <add-music-to-play-list
                     v-if="playItemDialogVisible"
                     :play-item="userPlayItem"
                     :userId="Number.parseInt(userInfo.id)"
                     :music-id="addMusicId"
+                    :width="state.dialog.width"
                     @closeDialog="playItemDialogVisible = false"
                   />
                 </div>
                 <el-button
+                  v-show="!state.operateButton"
                   class="edit-music-button"
                   @click="addPlaySongList"
                   plain
                   round
-                  ><i
-                    ><IconifyIconOnline
-                      color="#868686"
-                      icon="solar:turntable-music-note-bold-duotone"
-                      width="1.1rem"
-                      height="1.1rem" /></i
-                  >添加到播放歌单</el-button
-                >
+                  ><IconifyIconOnline
+                    color="#868686"
+                    icon="solar:turntable-music-note-bold-duotone"
+                    width="1.1rem"
+                    height="1.1rem"
+                  />添加到播放歌单
+                </el-button>
                 <el-button
+                  v-show="!state.operateButton"
                   class="edit-music-button"
                   @click="
                     getLyricList();
                     editMusicInfoFlag = true;
                   "
                   round
-                  >编辑音乐</el-button
+                >
+                  <IconifyIconOnline
+                    color="#868686"
+                    icon="mingcute:edit-3-line"
+                    width="1.1rem"
+                    height="1.1rem"
+                  />
+                  编辑音乐</el-button
                 >
                 <el-button
+                  v-show="!state.operateButton"
                   class="edit-music-button"
                   @click="addSoundSourceFlag = true"
                   round
-                  >添加音源</el-button
                 >
+                  <IconifyIconOnline
+                    color="#868686"
+                    icon="mingcute:add-circle-fill"
+                    width="1.1rem"
+                    height="1.1rem"
+                  />添加音源</el-button
+                >
+                <el-dropdown v-show="state.operateButton">
+                  <el-button class="edit-music-button" round>
+                    <IconifyIconOnline
+                      color="#868686"
+                      icon="mingcute:more-2-line"
+                      width="1.1rem"
+                      height="1.1rem"
+                    />
+                    更多
+                  </el-button>
+                  <template #dropdown>
+                    <el-dropdown-item @click="addPlaySongList">
+                      <IconifyIconOnline
+                        color="#868686"
+                        icon="solar:turntable-music-note-bold-duotone"
+                        width="1.1rem"
+                        height="1.1rem"
+                      />添加到播放歌单
+                    </el-dropdown-item>
+                    <el-dropdown-item
+                      @click="
+                        getLyricList();
+                        editMusicInfoFlag = true;
+                      "
+                    >
+                      <IconifyIconOnline
+                        color="#868686"
+                        icon="mingcute:edit-3-line"
+                        width="1.1rem"
+                        height="1.1rem"
+                      />编辑音乐
+                    </el-dropdown-item>
+                    <el-dropdown-item @click="addSoundSourceFlag = true">
+                      <IconifyIconOnline
+                        color="#868686"
+                        icon="mingcute:add-circle-fill"
+                        width="1.1rem"
+                        height="1.1rem"
+                      />添加音源
+                    </el-dropdown-item>
+                  </template>
+                </el-dropdown>
               </div>
             </div>
           </div>
@@ -982,7 +1084,7 @@ const toMusicPlay = async res => {
 
   @media screen and (max-width: 720px) {
     @apply truncate;
-    width: 25rem;
+    width: 20rem;
   }
 }
 
@@ -1000,6 +1102,7 @@ const toMusicPlay = async res => {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  gap: 1rem;
 }
 
 .item-list {
@@ -1026,7 +1129,7 @@ const toMusicPlay = async res => {
   margin-right: 2rem;
 
   @media screen and (max-width: 720px) {
-    margin-right: 0;
+    margin-right: 10px;
   }
 }
 
@@ -1056,8 +1159,12 @@ const toMusicPlay = async res => {
 }
 
 .edit-music {
-  margin-top: 0.8rem;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+
+  @media screen and (max-width: 720px) {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .edit-music-button {

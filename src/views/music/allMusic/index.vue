@@ -59,6 +59,11 @@ function reDrawLayout(width: number) {
     state.table.show.duration = status;
     state.table.show.download = status;
   };
+  if (width < 720) {
+    state.dialog.width = "90%";
+  } else {
+    state.dialog.width = "45%";
+  }
   // 小于500时过滤进入菜单栏
   state.option = width < 500;
   if (isMobile) {
@@ -126,6 +131,7 @@ const state = reactive<{
     };
   };
   dialog: {
+    width: string;
     playItemDialogVisible: boolean;
     deleteCompelMusicFlag: boolean;
   };
@@ -163,6 +169,7 @@ const state = reactive<{
     }
   },
   dialog: {
+    width: "45%",
     playItemDialogVisible: false,
     deleteCompelMusicFlag: false
   },
@@ -251,13 +258,6 @@ watch(
     storageLocal().setItem<Page>("music-page", value);
   },
   { deep: true }
-);
-
-watch(
-  () => state.req.page.pageIndex,
-  value => {
-    console.log(value);
-  }
 );
 
 const getMusicList = async (param: MusicSearchReq, load?: boolean) => {
@@ -544,18 +544,19 @@ const toMusicInfo = id => {
 <template>
   <div class="absolute-container">
     <!--添加歌曲到歌单-->
-    <AddMusicToPlayList
+    <add-music-to-play-list
       v-if="state.dialog.playItemDialogVisible"
       :play-item="state.userPlayItem"
       :userId="Number.parseInt(state.userInfo.id)"
       :music-id="state.addMusicId"
+      :width="state.dialog.width"
       @closeDialog="() => (state.dialog.playItemDialogVisible = false)"
     />
     <div class="operation-panel-bg" v-show="selectFlag">
       <div class="operation-panel">
         <el-dialog
           v-model="state.dialog.deleteCompelMusicFlag"
-          width="45%"
+          :width="state.dialog.width"
           title="确认需要删除吗?"
         >
           <b>
@@ -1101,16 +1102,23 @@ const toMusicInfo = id => {
           </div>
         </el-scrollbar>
       </div>
-      <div v-if="state.table.gridLoading">
-        <div class="pt-4 w-full h-15 flex items-center justify-center">
+      <div
+        v-else-if="
+          !state.table.gridLoading &&
+          state.table.show.layout === 'grid' &&
+          state.req.page.pageIndex * state.req.page.pageNum <=
+            state.req.page.total
+        "
+      >
+        <div class="pt-4 w-full h-15 flex items-center justify-center gap-2">
           <IconifyIconOnline
             class="animate-spin"
-            style="color: var(--el-color-primary)"
+            style="color: var(--el-text-color-placeholder)"
             icon="mingcute:loading-3-fill"
             width="1rem"
             height="1rem"
           />
-          <h1>加载中</h1>
+          <span style="color: var(--el-text-color-placeholder)">加载中</span>
         </div>
       </div>
     </div>
