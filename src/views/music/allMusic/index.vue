@@ -28,6 +28,10 @@ import { emitter } from "@/utils/mitt";
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
 import NameSearch from "@/components/nameSearch/index.vue";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
+import ChecklistLine from "@iconify-icons/solar/checklist-line-duotone";
+import LayoutGridFill from "@iconify-icons/mingcute/layout-grid-fill";
+import HamburgerMenuLinear from "@iconify-icons/solar/hamburger-menu-linear";
+import Segmented, { type OptionsType } from "@/components/ReSegmented";
 
 const { t } = useI18n();
 const { isDark } = useDark();
@@ -76,7 +80,13 @@ function reDrawLayout(width: number) {
       state.table.titleWidth = 350;
     }
   }
-  modifyShow(true);
+
+  // 如果移动设备的table默认不显示专辑歌手等信息
+  if (isMobile && state.table.show.layout === "grid") {
+    modifyShow(true);
+  } else {
+    modifyShow(false);
+  }
 }
 
 // 监听容器
@@ -112,6 +122,8 @@ const state = reactive<{
     selectTableList: MusicSearchRes[];
     titleWidth: number;
     gridLoading: boolean;
+    optionSwitch: Array<OptionsType>;
+    optionSwitchValue: number;
     show: {
       artist: boolean;
       album: boolean;
@@ -150,6 +162,8 @@ const state = reactive<{
     filter: "",
     selectTableList: [],
     titleWidth: 450,
+    optionSwitch: undefined,
+    optionSwitchValue: 0,
     show: {
       uploadTime: true,
       duration: true,
@@ -229,6 +243,22 @@ state.search.typeData = [
   {
     value: "artist",
     label: "歌手"
+  }
+];
+
+/** 只设置图标 */
+state.table.optionSwitch = [
+  {
+    value: "radio",
+    icon: HamburgerMenuLinear
+  },
+  {
+    value: "multiple",
+    icon: ChecklistLine
+  },
+  {
+    value: "grid",
+    icon: LayoutGridFill
   }
 ];
 
@@ -500,19 +530,6 @@ const modifyShow = (status: boolean) => {
   state.table.show.download = status;
 };
 
-const tableLayout = val => {
-  const isMobile = deviceDetection();
-  if (isMobile) modifyShow(false);
-
-  if (val === "grid") {
-    state.req.page.pageIndex = 1;
-  } else {
-    state.req.page.pageIndex = 1;
-    onSubmit(false);
-  }
-  storageLocal().setItem("music-table-layout", val);
-};
-
 const gridLoad = async () => {
   // 判断是否需要自动滚动
   if (
@@ -527,6 +544,20 @@ const gridLoad = async () => {
   state.table.gridLoading = true;
   await onSubmit(false, true);
   state.table.gridLoading = false;
+};
+
+const onChangeOptionSwitch = ({ option }) => {
+  const { value } = option;
+  state.table.show.layout = value;
+  // 如果宫格则索引归零
+  if (value === "grid") {
+    state.req.page.pageIndex = 1;
+  } else {
+    state.req.page.pageIndex = 1;
+    onSubmit(false);
+  }
+
+  storageLocal().setItem("music-table-layout", state.table.show.layout);
 };
 
 const autoRollChange = val => {
@@ -686,32 +717,15 @@ const toMusicInfo = id => {
         </div>
 
         <div class="flex items-center gap-2">
-          <el-radio-group
-            v-model="state.table.show.layout"
-            @change="tableLayout"
-          >
-            <el-radio-button label="radio">
-              <IconifyIconOnline
-                icon="solar:hamburger-menu-linear"
-                width="1.1rem"
-                height="1.1rem"
-              />
-            </el-radio-button>
-            <el-radio-button label="multiple">
-              <IconifyIconOnline
-                icon="solar:checklist-bold"
-                width="1.1rem"
-                height="1.1rem"
-              />
-            </el-radio-button>
-            <el-radio-button label="grid">
-              <IconifyIconOnline
-                icon="mingcute:grid-fill"
-                width="1.1rem"
-                height="1.1rem"
-              />
-            </el-radio-button>
-          </el-radio-group>
+          <Segmented
+            :options="state.table.optionSwitch"
+            :defaultValue="
+              state.table.optionSwitch.findIndex(
+                value => value.value === state.table.show.layout
+              )
+            "
+            @change="onChangeOptionSwitch"
+          />
           <el-select
             v-if="!state.option"
             v-model="state.req.orderBy"
