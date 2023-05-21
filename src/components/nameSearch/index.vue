@@ -149,11 +149,23 @@ state.dropdownMap = map;
   width: 70%;
   height: 3.2rem;
   border-radius: 1rem;
-  background-color: var(--el-bg-color);
+  background-color: var(--el-color-info-light-9);
 
   @media screen and (max-width: 720px) {
     width: 100%;
   }
+}
+
+.group::placeholder {
+  color: #9e9ea7;
+}
+
+.group:focus,
+.group:hover {
+  outline: none;
+  border-color: rgba(var(--el-color-primary-rgb), 0.4);
+  background-color: var(--el-color-info-light-9);
+  box-shadow: 0 0 0 4px var(--el-color-primary-light-8);
 }
 
 .dropdown {
@@ -173,26 +185,14 @@ state.dropdownMap = map;
   line-height: 28px;
   border: 2px solid transparent;
   outline: none;
-  background-color: var(--el-bg-color);
+  background-color: var(--el-color-info-light-9);
   color: var(--el-text-color-primary);
   -webkit-transition: 0.3s ease;
   transition: 0.3s ease;
 }
 
-.group::placeholder {
-  color: #9e9ea7;
-}
-
-.group:focus,
-.group:hover {
-  outline: none;
-  border-color: rgba(var(--el-color-primary-rgb), 0.4);
-  background-color: var(--el-bg-color);
-  box-shadow: 0 0 0 4px var(--el-color-primary-light-8);
-}
-
 .search-bg {
-  background-color: var(--el-bg-color);
+  background-color: var(--el-color-info-light-9);
 }
 
 .icon {

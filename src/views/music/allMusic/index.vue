@@ -82,10 +82,14 @@ function reDrawLayout(width: number) {
   }
 
   // 如果移动设备的table默认不显示专辑歌手等信息
-  if (isMobile && state.table.show.layout === "grid") {
-    modifyShow(true);
+  if (width < 720) {
+    if (state.table.show.layout === "grid") {
+      modifyShow(true);
+    } else {
+      modifyShow(false);
+    }
   } else {
-    modifyShow(false);
+    modifyShow(true);
   }
 }
 
@@ -552,11 +556,11 @@ const onChangeOptionSwitch = ({ option }) => {
   // 如果宫格则索引归零
   if (value === "grid") {
     state.req.page.pageIndex = 1;
+    modifyShow(true);
   } else {
     state.req.page.pageIndex = 1;
     onSubmit(false);
   }
-
   storageLocal().setItem("music-table-layout", state.table.show.layout);
 };
 
