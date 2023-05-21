@@ -321,7 +321,7 @@ export default {
   border: 1px solid var(--el-border);
   padding: 1rem;
   margin: 1rem;
-  background-color: var(--el-bg-color);
+  background-color: var(--el-color-info-light-9);
 }
 
 /* 选择框样式，没有生效 */
