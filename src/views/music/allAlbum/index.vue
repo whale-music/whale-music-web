@@ -1,34 +1,143 @@
 <script setup lang="ts">
-import { AlbumRes, deleteAlbum, getAlbumPage } from "@/api/album";
+import { AlbumReq, AlbumRes, deleteAlbum, getAlbumPage } from "@/api/album";
 import { ref, reactive, onMounted, watch } from "vue";
 import { dateFormater } from "@/utils/dateUtil";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { message } from "@/utils/message";
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
-import MultipleSelectionIcon from "@/assets/svg/multiple_selection.svg?component";
-import RadioIcon from "@/assets/svg/radio.svg?component";
 import { storageLocal, useDark } from "@pureadmin/utils";
 import { CellStyle, ElTable } from "element-plus";
+import { Page } from "@/api/common";
+import MenuFill from "@iconify-icons/mingcute/menu-fill";
+import ListCheckFill from "@iconify-icons/mingcute/list-check-fill";
+import Segmented, { type OptionsType } from "@/components/ReSegmented";
+import NameSearch from "@/components/nameSearch/index.vue";
+import { emitter } from "@/utils/mitt";
 
 const { isDark } = useDark();
 const router = useRouter();
 
 const { t } = useI18n();
-const tableData = ref<AlbumRes[]>();
-const tableLoading = ref<boolean>();
 
-const menuFlag = ref<boolean>();
-
-const formInline = reactive({
-  albumName: "",
-  artistName: ""
+onMounted(async () => {
+  state.table.initLoading = true;
+  getAlbumPageList();
+  state.table.initLoading = false;
 });
 
-const sortConfig = ref("sort");
+// 监听容器
+emitter.on("resize", ({ detail }) => {
+  const { width } = detail;
+  reDrawLayout(width);
+});
+
+function reDrawLayout(width: number) {
+  if (width < 720) {
+    modifyShow(false);
+    state.table.nameWidth = 200;
+  } else {
+    state.table.nameWidth = 500;
+    modifyShow(true);
+  }
+}
+
+const state = reactive<{
+  // 排序
+  sortData: {
+    value: string;
+    label: string;
+  }[];
+  search: {
+    typeData: {
+      value: string;
+      label: string;
+    }[];
+    searchType: string;
+    name: string;
+    req: AlbumReq;
+    res: AlbumRes[];
+  };
+  menuFlag: boolean;
+  table: {
+    nameWidth: number;
+    optionSwitch: Array<OptionsType>;
+    optionSwitchValue: boolean;
+    initLoading: boolean;
+    loading: boolean;
+    emptyFlag: boolean;
+    show: {
+      musicCount: boolean;
+      artist: boolean;
+      creatTime: boolean;
+    };
+  };
+}>({
+  sortData: undefined,
+  search: {
+    typeData: undefined,
+    searchType: "all",
+    name: "",
+    req: undefined,
+    res: undefined
+  },
+  menuFlag: false,
+  table: {
+    nameWidth: undefined,
+    optionSwitch: undefined,
+    optionSwitchValue: storageLocal().getItem("switchAlbumTableAndRadio"),
+    initLoading: false,
+    loading: false,
+    emptyFlag: false,
+    show: {
+      artist: true,
+      musicCount: true,
+      creatTime: true
+    }
+  }
+});
+
+const page: Page =
+  storageLocal().getItem<Page>("album-page") == null
+    ? {
+        pageIndex: 1,
+        pageNum: 5,
+        total: 0
+      }
+    : storageLocal().getItem("album-page");
+
+state.search.req = {
+  singerName: "",
+  albumName: "",
+  orderBy: "sort",
+  order: false,
+  timeBy: false,
+  beforeTime: "",
+  laterTime: "",
+  page: page,
+  description: "",
+  pic: "",
+  updateTime: "",
+  createTime: ""
+};
+
+state.search.typeData = [
+  {
+    value: "all",
+    label: "全部"
+  },
+  {
+    value: "album",
+    label: "专辑"
+  },
+  {
+    value: "artist",
+    label: "歌手"
+  }
+];
 
 // 排序
-const sortData = reactive([
+state.sortData = [
   {
     value: "sort",
     label: "正常排序"
@@ -45,43 +154,61 @@ const sortData = reactive([
     value: "id",
     label: "歌曲ID排序"
   }
-]);
+];
 
-// 每页显示行数
-const pageConfig = reactive({
-  pageNum: 40,
-  pageIndex: 1,
-  total: 0
-});
+/** 只设置图标 */
+state.table.optionSwitch = [
+  {
+    value: "radio",
+    icon: MenuFill
+  },
+  {
+    value: "multiple",
+    icon: ListCheckFill
+  }
+];
 
-const loadingFlag = ref<boolean>(false);
+const onChangeOptionSwitch = ({ option }) => {
+  const { value } = option;
+  state.table.optionSwitchValue = value === "multiple";
+  multipleSelection.value = [];
+  storageLocal().setItem(
+    "switchAlbumTableAndRadio",
+    state.table.optionSwitchValue
+  );
+};
+
 const emptyFlag = ref<boolean>(false);
 const getAlbumPageList = () => {
-  loadingFlag.value = true;
-  getAlbumPage({
-    singerName: formInline.artistName,
-    albumName: formInline.albumName,
-    orderBy: "",
-    order: false,
-    timeBy: false,
-    beforeTime: "",
-    laterTime: "",
-    page: pageConfig,
-    description: "",
-    pic: "",
-    updateTime: "",
-    createTime: ""
-  })
-    .then(res => {
-      pageConfig.pageIndex = res.data.current;
-      pageConfig.pageNum = res.data.size;
-      pageConfig.total = res.data.total;
+  state.table.loading = true;
 
-      tableData.value = res.data.records;
-      loadingFlag.value = false;
+  state.search.req.albumName = "";
+  state.search.req.singerName = "";
+  switch (state.search.searchType) {
+    case "album":
+      state.search.req.albumName = state.search.name;
+      break;
+    case "artist":
+      state.search.req.singerName = state.search.name;
+      break;
+    default:
+    case "all":
+      state.search.req.albumName = state.search.name;
+      state.search.req.singerName = state.search.name;
+      break;
+  }
+
+  getAlbumPage(state.search.req)
+    .then(res => {
+      state.search.req.page.pageIndex = res.data.current;
+      state.search.req.page.pageNum = res.data.size;
+      state.search.req.page.total = res.data.total;
+
+      state.search.res = res.data.records;
+      state.table.loading = false;
     })
     .catch(res => {
-      loadingFlag.value = false;
+      state.table.loading = false;
       emptyFlag.value = true;
       message(`${res}`, { type: "error" });
     });
@@ -91,35 +218,17 @@ const onSubmit = () => {
   getAlbumPageList();
 };
 
-// 表格变更时重新查询
-const sortOnSubmit = () => {
-  onSubmit();
-};
-
-onMounted(() => {
-  getAlbumPageList();
-});
-
 const handleSizeChange = val => {
-  pageConfig.pageNum = val;
+  state.search.req.page.pageNum = val;
   onSubmit();
 };
 
 const handleCurrentChange = val => {
-  pageConfig.pageIndex = val;
+  state.search.req.page.pageIndex = val;
   onSubmit();
 };
 
 const multipleTableRef = ref<InstanceType<typeof ElTable>>();
-
-const switchTableAndRadioFlag = ref<boolean>(
-  storageLocal().getItem("switchAlbumTableAndRadio")
-);
-
-const switchTableAndRadio = val => {
-  multipleSelection.value = [];
-  storageLocal().setItem("switchAlbumTableAndRadio", val);
-};
 
 const deleteMusicFlag = ref<boolean>(false);
 const deleteCompelMusicFlag = ref<boolean>(false);
@@ -144,12 +253,12 @@ const deleteAlbumList = async (flag: boolean) => {
   try {
     const res = await deleteAlbum(id, flag);
     if (res.code === "200") {
-      if (multipleSelection.value.length === pageConfig.pageNum) {
+      if (multipleSelection.value.length === state.search.req.page.pageNum) {
         await onSubmit();
         return;
       }
       for (const valueElement of multipleSelection.value) {
-        tableData.value = tableData.value.filter(
+        state.search.res = state.search.res.filter(
           value => value.id !== valueElement.id
         );
       }
@@ -165,9 +274,15 @@ const deleteAlbumList = async (flag: boolean) => {
 // 复选框
 const rowClick = row => {
   // 多选时不进入详情页面
-  if (switchTableAndRadioFlag.value) {
+  if (state.table.optionSwitchValue) {
     multipleTableRef.value.toggleRowSelection(row, null);
   }
+};
+
+const modifyShow = (status: boolean) => {
+  // state.table.show.artist = status;
+  state.table.show.creatTime = status;
+  state.table.show.musicCount = status;
 };
 
 // 表格颜色
@@ -187,7 +302,7 @@ const cellStyle = ({ columnIndex }): CellStyle<any> => {
     };
   }
   // 设置序号样式
-  if (columnIndex === 1 && switchTableAndRadioFlag.value) {
+  if (columnIndex === 1 && state.table.optionSwitchValue) {
     styles = {
       color: "#bfbfbf",
       padding: "0",
@@ -308,79 +423,55 @@ const toArtist = id => {
     </div>
 
     <div class="center_album">
+      <!--搜索框-->
+      <name-search
+        v-model="state.search.name"
+        v-model:dropdownValue="state.search.searchType"
+        :loading="state.table.loading"
+        :dropdown="state.search.typeData"
+        :buttonName="t('buttons.search')"
+        @onSearch="
+          () => {
+            state.search.req.page.pageIndex = 1;
+            onSubmit();
+          }
+        "
+        @onClean="
+          () => {
+            state.search.name = '';
+            state.search.req.page.pageIndex = 1;
+            onSubmit();
+          }
+        "
+      />
+
       <div class="option">
         <div class="flex items-center">
-          <button @click="menuFlag = !menuFlag" class="menu-button">
+          <button @click="state.menuFlag = !state.menuFlag" class="menu-button">
             <span>{{ t("input.menuBotton") }}</span>
           </button>
-          <div class="search">
-            <div>
-              <div class="inputGroup">
-                <input
-                  type="text"
-                  :required="true"
-                  autocomplete="off"
-                  v-model="formInline.albumName"
-                  @keyup.enter="onSubmit"
-                />
-                <label for="name">{{ t("input.pleaseEnterAlbumName") }}</label>
-              </div>
-            </div>
-            <div>
-              <div class="inputGroup">
-                <input
-                  type="text"
-                  :required="true"
-                  autocomplete="off"
-                  v-model="formInline.artistName"
-                  @keyup.enter="onSubmit"
-                />
-                <label for="name">{{ t("input.pleaseEnterSingerName") }}</label>
-              </div>
-            </div>
-            <Transition name="slide-fade"
-              ><div
-                class="flex flex-col justify-center m-1"
-                v-show="
-                  formInline.albumName !== '' || formInline.artistName !== ''
-                "
-              >
-                <el-button
-                  type="primary"
-                  round
-                  size="large"
-                  :loading="tableLoading"
-                  @click="onSubmit"
-                  >{{ t("buttons.search") }}</el-button
-                >
-              </div></Transition
-            >
-          </div>
         </div>
 
-        <div class="flex justify-center items-center flex-wrap">
-          <el-switch
-            class="mr-4"
-            size="large"
-            inline-prompt
-            :active-icon="MultipleSelectionIcon"
-            :inactive-icon="RadioIcon"
-            style="
-              --el-switch-on-color: var(--el-color-primary);
-              --el-switch-off-color: #a55eea;
+        <div class="flex-c gap-2">
+          <Segmented
+            :options="state.table.optionSwitch"
+            :defaultValue="
+              state.table.optionSwitch.findIndex(
+                value => value.value === 'radio'
+              )
             "
-            v-model="switchTableAndRadioFlag"
-            @change="switchTableAndRadio"
+            @change="onChangeOptionSwitch"
           />
+
           <el-select
-            v-model="sortConfig"
+            v-model="state.search.req.orderBy"
             placeholder="排序"
             size="large"
             style="width: 8rem"
-            @change="sortOnSubmit"
+            @change="onSubmit"
           >
             <el-option
-              v-for="item in sortData"
+              v-for="item in state.sortData"
               :key="item.value"
               :label="item.label"
               :value="item.value"
@@ -390,42 +481,30 @@ const toArtist = id => {
         </div>
       </div>
 
-      <div class="table">
+      <div class="table-view">
         <div>
           <el-collapse-transition>
-            <div v-show="menuFlag">
-              <div class="flex justify-center p-4">
-                <el-pagination
-                  background
-                  :default-current-page="pageConfig.pageIndex"
-                  :default-page-size="pageConfig.pageNum"
-                  :current-page="pageConfig.pageIndex"
-                  :page-size="pageConfig.pageNum"
-                  :page-sizes="[100, 200, 500, 1000]"
-                  layout="prev, pager, next, total, sizes, jumper"
-                  :total="pageConfig.total"
-                  @size-change="handleSizeChange"
-                  @current-change="handleCurrentChange"
-                />
-              </div>
+            <div v-show="state.menuFlag">
+              <div class="flex justify-center p-4" />
             </div>
           </el-collapse-transition>
         </div>
 
         <!--加载遮罩-->
         <transition name="el-fade-in">
-          <ShowLoading :loading="loadingFlag" />
+          <ShowLoading :loading="state.table.initLoading" />
         </transition>
-        <el-empty v-if="!loadingFlag && emptyFlag" description="description" />
-        <transition name="el-zoom-in-top">
+        <el-empty v-if="emptyFlag" description="description" />
+        <div>
           <el-table
+            v-loading="state.table.loading"
             ref="multipleTableRef"
-            :data="tableData"
+            :data="state.search.res"
             class="album-table"
             style="width: 100%"
             table-layout="fixed"
-            :key="switchTableAndRadioFlag"
-            v-show="!loadingFlag && !emptyFlag"
+            :key="state.table.optionSwitchValue"
+            v-show="!emptyFlag"
             @selection-change="handleSelectionChange"
             :header-cell-style="tableHeaderCellStyle"
             @row-click="rowClick"
@@ -434,7 +513,7 @@ const toArtist = id => {
             <el-table-column
               type="selection"
               width="55"
-              v-if="switchTableAndRadioFlag"
+              v-if="state.table.optionSwitchValue"
             />
             <el-table-column type="index" />
             <el-table-column width="110" :show-overflow-tooltip="false">
@@ -450,7 +529,7 @@ const toArtist = id => {
             <el-table-column
               :label="t('input.albumName')"
               :show-overflow-tooltip="true"
-              width="500"
+              :width="state.table.nameWidth"
             >
               <template #default="scope">
                 <el-link :underline="false">
@@ -464,6 +543,7 @@ const toArtist = id => {
               :label="t('table.musicSize')"
               :show-overflow-tooltip="true"
               width="100"
+              v-if="state.table.show.musicCount"
             >
               <template #default="scope">
                 <span class="text-2xl">{{ scope.row.albumSize }}</span>
@@ -472,6 +552,7 @@ const toArtist = id => {
             <el-table-column
               :label="t('input.singerName')"
               :show-overflow-tooltip="true"
+              v-if="state.table.show.artist"
             >
               <template #default="scope">
                 <el-link
@@ -490,6 +571,7 @@ const toArtist = id => {
               prop="createTime"
               label="上传时间"
               :show-overflow-tooltip="true"
+              v-if="state.table.show.creatTime"
             >
               <template #default="scope">
                 <span>{{
@@ -498,21 +580,25 @@ const toArtist = id => {
               </template>
             </el-table-column>
           </el-table>
-        </transition>
+        </div>
 
-        <div class="demo-pagination-block" v-show="!loadingFlag">
-          <el-pagination
-            background
-            :default-current-page="pageConfig.pageIndex"
-            :default-page-size="pageConfig.pageNum"
-            :current-page="pageConfig.pageIndex"
-            :page-size="pageConfig.pageNum"
-            :page-sizes="[100, 200, 500, 1000]"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="pageConfig.total"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-          />
+        <div class="demo-pagination-block">
+          <el-scrollbar>
+            <div class="flex">
+              <el-pagination
+                background
+                :default-current-page="state.search.req.page.pageIndex"
+                :default-page-size="state.search.req.page.pageNum"
+                :current-page="state.search.req.page.pageIndex"
+                :page-size="state.search.req.page.pageNum"
+                :page-sizes="[100, 200, 500, 1000]"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="state.search.req.page.total"
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+              />
+            </div>
+          </el-scrollbar>
         </div>
       </div>
     </div>
@@ -520,8 +606,6 @@ const toArtist = id => {
 </template>
 
 <style scoped lang="scss">
-$searchWidth: 90%;
-$searchHeight: 90%;
 @import url("@/style/pagination.scss");
 
 .album {
@@ -534,10 +618,7 @@ $searchHeight: 90%;
 }
 
 .center_album {
-  width: $searchWidth;
-  margin: 0 auto;
-  overflow: hidden;
-
+  width: 90%;
   display: flex;
   flex-direction: column;
 }
@@ -558,7 +639,7 @@ $searchHeight: 90%;
 .menu-button {
   display: inline-block;
   background-color: var(--el-color-primary);
-  border-radius: 0.3rem;
+  border-radius: var(--el-border-radius-base);
   color: #ffffff;
   text-align: center;
   font-size: 17px;
@@ -594,46 +675,6 @@ $searchHeight: 90%;
   right: 0;
 }
 
-.inputGroup {
-  margin: 10px;
-  font-family: "Segoe UI", sans-serif;
-  max-width: 20rem;
-  position: relative;
-}
-
-.inputGroup input {
-  font-size: 100%;
-  padding: 0.8em;
-  outline: none;
-  border: 2px solid rgb(200, 200, 200);
-  background-color: transparent;
-  border-radius: 1rem;
-  width: 100%;
-}
-
-.inputGroup label {
-  font-size: 100%;
-  position: absolute;
-  left: 0;
-  padding: 0.8em;
-  margin-left: 0.5em;
-  pointer-events: none;
-  transition: all 0.3s ease;
-  color: rgb(100, 100, 100);
-}
-
-.inputGroup :is(input:focus, input:valid) ~ label {
-  @apply dark:bg-[#000000];
-  transform: translateY(-50%) scale(0.9);
-  margin: 0 0 0 1.3em;
-  padding: 0.4em;
-  background-color: #f0f2f3;
-}
-
-.inputGroup :is(input:focus, input:valid) {
-  border-color: var(--el-color-primary-light-3);
-}
-
 .slide-fade-enter-active,
 .slide-fade-leave-active {
   transition: all 0.5s ease-in;
@@ -646,7 +687,7 @@ $searchHeight: 90%;
 }
 
 .demo-pagination-block {
-  margin: 2rem;
+  margin-top: 1rem;
   display: flex;
   justify-content: center;
 }
