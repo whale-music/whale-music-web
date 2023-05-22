@@ -33,7 +33,7 @@ const emits = defineEmits([
   "update:modelValue",
   "on-search",
   "update:dropdownValue",
-  "onClean"
+  "on-clean"
 ]);
 
 watch(
