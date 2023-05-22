@@ -1,5 +1,5 @@
 import { http } from "@/utils/http";
-import { R, Data, MusicSearchReq } from "@/api/common";
+import { R, Data, MusicSearchReq, Page } from "@/api/common";
 
 export interface Album {
   id: number;
@@ -106,11 +106,6 @@ export const tracksMusicToPlayList = (
     }
   });
 };
-
-export interface Page {
-  pageIndex: number;
-  pageNum: number;
-}
 
 export interface PlayInfoReq extends PlayInfoRes, UserPlayListRes {
   page: Page;
