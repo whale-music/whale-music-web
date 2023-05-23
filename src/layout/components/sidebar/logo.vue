@@ -31,6 +31,7 @@ const toNext = () => {
           class="sidebar-logo-link"
           to="/"
         >
+          <img src="/logo.svg" alt="logo" />
           <span class="sidebar-title">{{ title }}</span>
         </router-link>
         <router-link
@@ -40,20 +41,29 @@ const toNext = () => {
           class="sidebar-logo-link"
           to="/"
         >
+          <img src="/logo.svg" alt="logo" />
           <span class="sidebar-title">{{ title }}</span>
         </router-link>
 
         <a class="sidebar-logo-link">
-          <span class="sidebar-title">
-            <IconifyIconOffline
-              class="router"
-              @click="toLast"
-              :icon="LeftOutline" />
-            <IconifyIconOffline
-              class="router"
-              @click="toNext"
-              :icon="RightOutline"
-          /></span>
+          <div class="flex-c">
+            <div class="flex flex-nowrap items-center justify-center gap-2">
+              <div class="router-bg">
+                <IconifyIconOffline
+                  class="router"
+                  @click="toLast"
+                  :icon="LeftOutline"
+                />
+              </div>
+              <div class="router-bg">
+                <IconifyIconOffline
+                  class="router"
+                  @click="toNext"
+                  :icon="RightOutline"
+                />
+              </div>
+            </div>
+          </div>
         </a>
       </div>
     </transition>
@@ -94,9 +104,9 @@ const toNext = () => {
     }
 
     .router {
-      height: 32px;
-      line-height: 32px;
-      margin: 2px 0 0 12px;
+      //height: 32px;
+      //line-height: 32px;
+      //margin: 2px 0 0 12px;
       color: $subMenuActiveText;
       display: inline-block;
       overflow: hidden;
@@ -104,6 +114,21 @@ const toNext = () => {
       text-overflow: ellipsis;
       font-size: 14px;
       font-weight: 600;
+    }
+
+    .router-bg {
+      width: 1.5rem;
+      height: 1.5rem;
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--el-border-radius-base);
+      background: var(--el-bg-color-page);
+    }
+
+    .router-bg:hover {
+      background: var(--el-color-info-light-8);
     }
   }
 }
