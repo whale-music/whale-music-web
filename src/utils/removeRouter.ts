@@ -3,7 +3,6 @@ import router from "@/router";
 import { RouteRecordName } from "vue-router";
 
 export const removeMenusRouter = (name: RouteRecordName) => {
-  debugger;
   router.removeRoute(name.toString());
   const wholeMenus = usePermissionStoreHook().wholeMenus;
   for (let i = 0; i < wholeMenus.length; i++) {
