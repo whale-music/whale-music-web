@@ -19,18 +19,43 @@ import DownloadIcon from "@/components/DownloadIcon/download.vue";
 import { Page } from "@/api/common";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { getUserInfo, UserInfoRes } from "@/api/user";
-import LayoutGrid from "@/assets/svg/layout_grid.svg?component";
-import LayoutList from "@/assets/svg/layout_list.svg?component";
 import { handleAliveRoute } from "@/router/utils";
 import { removeMenusRouter } from "@/utils/removeRouter";
 import Wbutton from "@/components/button/index.vue";
-import { clone, storageSession, useDark } from "@pureadmin/utils";
+import { clone, storageLocal, storageSession, useDark } from "@pureadmin/utils";
 import { ElTable } from "element-plus";
 import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
+import Segmented, { type OptionsType } from "@/components/ReSegmented";
+import MenuFill from "@iconify-icons/mingcute/menu-fill";
+import ListCheckFill from "@iconify-icons/mingcute/list-check-fill";
 
 const route = useRoute(); //2.在跳转页面定义router变量，解构得到指定的query和params传参的参数
 const router = useRouter();
 const { isDark } = useDark();
+
+const state = reactive<{
+  table: {
+    optionSwitch: Array<OptionsType>;
+    optionSwitchValue: boolean;
+  };
+}>({
+  table: {
+    optionSwitch: undefined,
+    optionSwitchValue: storageLocal().getItem("layoutSwitch")
+  }
+});
+
+/** 只设置图标 */
+state.table.optionSwitch = [
+  {
+    value: "radio",
+    icon: MenuFill
+  },
+  {
+    value: "multiple",
+    icon: ListCheckFill
+  }
+];
 
 const tableData = ref<PlayListRes[]>();
 const emptyFlag = ref<boolean>(false);
@@ -291,6 +316,13 @@ const addPlaySongList = async () => {
     );
   }
   message("成功添加音乐到歌单", { type: "success" });
+};
+
+const onChangeOptionSwitch = ({ option }) => {
+  const { value } = option;
+  state.table.optionSwitchValue = value === "multiple";
+  multipleSelection.value = [];
+  storageLocal().setItem("layoutSwitch", state.table.optionSwitchValue);
 };
 
 const toMusicInfo = id => {
@@ -628,25 +660,24 @@ const throttle = ref(0);
       <div class="mt-12">
         <div class="desc">
           <p class="playlist-item-name">歌曲列表</p>
-          <el-switch
-            class="mr-4"
-            v-model="layoutFlag"
-            size="large"
-            inline-prompt
-            :active-icon="LayoutList"
-            :inactive-icon="LayoutGrid"
-            style="
-              --el-switch-on-color: var(--el-color-primary);
-              --el-switch-off-color: #a55eea;
-            "
-          />
+          <div>
+            <Segmented
+              :options="state.table.optionSwitch"
+              :defaultValue="
+                state.table.optionSwitch.findIndex(
+                  value => value.value === 'radio'
+                )
+              "
+              @change="onChangeOptionSwitch"
+            />
+          </div>
         </div>
       </div>
       <div class="mt-6" v-show="!emptyFlag">
         <el-skeleton
           animated
           :loading="playListInfoFlag"
-          v-if="layoutFlag"
+          v-if="state.table.optionSwitchValue"
           :throttle="throttle"
         >
           <template #template>
@@ -908,6 +939,7 @@ const throttle = ref(0);
 .desc {
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .playlist-title {
