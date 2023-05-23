@@ -118,6 +118,7 @@ function hoverDescription(event, description) {
   align-items: flex-start;
   justify-content: space-between;
   padding: 12px 0;
+
   // border-bottom: 1px solid #f0f0f0;
 
   .notice-container-avatar {

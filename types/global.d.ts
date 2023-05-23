@@ -63,6 +63,7 @@ declare global {
     VITE_PUBLIC_PATH: string;
     VITE_ROUTER_HISTORY: string;
     VITE_CDN: boolean;
+    VITE_HIDE_HOME: string;
     VITE_COMPRESSION: ViteCompression;
     VITE_PROXY_HOST: string;
   }
@@ -97,6 +98,15 @@ declare global {
     MenuArrowIconNoTransition?: boolean;
     CachingAsyncRoutes?: boolean;
     TooltipEffect?: Effect;
+    ResponsiveStorageNameSpace?: string;
+    MapConfigure?: {
+      amapKey?: string;
+      options: {
+        resizeEnable?: boolean;
+        center?: number[];
+        zoom?: number;
+      };
+    };
   }
 
   /**
@@ -121,6 +131,14 @@ declare global {
     epThemeColor?: string;
     showLogo?: boolean;
     showModel?: string;
+    mapConfigure?: {
+      amapKey?: string;
+      options: {
+        resizeEnable?: boolean;
+        center?: number[];
+        zoom?: number;
+      };
+    };
     username?: string;
   }
 

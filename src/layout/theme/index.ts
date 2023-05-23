@@ -14,8 +14,8 @@ const themeColors = {
     subMenuActiveBg: "#e0ebf6",
     menuText: "#7a80b4",
     sidebarLogo: "#fff",
-    menuTitleHover: "#409eff",
-    menuActiveBefore: "#4091f7"
+    menuTitleHover: "#4f57ef",
+    menuActiveBefore: "#a0a4eb"
   },
   light: {
     subMenuActiveText: "#fff",

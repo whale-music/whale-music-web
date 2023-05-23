@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { getTopMenu } from "@/router/utils";
 import { useNav } from "@/layout/hooks/useNav";
 import LeftOutline from "@iconify-icons/solar/alt-arrow-left-bold";
 import RightOutline from "@iconify-icons/solar/alt-arrow-right-bold";
@@ -18,6 +19,7 @@ const toLast = () => {
 const toNext = () => {
   router.go(1);
 };
+const topPath = getTopMenu().path;
 </script>
 
 <template>
@@ -29,7 +31,7 @@ const toNext = () => {
           key="props.collapse"
           :title="title"
           class="sidebar-logo-link"
-          to="/"
+          :to="topPath"
         >
           <img src="/logo.svg" alt="logo" />
           <span class="sidebar-title">{{ title }}</span>
@@ -39,7 +41,7 @@ const toNext = () => {
           key="expand"
           :title="title"
           class="sidebar-logo-link"
-          to="/"
+          :to="topPath"
         >
           <img src="/logo.svg" alt="logo" />
           <span class="sidebar-title">{{ title }}</span>

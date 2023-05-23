@@ -2,12 +2,13 @@
 @mixin merge-style($sideBarWidth) {
   $menuActiveText: #7a80b4;
 
-  @media screen and (min-width: 150px) and (max-width: 420px) {
+  @media screen and (width >= 150px) and (width <= 420px) {
     .app-main-nofixed-header {
       overflow-y: hidden;
     }
   }
-  @media screen and (min-width: 420px) {
+
+  @media screen and (width >= 420px) {
     .app-main-nofixed-header {
       overflow: hidden;
     }
@@ -40,7 +41,7 @@
     margin-left: $sideBarWidth;
     position: relative;
     // 主界面容器背景
-    background-color: $menuBg;
+    background-color: var(--el-bg-color);
 
     .el-scrollbar__wrap {
       overflow: auto;
@@ -99,10 +100,9 @@
     &.has-logo {
       .el-scrollbar.pc {
         /* logo: 48px、leftCollapse: 40px、leftCollapse-shadow: 4px */
-        /* 子列表外间距 */
-        margin-top: 0.4rem;
         height: calc(100% - 92px);
       }
+
       .el-scrollbar.mobile {
         height: 100%;
       }
@@ -170,22 +170,19 @@
     }
 
     .el-menu-item.is-active.nest-menu::before {
-      content: "";
-      clear: both;
       position: absolute;
-      left: 8px;
-      right: 8px;
+      inset: 0 8px;
       margin: 4px 0;
-      top: 0;
-      bottom: 0;
-      border-radius: 3px;
+      clear: both;
+      content: "";
       background: var(--el-color-primary) !important;
+      border-radius: 3px;
     }
 
     .el-menu .el-menu--inline .el-sub-menu__title,
     & .el-sub-menu .el-menu-item {
-      font-size: 12px;
       min-width: $sideBarWidth !important;
+      font-size: 12px;
       //background-color: $subMenuBg !important;
     }
 
@@ -294,15 +291,12 @@
     }
 
     .el-menu-item.is-active.nest-menu::before {
-      content: "";
-      clear: both;
       position: absolute;
-      left: 8px;
-      right: 8px;
-      top: 0;
-      bottom: 0;
-      border-radius: 3px;
+      inset: 0 8px;
+      clear: both;
+      content: "";
       background: var(--el-color-primary) !important;
+      border-radius: 3px;
     }
 
     .el-menu-item,
@@ -386,15 +380,12 @@
     }
 
     .el-menu-item.is-active.nest-menu::before {
-      content: "";
-      clear: both;
       position: absolute;
-      left: 5px;
-      right: 5px;
-      top: 0;
-      bottom: 0;
-      border-radius: 3px;
+      inset: 0 5px;
+      clear: both;
+      content: "";
       background: var(--el-color-primary) !important;
+      border-radius: 3px;
     }
   }
 

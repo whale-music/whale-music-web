@@ -227,7 +227,7 @@ const deletePlayListButton = () => {
   deletePlayList([route.name.toString()]).then(res => {
     if (res.code === "200") {
       message("删除成功", { type: "success" });
-      handleAliveRoute(route.matched, "delete");
+      handleAliveRoute(route as toRouteType, "delete");
 
       router.push({ path: "/playlist" });
       removeMenusRouter(route.name);

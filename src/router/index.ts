@@ -1,6 +1,6 @@
-// import "@/utils/sso";
+import "@/utils/sso";
 import { getConfig } from "@/config";
-// import NProgress from "@/utils/progress";
+import NProgress from "@/utils/progress";
 import { transformI18n } from "@/plugins/i18n";
 import { sessionKey, type DataInfo } from "@/utils/auth";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
@@ -13,6 +13,7 @@ import {
 } from "vue-router";
 import {
   ascending,
+  getTopMenu,
   initRouter,
   isOneOfArray,
   getHistoryMode,
@@ -98,17 +99,18 @@ export function resetRouter() {
 /** 路由白名单 */
 const whiteList = ["/login"];
 
+const { VITE_HIDE_HOME } = import.meta.env;
+
 router.beforeEach((to: toRouteType, _from, next) => {
   if (to.meta?.keepAlive) {
-    const newMatched = to.matched;
-    handleAliveRoute(newMatched, "add");
+    handleAliveRoute(to, "add");
     // 页面整体刷新和点击标签页刷新
     if (_from.name === undefined || _from.name === "Redirect") {
-      handleAliveRoute(newMatched);
+      handleAliveRoute(to);
     }
   }
   const userInfo = storageSession().getItem<DataInfo>(sessionKey);
-  // NProgress.start();
+  NProgress.start();
   const externalLink = isUrl(to?.name as string);
   if (!externalLink) {
     to.matched.some(item => {
@@ -128,11 +130,15 @@ router.beforeEach((to: toRouteType, _from, next) => {
     if (to.meta?.roles && !isOneOfArray(to.meta?.roles, userInfo?.roles)) {
       next({ path: "/error/403" });
     }
+    // 开启隐藏首页后在浏览器地址栏手动输入首页welcome路由则跳转到404页面
+    if (VITE_HIDE_HOME === "true" && to.fullPath === "/welcome") {
+      next({ path: "/error/404" });
+    }
     if (_from?.name) {
       // name为超链接
       if (externalLink) {
         openLink(to?.name as string);
-        // NProgress.done();
+        NProgress.done();
       } else {
         toCorrectRoute();
       }
@@ -149,6 +155,7 @@ router.beforeEach((to: toRouteType, _from, next) => {
               path,
               router.options.routes[0].children
             );
+            getTopMenu(true);
             // query、params模式路由传参数的标签页不在此处处理
             if (route && route.meta?.title) {
               if (isAllEmpty(route.parentId) && route.meta?.backstage) {
@@ -188,7 +195,7 @@ router.beforeEach((to: toRouteType, _from, next) => {
 });
 
 router.afterEach(() => {
-  // NProgress.done();
+  NProgress.done();
 });
 
 export default router;

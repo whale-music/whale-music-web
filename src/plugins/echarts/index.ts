@@ -14,6 +14,7 @@ import {
 } from "echarts/components";
 
 const { use } = echarts;
+// const { use, registerTheme } = echarts;
 
 use([
   PieChart,
@@ -29,6 +30,13 @@ use([
   DataZoomComponent,
   VisualMapComponent
 ]);
+
+/**
+ * @description 自定义主题
+ * @see {@link https://echarts.apache.org/zh/download-theme.html}
+ */
+// import theme from "./theme.json";
+// registerTheme("ovilia-green", theme);
 
 /**
  * @description 按需引入echarts

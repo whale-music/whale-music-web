@@ -3,6 +3,8 @@ import { getConfig } from "@/config";
 import { useRouter } from "vue-router";
 import { emitter } from "@/utils/mitt";
 import { routeMetaType } from "../types";
+import userAvatar from "@/assets/user.jpg";
+import { getTopMenu } from "@/router/utils";
 import { useGlobal } from "@pureadmin/utils";
 import { transformI18n } from "@/plugins/i18n";
 import { router, remainingPaths } from "@/router";
@@ -85,8 +87,8 @@ export function useNav() {
     useUserStoreHook().logOut();
   }
 
-  function backHome() {
-    router.push("/welcome");
+  function backTopMenu() {
+    router.push(getTopMenu().path);
   }
 
   function onPanel() {
@@ -154,7 +156,7 @@ export function useNav() {
     logout,
     routers,
     $storage,
-    backHome,
+    backTopMenu,
     onPanel,
     getDivStyle,
     changeTitle,
@@ -165,6 +167,7 @@ export function useNav() {
     isCollapse,
     pureApp,
     username,
+    userAvatar,
     avatarsStyle,
     tooltipEffect,
     getDropdownItemStyle,
