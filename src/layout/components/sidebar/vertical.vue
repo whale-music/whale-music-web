@@ -69,6 +69,7 @@ onBeforeMount(() => {
 watch(
   () => [route.path, usePermissionStoreHook().wholeMenus],
   () => {
+    if (route.path.includes("/redirect")) return;
     getSubMenuData(route.path);
     menuSelect(route.path, routers);
   }
