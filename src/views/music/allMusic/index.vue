@@ -120,7 +120,7 @@ const state = reactive<{
   };
   table: {
     musicName: string;
-    data: MusicSearchRes[];
+    storeData: MusicSearchRes[];
     loading: boolean;
     filter: string;
     selectTableList: MusicSearchRes[];
@@ -160,7 +160,7 @@ const state = reactive<{
   },
   table: {
     musicName: "",
-    data: [],
+    storeData: [],
     loading: false,
     gridLoading: false,
     filter: "",
@@ -294,9 +294,9 @@ const getMusicList = async (param: MusicSearchReq, load?: boolean) => {
     state.table.loading = false;
     if (r.code === "200") {
       if (load === true) {
-        state.table.data.push(...r.data.records);
+        state.table.storeData.push(...r.data.records);
       } else {
-        state.table.data = r.data.records;
+        state.table.storeData = r.data.records;
       }
       state.req.page.total = r.data.total;
       state.req.page.pageNum = r.data.size;
@@ -473,7 +473,7 @@ const deleteCompelButton = async (flag: boolean) => {
         return;
       }
       for (const valueElement of state.table.selectTableList) {
-        state.table.data = state.table.data.filter(
+        state.table.storeData = state.table.storeData.filter(
           value => value.id !== valueElement.id
         );
       }
@@ -513,12 +513,12 @@ const downloads = async () => {
 const like = async (id: number, status: boolean) => {
   const r = await musicLike(id, status);
   if (r.code === "200") {
-    const index = state.table.data.findIndex(value => value.id === id);
+    const index = state.table.storeData.findIndex(value => value.id === id);
     if (index !== -1) {
       message(`${status === true ? "添加成功" : "删除成功"}`, {
         type: "success"
       });
-      state.table.data[index].isLike = status;
+      state.table.storeData[index].isLike = status;
     } else {
       await onSubmit(false);
     }
@@ -874,7 +874,8 @@ const toMusicInfo = id => {
       </transition>
       <el-empty
         v-if="
-          (state.table.data == null || state.table.data.length === 0) &&
+          (state.table.storeData == null ||
+            state.table.storeData.length === 0) &&
           !state.table.loading
         "
         description="这里没有音乐, 你可以首页添加音乐"
@@ -887,7 +888,7 @@ const toMusicInfo = id => {
             infinite-scroll-delay="1000"
             infinite-scroll-distance="-10"
           >
-            <li v-for="item in state.table.data" :key="item.id">
+            <li v-for="item in state.table.storeData" :key="item.id">
               <LoadImg
                 @click="toMusicInfo(item.id)"
                 :src="item.pic"
@@ -966,14 +967,14 @@ const toMusicInfo = id => {
           v-else
           v-loading="state.table.loading"
           ref="multipleTableRef"
-          :data="state.table.data"
+          :data="state.table.storeData"
           @selection-change="handleSelectionChange"
           :cell-style="cellStyle"
           :header-cell-style="tableHeaderCellStyle"
           v-show="
             !state.initLoading &&
-            state.table.data != null &&
-            state.table.data.length !== 0
+            state.table.storeData != null &&
+            state.table.storeData.length !== 0
           "
           :key="state.table.show.layout"
           @row-click="rowClick"

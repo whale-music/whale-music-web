@@ -10,8 +10,9 @@ import {
 import type { OptionsType } from "./type";
 import { isFunction, useDark } from "@pureadmin/utils";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import { Props } from "@vueuse/motion";
 
-const props = {
+const props: Props = {
   options: {
     type: Array as PropType<OptionsType[]>,
     default: () => []

@@ -46,6 +46,7 @@ const currentMusicLyric = ref<Lyric>({
   updateTime: ""
 });
 const musicInfo = ref<MusicSearchRes>({
+  isLike: false,
   lyric: "",
   album: undefined,
   albumId: 0,
