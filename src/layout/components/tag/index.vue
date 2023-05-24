@@ -513,7 +513,7 @@ onMounted(() => {
 
 <template>
   <div ref="containerDom" class="tags-view" v-if="!showTags">
-    <span v-show="isShowArrow" class="arrow-left">
+    <span v-show="isShowArrow" class="arrow-left" style="cursor: pointer">
       <IconifyIconOffline :icon="ArrowLeftSLine" @click="handleScroll(200)" />
     </span>
     <div ref="scrollbarDom" class="scroll-container">
@@ -534,6 +534,8 @@ onMounted(() => {
           @mouseleave.prevent="onMouseleave(index)"
           @click="tagOnClick(item)"
         >
+          <div class="tab-dividers" />
+          <div class="tab-bg" />
           <router-link
             :to="item.path"
             class="dark:!text-text_color_primary dark:hover:!text-primary"
@@ -558,7 +560,7 @@ onMounted(() => {
         </div>
       </div>
     </div>
-    <span v-show="isShowArrow" class="arrow-right">
+    <span v-show="isShowArrow" class="arrow-right" style="cursor: pointer">
       <IconifyIconOffline :icon="ArrowRightSLine" @click="handleScroll(-200)" />
     </span>
     <!-- 右键菜单按钮 -->
