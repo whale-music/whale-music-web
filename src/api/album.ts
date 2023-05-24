@@ -32,7 +32,7 @@ export interface AlbumRes {
 }
 
 export interface AlbumReq {
-  singerName: string;
+  artistName: string;
   orderBy: string;
   order: boolean;
   timeBy: boolean;

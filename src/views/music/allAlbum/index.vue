@@ -107,7 +107,7 @@ const page: Page =
     : storageLocal().getItem("album-page");
 
 state.search.req = {
-  singerName: "",
+  artistName: "",
   albumName: "",
   orderBy: "sort",
   order: false,
@@ -183,18 +183,18 @@ const getAlbumPageList = () => {
   state.table.loading = true;
 
   state.search.req.albumName = "";
-  state.search.req.singerName = "";
+  state.search.req.artistName = "";
   switch (state.search.searchType) {
     case "album":
       state.search.req.albumName = state.search.name;
       break;
     case "artist":
-      state.search.req.singerName = state.search.name;
+      state.search.req.artistName = state.search.name;
       break;
     default:
     case "all":
       state.search.req.albumName = state.search.name;
-      state.search.req.singerName = state.search.name;
+      state.search.req.artistName = state.search.name;
       break;
   }
 
