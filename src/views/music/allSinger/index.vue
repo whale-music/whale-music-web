@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { deleteArtist, getSingerPage, SingerRes } from "@/api/singer";
+import {
+  deleteArtist,
+  getSingerPage,
+  SingerReq,
+  SingerRes
+} from "@/api/singer";
 import { ref, reactive, onMounted, watch } from "vue";
 import { dateFormater } from "@/utils/dateUtil";
 import { useI18n } from "vue-i18n";
@@ -21,7 +26,7 @@ const { t } = useI18n();
 
 const state = reactive<{
   search: {
-    name: string;
+    req: SingerReq;
     searchType: string;
     typeData: {
       value: string;
@@ -41,7 +46,7 @@ const state = reactive<{
   };
 }>({
   search: {
-    name: "",
+    req: undefined,
     searchType: "artist",
     typeData: undefined
   },
@@ -57,6 +62,17 @@ const state = reactive<{
     }
   }
 });
+
+state.search.req = {
+  artistName: "",
+  orderBy: "sort",
+  order: false,
+  page: {
+    pageIndex: 0,
+    pageNum: 5,
+    total: 0
+  }
+};
 
 // 监听容器
 emitter.on("resize", ({ detail }) => {
@@ -78,12 +94,6 @@ function reDrawLayout(width: number) {
 
 const tableData = ref<SingerRes[]>();
 const menuFlag = ref<boolean>(false);
-
-const page = reactive({
-  pageIndex: 0,
-  pageNum: 5,
-  total: 0
-});
 
 // 排序
 const sortData = reactive([
@@ -134,21 +144,14 @@ const onChangeOptionSwitch = ({ option }) => {
   );
 };
 
-const sortConfig = ref("sort");
-
 const emptyFlag = ref<boolean>(false);
 const getAlbumPageList = () => {
   state.table.loading = true;
-  getSingerPage({
-    artistName: state.search.name,
-    orderBy: sortConfig.value,
-    order: false,
-    page: page
-  })
+  getSingerPage(state.search.req)
     .then(res => {
-      page.pageIndex = res.data.current;
-      page.pageNum = res.data.size;
-      page.total = res.data.total;
+      state.search.req.page.pageIndex = res.data.current;
+      state.search.req.page.pageNum = res.data.size;
+      state.search.req.page.total = res.data.total;
 
       tableData.value = res.data.records;
       state.table.loading = false;
@@ -182,12 +185,12 @@ onMounted(() => {
 });
 
 const handleSizeChange = val => {
-  page.pageNum = val;
+  state.search.req.page.pageNum = val;
   onSubmit();
 };
 
 const handleCurrentChange = val => {
-  page.pageIndex = val;
+  state.search.req.page.pageIndex = val;
   onSubmit();
 };
 
@@ -213,7 +216,7 @@ const deleteButton = async () => {
   try {
     const res = await deleteArtist(id);
     if (res.code === "200") {
-      if (multipleSelection.value.length === page.pageNum) {
+      if (multipleSelection.value.length === state.search.req.page.pageNum) {
         await onSubmit();
         return;
       }
@@ -346,20 +349,20 @@ const toArtist = res => {
     <div class="center-singer">
       <!--搜索框-->
       <name-search
-        v-model="state.search.name"
+        v-model="state.search.req.artistName"
         v-model:dropdownValue="state.search.searchType"
         :dropdown="state.search.typeData"
         :buttonName="t('buttons.search')"
         @onSearch="
           () => {
-            state.req.page.pageIndex = 0;
+            state.search.req.page.pageIndex = 1;
             onSubmit();
           }
         "
         @onClean="
           () => {
-            state.search.name = '';
-            state.req.page.pageIndex = 0;
+            state.search.req.artistName = '';
+            state.search.req.page.pageIndex = 1;
             onSubmit();
           }
         "
@@ -384,7 +387,7 @@ const toArtist = res => {
           />
 
           <el-select
-            v-model="sortConfig"
+            v-model="state.search.req.orderBy"
             placeholder="排序"
             size="large"
             style="width: 8rem"
@@ -497,14 +500,14 @@ const toArtist = res => {
         <el-scrollbar>
           <el-pagination
             background
-            :hide-on-single-page="page.total === 0"
-            :default-current-page="page.pageIndex"
-            :default-page-size="page.pageNum"
-            :current-page="page.pageIndex"
-            :page-size="page.pageNum"
-            :page-sizes="[100, 200, 500, 1000]"
+            :hide-on-single-page="state.search.req.page.total === 0"
+            :default-current-page="state.search.req.page.pageIndex"
+            :default-page-size="state.search.req.page.pageNum"
+            :current-page="state.search.req.page.pageIndex"
+            :page-size="state.search.req.page.pageNum"
+            :page-sizes="[5, 10, 100, 200, 500, 1000]"
             layout="total, sizes, prev, pager, next, jumper"
-            :total="page.total"
+            :total="state.search.req.page.total"
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
           />
