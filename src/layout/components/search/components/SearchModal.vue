@@ -142,6 +142,7 @@ onKeyStroke("ArrowDown", handleDown);
     :show-close="false"
     :width="device === 'mobile' ? '80vw' : '40vw'"
     :before-close="handleClose"
+    :append-to-body="true"
     :style="{
       borderRadius: '6px'
     }"
