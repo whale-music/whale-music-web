@@ -15,7 +15,8 @@ export default {
       name: "MusicInfo",
       component: () => import("@/views/music/musicInfo/index.vue"),
       meta: {
-        title: $t("list.allAlbum")
+        title: $t("list.allAlbum"),
+        showLink: false
       }
     },
     {
@@ -23,7 +24,8 @@ export default {
       name: "AlbumInfo",
       component: () => import("@/views/music/albumInfo/index.vue"),
       meta: {
-        title: $t("list.allAlbum")
+        title: $t("list.allAlbum"),
+        showLink: false
       }
     },
     {
@@ -31,7 +33,8 @@ export default {
       name: "ArtistInfo",
       component: () => import("@/views/music/artistInfo/index.vue"),
       meta: {
-        title: $t("list.allAlbum")
+        title: $t("list.allAlbum"),
+        showLink: false
       }
     }
   ]
