@@ -132,6 +132,14 @@ function handleEnter() {
 onKeyStroke("Enter", handleEnter);
 onKeyStroke("ArrowUp", handleUp);
 onKeyStroke("ArrowDown", handleDown);
+
+// 全局监听搜索快捷键
+onKeyStroke("k", e => {
+  if (e.ctrlKey == true) {
+    if (e.defaultPrevented == false) e.preventDefault();
+    show.value = true;
+  }
+});
 </script>
 
 <template>
