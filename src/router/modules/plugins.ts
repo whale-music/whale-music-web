@@ -10,7 +10,7 @@ export default {
   meta: {
     icon: "mingcute:plugin-2-fill",
     title: $t("menus.plugin"),
-    rank: 1
+    rank: 2
   },
   children: [
     {
