@@ -12,7 +12,7 @@ function handleSearch() {
 <template>
   <div class="search-container search" @click="handleSearch">
     <IconifyIconOffline :icon="Search" />
-    <span class="ml-3">搜索菜单</span>
+    <span class="ml-3 min-w-[2rem] truncate">搜索菜单</span>
     <span class="ml-auto pl-3 flex-none text-xs font-semibold"> Ctrl K </span>
   </div>
   <SearchModal v-model:value="show" />
