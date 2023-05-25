@@ -29,21 +29,20 @@ const menuData = computed(() => {
     : usePermissionStoreHook().wholeMenus;
 });
 
-const loading = computed(() => {
+const loading = () => {
   const b = pureApp.layout === "mix" ? false : menuData.value.length === 0;
   // 存储上一个侧栏路由信息，如果为空则跳过
   if (!b && menuData.value.length !== 0) {
-    storageLocal().setItem(
-      "menuStorae",
-      pureApp.layout === "mix" && device.value !== "mobile"
-        ? subMenuData.value
-        : usePermissionStoreHook().wholeMenus
-    );
+    menuStore.value = menuData.value;
   }
   return b;
-});
+};
 
-const menuStorae = computed(() => storageLocal().getItem("menuStorae"));
+const menuStore = ref(storageLocal().getItem("menuStore") ?? "/");
+
+watch(menuStore, value => {
+  storageLocal().setItem("menuStore", value);
+});
 
 function getSubMenuData(path: string) {
   subMenuData.value = [];
@@ -81,7 +80,7 @@ watch(
 
 <template>
   <div
-    v-loading="loading"
+    v-loading="loading()"
     :class="['sidebar-container', showLogo ? 'has-logo' : '']"
   >
     <Logo v-if="showLogo" :collapse="isCollapse" />
@@ -100,7 +99,7 @@ watch(
         @select="indexPath => menuSelect(indexPath, routers)"
       >
         <sidebar-item
-          v-for="routes in menuData.length === 0 ? menuStorae : menuData"
+          v-for="routes in menuData.length === 0 ? menuStore : menuData"
           :key="routes.path"
           :item="routes"
           :base-path="routes.path"
