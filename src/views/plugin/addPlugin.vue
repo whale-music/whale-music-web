@@ -198,12 +198,9 @@ export default defineComponent({
     };
     // 监听保存快捷键
     const saveContent = e => {
-      const key =
-        window.event.keyCode === undefined
-          ? window.event.keyCode
-          : window.event.which;
+      const key = e.keyCode === undefined ? e.keyCode : e.which;
       if (key === 83 && e.ctrlKey) {
-        window.event.preventDefault();
+        if (e.defaultPrevented == false) e.preventDefault();
         if (timeout) {
           clearTimeout(timeout);
         }

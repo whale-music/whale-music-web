@@ -11,8 +11,9 @@ import ContextMenu from "@imengyu/vue3-context-menu";
 import { message } from "@/utils/message";
 import Wbutton from "@/components/button/index.vue";
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
+import { defineComponent } from "vue";
 
-export default {
+export default defineComponent({
   setup() {
     return {};
   },
@@ -139,7 +140,7 @@ export default {
       pluginInfo: {} as PropType<PluginList | number>
     };
   }
-};
+});
 </script>
 <template>
   <div>
