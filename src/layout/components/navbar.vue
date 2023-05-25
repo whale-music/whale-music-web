@@ -132,6 +132,7 @@ const { t, locale, translationCh, translationEn } = useTranslationLang();
     align-items: center;
     color: #000000d9;
     justify-content: flex-end;
+    gap: 0.8rem;
 
     .el-dropdown-link {
       height: 48px;

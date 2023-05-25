@@ -19,6 +19,7 @@ function handleSearch() {
 </template>
 <style lang="scss" scoped>
 .search {
+  // height: 48
   @apply h-[40px] cursor-pointer navbar-bg-hover;
   width: 15rem;
   padding-right: 1rem;

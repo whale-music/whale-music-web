@@ -105,7 +105,7 @@ watch(
       <!-- 国际化 -->
       <el-dropdown id="header-translation" trigger="click">
         <globalization
-          class="navbar-bg-hover w-[40px] h-[48px] p-[11px] cursor-pointer outline-none"
+          class="navbar-bg-hover w-[55px] h-[48px] p-[11px] cursor-pointer outline-none"
         />
         <template #dropdown>
           <el-dropdown-menu class="translation">
