@@ -29,6 +29,6 @@ function handleSearch() {
   display: flex;
   align-items: center;
   border-radius: var(--el-border-radius-base);
-  background: var(--el-bg-color-page);
+  background: var(--el-color-info-light-7);
 }
 </style>
