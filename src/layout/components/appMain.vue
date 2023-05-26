@@ -30,10 +30,10 @@ const layout = computed(() => {
 
 const getSectionStyle = computed(() => {
   return [
-    hideTabs.value && layout ? "margin-top: 48px;" : "",
-    !hideTabs.value && layout ? "margin-top: 85px;" : "",
-    hideTabs.value && !layout.value ? "margin-top: 48px" : "",
-    !hideTabs.value && !layout.value ? "margin-top: 85px;" : "",
+    hideTabs.value && layout ? "margin-top: 60px;" : "",
+    !hideTabs.value && layout ? "margin-top: 90px;" : "",
+    hideTabs.value && !layout.value ? "margin-top: 60px" : "",
+    !hideTabs.value && !layout.value ? "margin-top: 90px;" : "",
     props.fixedHeader ? "" : "margin-top: 0;"
   ];
 });
@@ -77,11 +77,11 @@ const transitionMain = defineComponent({
   <div class="app-main-bg">
     <section
       :class="[props.fixedHeader ? 'app-main' : 'app-main-nofixed-header']"
-      :style="getSectionStyle"
     >
       <router-view>
         <template #default="{ Component, route }">
           <el-scrollbar v-if="props.fixedHeader">
+            <div :style="getSectionStyle" />
             <el-backtop title="回到顶部" target=".app-main .el-scrollbar__wrap">
               <backTop />
             </el-backtop>
