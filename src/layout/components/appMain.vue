@@ -30,11 +30,11 @@ const layout = computed(() => {
 
 const getSectionStyle = computed(() => {
   return [
-    hideTabs.value && layout ? "padding-top: 48px;" : "",
-    !hideTabs.value && layout ? "padding-top: 85px;" : "",
-    hideTabs.value && !layout.value ? "padding-top: 48px" : "",
-    !hideTabs.value && !layout.value ? "padding-top: 85px;" : "",
-    props.fixedHeader ? "" : "padding-top: 0;"
+    hideTabs.value && layout ? "margin-top: 48px;" : "",
+    !hideTabs.value && layout ? "margin-top: 85px;" : "",
+    hideTabs.value && !layout.value ? "margin-top: 48px" : "",
+    !hideTabs.value && !layout.value ? "margin-top: 85px;" : "",
+    props.fixedHeader ? "" : "margin-top: 0;"
   ];
 });
 
@@ -74,66 +74,74 @@ const transitionMain = defineComponent({
 </script>
 
 <template>
-  <section
-    :class="[props.fixedHeader ? 'app-main' : 'app-main-nofixed-header']"
-    :style="getSectionStyle"
-  >
-    <router-view>
-      <template #default="{ Component, route }">
-        <el-scrollbar v-if="props.fixedHeader">
-          <el-backtop title="回到顶部" target=".app-main .el-scrollbar__wrap">
-            <backTop />
-          </el-backtop>
-          <transitionMain :route="route">
-            <keep-alive
-              v-if="keepAlive"
-              :include="usePermissionStoreHook().cachePageList"
-            >
+  <div class="app-main-bg">
+    <section
+      :class="[props.fixedHeader ? 'app-main' : 'app-main-nofixed-header']"
+      :style="getSectionStyle"
+    >
+      <router-view>
+        <template #default="{ Component, route }">
+          <el-scrollbar v-if="props.fixedHeader">
+            <el-backtop title="回到顶部" target=".app-main .el-scrollbar__wrap">
+              <backTop />
+            </el-backtop>
+            <transitionMain :route="route">
+              <keep-alive
+                v-if="keepAlive"
+                :include="usePermissionStoreHook().cachePageList"
+              >
+                <component
+                  :is="Component"
+                  :key="route.fullPath"
+                  class="main-content"
+                />
+              </keep-alive>
               <component
+                v-else
                 :is="Component"
                 :key="route.fullPath"
                 class="main-content"
               />
-            </keep-alive>
-            <component
-              v-else
-              :is="Component"
-              :key="route.fullPath"
-              class="main-content"
-            />
-          </transitionMain>
-        </el-scrollbar>
-        <div v-else>
-          <transitionMain :route="route">
-            <keep-alive
-              v-if="keepAlive"
-              :include="usePermissionStoreHook().cachePageList"
-            >
+            </transitionMain>
+          </el-scrollbar>
+          <div v-else>
+            <transitionMain :route="route">
+              <keep-alive
+                v-if="keepAlive"
+                :include="usePermissionStoreHook().cachePageList"
+              >
+                <component
+                  :is="Component"
+                  :key="route.fullPath"
+                  class="main-content"
+                />
+              </keep-alive>
               <component
+                v-else
                 :is="Component"
                 :key="route.fullPath"
                 class="main-content"
               />
-            </keep-alive>
-            <component
-              v-else
-              :is="Component"
-              :key="route.fullPath"
-              class="main-content"
-            />
-          </transitionMain>
-        </div>
-      </template>
-    </router-view>
-  </section>
+            </transitionMain>
+          </div>
+        </template>
+      </router-view>
+    </section>
+  </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
+.app-main-bg {
+  background: $menuBg;
+}
+
 .app-main {
   width: 100%;
   height: 100vh;
   position: relative;
   overflow-x: hidden;
+  background: var(--el-bg-color);
+  border-radius: var(--el-border-radius-base);
 }
 
 .app-main-nofixed-header {
