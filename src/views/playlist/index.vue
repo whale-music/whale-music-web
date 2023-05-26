@@ -16,7 +16,7 @@ import { dateFormater } from "@/utils/dateUtil";
 import { message } from "@/utils/message";
 import { CellStyle } from "element-plus/es";
 import DownloadIcon from "@/components/DownloadIcon/download.vue";
-import { Page } from "@/api/common";
+import { MusicSearchReq } from "@/api/common";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { getUserInfo, UserInfoRes } from "@/api/user";
 import { handleAliveRoute } from "@/router/utils";
@@ -34,11 +34,21 @@ const router = useRouter();
 const { isDark } = useDark();
 
 const state = reactive<{
+  search: {
+    name: string;
+    req: MusicSearchReq;
+    res: PlayListRes;
+  };
   table: {
     optionSwitch: Array<OptionsType>;
-    optionSwitchValue: boolean;
+    optionSwitchValue: string;
   };
 }>({
+  search: {
+    name: "",
+    req: undefined,
+    res: undefined
+  },
   table: {
     optionSwitch: undefined,
     optionSwitchValue: storageLocal().getItem("layoutSwitch")
@@ -56,6 +66,24 @@ state.table.optionSwitch = [
     icon: ListCheckFill
   }
 ];
+
+state.search.req = {
+  afterDate: "",
+  albumName: "",
+  beforeDate: "",
+  musicIds: [],
+  musicName: "",
+  order: false,
+  orderBy: "",
+  artistName: "",
+  refresh: false,
+  isShowNoExist: false,
+  page: {
+    pageIndex: 0,
+    pageNum: 14,
+    total: 0
+  }
+};
 
 const tableData = ref<PlayListRes[]>();
 const emptyFlag = ref<boolean>(false);
@@ -113,34 +141,20 @@ const musicPlayConfig = reactive({
   isDisplay: false
 });
 
-const musicName = ref("");
-const pageConfig = ref<Page>({
-  pageIndex: 0,
-  pageNum: 14,
-  total: 0
-});
 const getPlay = (id: string) => {
-  getPlayListById(id, {
-    afterDate: "",
-    albumName: "",
-    beforeDate: "",
-    musicIds: [],
-    musicName: musicName.value,
-    order: false,
-    orderBy: "",
-    page: pageConfig.value,
-    artistName: "",
-    refresh: false,
-    isShowNoExist: false
-  })
+  state.search.req.musicName = state.search.name;
+  state.search.req.artistName = state.search.name;
+  state.search.req.albumName = state.search.name;
+
+  getPlayListById(id, state.search.req)
     .then(res => {
       if (res.code === "200") {
         tableData.value = res.data.records;
         emptyFlag.value =
           res.data.records == null || res.data.records.length === 0;
-        pageConfig.value.pageIndex = res.data.current;
-        pageConfig.value.pageNum = res.data.size;
-        pageConfig.value.total = res.data.total;
+        state.search.req.page.pageIndex = res.data.current;
+        state.search.req.page.pageNum = res.data.size;
+        state.search.req.page.total = res.data.total;
       } else {
         tableData.value = null;
         emptyFlag.value = true;
@@ -169,7 +183,7 @@ const playlistInfo = ref<PlayInfoRes>({
   userId: 0
 });
 
-const modifyPlayListInfo = ref<PlayInfoRes>(null);
+const modifyPlayListInfo = ref<PlayInfoRes>();
 
 const userInfo = ref<UserInfoRes>({
   createTime: "",
@@ -269,12 +283,12 @@ const updatePlayInfo = async () => {
 const aboutFlag = ref<boolean>(false);
 
 const handleSizeChange = val => {
-  pageConfig.value.pageNum = val;
+  state.search.req.page.pageNum = val;
   onSubmit();
 };
 
 const handleCurrentChange = val => {
-  pageConfig.value.pageIndex = val;
+  state.search.req.page.pageIndex = val;
   onSubmit();
 };
 
@@ -320,7 +334,7 @@ const addPlaySongList = async () => {
 
 const onChangeOptionSwitch = ({ option }) => {
   const { value } = option;
-  state.table.optionSwitchValue = value === "multiple";
+  state.table.optionSwitchValue = value;
   multipleSelection.value = [];
   storageLocal().setItem("layoutSwitch", state.table.optionSwitchValue);
 };
@@ -658,14 +672,21 @@ const throttle = ref(0);
         </el-skeleton>
       </div>
       <div class="mt-12">
-        <div class="desc">
-          <p class="playlist-item-name">歌曲列表</p>
-          <div>
+        <div class="desc flex-nowrap">
+          <p class="playlist-item-name leading-8 min-w-8 truncate">歌曲列表</p>
+          <div class="flex-c gap-1">
+            <el-input
+              v-model="state.search.name"
+              placeholder="搜索音乐"
+              :clearable="true"
+              @clear="onSubmit"
+              @keydown.enter="onSubmit"
+            />
             <Segmented
               :options="state.table.optionSwitch"
               :defaultValue="
                 state.table.optionSwitch.findIndex(
-                  value => value.value === 'radio'
+                  value => value.value === state.table.optionSwitchValue
                 )
               "
               @change="onChangeOptionSwitch"
@@ -677,13 +698,13 @@ const throttle = ref(0);
         <el-skeleton
           animated
           :loading="playListInfoFlag"
-          v-if="state.table.optionSwitchValue"
+          v-if="state.table.optionSwitchValue === 'multiple'"
           :throttle="throttle"
         >
           <template #template>
             <div class="flex flex-col items-center gap-4">
               <el-skeleton-item
-                v-for="item in pageConfig.pageNum"
+                v-for="item in state.search.req.page.pageNum"
                 :key="item"
                 variant="h1"
                 style="width: 80%; height: 2rem; border-radius: 0.6rem"
@@ -773,7 +794,7 @@ const throttle = ref(0);
         >
           <template #template>
             <div class="list-grid">
-              <div v-for="item in pageConfig.pageNum" :key="item">
+              <div v-for="item in state.search.req.page.pageNum" :key="item">
                 <el-skeleton-item
                   variant="image"
                   style="width: 10rem; height: 10rem; border-radius: 1rem"
@@ -795,7 +816,7 @@ const throttle = ref(0);
                   @click="toMusicInfo(item.id)"
                 />
                 <p
-                  class="cursor-pointer truncate hover:underline"
+                  class="text-base cursor-pointer truncate hover:underline"
                   @click="toMusicInfo(item.id)"
                 >
                   {{ item.musicName }}
@@ -813,13 +834,13 @@ const throttle = ref(0);
       <div class="option" id="toPage">
         <el-pagination
           background
-          :hide-on-single-page="pageConfig.total === 0"
-          :default-current-page="pageConfig.pageIndex"
-          :default-page-size="pageConfig.pageNum"
-          :current-page="pageConfig.pageIndex"
-          :page-size="pageConfig.pageNum"
+          :hide-on-single-page="state.search.req.page.total === 0"
+          :default-current-page="state.search.req.page.pageIndex"
+          :default-page-size="state.search.req.page.pageNum"
+          :current-page="state.search.req.page.pageIndex"
+          :page-size="state.search.req.page.pageNum"
           layout="prev, pager, next"
-          :total="pageConfig.total"
+          :total="state.search.req.page.total"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
         />
