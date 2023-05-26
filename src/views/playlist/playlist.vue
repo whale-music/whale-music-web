@@ -184,8 +184,8 @@ const getAlbumPageList = async () => {
   }
 };
 
-const onSubmit = () => {
-  getAlbumPageList();
+const onSubmit = async () => {
+  await getAlbumPageList();
 };
 
 // 表格变更时重新查询
@@ -197,6 +197,12 @@ onMounted(() => {
   state.table.initLoading = true;
   getAlbumPageList();
   state.table.initLoading = false;
+
+  const width =
+    window.innerWidth ||
+    document.documentElement.clientWidth ||
+    document.body.clientWidth;
+  reDrawLayout(width);
 });
 
 const handleSizeChange = val => {
@@ -327,6 +333,7 @@ const toPlayList = id => {
           v-model="deleteMusicFlag"
           width="30%"
           title="确认需要删除吗?"
+          :append-to-body="true"
         >
           <span> 该操作只会删除歌手数据 </span>
           <template #footer>
