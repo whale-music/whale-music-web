@@ -1157,11 +1157,14 @@ const toMusicPlay = async res => {
 }
 
 .edit-music {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  width: 80%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
 
   @media screen and (max-width: 720px) {
-    grid-template-columns: 1fr 1fr;
+    width: 100%;
   }
 }
 
