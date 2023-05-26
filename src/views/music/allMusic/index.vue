@@ -267,9 +267,12 @@ state.table.optionSwitch = [
 ];
 
 // 监听是否选择音乐
-watch(state.table.selectTableList, async newQuestion => {
-  selectFlag.value = newQuestion.length > 0;
-});
+watch(
+  () => state.table.selectTableList,
+  newQuestion => {
+    selectFlag.value = newQuestion.length > 0;
+  }
+);
 
 watch(
   () => state.table.show.isInvalid,
@@ -329,8 +332,8 @@ const onSubmit = async (refresh?: boolean, load?: boolean) => {
     case "artist":
       state.req.artistName = state.table.musicName;
       break;
-    default:
     case "all":
+    default:
       state.req.albumName = state.table.musicName;
       state.req.artistName = state.table.musicName;
       state.req.musicName = state.table.musicName;
