@@ -618,7 +618,7 @@ const toArtist = id => {
 }
 
 .center_album {
-  width: 90%;
+  width: 100%;
   display: flex;
   flex-direction: column;
 }

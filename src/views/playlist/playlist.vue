@@ -568,8 +568,6 @@ const toPlayList = id => {
 </template>
 
 <style lang="scss" scoped>
-$searchWidth: 90%;
-$searchHeight: 90%;
 @import url("@/style/pagination.scss");
 
 .font {
@@ -588,8 +586,7 @@ $searchHeight: 90%;
 }
 
 .center-singer {
-  width: $searchWidth;
-  margin: 0 auto;
+  width: 100%;
 }
 
 .option {
