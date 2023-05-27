@@ -126,11 +126,11 @@ const topPath = getTopMenu().path;
       align-items: center;
       justify-content: center;
       border-radius: var(--el-border-radius-base);
-      background: var(--el-bg-color-page);
+      background: $menuBg;
     }
 
     .router-bg:hover {
-      background: var(--el-color-info-light-8);
+      background: $menuHover;
     }
   }
 }

@@ -96,10 +96,15 @@ watch(
         v-for="item in levelList"
         :key="item.path"
       >
-        <a @click.prevent="handleLink(item)">
+        <a @click.prevent="handleLink(item)" class="breadcrumb-text">
           {{ transformI18n(item.meta.title) }}
         </a>
       </el-breadcrumb-item>
     </transition-group>
   </el-breadcrumb>
 </template>
+<style lang="scss" scoped>
+.breadcrumb-text {
+  color: $menuText;
+}
+</style>

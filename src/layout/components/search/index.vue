@@ -29,6 +29,9 @@ function handleSearch() {
   display: flex;
   align-items: center;
   border-radius: var(--el-border-radius-base);
-  background: var(--el-color-info-light-7);
+  color: $menuText;
+  border: 2px solid $menuHover;
+  background: $subMenuBg;
+  box-shadow: inset 0 1px 0 0 $menuText;
 }
 </style>

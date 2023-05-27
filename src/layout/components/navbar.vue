@@ -29,7 +29,7 @@ const { t, locale, translationCh, translationEn } = useTranslationLang();
 </script>
 
 <template>
-  <div class="navbar bg-[#fff] dark:shadow-[#0d0d0d]">
+  <div class="navbar dark:shadow-[#0d0d0d]">
     <topCollapse
       v-if="device === 'mobile'"
       class="hamburger-container"
@@ -115,6 +115,7 @@ const { t, locale, translationCh, translationEn } = useTranslationLang();
   width: 100%;
   height: 48px;
   overflow: hidden;
+  background: $sidebarLogo;
 
   .hamburger-container {
     line-height: 48px;
