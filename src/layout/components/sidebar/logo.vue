@@ -74,7 +74,7 @@ const topPath = getTopMenu().path;
 
 <style lang="scss" scoped>
 .sidebar-logo-container {
-  @apply shadow-sm;
+  //@apply shadow-sm;
   width: 100%;
   height: 48px;
   overflow: hidden;

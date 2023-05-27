@@ -52,11 +52,12 @@
   }
 }
 
-$bg: #f2f3f3;
+$bg: $menuBg;
 $active-bg: #ffffff;
 $break-up: #cdd0d6;
 
 .tags-view {
+  margin-left: 1rem;
   width: 100%;
   font-size: 14px;
   display: flex;
@@ -137,7 +138,7 @@ $break-up: #cdd0d6;
     //padding: 5px 0;
     white-space: nowrap;
     position: relative;
-    background: var(--el-bg-color-page);
+    background: $bg;
 
     .tab {
       position: relative;

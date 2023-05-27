@@ -29,12 +29,28 @@ const layout = computed(() => {
 });
 
 const getSectionStyle = computed(() => {
+  const maxHeight = 100;
+  let height = 7;
+  const topHeight = 7;
+  const tagHeight = 5.3;
+  if (props.fixedHeader) {
+    height = 0;
+  }
+  if (hideTabs.value && layout.value) {
+    height = topHeight;
+  }
+  if (!hideTabs.value && layout.value) {
+    height = topHeight + tagHeight;
+  }
+  if (hideTabs.value && !layout.value) {
+    height = topHeight;
+  }
+  if (!hideTabs.value && !layout.value) {
+    height = topHeight + tagHeight;
+  }
   return [
-    hideTabs.value && layout ? "margin-top: 60px;" : "",
-    !hideTabs.value && layout ? "margin-top: 90px;" : "",
-    hideTabs.value && !layout.value ? "margin-top: 60px" : "",
-    !hideTabs.value && !layout.value ? "margin-top: 90px;" : "",
-    props.fixedHeader ? "" : "margin-top: 0;"
+    `--top-height: ${height + 0.2}vh;`,
+    `--content-height: ${maxHeight - height - 0.2}vh;`
   ];
 });
 
@@ -74,14 +90,15 @@ const transitionMain = defineComponent({
 </script>
 
 <template>
-  <div class="app-main-bg">
+  <div class="app-main-bg" :style="getSectionStyle">
+    <!--顶栏占位-->
+    <div style="height: var(--top-height)" class="app-main-bg" />
     <section
       :class="[props.fixedHeader ? 'app-main' : 'app-main-nofixed-header']"
     >
       <router-view>
         <template #default="{ Component, route }">
           <el-scrollbar v-if="props.fixedHeader">
-            <div :style="getSectionStyle" />
             <el-backtop title="回到顶部" target=".app-main .el-scrollbar__wrap">
               <backTop />
             </el-backtop>
@@ -137,7 +154,7 @@ const transitionMain = defineComponent({
 
 .app-main {
   width: 100%;
-  height: 100vh;
+  height: var(--content-height);
   position: relative;
   overflow-x: hidden;
   background: var(--el-bg-color);
