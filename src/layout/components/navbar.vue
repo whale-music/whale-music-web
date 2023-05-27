@@ -115,7 +115,7 @@ const { t, locale, translationCh, translationEn } = useTranslationLang();
   width: 100%;
   height: 48px;
   overflow: hidden;
-  background: $sidebarLogo;
+  background: $menuBg;
 
   .hamburger-container {
     line-height: 48px;

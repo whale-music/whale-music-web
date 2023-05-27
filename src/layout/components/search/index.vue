@@ -20,7 +20,7 @@ function handleSearch() {
 <style lang="scss" scoped>
 .search {
   // height: 48
-  @apply h-[40px] cursor-pointer navbar-bg-hover;
+  @apply h-[40px] cursor-pointer navbar-bg-hover dark:bg-black dark:shadow-black dark:border dark:border-black;
   width: 15rem;
   padding-right: 1rem;
   padding-left: 1rem;

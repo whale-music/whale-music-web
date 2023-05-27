@@ -13,7 +13,8 @@
     <script>
       window.process = {};
       let htmlStyle = document.getElementsByTagName("html")[0].style;
-      const item = localStorage.getItem("darkMode").valueOf();
+      let item = localStorage.getItem("darkMode");
+      item = item == null ? "false" : item.valueOf();
       if (item === "true") {
         htmlStyle.backgroundColor = "#212121";
       } else {
