@@ -12,6 +12,13 @@
     <link rel="icon" href="/favicon.ico" />
     <script>
       window.process = {};
+      let htmlStyle = document.getElementsByTagName("html")[0].style;
+      const item = localStorage.getItem("darkMode").valueOf();
+      if (item === "true") {
+        htmlStyle.backgroundColor = "#212121";
+      } else {
+        htmlStyle.backgroundColor = "#fff";
+      }
     </script>
     <style>
       html,

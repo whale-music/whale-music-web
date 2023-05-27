@@ -1,8 +1,14 @@
 <script setup lang="ts">
-import { useGlobal } from "@pureadmin/utils";
+import { storageLocal, useDark, useGlobal } from "@pureadmin/utils";
 import backTop from "@/assets/svg/back_top.svg?component";
-import { h, computed, Transition, defineComponent } from "vue";
+import { h, computed, Transition, defineComponent, watch } from "vue";
 import { usePermissionStoreHook } from "@/store/modules/permission";
+
+const { isDark } = useDark();
+watch(isDark, value => {
+  // 是否黑暗模式缓存到本地缓存到本地
+  storageLocal().setItem("darkMode", value);
+});
 
 const props = defineProps({
   fixedHeader: Boolean
