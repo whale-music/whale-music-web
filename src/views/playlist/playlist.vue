@@ -51,6 +51,13 @@ const state = reactive<{
       label: string;
     }[];
   };
+  config: {
+    playListType: Map<number, string>;
+    playListTypeTag: Map<
+      number,
+      "success" | "info" | "warning" | "danger" | ""
+    >;
+  };
   table: {
     initLoading: boolean;
     show: {
@@ -66,6 +73,10 @@ const state = reactive<{
     name: "",
     searchType: "playList",
     typeData: undefined
+  },
+  config: {
+    playListType: undefined,
+    playListTypeTag: undefined
   },
   table: {
     initLoading: false,
@@ -155,6 +166,18 @@ const typeSortData = reactive([
     value: 2,
     label: "推荐歌单"
   }
+]);
+
+state.config.playListType = new Map([
+  [0, "普通歌单"],
+  [1, "喜爱歌单"],
+  [2, "推荐歌单"]
+]);
+
+state.config.playListTypeTag = new Map([
+  [0, ""],
+  [1, "danger"],
+  [2, "success"]
 ]);
 
 const sortConfig = ref("sort");
@@ -502,6 +525,19 @@ const toPlayList = id => {
           v-if="switchTableAndRadioFlag"
         />
         <el-table-column type="index" />
+
+        <el-table-column
+          label="歌单类型"
+          :show-overflow-tooltip="true"
+          width="100"
+        >
+          <template #default="scope">
+            <el-tag :type="state.config.playListTypeTag.get(scope.row.type)">
+              {{ state.config.playListType.get(scope.row.type) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+
         <el-table-column width="110" :show-overflow-tooltip="false">
           <template #default="scope">
             <el-image
