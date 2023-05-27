@@ -1110,7 +1110,7 @@ const toMusicInfo = id => {
         v-if="state.table.show.layout !== 'grid' || state.table.show.autoRoll"
       >
         <el-scrollbar>
-          <div class="flex">
+          <div class="flex" v-show="!state.initLoading">
             <el-pagination
               background
               :hide-on-single-page="state.req.page.total === 0"

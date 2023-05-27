@@ -18,6 +18,7 @@ import MenuFill from "@iconify-icons/mingcute/menu-fill";
 import ListCheckFill from "@iconify-icons/mingcute/list-check-fill";
 import NameSearch from "@/components/nameSearch/index.vue";
 import { emitter } from "@/utils/mitt";
+import LoadImg from "@/components/LoadImg/LoadImg.vue";
 
 const { isDark } = useDark();
 const router = useRouter();
@@ -145,22 +146,21 @@ const onChangeOptionSwitch = ({ option }) => {
 };
 
 const emptyFlag = ref<boolean>(false);
-const getAlbumPageList = () => {
+const getAlbumPageList = async () => {
   state.table.loading = true;
-  getSingerPage(state.search.req)
-    .then(res => {
-      state.search.req.page.pageIndex = res.data.current;
-      state.search.req.page.pageNum = res.data.size;
-      state.search.req.page.total = res.data.total;
+  try {
+    const res = await getSingerPage(state.search.req);
+    state.search.req.page.pageIndex = res.data.current;
+    state.search.req.page.pageNum = res.data.size;
+    state.search.req.page.total = res.data.total;
 
-      tableData.value = res.data.records;
-      state.table.loading = false;
-    })
-    .catch(res => {
-      message(`${res}`, { type: "error" });
-      state.table.loading = false;
-      emptyFlag.value = true;
-    });
+    tableData.value = res.data.records;
+    state.table.loading = false;
+  } catch (e) {
+    message(`${e}`, { type: "error" });
+    state.table.loading = false;
+    emptyFlag.value = true;
+  }
 };
 
 const onSubmit = () => {
@@ -172,9 +172,9 @@ const sortOnSubmit = () => {
   onSubmit();
 };
 
-onMounted(() => {
+onMounted(async () => {
   state.table.intiLoading = true;
-  getAlbumPageList();
+  await getAlbumPageList();
   state.table.intiLoading = false;
 
   const width =
@@ -440,11 +440,12 @@ const toArtist = res => {
         <el-table-column type="index" />
         <el-table-column width="110" :show-overflow-tooltip="false">
           <template #default="scope">
-            <el-image
-              style="width: 5rem; height: 5rem"
-              class="rounded shadow-md"
+            <load-img
               :src="scope.row.pic"
-              fit="cover"
+              width="5rem"
+              height="5rem"
+              radius="9999px"
+              :shadow="false"
             />
           </template>
         </el-table-column>
@@ -454,9 +455,11 @@ const toArtist = res => {
           :show-overflow-tooltip="true"
         >
           <template #default="scope">
-            <el-link :underline="false" @click="toArtist(scope.row)"
-              ><span class="text-xl">{{ scope.row.artistName }}</span></el-link
-            >
+            <el-link :underline="false" @click="toArtist(scope.row)">
+              <span class="text-xl">
+                {{ scope.row.artistName }}
+              </span>
+            </el-link>
             <span class="font">&emsp;{{ scope.row.aliasName }}</span>
           </template>
         </el-table-column>
@@ -468,7 +471,9 @@ const toArtist = res => {
           width="100"
         >
           <template #default="scope">
-            <span class="text-2xl">{{ scope.row.albumSize }}</span>
+            <span class="text-xl" style="color: var(--el-text-color-secondary)">
+              {{ scope.row.albumSize }}
+            </span>
           </template>
         </el-table-column>
 
@@ -479,7 +484,9 @@ const toArtist = res => {
           width="100"
         >
           <template #default="scope">
-            <span class="text-2xl">{{ scope.row.musicSize }}</span>
+            <span class="text-xl" style="color: var(--el-text-color-secondary)">
+              {{ scope.row.musicSize }}
+            </span>
           </template>
         </el-table-column>
 
@@ -490,7 +497,7 @@ const toArtist = res => {
           :show-overflow-tooltip="true"
         >
           <template #default="scope">
-            <span>{{
+            <span style="color: var(--el-text-color-secondary)">{{
               dateFormater("YYYY-MM-dd HH:mm:ss", scope.row.createTime)
             }}</span>
           </template>

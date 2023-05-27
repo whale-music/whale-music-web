@@ -15,6 +15,11 @@ const props = defineProps({
     type: String,
     default: "2rem",
     required: false
+  },
+  shadow: {
+    type: Boolean,
+    default: true,
+    required: false
   }
 });
 </script>
@@ -24,7 +29,10 @@ const props = defineProps({
     :src="props.src"
     fit="cover"
     :style="{ width: width, height: height, 'border-radius': props.radius }"
-    class="img"
+    :class="{
+      'img-shadow': props.shadow,
+      img: !props.shadow
+    }"
   >
     <template #placeholder>
       <div
@@ -45,8 +53,12 @@ const props = defineProps({
 </template>
 
 <style lang="scss" scoped>
-.img {
+.img-shadow {
   @apply shadow-xl;
+  border-radius: 2rem;
+}
+
+.img {
   border-radius: 2rem;
 }
 </style>

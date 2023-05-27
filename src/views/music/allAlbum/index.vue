@@ -14,6 +14,7 @@ import ListCheckFill from "@iconify-icons/mingcute/list-check-fill";
 import Segmented, { type OptionsType } from "@/components/ReSegmented";
 import NameSearch from "@/components/nameSearch/index.vue";
 import { emitter } from "@/utils/mitt";
+import LoadImg from "@/components/LoadImg/LoadImg.vue";
 
 const { isDark } = useDark();
 const router = useRouter();
@@ -22,7 +23,7 @@ const { t } = useI18n();
 
 onMounted(async () => {
   state.table.initLoading = true;
-  getAlbumPageList();
+  await getAlbumPageList();
   state.table.initLoading = false;
 });
 
@@ -179,7 +180,7 @@ const onChangeOptionSwitch = ({ option }) => {
 };
 
 const emptyFlag = ref<boolean>(false);
-const getAlbumPageList = () => {
+const getAlbumPageList = async () => {
   state.table.loading = true;
 
   state.search.req.albumName = "";
@@ -198,20 +199,20 @@ const getAlbumPageList = () => {
       break;
   }
 
-  getAlbumPage(state.search.req)
-    .then(res => {
-      state.search.req.page.pageIndex = res.data.current;
-      state.search.req.page.pageNum = res.data.size;
-      state.search.req.page.total = res.data.total;
+  try {
+    const res = await getAlbumPage(state.search.req);
 
-      state.search.res = res.data.records;
-      state.table.loading = false;
-    })
-    .catch(res => {
-      state.table.loading = false;
-      emptyFlag.value = true;
-      message(`${res}`, { type: "error" });
-    });
+    state.search.req.page.pageIndex = res.data.current;
+    state.search.req.page.pageNum = res.data.size;
+    state.search.req.page.total = res.data.total;
+
+    state.search.res = res.data.records;
+    state.table.loading = false;
+  } catch (e) {
+    state.table.loading = false;
+    emptyFlag.value = true;
+    message(`${e}`, { type: "error" });
+  }
 };
 
 const onSubmit = () => {
@@ -504,7 +505,7 @@ const toArtist = id => {
             style="width: 100%"
             table-layout="fixed"
             :key="state.table.optionSwitchValue"
-            v-show="!emptyFlag"
+            v-show="!emptyFlag && !state.table.initLoading"
             @selection-change="handleSelectionChange"
             :header-cell-style="tableHeaderCellStyle"
             @row-click="rowClick"
@@ -518,11 +519,12 @@ const toArtist = id => {
             <el-table-column type="index" />
             <el-table-column width="110" :show-overflow-tooltip="false">
               <template #default="scope">
-                <el-image
-                  style="width: 5rem; height: 5rem"
-                  class="rounded"
+                <load-img
                   :src="scope.row.pic"
-                  fit="cover"
+                  width="5rem"
+                  height="5rem"
+                  radius="1rem"
+                  :shadow="false"
                 />
               </template>
             </el-table-column>
@@ -540,16 +542,6 @@ const toArtist = id => {
               </template>
             </el-table-column>
             <el-table-column
-              :label="t('table.musicSize')"
-              :show-overflow-tooltip="true"
-              width="100"
-              v-if="state.table.show.musicCount"
-            >
-              <template #default="scope">
-                <span class="text-2xl">{{ scope.row.albumSize }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column
               :label="t('input.singerName')"
               :show-overflow-tooltip="true"
               v-if="state.table.show.artist"
@@ -561,10 +553,26 @@ const toArtist = id => {
                   v-for="item in scope.row.artistList"
                   :key="item.id"
                   class="m-1"
-                  ><span class="text-xl font-bold">{{
-                    item.artistName
-                  }}</span></el-link
                 >
+                  <span class="text-xl">
+                    {{ item.artistName }}
+                  </span>
+                </el-link>
+              </template>
+            </el-table-column>
+            <el-table-column
+              :label="t('table.musicSize')"
+              :show-overflow-tooltip="true"
+              width="100"
+              v-if="state.table.show.musicCount"
+            >
+              <template #default="scope">
+                <span
+                  class="text-xl"
+                  style="color: var(--el-text-color-secondary)"
+                >
+                  {{ scope.row.albumSize }}
+                </span>
               </template>
             </el-table-column>
             <el-table-column
@@ -574,7 +582,7 @@ const toArtist = id => {
               v-if="state.table.show.creatTime"
             >
               <template #default="scope">
-                <span>{{
+                <span style="color: var(--el-text-color-secondary)">{{
                   dateFormater("YYYY-MM-dd HH:mm:ss", scope.row.createTime)
                 }}</span>
               </template>
