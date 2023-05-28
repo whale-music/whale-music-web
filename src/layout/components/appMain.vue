@@ -6,7 +6,7 @@ import { usePermissionStoreHook } from "@/store/modules/permission";
 
 const { isDark } = useDark();
 watch(isDark, value => {
-  // 是否黑暗模式缓存到本地缓存到本地
+  // 是否黑暗模式缓存到本地缓存到本地, 全局Loading时读取配置
   storageLocal().setItem("darkMode", value);
 });
 
