@@ -14,6 +14,7 @@ import MouseWheel from "@better-scroll/mouse-wheel";
 import { useNav } from "@/layout/hooks/useNav";
 import { emitter } from "@/utils/mitt";
 import { useDialog } from "@/layout/hooks/useDialog";
+import { darken } from "@pureadmin/utils";
 
 const { widthRef } = useDialog();
 const { closePlayMusic } = useNav();
@@ -71,7 +72,6 @@ const currentMusicUrl = ref<MusicUrlInfo>({
   url: "",
   userId: 0
 });
-
 // 歌词容器
 const scroll = ref();
 const scrollBS = ref();
@@ -144,10 +144,7 @@ async function initMusicInfo(musicInfoRes: MusicSearchRes) {
   } else {
     currentMusicLyric.value = musicLyricList.value[musicLyricIndex];
   }
-  // currentMusicLyric.value =
-  //   musicLyricIndex === -1
-  //     ? currentMusicLyric.value
-  //     : musicLyricList.value[musicLyricIndex];
+
   currentMusicUrl.value = musicUrlList.value[0];
 }
 
@@ -168,8 +165,13 @@ async function initPlaySong() {
     lyricsArr.value.sort((a, b) => a.timestamp - b.timestamp);
   }
   // 背景渐变色
-  await getBGColor();
+  getBGColor();
 }
+
+// 进入时初始化当前音乐
+emitter.on("openPlayMusic", async () => {
+  await initPlaySong();
+});
 
 onMounted(async () => {
   await initPlaySong();
@@ -194,14 +196,21 @@ onMounted(async () => {
 });
 
 const getBGColor = async () => {
-  const musicPicUrl = `${musicInfo.value.pic}?time=${Math.random()}`;
-  const colors = await prominent(musicPicUrl, {
+  const colors = await prominent(musicInfo.value.pic, {
     format: "hex",
     group: 30
   });
 
+  // TODO 渐变动画，暂时不能实现
+  // const newColor: Number[][] = [hexToRgb(colors[1]), hexToRgb(colors[0])];
+  // switchColor(newColor);
+  // colors[1] = darken(colors[1], 1 / 5);
+  // imgColorStyle.value = {
+  //   background: `linear-gradient(312deg, ${colors[0]} 0%, ${colors[1]} 50%, ${colors[2]} 100%)`
+  // };
+  const color = darken(colors[1], 1 / 5);
   imgColorStyle.value = {
-    backgroundImage: `linear-gradient(312deg, ${colors[0]} 0%, ${colors[1]} 50%, ${colors[2]} 100%)`
+    backgroundColor: `${color}`
   };
 };
 
@@ -762,7 +771,7 @@ $lyricPadding: 0.8rem;
 
 .shadowMask {
   height: 100%;
-  background-color: rgba(202, 198, 198, 0.5);
+  background-color: rgba(118, 118, 122, 0.47);
   backdrop-filter: blur(50px);
 }
 

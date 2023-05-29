@@ -12,13 +12,18 @@ import {
 const playSongList = "Play-Song-List";
 export const userPlaySongList = defineStore({
   id: playSongList,
-  state: () => ({
-    // 播放音乐信息
-    playListMusicArr: [] as MusicSearchRes[],
-    currentIndex: 0,
-    currentMusicUrlArr: [] as MusicUrl[],
-    musicLyricArr: [] as Lyric[]
-  }),
+  state: () => {
+    return {
+      // 播放音乐信息
+      playListMusicArr: [] as MusicSearchRes[],
+      // 当前播放音乐
+      currentIndex: 0,
+      // 当前音乐地址
+      currentMusicUrlArr: new Map<Number, MusicUrl[]>(),
+      // 当前音乐歌词信息
+      musicLyricArr: new Map<Number, Lyric[]>()
+    };
+  },
   getters: {
     getCurrentMusic: state => state.playListMusicArr[state.currentIndex],
     getPlayListMusic: state => state.playListMusicArr,
@@ -105,16 +110,23 @@ export const userPlaySongList = defineStore({
     },
     // 获取音乐的所有音源
     async getAllMusicUrl(musicId: number) {
-      const url = this.currentMusicUrlArr.filter(
-        value => value.musicId === musicId
-      );
+      this.currentMusicUrlArr =
+        this.currentMusicUrlArr instanceof Map
+          ? this.currentMusicUrlArr
+          : new Map<Number, MusicUrl[]>();
+
+      const url = this.currentMusicUrlArr.get(musicId);
       // 判断是否有缓存
-      if (url.length === 0) {
+      if (
+        this.currentMusicUrlArr.size === 0 ||
+        url == null ||
+        url.length === 0
+      ) {
         return new Promise<MusicUrl[]>((resolve, reject) => {
           getMusicUrl(musicId.toString())
             .then(res => {
               if (res.code === "200") {
-                this.currentMusicUrlArr.push(res.data);
+                this.currentMusicUrlArr.set(musicId, res.data);
                 resolve(res.data);
               } else {
                 resolve(res.data);
@@ -146,12 +158,15 @@ export const userPlaySongList = defineStore({
       }
     },
     async getLyric(musicId: number) {
-      const lyrics = this.musicLyricArr.filter(
-        value => value.musicId === musicId
-      );
-      if (lyrics.length === 0) {
+      this.musicLyricArr =
+        this.musicLyricArr instanceof Map
+          ? this.musicLyricArr
+          : new Map<Number, Lyric[]>();
+
+      const lyrics = this.musicLyricArr.get(musicId);
+      if (this.musicLyricArr || lyrics == null || lyrics.length === 0) {
         const tempMusicLyric = await getMusicLyric(musicId.toString());
-        this.musicLyricArr.push(tempMusicLyric.data);
+        this.musicLyricArr.set(musicId, tempMusicLyric.data);
         return tempMusicLyric.data;
       } else {
         return lyrics;
