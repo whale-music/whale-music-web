@@ -837,30 +837,29 @@ const toMusicPlay = async res => {
               </div>
               <div class="edit-music">
                 <div>
-                  <el-button-group>
+                  <el-button-group type="primary">
                     <el-button
                       class="edit-music-button"
-                      type="primary"
                       size="default"
                       round
                       @click="playMusic"
                     >
                       <i><PlayIcon class="w-5 h-5" /></i>
-                      <span v-html="'\u00a0' + '播放' + '\u00a0'"
-                    /></el-button>
+                      <span>播放</span>
+                    </el-button>
                     <el-button
-                      type="primary"
                       class="edit-music-button"
                       round
                       size="default"
                       @click="getUserPlayInfo(musicInfo.id)"
-                      ><i
-                        ><IconifyIconOnline
-                          color="#ffffff"
-                          icon="mingcute:add-fill"
-                          width="1.1rem"
-                          height="1.1rem" /></i
-                    ></el-button>
+                    >
+                      <IconifyIconOnline
+                        color="#ffffff"
+                        icon="mingcute:add-fill"
+                        width="1.1rem"
+                        height="1.1rem"
+                      />
+                    </el-button>
                   </el-button-group>
                   <!--添加歌曲到歌单-->
                   <add-music-to-play-list
@@ -1157,15 +1156,10 @@ const toMusicPlay = async res => {
 }
 
 .edit-music {
-  width: 80%;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   gap: 1rem;
-
-  @media screen and (max-width: 720px) {
-    width: 100%;
-  }
 }
 
 .edit-music-button {
