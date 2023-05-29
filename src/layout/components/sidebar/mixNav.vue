@@ -14,6 +14,7 @@ import user from "@/assets/svg/user.svg?component";
 import LogoutCircleRLine from "@iconify-icons/ri/logout-circle-r-line";
 import Setting from "@iconify-icons/ri/settings-3-line";
 import Check from "@iconify-icons/ep/check";
+import PlayMusic from "@/layout/components/sidebar/playMusic.vue";
 
 const menuRef = ref();
 const defaultActive = ref(null);
@@ -100,6 +101,8 @@ watch(
     <div class="horizontal-header-right">
       <!-- 菜单搜索 -->
       <Search />
+      <!--音乐播放-->
+      <play-music />
       <!-- 通知 -->
       <Notice id="header-notice" />
       <!-- 国际化 -->

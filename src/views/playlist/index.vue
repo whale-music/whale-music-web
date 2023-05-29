@@ -28,7 +28,9 @@ import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
 import Segmented, { type OptionsType } from "@/components/ReSegmented";
 import MenuFill from "@iconify-icons/mingcute/menu-fill";
 import ListCheckFill from "@iconify-icons/mingcute/list-check-fill";
+import { useNav } from "@/layout/hooks/useNav";
 
+const { onPlayMusic } = useNav();
 const route = useRoute(); //2.在跳转页面定义router变量，解构得到指定的query和params传参的参数
 const router = useRouter();
 const { isDark } = useDark();
@@ -364,9 +366,7 @@ const toMusicPlay = async () => {
     message(e, { type: "error" });
     return;
   }
-  await router.push({
-    path: "/musicPlay"
-  });
+  onPlayMusic();
 };
 const centerDialogVisible = ref(false);
 

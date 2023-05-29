@@ -16,6 +16,8 @@ type Events = {
     indexPath: string;
     parentPath: string;
   };
+  openPlayMusic: string;
+  closePlayMusic: string;
 };
 
 export const emitter: Emitter<Events> = mitt<Events>();

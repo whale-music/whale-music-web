@@ -95,6 +95,16 @@ export function useNav() {
     emitter.emit("openPanel");
   }
 
+  // 打开音乐播放界面
+  function onPlayMusic() {
+    emitter.emit("openPlayMusic");
+  }
+
+  // 打开音乐播放界面
+  function closePlayMusic() {
+    emitter.emit("closePlayMusic");
+  }
+
   function toggleSideBar() {
     pureApp.toggleSideBar();
   }
@@ -158,6 +168,8 @@ export function useNav() {
     $storage,
     backTopMenu,
     onPanel,
+    onPlayMusic,
+    closePlayMusic,
     getDivStyle,
     changeTitle,
     toggleSideBar,

@@ -28,16 +28,5 @@ export default [
         component: () => import("@/layout/redirect.vue")
       }
     ]
-  },
-  // 全屏播放
-  {
-    path: "/musicPlay",
-    name: "MusicPlay",
-    component: () => import("@/views/music/musicPlay/index.vue"),
-    meta: {
-      title: `Music Play`,
-      showLink: false,
-      rank: 103
-    }
   }
 ] as Array<RouteConfigsTable>;

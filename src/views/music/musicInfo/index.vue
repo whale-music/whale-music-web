@@ -37,8 +37,10 @@ import { ElLoading, ElMessage, ElMessageBox, UploadProps } from "element-plus";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
 import { emitter } from "@/utils/mitt";
+import { useNav } from "@/layout/hooks/useNav";
 const { VITE_PROXY_HOST } = import.meta.env;
 
+const { onPlayMusic } = useNav();
 const router = useRouter();
 const id = ref();
 
@@ -455,9 +457,7 @@ const toMusicPlay = async res => {
     message(e, { type: "error" });
     return;
   }
-  await router.push({
-    path: "/musicPlay"
-  });
+  onPlayMusic();
 };
 </script>
 <template>

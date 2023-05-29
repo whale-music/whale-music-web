@@ -1,10 +1,9 @@
 <script lang="ts" setup>
-import { onMounted, ref, watch } from "vue";
-import { useRouter } from "vue-router";
+import { onMounted, reactive, ref, watch } from "vue";
 import { Lyric, MusicSearchRes, MusicUrlInfo } from "@/api/music";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { dateFormater } from "@/utils/dateUtil";
-import ArrowDownBold from "@iconify-icons/solar/alt-arrow-down-outline";
+import DownFill from "@iconify-icons/mingcute/down-fill";
 import { prominent } from "@/utils/color/color";
 import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
 import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
@@ -12,8 +11,49 @@ import { getActualWidthOfChars } from "@/utils/textWidthUtil";
 import { Lrc } from "lrc-kit";
 import BScroll from "@better-scroll/core";
 import MouseWheel from "@better-scroll/mouse-wheel";
+import { useNav } from "@/layout/hooks/useNav";
+import { emitter } from "@/utils/mitt";
+import { useDialog } from "@/layout/hooks/useDialog";
 
-const router = useRouter();
+const { widthRef } = useDialog();
+const { closePlayMusic } = useNav();
+
+// 监听容器
+emitter.on("resize", ({ detail }) => {
+  const { width } = detail;
+  reDrawLayout(width);
+});
+
+function reDrawLayout(width: number) {
+  if (width <= 720) {
+    const mobileWidth = 18;
+    state.size.cover.width = mobileWidth + "rem";
+    state.size.cover.height = mobileWidth + "rem";
+
+    state.size.controller.width = mobileWidth + 2 + "rem";
+    state.size.controller.height = mobileWidth + 2 + "rem";
+  } else {
+    const pcWidth = 23;
+    state.size.cover.width = pcWidth + "rem";
+    state.size.cover.height = pcWidth + "rem";
+
+    state.size.controller.width = pcWidth + "rem";
+    state.size.controller.height = pcWidth + "rem";
+  }
+}
+
+const state = reactive({
+  size: {
+    cover: {
+      width: "23rem",
+      height: "23rem"
+    },
+    controller: {
+      width: "23rem",
+      height: ""
+    }
+  }
+});
 
 const currentMusicUrl = ref<MusicUrlInfo>({
   createTime: "",
@@ -126,19 +166,6 @@ async function initPlaySong() {
     const lrc = Lrc.parse(currentMusicLyric.value.lyric);
     lyricsArr.value = lrc.lyrics;
     lyricsArr.value.sort((a, b) => a.timestamp - b.timestamp);
-    // const strings = currentMusicLyric.value.lyric.split("\n");
-    // for (let i = 0; i < strings.length; i++) {
-    //   const strings2 = strings[i].split("]");
-    //   const tempTime = strings2[0].replace("[", "");
-    //   const time = new Date(`1970T08:${tempTime}`).getTime();
-    //
-    //   strings2[1] = strings2[1] === "" ? "-" : strings2[1];
-    //   // duration为毫秒值
-    //   lyricsArr.value.push({
-    //     duration: time,
-    //     lyric: strings2[1]
-    //   });
-    // }
   }
   // 背景渐变色
   await getBGColor();
@@ -158,6 +185,12 @@ onMounted(async () => {
     console.log(isScrollRolling.value, "滚动中");
     setTimeout(() => (isScrollRolling.value = true), 3000);
   });
+
+  const width =
+    window.innerWidth ||
+    document.documentElement.clientWidth ||
+    document.body.clientWidth;
+  reDrawLayout(width);
 });
 
 const getBGColor = async () => {
@@ -224,11 +257,6 @@ const onTimeupdate = event => {
         // 如果进度条回退， 当前值值绝对回比进度条到过的最大的值要小
         const tempNum = parseInt(lyricsArr.value[lyricIndex.value].timestamp);
         if (currentTime < tempNum) {
-          const number = lyricIndex.value - i;
-          // 歌词回退
-          for (let j = 0; j < number; j++) {
-            // rollFunc(false);
-          }
           // 浮标重新赋值
           lyricIndex.value = i;
         }
@@ -240,7 +268,7 @@ const onTimeupdate = event => {
 watch(lyricIndex, newValue => {
   // 判断歌词是否切换到下一段或者跳转到其他章节
   // console.log(isScrollRolling.value, "是否在滚动，滚动时不跳转歌词");
-  if (isScrollRolling.value) {
+  if (isScrollRolling.value == true) {
     console.log("跳转歌词", newValue);
     scrollBS.value.scrollToElement(
       lyricContentRef.value[newValue],
@@ -264,7 +292,7 @@ const loadingTime = (item, index, arr) => {
 
 // 当前音乐循环选项
 const loopType = ref<number>(0);
-const loopTypeIcon = ref<string>("solar:arrow-right-bold");
+const loopTypeIcon = ref<string>("mingcute:arrow-right-fill");
 const musicLoopType = () => {
   if (loopType.value == 3) {
     loopType.value = -1;
@@ -273,7 +301,7 @@ const musicLoopType = () => {
   switch (loopType.value) {
     // 自动完播放音乐
     case 0:
-      loopTypeIcon.value = "solar:arrow-right-bold";
+      loopTypeIcon.value = "mingcute:arrow-right-fill";
       break;
     // 循环播放歌单音乐
     case 1:
@@ -417,17 +445,24 @@ const toLyrics = timestamp => {
     <div class="toBack icon-bg">
       <IconifyIconOffline
         class="icon-scale"
-        :icon="ArrowDownBold"
+        :icon="DownFill"
         width="3rem"
         height="3rem"
-        @click="router.back()"
+        @click="closePlayMusic"
       />
     </div>
     <div class="shadowMask">
       <div class="container-box">
-        <div class="controller">
-          <LoadImg :src="musicInfo.pic" height="23rem" width=" 23rem" />
-          <div class="w-[24rem]" ref="musicTitleRef">
+        <div :style="{ width: state.size.controller.width }" class="controller">
+          <LoadImg
+            :src="musicInfo.pic"
+            :height="state.size.cover.height"
+            :width="state.size.cover.width"
+          />
+          <div
+            :style="{ width: state.size.controller.width }"
+            ref="musicTitleRef"
+          >
             <div class="overflow-hidden flex">
               <div v-for="item in musicTitleWidth" :key="item">
                 <span
@@ -455,7 +490,7 @@ const toLyrics = timestamp => {
               >{{ item }}</span
             >
           </div>
-          <div class="progress">
+          <div :style="{ width: state.size.controller.width }" class="progress">
             <el-slider
               :style="{
                 '--slider-progress': `${audioBufferProgress}%`
@@ -476,9 +511,9 @@ const toLyrics = timestamp => {
                 {{ dateFormater("mm:ss", musicInfo.timeLength) }}
               </span>
             </div>
-            <div class="flex justify-between items-center">
-              <div class="icon-bg">
-                <a>
+            <div class="play-operation-panel">
+              <div class="w-full flex justify-between items-center">
+                <div class="icon-bg">
                   <IconifyIconOnline
                     class="icon-scale"
                     @click="musicLoopType"
@@ -486,10 +521,8 @@ const toLyrics = timestamp => {
                     width="2rem"
                     height="2rem"
                   />
-                </a>
-              </div>
-              <div class="flex justify-center items-center">
-                <div class="icon-bg mr-2">
+                </div>
+                <div class="icon-bg">
                   <IconifyIconOnline
                     @click="lastMusic"
                     class="cursor-pointer icon-scale"
@@ -531,7 +564,7 @@ const toLyrics = timestamp => {
                     height="3.25rem"
                   />
                 </div>
-                <div class="icon-bg ml-2">
+                <div class="icon-bg">
                   <IconifyIconOnline
                     @click="nextMusic"
                     class="cursor-pointer icon-scale"
@@ -540,47 +573,48 @@ const toLyrics = timestamp => {
                     height="2.8rem"
                   />
                 </div>
-              </div>
-              <div>
-                <el-dialog
-                  v-model="editPlaySongListFlag"
-                  :show-close="false"
-                  :modal="false"
-                >
-                  <div>
-                    <h1 class="text-black">当前播放</h1>
-                    <el-scrollbar height="20rem">
-                      <div
-                        v-for="(item, index) in usePlaySongListStoreHook()
-                          .getPlayListMusic"
-                        :key="item.id"
-                        class="dialog-play-song-list"
-                        @click="editPlaySongList(index)"
-                      >
-                        <LoadImg
-                          height="3rem"
-                          width="3rem"
-                          radius="10px"
-                          :src="item.pic"
-                        />
-                        <div>
-                          <span class="font-bold ml-4">{{
-                            item.musicName
-                          }}</span>
-                          <span>{{ item.aliaName }}</span>
+                <div>
+                  <el-dialog
+                    v-model="editPlaySongListFlag"
+                    :width="widthRef"
+                    :show-close="false"
+                    :modal="false"
+                  >
+                    <div>
+                      <h1 class="text-black">当前播放</h1>
+                      <el-scrollbar height="20rem">
+                        <div
+                          v-for="(item, index) in usePlaySongListStoreHook()
+                            .getPlayListMusic"
+                          :key="item.id"
+                          class="dialog-play-song-list"
+                          @click="editPlaySongList(index)"
+                        >
+                          <LoadImg
+                            height="3rem"
+                            width="3rem"
+                            radius="10px"
+                            :src="item.pic"
+                          />
+                          <div>
+                            <span class="font-bold ml-4">{{
+                              item.musicName
+                            }}</span>
+                            <span>{{ item.aliaName }}</span>
+                          </div>
                         </div>
-                      </div>
-                    </el-scrollbar>
+                      </el-scrollbar>
+                    </div>
+                  </el-dialog>
+                  <div class="icon-bg">
+                    <IconifyIconOnline
+                      @click="editPlaySongListFlag = true"
+                      class="cursor-pointer icon-scale"
+                      icon="solar:playlist-2-bold"
+                      width="2rem"
+                      height="2rem"
+                    />
                   </div>
-                </el-dialog>
-                <div class="icon-bg">
-                  <IconifyIconOnline
-                    @click="editPlaySongListFlag = true"
-                    class="cursor-pointer icon-scale"
-                    icon="solar:playlist-2-bold"
-                    width="2rem"
-                    height="2rem"
-                  />
                 </div>
               </div>
             </div>
@@ -694,6 +728,7 @@ $lyricPadding: 0.8rem;
 
 * {
   @apply select-none;
+  transition: all ease 0.8s;
 }
 
 .toBack {
@@ -738,6 +773,11 @@ $lyricPadding: 0.8rem;
   height: 100%;
   background-color: rgba(50, 50, 50, 0.2);
   backdrop-filter: blur(50px);
+
+  // 小屏幕操作面板居中
+  @media screen and (max-width: 720px) {
+    justify-content: center;
+  }
 }
 
 .controller {
@@ -758,6 +798,11 @@ $lyricPadding: 0.8rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
+
+  // 小屏幕不显示歌词
+  @media screen and (max-width: 720px) {
+    display: none;
+  }
 }
 
 .music-font {
@@ -893,6 +938,15 @@ $lyricPadding: 0.8rem;
 
 .dialog-play-song-list:hover {
   background: rgba(98, 97, 97, 0.37);
+}
+
+.play-operation-panel {
+  @apply flex justify-between items-center;
+
+  // 小屏幕操作面板居中
+  @media screen and (max-width: 720px) {
+    justify-content: center;
+  }
 }
 
 .icon-bg {
