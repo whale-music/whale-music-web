@@ -159,7 +159,6 @@ const storeHook = usePlaySongListStoreHook();
 watch(
   () => state.audio.playing,
   value => {
-    console.log(value);
     storeHook.isPlay = value;
   }
 );
@@ -217,16 +216,14 @@ async function initScroll() {
 async function initPlaySong() {
   const storeHook = usePlaySongListStoreHook();
   const musicInfoRes = storeHook.getCurrentMusic;
-  if (musicInfoRes.id === state.audio.musicInfo.id) {
-    audioRef.value.pause();
-  } else {
+  if (musicInfoRes.id !== state.audio.musicInfo.id) {
     // 不是当前的音乐时重新初始化歌词下标
     state.audio.lyricIndex = 0;
   }
   await initMusicInfo(musicInfoRes);
   const titleWidth = getActualWidthOfChars(state.audio.musicInfo.musicName);
   state.audio.musicTitleWidth =
-    state.music?.musicTitleRef.value?.offsetWidth > titleWidth ? 1 : 2;
+    state.music?.musicTitleRef?.value?.offsetWidth > titleWidth ? 1 : 2;
 
   state.audio.lyricsArr = [];
   if (
@@ -279,11 +276,19 @@ const onTimeupdate = event => {
   // 匹配歌词
   for (let i = 0; i < state.audio.lyricsArr.length; i++) {
     // 播放进度不断推进， 判断每个歌词节点, 如果大于当前播放的时间，则进入下一个节点
-    if (
-      currentTime >= state.audio.lyricsArr[i].timestamp &&
-      i > state.audio.lyricIndex
-    ) {
-      state.audio.lyricIndex = i;
+    if (currentTime >= state.audio.lyricsArr[i].timestamp) {
+      if (i > state.audio.lyricIndex) {
+        state.audio.lyricIndex = i;
+      } else {
+        // 如果进度条回退， 当前值值绝对回比进度条到过的最大的值要小
+        const tempNum = parseInt(
+          state.audio.lyricsArr[state.audio.lyricIndex].timestamp
+        );
+        if (currentTime < tempNum) {
+          // 浮标重新赋值
+          state.audio.lyricIndex = i;
+        }
+      }
     }
   }
 };

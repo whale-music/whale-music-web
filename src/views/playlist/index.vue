@@ -357,17 +357,28 @@ const toAlbum = id => {
 
 const toMusicPlay = async () => {
   try {
-    for (const valueElement of multipleSelection.value) {
-      await usePlaySongListStoreHook().addMusicToNextPlaySongList(
-        valueElement.id
-      );
-    }
+    await usePlaySongListStoreHook().playSongList(
+      multipleSelection.value.map(value => value.id)
+    );
   } catch (e) {
     message(e, { type: "error" });
     return;
   }
   onPlayMusic();
 };
+
+const playListMusic = async () => {
+  try {
+    await usePlaySongListStoreHook().playSongList(
+      tableData.value.map(value => value.id)
+    );
+  } catch (e) {
+    message(e, { type: "error" });
+    return;
+  }
+  onPlayMusic();
+};
+
 const centerDialogVisible = ref(false);
 
 const addPlayListDialogVisible = ref(false);
@@ -584,15 +595,24 @@ const throttle = ref(0);
                 >
               </div>
               <div class="operate-button">
-                <el-button class="button" type="primary" round
-                  >播放歌单</el-button
+                <el-button
+                  class="button"
+                  @click="playListMusic"
+                  type="primary"
+                  round
                 >
-                <el-button class="button" @click="editPlayInfoFlag = true" round
-                  >编辑歌单</el-button
+                  播放歌单
+                </el-button>
+                <el-button
+                  class="button"
+                  @click="editPlayInfoFlag = true"
+                  round
                 >
-                <el-button class="button" @click="aboutFlag = true" round
-                  >关于歌单</el-button
-                >
+                  编辑歌单
+                </el-button>
+                <el-button class="button" @click="aboutFlag = true" round>
+                  关于歌单
+                </el-button>
                 <el-button
                   class="button"
                   @click="deleteDialogVisible = true"

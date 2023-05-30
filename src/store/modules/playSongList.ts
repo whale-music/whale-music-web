@@ -61,12 +61,14 @@ export const userPlaySongList = defineStore({
 
       const withoutIds = [];
       const ids = musicId instanceof Array ? musicId : [musicId];
-      for (const id in ids) {
+      ids.forEach(id => {
         const musicIndex = this.playListMusicArr.findIndex(
-          value => value.id !== id
+          value => value.id === id
         );
-        withoutIds.push(musicIndex);
-      }
+        if (musicIndex === -1) {
+          withoutIds.push(id);
+        }
+      });
       if (withoutIds.length !== 0) {
         const tempMusicInfo = await getAllMusicList({
           refresh: false,
@@ -74,7 +76,7 @@ export const userPlaySongList = defineStore({
           albumName: "",
           artistName: "",
           beforeDate: "",
-          musicIds: ids,
+          musicIds: withoutIds,
           musicName: "",
           order: false,
           orderBy: "",
@@ -91,7 +93,6 @@ export const userPlaySongList = defineStore({
     },
     async playSongList(musicId: number | number[], index?: number) {
       this.clearPlaySong();
-
       const ids = musicId instanceof Array ? musicId : [musicId];
       const tempMusicInfo = await getAllMusicList({
         refresh: false,
@@ -107,7 +108,9 @@ export const userPlaySongList = defineStore({
         page: { pageIndex: 0, pageNum: 99999 }
       });
       if (tempMusicInfo.code === "200") {
-        this.playListMusicArr.push(tempMusicInfo.data.records[0]);
+        tempMusicInfo.data.records.forEach(value =>
+          this.playListMusicArr.push(value)
+        );
         if (index != null && index > 0 && index < this.playListMusicArr) {
           this.currentIndex = index;
         }
