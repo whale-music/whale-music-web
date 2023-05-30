@@ -4,6 +4,7 @@ import { emitter } from "@/utils/mitt";
 import AlbumLine from "@iconify-icons/mingcute/album-line";
 import MusicPlay from "@/layout/components/musicPlay/index.vue";
 import { storageLocal } from "@pureadmin/utils";
+import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
 
 defineComponent({
   name: "playMusic"
@@ -14,6 +15,8 @@ const state = reactive<{
 }>({
   showPlayMusic: storageLocal().getItem<boolean>("showPlayMusic")
 });
+
+const storeHook = usePlaySongListStoreHook();
 
 watch(
   () => state.showPlayMusic,
@@ -34,7 +37,7 @@ emitter.on("closePlayMusic", () => {
 <template>
   <div>
     <div class="cursor-pointer" @click="state.showPlayMusic = true">
-      <div class="animate-spin">
+      <div :class="{ 'animate-spin': storeHook.isPlay }">
         <IconifyIconOffline
           style="color: var(--el-color-primary)"
           width="1.8rem"

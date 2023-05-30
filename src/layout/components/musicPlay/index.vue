@@ -154,11 +154,13 @@ watch(
   }
 );
 
+const storeHook = usePlaySongListStoreHook();
 // 监听播放
 watch(
   () => state.audio.playing,
   value => {
     console.log(value);
+    storeHook.isPlay = value;
   }
 );
 
@@ -378,10 +380,11 @@ const onEnded = async () => {
 };
 
 const lastMusic = async () => {
+  // 如果歌单列表中只有一首音乐则不切换
+  if (storeHook.playListMusicArr.length === 1) return;
   // 切换歌曲时重新初始化歌词数组
   state.audio.lyricIndex = 0;
   // onPause();
-  const storeHook = usePlaySongListStoreHook();
   if (storeHook.isLastMusic) {
     storeHook.lastMusic();
   } else {
@@ -392,9 +395,10 @@ const lastMusic = async () => {
 };
 
 const nextMusic = async () => {
+  // 如果歌单列表中只有一首音乐则不切换
+  if (storeHook.playListMusicArr.length === 1) return;
   // 切换歌曲时重新初始化歌词数组
   state.audio.lyricIndex = 0;
-  const storeHook = usePlaySongListStoreHook();
   // onPause();
   if (storeHook.isNextMusic) {
     storeHook.nextMusic();

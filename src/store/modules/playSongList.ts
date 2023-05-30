@@ -21,14 +21,18 @@ export const userPlaySongList = defineStore({
       // 当前音乐地址
       currentMusicUrlArr: new Map<Number, MusicUrl[]>(),
       // 当前音乐歌词信息
-      musicLyricArr: new Map<Number, Lyric[]>()
+      musicLyricArr: new Map<Number, Lyric[]>(),
+      // 是否在播放
+      isPlay: false
     };
   },
   getters: {
     getCurrentMusic: state => state.playListMusicArr[state.currentIndex],
     getPlayListMusic: state => state.playListMusicArr,
     isLastMusic: state => state.currentIndex > 0,
-    isNextMusic: state => state.playListMusicArr.length - 1 > state.currentIndex
+    isNextMusic: state =>
+      state.playListMusicArr.length - 1 > state.currentIndex,
+    isEmpty: state => state.playListMusicArr.length === 0
   },
   actions: {
     clearPlaySong() {
@@ -51,53 +55,56 @@ export const userPlaySongList = defineStore({
       this.currentIndex = 0;
     },
     // 添加歌曲到下一个播放
-    async addMusicToNextPlaySongList(musicId: number) {
-      this.playListMusicArr =
-        this.playListMusicArr == null || this.playListMusicArr.length === 0
-          ? []
-          : this.playListMusicArr;
-      const musicIndex = this.playListMusicArr.findIndex(
-        value => value.id === musicId
-      );
-      if (musicIndex === -1) {
+    async addMusicToNextPlaySongList(musicId: number | number[]) {
+      const b = this.playListMusicArr == null;
+      this.playListMusicArr = b ? [] : this.playListMusicArr;
+
+      const withoutIds = [];
+      const ids = musicId instanceof Array ? musicId : [musicId];
+      for (const id in ids) {
+        const musicIndex = this.playListMusicArr.findIndex(
+          value => value.id !== id
+        );
+        withoutIds.push(musicIndex);
+      }
+      if (withoutIds.length !== 0) {
         const tempMusicInfo = await getAllMusicList({
           refresh: false,
           afterDate: "",
           albumName: "",
           artistName: "",
           beforeDate: "",
-          musicIds: [musicId],
+          musicIds: ids,
           musicName: "",
           order: false,
           orderBy: "",
           isShowNoExist: false,
           page: { pageIndex: 0, pageNum: 0 }
         });
+        // 添加到数组中
         this.playListMusicArr.splice(
           this.currentIndex + 1,
           0,
           tempMusicInfo.data.records[0]
         );
-      } else {
-        const musicSearchRe = this.playListMusicArr[musicIndex];
-        this.playListMusicArr.splice(this.currentIndex + 1, 0, musicSearchRe);
-        this.playListMusicArr.splice(musicIndex, 1);
       }
     },
-    async playSongList(musicId: number, index?: number) {
+    async playSongList(musicId: number | number[], index?: number) {
       this.clearPlaySong();
+
+      const ids = musicId instanceof Array ? musicId : [musicId];
       const tempMusicInfo = await getAllMusicList({
         refresh: false,
         afterDate: "",
         albumName: "",
         artistName: "",
         beforeDate: "",
-        musicIds: [musicId],
+        musicIds: ids,
         musicName: "",
         order: false,
         orderBy: "",
         isShowNoExist: false,
-        page: { pageIndex: 0, pageNum: 1 }
+        page: { pageIndex: 0, pageNum: 99999 }
       });
       if (tempMusicInfo.code === "200") {
         this.playListMusicArr.push(tempMusicInfo.data.records[0]);
