@@ -57,7 +57,7 @@ function reDrawLayout(width: number) {
 const scrollRef = ref();
 const lyricContentRef = ref([]);
 // 音乐标题长度
-const musicTitleRef = ref();
+const musicTitleRef = ref<HTMLDivElement | null>();
 const audioRef = ref({
   // 该字段是音频是否处于播放状态的属性
   paused: false,
@@ -93,9 +93,7 @@ const state = reactive({
     // 背景动态渐变色
     bgColor: {}
   },
-  music: {
-    musicTitleRef: musicTitleRef
-  },
+  music: {},
   audio: {
     audioRef: audioRef,
     musicTitleWidth: 1,
@@ -223,8 +221,7 @@ async function initPlaySong() {
   await initMusicInfo(musicInfoRes);
   const titleWidth = getActualWidthOfChars(state.audio.musicInfo.musicName);
   state.audio.musicTitleWidth =
-    state.music?.musicTitleRef?.value?.offsetWidth > titleWidth ? 1 : 2;
-
+    musicTitleRef.value.offsetWidth > titleWidth ? 1 : 2;
   state.audio.lyricsArr = [];
   if (
     state.audio.currentMusicLyric != null &&
