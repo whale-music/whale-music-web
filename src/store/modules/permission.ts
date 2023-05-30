@@ -1,10 +1,11 @@
 import { defineStore } from "pinia";
 import { store } from "@/store";
 import { cacheType } from "./types";
-import { constantMenus } from "@/router";
+import router, { constantMenus } from "@/router";
 import { getKeyList } from "@pureadmin/utils";
 import { useMultiTagsStoreHook } from "./multiTags";
 import { ascending, filterTree, filterNoPermissionTree } from "@/router/utils";
+import { RouteRecordName } from "vue-router";
 
 export const usePermissionStore = defineStore({
   id: "pure-permission",
@@ -22,6 +23,19 @@ export const usePermissionStore = defineStore({
       this.wholeMenus = filterNoPermissionTree(
         filterTree(ascending(this.constantMenus.concat(routes)))
       );
+    },
+    removeMenusRouter(name: RouteRecordName) {
+      router.removeRoute(name.toString());
+      const wholeMenus = usePermissionStoreHook().wholeMenus;
+      for (let i = 0; i < wholeMenus.length; i++) {
+        const menu = wholeMenus[i];
+        for (let j = 0; j < menu.children.length; j++) {
+          const element = menu.children[j];
+          if (element.name === name.toString()) {
+            wholeMenus[i].children.splice(j, 1);
+          }
+        }
+      }
     },
     cacheOperate({ mode, name }: cacheType) {
       const delIndex = this.cachePageList.findIndex(v => v === name);

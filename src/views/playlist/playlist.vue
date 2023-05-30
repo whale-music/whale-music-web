@@ -14,12 +14,12 @@ import {
   PlayInfoReq,
   PlayInfoRes
 } from "@/api/playlist";
-import { removeMenusRouter } from "@/utils/removeRouter";
 import NameSearch from "@/components/nameSearch/index.vue";
 import { emitter } from "@/utils/mitt";
 import MenuFill from "@iconify-icons/mingcute/menu-fill";
 import ListCheckFill from "@iconify-icons/mingcute/list-check-fill";
 import Segmented, { type OptionsType } from "@/components/ReSegmented";
+import { usePermissionStoreHook } from "@/store/modules/permission";
 
 const { isDark } = useDark();
 const router = useRouter();
@@ -273,7 +273,7 @@ const deleteButton = async () => {
   try {
     const res = await deletePlayList(id);
     if (res.code === "200") {
-      id.forEach(value => removeMenusRouter(value));
+      id.forEach(value => usePermissionStoreHook().removeMenusRouter(value));
       if (multipleSelection.value.length === state.search.req.page.pageNum) {
         await onSubmit();
         return;

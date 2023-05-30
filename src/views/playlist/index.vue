@@ -19,8 +19,7 @@ import DownloadIcon from "@/components/DownloadIcon/download.vue";
 import { MusicSearchReq } from "@/api/common";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { getUserInfo, UserInfoRes } from "@/api/user";
-import { handleAliveRoute } from "@/router/utils";
-import { removeMenusRouter } from "@/utils/removeRouter";
+import { initRouter } from "@/router/utils";
 import Wbutton from "@/components/button/index.vue";
 import { clone, storageLocal, storageSession, useDark } from "@pureadmin/utils";
 import { ElTable } from "element-plus";
@@ -31,7 +30,7 @@ import ListCheckFill from "@iconify-icons/mingcute/list-check-fill";
 import { useNav } from "@/layout/hooks/useNav";
 
 const { onPlayMusic } = useNav();
-const route = useRoute(); //2.在跳转页面定义router变量，解构得到指定的query和params传参的参数
+const route = useRoute();
 const router = useRouter();
 const { isDark } = useDark();
 
@@ -225,7 +224,7 @@ const createPlayListButton = () => {
         addPlayListDialogVisible.value = false;
         if (res.code === "200") {
           message("创建成功", { type: "success" });
-          router.go(0);
+          initRouter().then(() => router.push(String(res.data.id)));
         } else {
           message(`创建失败${res.message}`, { type: "error" });
         }
@@ -243,10 +242,9 @@ const deletePlayListButton = () => {
   deletePlayList([route.name.toString()]).then(res => {
     if (res.code === "200") {
       message("删除成功", { type: "success" });
-      handleAliveRoute(route as toRouteType, "delete");
 
       router.push({ path: "/playlist" });
-      removeMenusRouter(route.name);
+      initRouter();
     } else {
       message("删除失败", { type: "error" });
     }
