@@ -7,6 +7,10 @@ import DownFill from "@iconify-icons/mingcute/down-fill";
 import { prominent } from "@/utils/color/color";
 import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
 import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
+import ArrowRightFill from "@iconify-icons/mingcute/arrow-right-fill";
+import RepeatBold from "@iconify-icons/solar/repeat-bold";
+import RepeatOneBold from "@iconify-icons/solar/repeat-one-bold";
+import ShuffleLinear from "@iconify-icons/solar/shuffle-linear";
 import { getActualWidthOfChars } from "@/utils/textWidthUtil";
 import { Lrc } from "lrc-kit";
 import BScroll from "@better-scroll/core";
@@ -15,6 +19,7 @@ import { useNav } from "@/layout/hooks/useNav";
 import { emitter } from "@/utils/mitt";
 import { useDialog } from "@/layout/hooks/useDialog";
 import { darken } from "@pureadmin/utils";
+import IconifyIconOffline from "@/components/ReIcon/src/iconifyIconOffline";
 
 const { widthRef } = useDialog();
 const { closePlayMusic } = useNav();
@@ -23,6 +28,11 @@ const { closePlayMusic } = useNav();
 emitter.on("resize", ({ detail }) => {
   const { width } = detail;
   reDrawLayout(width);
+});
+
+// 进入时初始化当前音乐
+emitter.on("openPlayMusic", async () => {
+  await initAudio();
 });
 
 function reDrawLayout(width: number) {
@@ -43,6 +53,28 @@ function reDrawLayout(width: number) {
   }
 }
 
+// 歌词容器
+const scrollRef = ref();
+const lyricContentRef = ref([]);
+// 音乐标题长度
+const musicTitleRef = ref();
+const audioRef = ref({
+  // 该字段是音频是否处于播放状态的属性
+  paused: false,
+  // 音频当前播放时长
+  currentTime: 0,
+  duration: 0,
+  // 音频最大播放时长
+  maxTime: 0,
+  minTime: 0,
+  step: 0.1,
+  buffered: null,
+  isLoop: false,
+  pause: () => {},
+  play: () => {},
+  load: () => {}
+});
+
 const state = reactive({
   size: {
     cover: {
@@ -53,140 +85,51 @@ const state = reactive({
       width: "23rem",
       height: ""
     }
+  },
+  dialog: {
+    playList: false
+  },
+  style: {
+    // 背景动态渐变色
+    bgColor: {}
+  },
+  music: {
+    musicTitleRef: musicTitleRef
+  },
+  audio: {
+    audioRef: audioRef,
+    musicTitleWidth: 1,
+    loading: false,
+    musicInfo: {} as MusicSearchRes,
+    musicUrlList: [] as MusicUrlInfo[],
+    musicLyricList: [] as Lyric[],
+    lyricsArr: [],
+    currentMusicIndex: 0,
+    currentMusicUrl: {} as MusicUrlInfo,
+    currentMusicLyric: {} as Lyric,
+    timeProgressBar: 0,
+    // 当前歌曲进度浮标
+    lyricIndex: 0,
+    audioBufferProgress: 0,
+    loopType: 0,
+    playing: false
+  },
+  scroll: {
+    scroll: scrollRef,
+    //判断是否被拖动
+    isChange: false,
+    lyricContentRef: lyricContentRef,
+    scrollBS: {} as any,
+    isScrollRolling: true
+  },
+  icon: {
+    loopTypeIcon: ArrowRightFill
   }
-});
-
-const currentMusicUrl = ref<MusicUrlInfo>({
-  createTime: "",
-  encodeType: "",
-  exists: false,
-  id: 0,
-  level: "",
-  md5: "",
-  musicId: 0,
-  origin: "",
-  rate: 0,
-  rawUrl: "",
-  size: 0,
-  updateTime: "",
-  url: "",
-  userId: 0
-});
-// 歌词容器
-const scroll = ref();
-const scrollBS = ref();
-const isScrollRolling = ref<boolean>(true);
-const lyricContentRef = ref([]);
-const currentMusicLyric = ref<Lyric>({
-  createTime: "",
-  id: 0,
-  lyric: "",
-  musicId: 0,
-  type: "",
-  updateTime: ""
-});
-const musicInfo = ref<MusicSearchRes>({
-  isLike: false,
-  lyric: "",
-  album: undefined,
-  albumId: 0,
-  albumName: "",
-  aliaName: "",
-  artistIds: [],
-  artistNames: [],
-  createTime: "",
-  id: 0,
-  isExist: false,
-  isPlaying: false,
-  kLyric: "",
-  musicName: "",
-  musicNameAlias: "",
-  musicRawUrl: "",
-  musicUrlList: [],
-  order: false,
-  pic: "",
-  publishTime: "",
-  artistList: [],
-  sort: 0,
-  timeLength: 0,
-  updateTime: ""
-});
-
-// 背景动态渐变色
-const imgColorStyle = ref();
-
-const musicUrlList = ref<MusicUrlInfo[]>();
-const musicLyricList = ref<Lyric[]>();
-const lyricsArr = ref([]);
-
-const currentIndex = ref<number>(0);
-async function initMusicInfo(musicInfoRes: MusicSearchRes) {
-  // 获取当前歌单播放音乐
-  const playSongListStore = usePlaySongListStoreHook();
-  musicInfo.value = musicInfoRes;
-  currentIndex.value = playSongListStore.currentIndex;
-  musicUrlList.value = await playSongListStore.getAllMusicUrl(
-    musicInfo.value.id
-  );
-  musicLyricList.value = await playSongListStore.getLyric(musicInfo.value.id);
-  const musicLyricIndex = musicLyricList.value.findIndex(
-    value => value.type === "lyric"
-  );
-  if (musicLyricIndex === -1 || musicLyricList.value.length === 0) {
-    currentMusicLyric.value = {
-      createTime: "",
-      id: 0,
-      lyric: null,
-      musicId: 0,
-      type: "",
-      updateTime: ""
-    };
-  } else {
-    currentMusicLyric.value = musicLyricList.value[musicLyricIndex];
-  }
-
-  currentMusicUrl.value = musicUrlList.value[0];
-}
-
-async function initPlaySong() {
-  const storeHook = usePlaySongListStoreHook();
-  await initMusicInfo(storeHook.getCurrentMusic);
-  const titleWidth = getActualWidthOfChars(musicInfo.value.musicName);
-  musicTitleWidth.value = musicTitleRef.value.offsetWidth > titleWidth ? 1 : 2;
-
-  lyricsArr.value = [];
-  if (
-    currentMusicLyric.value != null &&
-    currentMusicLyric.value.lyric != null &&
-    currentMusicLyric.value.lyric !== ""
-  ) {
-    const lrc = Lrc.parse(currentMusicLyric.value.lyric);
-    lyricsArr.value = lrc.lyrics;
-    lyricsArr.value.sort((a, b) => a.timestamp - b.timestamp);
-  }
-  // 背景渐变色
-  getBGColor();
-}
-
-// 进入时初始化当前音乐
-emitter.on("openPlayMusic", async () => {
-  await initPlaySong();
 });
 
 onMounted(async () => {
-  await initPlaySong();
   BScroll.use(MouseWheel);
-  scrollBS.value = await new BScroll(".bscroll", {
-    probeType: 3,
-    click: true,
-    mouseWheel: true,
-    bounce: true
-  });
-  scrollBS.value.on("alterOptions", () => {
-    isScrollRolling.value = false;
-    console.log(isScrollRolling.value, "滚动中");
-    setTimeout(() => (isScrollRolling.value = true), 3000);
-  });
+  await initAudio();
 
   const width =
     window.innerWidth ||
@@ -195,8 +138,112 @@ onMounted(async () => {
   reDrawLayout(width);
 });
 
+watch(
+  () => state.audio.lyricIndex,
+  newValue => {
+    // 判断歌词是否切换到下一段或者跳转到其他章节
+    // console.log(state.scroll.isScrollRolling, "是否在滚动，滚动时不跳转歌词");
+    if (state.scroll.isScrollRolling == true && scrollRef.value != null) {
+      state.scroll.scrollBS.scrollToElement(
+        lyricContentRef.value[newValue],
+        500,
+        true,
+        true
+      );
+    }
+  }
+);
+
+// 监听播放
+watch(
+  () => state.audio.playing,
+  value => {
+    console.log(value);
+  }
+);
+
+async function initAudio() {
+  await initPlaySong();
+  await initScroll();
+}
+
+async function initMusicInfo(musicInfoRes: MusicSearchRes) {
+  // 获取当前歌单播放音乐
+  const playSongListStore = usePlaySongListStoreHook();
+  state.audio.musicInfo = musicInfoRes;
+  state.audio.currentMusicIndex = playSongListStore.currentIndex;
+  state.audio.musicUrlList = await playSongListStore.getAllMusicUrl(
+    state.audio.musicInfo.id
+  );
+  state.audio.musicLyricList = await playSongListStore.getLyric(
+    state.audio.musicInfo.id
+  );
+  const musicLyricIndex = state.audio.musicLyricList.findIndex(
+    value => value.type === "lyric"
+  );
+  if (musicLyricIndex === -1 || state.audio.musicLyricList.length === 0) {
+    state.audio.currentMusicLyric = {
+      createTime: "",
+      id: 0,
+      lyric: null,
+      musicId: 0,
+      type: "",
+      updateTime: ""
+    };
+  } else {
+    state.audio.currentMusicLyric = state.audio.musicLyricList[musicLyricIndex];
+  }
+
+  state.audio.currentMusicUrl = state.audio.musicUrlList[0];
+}
+
+async function initScroll() {
+  if (scrollRef.value != null) {
+    state.scroll.scrollBS = await new BScroll(scrollRef.value, {
+      probeType: 3,
+      click: true,
+      mouseWheel: true,
+      bounce: true
+    });
+    state.scroll.scrollBS.on("alterOptions", () => {
+      state.scroll.isScrollRolling = false;
+      setTimeout(() => (state.scroll.isScrollRolling = true), 3000);
+    });
+  }
+}
+
+async function initPlaySong() {
+  const storeHook = usePlaySongListStoreHook();
+  const musicInfoRes = storeHook.getCurrentMusic;
+  if (musicInfoRes.id === state.audio.musicInfo.id) {
+    audioRef.value.pause();
+  } else {
+    // 不是当前的音乐时重新初始化歌词下标
+    state.audio.lyricIndex = 0;
+  }
+  await initMusicInfo(musicInfoRes);
+  const titleWidth = getActualWidthOfChars(state.audio.musicInfo.musicName);
+  state.audio.musicTitleWidth =
+    state.music?.musicTitleRef.value?.offsetWidth > titleWidth ? 1 : 2;
+
+  state.audio.lyricsArr = [];
+  if (
+    state.audio.currentMusicLyric != null &&
+    state.audio.currentMusicLyric.lyric != null &&
+    state.audio.currentMusicLyric.lyric !== ""
+  ) {
+    const lrc = Lrc.parse(state.audio.currentMusicLyric.lyric);
+    state.audio.lyricsArr = lrc.lyrics;
+    state.audio.lyricsArr.sort((a, b) => a.timestamp - b.timestamp);
+  }
+  // 背景渐变色
+  getBGColor();
+  // 修改Title
+  document.title = `${state.audio.musicInfo.musicName} - ${state.audio.musicInfo.artistNames}`;
+}
+
 const getBGColor = async () => {
-  const colors = await prominent(musicInfo.value.pic, {
+  const colors = await prominent(state.audio.musicInfo.pic, {
     format: "hex",
     group: 30
   });
@@ -209,34 +256,10 @@ const getBGColor = async () => {
   //   background: `linear-gradient(312deg, ${colors[0]} 0%, ${colors[1]} 50%, ${colors[2]} 100%)`
   // };
   const color = darken(colors[1], 1 / 5);
-  imgColorStyle.value = {
+  state.style.bgColor = {
     backgroundColor: `${color}`
   };
 };
-
-const audioRef = ref({
-  // 该字段是音频是否处于播放状态的属性
-  playing: true,
-  // 音频当前播放时长
-  currentTime: 0,
-  duration: 0,
-  // 音频最大播放时长
-  maxTime: 0,
-  minTime: 0,
-  step: 0.1,
-  isLoading: false,
-  buffered: null,
-  isLoop: false,
-  pause: () => {},
-  play: () => {}
-});
-
-//判断是否被拖动
-const isChange = ref<boolean>(false);
-const timeProgressBar = ref<number>(0);
-
-// 当前歌曲进度浮标
-const lyricIndex = ref<number>(0);
 
 // 进度条
 const onTimeupdate = event => {
@@ -244,124 +267,93 @@ const onTimeupdate = event => {
   if (audioRef.value.buffered != null && audioRef.value.buffered.length > 0) {
     const currentBuffer =
       audioRef.value.buffered.end(audioRef.value.buffered.length - 1) * 100;
-    audioBufferProgress.value = currentBuffer / audioRef.value.duration;
+    state.audio.audioBufferProgress = currentBuffer / audioRef.value.duration;
   }
 
   const currentTime = event.target.currentTime;
-  // state.sliderTime= formatProcessToolTip(state.sliderTime)
-  // const value = (event.target.currentTime / event.target.duration) * 100;
-  if (isChange.value == true) return;
-  timeProgressBar.value = isNaN(currentTime) ? 0 : currentTime;
-  // 转换成毫秒
-  // const tempCurrentTime = currentTime * 1000;
+  if (state.scroll.isChange == true) return;
+  state.audio.timeProgressBar = isNaN(currentTime) ? 0 : currentTime;
 
   // 匹配歌词
-  for (let i = 0; i < lyricsArr.value.length; i++) {
+  for (let i = 0; i < state.audio.lyricsArr.length; i++) {
     // 播放进度不断推进， 判断每个歌词节点, 如果大于当前播放的时间，则进入下一个节点
-    if (currentTime >= lyricsArr.value[i].timestamp) {
-      if (i > lyricIndex.value) {
-        lyricIndex.value = i;
-        // rollFunc(true);
-      } else {
-        // 如果进度条回退， 当前值值绝对回比进度条到过的最大的值要小
-        const tempNum = parseInt(lyricsArr.value[lyricIndex.value].timestamp);
-        if (currentTime < tempNum) {
-          // 浮标重新赋值
-          lyricIndex.value = i;
-        }
-      }
+    if (
+      currentTime >= state.audio.lyricsArr[i].timestamp &&
+      i > state.audio.lyricIndex
+    ) {
+      state.audio.lyricIndex = i;
     }
   }
 };
 
-watch(lyricIndex, newValue => {
-  // 判断歌词是否切换到下一段或者跳转到其他章节
-  // console.log(isScrollRolling.value, "是否在滚动，滚动时不跳转歌词");
-  if (isScrollRolling.value == true) {
-    console.log("跳转歌词", newValue);
-    scrollBS.value.scrollToElement(
-      lyricContentRef.value[newValue],
-      500,
-      true,
-      true
-    );
-  }
-});
-
 // 设置空歌词显示动画
 const loadingTime = (item, index, arr) => {
   if (arr != null && arr.length > 0 && index !== arr.length - 1) {
-    const number = arr[index + 1].timestamp - item.timestamp;
-    console.log(number, "number");
-    return number;
+    return arr[index + 1].timestamp - item.timestamp;
   } else {
     return 2;
   }
 };
 
-// 当前音乐循环选项
-const loopType = ref<number>(0);
-const loopTypeIcon = ref<string>("mingcute:arrow-right-fill");
+// 当前音乐循环图标
 const musicLoopType = () => {
-  if (loopType.value == 3) {
-    loopType.value = -1;
+  if (state.audio.loopType == 3) {
+    state.audio.loopType = -1;
   }
-  loopType.value++;
-  switch (loopType.value) {
+  state.audio.loopType++;
+  switch (state.audio.loopType) {
     // 自动完播放音乐
     case 0:
-      loopTypeIcon.value = "mingcute:arrow-right-fill";
+      state.icon.loopTypeIcon = ArrowRightFill;
       break;
     // 循环播放歌单音乐
     case 1:
-      loopTypeIcon.value = "solar:repeat-bold";
+      state.icon.loopTypeIcon = RepeatBold;
       break;
     // 循环播放当前音乐
     case 2:
-      loopTypeIcon.value = "solar:repeat-one-bold";
+      state.icon.loopTypeIcon = RepeatOneBold;
       break;
     // 随机当前歌单音乐
     case 3:
-      loopTypeIcon.value = "solar:shuffle-linear";
+      state.icon.loopTypeIcon = ShuffleLinear;
       break;
   }
 };
 
-const playing = ref<boolean>(true);
 // 开始播放
 const onPlay = () => {
-  playing.value = false;
-  console.log(playing.value);
+  state.audio.playing = true;
   audioRef.value.play();
 };
 // 暂停播放
 const onPause = () => {
-  playing.value = true;
-  console.log(playing.value);
+  state.audio.playing = false;
   audioRef.value.pause();
 };
 
 const onEnded = async () => {
   const storeHook = usePlaySongListStoreHook();
   onPause();
+  // 切换歌曲时重新初始化歌词数组
+  state.audio.lyricIndex = 0;
   // 根据当前选项选择下一首音乐
-  switch (loopType.value) {
+  switch (state.audio.loopType) {
     // 自动完播放音乐，关闭
     case 0:
       if (storeHook.isNextMusic) {
         storeHook.nextMusic();
-        await initPlaySong();
+        await initAudio();
       }
       break;
     // 循环播放歌单音乐
     case 1:
-      // eslint-disable-next-line no-case-declarations
       if (storeHook.isNextMusic) {
         storeHook.nextMusic();
       } else {
         storeHook.currentIndex = 0;
       }
-      await initPlaySong();
+      await initAudio();
       break;
     // 循环播放当前音乐
     case 2:
@@ -374,83 +366,84 @@ const onEnded = async () => {
         const randomNum = parseInt(
           Math.random() * storeHook.getPlayListMusic.length - 1
         );
-        if (randomNum !== currentIndex.value) {
+        if (randomNum !== state.audio.currentMusicIndex) {
           storeHook.currentIndex = randomNum;
           break;
         }
       }
-      await initPlaySong();
+      await initAudio();
       break;
   }
   onPlay();
 };
 
 const lastMusic = async () => {
-  console.log("上一首");
-  onPause();
+  // 切换歌曲时重新初始化歌词数组
+  state.audio.lyricIndex = 0;
+  // onPause();
   const storeHook = usePlaySongListStoreHook();
   if (storeHook.isLastMusic) {
     storeHook.lastMusic();
   } else {
     storeHook.currentIndex = storeHook.playListMusicArr.length - 1;
   }
-  await initPlaySong();
+  await initAudio();
+  onPlay();
 };
 
 const nextMusic = async () => {
-  console.log("下一首");
-  onPause();
+  // 切换歌曲时重新初始化歌词数组
+  state.audio.lyricIndex = 0;
   const storeHook = usePlaySongListStoreHook();
+  // onPause();
   if (storeHook.isNextMusic) {
     storeHook.nextMusic();
   } else {
     storeHook.currentIndex = 0;
   }
-  await initPlaySong();
+  await initAudio();
   onPlay();
 };
 
 const canplay = () => {
-  audioRef.value.isLoading = true;
-  if (musicInfo.value.timeLength == null) {
-    musicInfo.value.timeLength = audioRef.value.duration * 1000;
+  if (state.audio.musicInfo.timeLength == null) {
+    state.audio.musicInfo.timeLength = audioRef.value.duration * 1000;
     return;
   }
   // 不相等时取音频文件的时长
-  if (musicInfo.value.timeLength !== audioRef.value.duration * 100) {
-    musicInfo.value.timeLength = audioRef.value.duration * 1000;
+  if (state.audio.musicInfo.timeLength !== audioRef.value.duration * 100) {
+    state.audio.musicInfo.timeLength = audioRef.value.duration * 1000;
   }
 };
 
-const editPlaySongListFlag = ref<boolean>(false);
-const editPlaySongList = (index: number) => {
-  usePlaySongListStoreHook().currentIndex = index;
-  initPlaySong();
-  editPlaySongListFlag.value = false;
+// 开始加载歌曲
+const onLoadStart = () => {
+  state.audio.loading = true;
 };
 
-const audioBufferProgress = ref(0);
-
-// 音乐标题长度
-const musicTitleRef = ref();
-const musicTitleWidth = ref<number>(1);
+const editPlaySongList = (index: number) => {
+  usePlaySongListStoreHook().currentIndex = index;
+  initAudio();
+  state.dialog.playList = false;
+};
 
 //鼠标拖拽松开时
 const changeMusicDuration = () => {
-  audioRef.value.currentTime = timeProgressBar.value;
-  isChange.value = false;
+  audioRef.value.currentTime = state.audio.timeProgressBar;
+  state.scroll.isChange = false;
 };
 
 // 播放到歌词点击的时间点
-const toLyrics = timestamp => {
+const toLyrics = (timestamp, index) => {
+  console.log(index, "index");
+  state.audio.lyricIndex = index;
   audioRef.value.currentTime = timestamp;
-  console.log(audioRef.value.currentTime, "item");
-  isChange.value = false;
+  state.scroll.isChange = false;
 };
 </script>
 
 <template>
-  <div class="main-box" :style="imgColorStyle">
+  <div class="main-box" :style="state.style.bgColor">
     <div class="toBack icon-bg">
       <IconifyIconOffline
         class="icon-scale"
@@ -464,7 +457,7 @@ const toLyrics = timestamp => {
       <div class="container-box">
         <div :style="{ width: state.size.controller.width }" class="controller">
           <LoadImg
-            :src="musicInfo.pic"
+            :src="state.audio.musicInfo.pic"
             :height="state.size.cover.height"
             :width="state.size.cover.width"
           />
@@ -473,28 +466,30 @@ const toLyrics = timestamp => {
             ref="musicTitleRef"
           >
             <div class="overflow-hidden flex">
-              <div v-for="item in musicTitleWidth" :key="item">
+              <div v-for="item in state.audio.musicTitleWidth" :key="item">
                 <span
                   class="music-font"
-                  :class="{ animate: musicTitleWidth === 2 }"
-                  >{{ musicInfo.musicName }}</span
+                  :class="{ animate: state.audio.musicTitleWidth === 2 }"
+                  >{{ state.audio.musicInfo.musicName }}</span
                 >
               </div>
             </div>
           </div>
           <div class="flex w-full">
-            <span class="album-font">{{ musicInfo.albumName }}</span>
+            <span class="album-font">{{
+              state.audio.musicInfo.albumName
+            }}</span>
             <span
               class="album-font"
               v-show="
-                musicInfo.artistNames !== null &&
-                musicInfo.artistNames.length !== 0
+                state.audio.musicInfo.artistNames != null &&
+                state.audio.musicInfo.artistNames.length !== 0
               "
               >&nbsp;-&nbsp;</span
             >
             <span
               class="artist-font"
-              v-for="(item, index) in musicInfo.artistNames"
+              v-for="(item, index) in state.audio.musicInfo.artistNames"
               :key="index"
               >{{ item }}</span
             >
@@ -502,31 +497,31 @@ const toLyrics = timestamp => {
           <div :style="{ width: state.size.controller.width }" class="progress">
             <el-slider
               :style="{
-                '--slider-progress': `${audioBufferProgress}%`
+                '--slider-progress': `${state.audio.audioBufferProgress}%`
               }"
               :min="0"
-              :max="musicInfo.timeLength / 1000"
+              :max="state.audio.musicInfo.timeLength / 1000"
               :step="1"
-              v-model="timeProgressBar"
+              v-model="state.audio.timeProgressBar"
               :show-tooltip="false"
-              @mousedown="isChange = true"
+              @mousedown="state.scroll.isChange = true"
               @mouseup="changeMusicDuration"
             />
             <div class="flex justify-between mt-2">
               <span class="select-none">{{
-                dateFormater("mm:ss", timeProgressBar * 1000)
+                dateFormater("mm:ss", state.audio.timeProgressBar * 1000)
               }}</span>
               <span class="select-none">
-                {{ dateFormater("mm:ss", musicInfo.timeLength) }}
+                {{ dateFormater("mm:ss", state.audio.musicInfo.timeLength) }}
               </span>
             </div>
             <div class="play-operation-panel">
               <div class="w-full flex justify-between items-center">
                 <div class="icon-bg">
-                  <IconifyIconOnline
+                  <IconifyIconOffline
                     class="icon-scale"
                     @click="musicLoopType"
-                    :icon="loopTypeIcon"
+                    :icon="state.icon.loopTypeIcon"
                     width="2rem"
                     height="2rem"
                   />
@@ -541,13 +536,13 @@ const toLyrics = timestamp => {
                   />
                 </div>
                 <div>
-                  <div v-if="audioRef.isLoading">
-                    <div v-if="playing">
+                  <div v-if="state.audio.loading">
+                    <div v-if="state.audio.playing">
                       <div class="icon-bg">
                         <IconifyIconOnline
-                          @click="onPlay"
+                          @click="onPause"
                           class="cursor-pointer icon-scale"
-                          icon="solar:play-bold"
+                          icon="solar:pause-circle-bold"
                           width="3.25rem"
                           height="3.25rem"
                         />
@@ -556,9 +551,9 @@ const toLyrics = timestamp => {
                     <div v-else>
                       <div class="icon-bg">
                         <IconifyIconOnline
-                          @click="onPause"
+                          @click="onPlay"
                           class="cursor-pointer icon-scale"
-                          icon="solar:pause-circle-bold"
+                          icon="solar:play-bold"
                           width="3.25rem"
                           height="3.25rem"
                         />
@@ -584,7 +579,7 @@ const toLyrics = timestamp => {
                 </div>
                 <div>
                   <el-dialog
-                    v-model="editPlaySongListFlag"
+                    v-model="state.dialog.playList"
                     :width="widthRef"
                     :show-close="false"
                     :modal="false"
@@ -617,7 +612,7 @@ const toLyrics = timestamp => {
                   </el-dialog>
                   <div class="icon-bg">
                     <IconifyIconOnline
-                      @click="editPlaySongListFlag = true"
+                      @click="state.dialog.playList = true"
                       class="cursor-pointer icon-scale"
                       icon="solar:playlist-2-bold"
                       width="2rem"
@@ -629,13 +624,14 @@ const toLyrics = timestamp => {
             </div>
           </div>
           <audio
-            :src="currentMusicUrl.rawUrl"
+            :src="state.audio.currentMusicUrl.rawUrl"
             @timeupdate="onTimeupdate"
             @play="onPlay"
             @pause="onPause"
             @ended="onEnded"
             @canplay="canplay"
             @loop="audioRef.isLoop"
+            @loadeddata="onLoadStart"
             autofocus
             ref="audioRef"
           >
@@ -646,11 +642,11 @@ const toLyrics = timestamp => {
           <div class="scrollbar">
             <div
               v-if="
-                lyricsArr.length === 0 ||
-                lyricsArr[0].content === '' ||
-                lyricsArr[0].timestamp == null ||
-                currentMusicLyric.lyric == null ||
-                currentMusicLyric.lyric === ''
+                state.audio.lyricsArr.length === 0 ||
+                state.audio.lyricsArr[0].content === '' ||
+                state.audio.lyricsArr[0].timestamp == null ||
+                state.audio.currentMusicLyric.lyric == null ||
+                state.audio.currentMusicLyric.lyric === ''
               "
             >
               <div class="mt-[36vh]" />
@@ -658,10 +654,10 @@ const toLyrics = timestamp => {
               <div class="mb-24" />
             </div>
             <div v-else>
-              <div ref="scroll" class="bscroll">
+              <div ref="scrollRef" class="bscroll">
                 <div class="scroll-content">
                   <div
-                    v-for="(item, index) in lyricsArr"
+                    v-for="(item, index) in state.audio.lyricsArr"
                     :key="index"
                     class="bscroll-container"
                     ref="lyricContentRef"
@@ -672,26 +668,35 @@ const toLyrics = timestamp => {
                         '--lyric-loading': `${loadingTime(
                           item,
                           index,
-                          lyricsArr
+                          state.audio.lyricsArr
                         )}s`
                       }"
                     >
+                      <!--歌词播放纯音乐时小圆点占位-->
                       <div class="load-container">
                         <div
                           class="loader__circle"
-                          :class="{ 'loading-anima': lyricIndex === index }"
+                          :class="{
+                            'loading-anima': state.audio.lyricIndex === index
+                          }"
                         />
                         <div
                           class="loader__circle"
-                          :class="{ 'loading-anima': lyricIndex === index }"
+                          :class="{
+                            'loading-anima': state.audio.lyricIndex === index
+                          }"
                         />
                         <div
                           class="loader__circle"
-                          :class="{ 'loading-anima': lyricIndex === index }"
+                          :class="{
+                            'loading-anima': state.audio.lyricIndex === index
+                          }"
                         />
                         <div
                           class="loader__circle"
-                          :class="{ 'loading-anima': lyricIndex === index }"
+                          :class="{
+                            'loading-anima': state.audio.lyricIndex === index
+                          }"
                         />
                       </div>
                       <br />
@@ -700,11 +705,11 @@ const toLyrics = timestamp => {
                       v-else
                       :class="{
                         'lyric-item': true,
-                        'currently-playing': lyricIndex === index
+                        'currently-playing': state.audio.lyricIndex === index
                       }"
                       class="select-none"
-                      @mousedown="isChange = true"
-                      @mouseup="toLyrics(item.timestamp)"
+                      @mousedown="state.scroll.isChange = true"
+                      @mouseup="toLyrics(item.timestamp, index)"
                     >
                       {{ item.content }}
                     </p>
