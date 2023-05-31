@@ -40,8 +40,14 @@ export interface PluginInput {
   pluginType: string;
 }
 
+/**
+ * 获取插件参数
+ * 因为第一次获取插件时间较长所以设置超时时间 60秒
+ * @param id
+ */
 export const getPluginParams = (id: number) => {
   return http.request<R<PluginInput>>("get", "/admin/getPluginParams", {
+    timeout: 1000 * 60,
     params: {
       pluginId: id
     }
