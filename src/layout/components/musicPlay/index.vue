@@ -471,7 +471,7 @@ const toLyrics = (timestamp, index) => {
             :style="{ width: state.size.controller.width }"
             ref="musicTitleRef"
           >
-            <div class="overflow-hidden flex">
+            <div class="flex overflow-hidden">
               <div v-for="item in state.audio.musicTitleWidth" :key="item">
                 <span
                   class="music-font"
@@ -522,7 +522,7 @@ const toLyrics = (timestamp, index) => {
               </span>
             </div>
             <div class="play-operation-panel">
-              <div class="w-full flex justify-between items-center">
+              <div class="flex items-center justify-between w-full">
                 <div class="icon-bg">
                   <IconifyIconOffline
                     class="icon-scale"
@@ -607,7 +607,7 @@ const toLyrics = (timestamp, index) => {
                             :src="item.pic"
                           />
                           <div>
-                            <span class="font-bold ml-4">{{
+                            <span class="ml-4 font-bold">{{
                               item.musicName
                             }}</span>
                             <span>{{ item.aliaName }}</span>
@@ -1041,7 +1041,7 @@ $lyricPadding: 0.8rem;
   }
   display: flex;
   margin-left: 1rem;
-  justify-content: start;
+  // justify-content: start;
   align-items: center;
   height: 100%;
   gap: 14px;

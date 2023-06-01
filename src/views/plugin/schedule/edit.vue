@@ -59,6 +59,19 @@ state.paramsInput = {
 
 state.cronOptions = [
   {
+    label: "测试",
+    options: [
+      {
+        label: "每一分钟执行一次",
+        value: "0 */1 * * * ?"
+      },
+      {
+        label: "每五分钟执行一次",
+        value: "0 */5 * * * ?"
+      }
+    ]
+  },
+  {
     label: "每天",
     options: [
       {
@@ -140,7 +153,7 @@ onMounted(async () => {
       name: null,
       params: "",
       pluginId: null,
-      status: false,
+      status: null,
       updateTime: "",
       userId: 0
     });
@@ -204,7 +217,7 @@ const switchIsRun = val => {
         保存
       </el-button>
     </div>
-    <div class="flex flex-nowrap items-center gap-2">
+    <div class="flex items-center gap-2 flex-nowrap">
       <h1>定时任务</h1>
       <el-switch v-model="state.isRun" size="large" @change="switchIsRun" />
       <span class="font-bold" style="color: var(--el-text-color-placeholder)">

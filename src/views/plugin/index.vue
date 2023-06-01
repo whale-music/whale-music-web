@@ -146,7 +146,7 @@ export default defineComponent({
   <div>
     <div class="ml-4">
       <h2>插件</h2>
-      <div class="search">
+      <div class="search-line">
         <div class="input-box">
           <el-input
             size="large"
@@ -298,7 +298,7 @@ export default defineComponent({
   min-width: 10rem;
 }
 
-.search {
+.search-line {
   display: flex;
   justify-content: space-between;
   align-items: center;

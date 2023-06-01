@@ -176,7 +176,10 @@ class PureHttp {
       }
       PureHttp.axiosInstance
         .request(config)
-        .then((response: undefined) => {
+        .then((response: any) => {
+          if (response?.code !== "200") {
+            throw new Error(response?.message);
+          }
           resolve(response);
         })
         .catch(error => {
