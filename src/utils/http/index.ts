@@ -177,7 +177,11 @@ class PureHttp {
       PureHttp.axiosInstance
         .request(config)
         .then((response: any) => {
-          if (response?.code !== "200") {
+          if (
+            response?.code !== "200" &&
+            response?.code !== "20001" &&
+            response?.code !== "10005"
+          ) {
             throw new Error(response?.message);
           }
           resolve(response);
