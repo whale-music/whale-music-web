@@ -1,6 +1,6 @@
 import { http } from "@/utils/http";
 import { R } from "@/api/common";
-import { Album, Artist, Music } from "@/api/music";
+import { AlbumConvert, ArtistConvert, MusicConvert } from "@/api/music";
 
 export interface Count {
   sumCount: number;
@@ -12,15 +12,15 @@ export const getCount = () => {
 };
 
 export const getMusicTop = () => {
-  return http.request<R<Music[]>>("get", "/admin/home/musicTop");
+  return http.request<R<MusicConvert[]>>("get", "/admin/home/musicTop");
 };
 
 export const getAlbumTop = () => {
-  return http.request<R<Album[]>>("get", "/admin/home/albumTop");
+  return http.request<R<AlbumConvert[]>>("get", "/admin/home/albumTop");
 };
 
 export const getArtistTop = () => {
-  return http.request<R<Artist[]>>("get", "/admin/home/artistTop");
+  return http.request<R<ArtistConvert[]>>("get", "/admin/home/artistTop");
 };
 
 export interface MusicStatisticsRes {

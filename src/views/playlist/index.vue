@@ -173,9 +173,11 @@ const onSubmit = () => {
 };
 
 const playlistInfo = ref<PlayInfoRes>({
+  description: undefined,
+  picId: 0,
   createTime: "",
   id: 0,
-  pic: "",
+  picUrl: "",
   playListName: "",
   sort: 0,
   subscribed: false,
@@ -456,7 +458,10 @@ const throttle = ref(0);
           />
         </el-form-item>
         <el-form-item label="封面">
-          <el-input v-model="modifyPlayListInfo.pic" placeholder="https://" />
+          <el-input
+            v-model="modifyPlayListInfo.picUrl"
+            placeholder="https://"
+          />
         </el-form-item>
         <el-form-item label="歌单状态">
           <el-select v-model="modifyPlayListInfo.type" placeholder="">
@@ -487,7 +492,9 @@ const throttle = ref(0);
         </div>
         <div class="mb-4">
           <h2>封面</h2>
-          <span class="block truncate w-[23rem]">{{ playlistInfo.pic }}</span>
+          <span class="block truncate w-[23rem]">{{
+            playlistInfo.picUrl
+          }}</span>
         </div>
         <div class="mb-4">
           <h2>歌单描述</h2>
@@ -552,7 +559,7 @@ const throttle = ref(0);
             </div>
           </template>
           <template #default>
-            <LoadImg :src="playlistInfo.pic" />
+            <LoadImg :src="playlistInfo.picUrl" />
             <div class="playlist-title">
               <div class="title-name">
                 <p class="playlist-name">{{ playlistInfo.playListName }}</p>
@@ -828,7 +835,7 @@ const throttle = ref(0);
               <div v-for="(item, index) in tableData" :key="index">
                 <LoadImg
                   class="cursor-pointer"
-                  :src="item.pic"
+                  :src="item.picUrl"
                   width="10rem"
                   height="10rem"
                   @click="toMusicInfo(item.id)"

@@ -15,6 +15,10 @@ const router = useRouter();
 
 const idValue = ref();
 const artistInfo = ref<ArtistInfoRes>({
+  birth: undefined,
+  location: undefined,
+  picId: 0,
+  sex: undefined,
   albumList: [],
   aliasName: "",
   artistName: "",
@@ -23,7 +27,7 @@ const artistInfo = ref<ArtistInfoRes>({
   id: 0,
   introduction: "",
   musicList: [],
-  pic: "",
+  picUrl: "",
   updateTime: ""
 });
 
@@ -53,7 +57,7 @@ const editArtistInfo = async () => {
     id: modifyArtistInfo.value.id,
     introduction: modifyArtistInfo.value.introduction,
     location: modifyArtistInfo.value.location,
-    pic: modifyArtistInfo.value.pic,
+    pic: modifyArtistInfo.value.picUrl,
     sex: modifyArtistInfo.value.sex,
     updateTime: modifyArtistInfo.value.updateTime
   };
@@ -88,7 +92,7 @@ const toAlbum = res => {
               <el-input v-model="modifyArtistInfo.aliasName" />
             </el-form-item>
             <el-form-item label="封面">
-              <el-input v-model="modifyArtistInfo.pic" />
+              <el-input v-model="modifyArtistInfo.picUrl" />
             </el-form-item>
             <el-form-item label="出生日期">
               <el-input v-model="modifyArtistInfo.birth" />
@@ -143,7 +147,7 @@ const toAlbum = res => {
       </template>
       <template #default>
         <div class="show-artist-data">
-          <LoadImg :src="artistInfo.pic" class="flex-2" />
+          <LoadImg :src="artistInfo.picUrl" class="flex-2" />
           <div class="info">
             <div class="flex flex-nowrap items-center justify-between">
               <p class="title">{{ artistInfo.artistName }}</p>
@@ -242,7 +246,7 @@ const toAlbum = res => {
         <div class="show-album">
           <div v-for="(item, index) in artistInfo.albumList" :key="index">
             <div class="album-info cursor-pointer" @click="toAlbum(item.id)">
-              <el-image :src="item.pic" fit="cover" class="album-img" />
+              <el-image :src="item.picUrl" fit="cover" class="album-img" />
               <p class="album-name">
                 {{ item.albumName }}
               </p>

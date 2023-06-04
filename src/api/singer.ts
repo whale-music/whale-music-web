@@ -1,5 +1,5 @@
 import { http } from "@/utils/http";
-import { R, Page, Data } from "@/api/common";
+import { R, Page, Data, PicUrl } from "@/api/common";
 
 export interface SingerReq {
   artistName: string;
@@ -12,7 +12,8 @@ export interface SingerRes {
   id: string;
   artistName: string;
   sex?: any;
-  pic: string;
+  picUrl: string;
+  picId: number;
   birth?: any;
   location?: any;
   introduction: string;
@@ -68,7 +69,7 @@ export interface MusicList {
   createTime: string;
 }
 
-export interface Album {
+export interface Album extends PicUrl {
   id: number;
   albumName: string;
   subType: string;
@@ -86,7 +87,8 @@ export interface ArtistInfoRes {
   aliasName: string;
   artistNames: string[];
   sex?: any;
-  pic: string;
+  picId: number;
+  picUrl: string;
   birth?: any;
   location?: any;
   introduction: string;

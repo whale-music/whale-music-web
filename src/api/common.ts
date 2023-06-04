@@ -37,3 +37,7 @@ export interface MusicSearchReq {
   isShowNoExist: boolean;
   page: Page;
 }
+
+export interface PicUrl {
+  picUrl: string;
+}

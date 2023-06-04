@@ -10,7 +10,7 @@ import {
   MusicStatisticsRes,
   PluginTaskRes
 } from "@/api/hone";
-import { Album, Artist } from "@/api/music";
+import { AlbumConvert, ArtistConvert } from "@/api/music";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { EchartOptions, useDark, useECharts } from "@pureadmin/utils";
 import { ElScrollbar } from "element-plus";
@@ -27,8 +27,8 @@ defineOptions({
   name: "Welcome"
 });
 
-const artistList = ref<Artist[]>([]);
-const albumList = ref<Album[]>([]);
+const artistList = ref<ArtistConvert[]>([]);
+const albumList = ref<AlbumConvert[]>([]);
 
 const musicCount = ref<Count>();
 const albumCount = ref<Count>();
@@ -392,7 +392,7 @@ const toPluginTaskInfo = id => {
                 >
                   <LoadImg
                     @click="toAlbum(item.id)"
-                    :src="item.pic"
+                    :src="item.picUrl"
                     height="10rem"
                     width="10rem"
                   />
@@ -457,7 +457,7 @@ const toPluginTaskInfo = id => {
                   <el-avatar
                     @click="toArtist(item.id)"
                     :size="150"
-                    :src="item.pic"
+                    :src="item.picUrl"
                   />
                   <span
                     @click="toArtist(item.id)"

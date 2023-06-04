@@ -42,6 +42,10 @@ export interface Artist {
   updateTime: string;
 }
 
+export interface ArtistConvert extends Artist {
+  picUrl: string;
+}
+
 export interface Album {
   id: number;
   albumName: string;
@@ -49,6 +53,10 @@ export interface Album {
   pic: string;
   updateTime: string;
   createTime: string;
+}
+
+export interface AlbumConvert extends Artist {
+  picUrl: string;
 }
 
 export interface MusicUrlList {
@@ -201,6 +209,10 @@ export interface Music {
   timeLength: number;
   updateTime: string;
   createTime: string;
+}
+
+export interface MusicConvert extends Artist {
+  picUrl: string;
 }
 
 export interface Album {

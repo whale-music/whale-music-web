@@ -441,7 +441,7 @@ const toArtist = res => {
         <el-table-column width="110" :show-overflow-tooltip="false">
           <template #default="scope">
             <load-img
-              :src="scope.row.pic"
+              :src="scope.row.picUrl"
               width="5rem"
               height="5rem"
               radius="9999px"

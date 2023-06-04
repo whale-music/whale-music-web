@@ -25,8 +25,9 @@ const albumInfo = ref<AlbumDataRes>({
   createTime: "",
   description: "",
   id: 0,
+  picId: undefined,
+  picUrl: "",
   musicList: [],
-  pic: "",
   publishTime: "",
   subType: "",
   updateTime: ""
@@ -65,7 +66,7 @@ const saveOrUpdate = async () => {
     createTime: modifyAlbumInfo.value.createTime,
     description: modifyAlbumInfo.value.description,
     id: modifyAlbumInfo.value.id,
-    pic: modifyAlbumInfo.value.pic,
+    pic: modifyAlbumInfo.value.picUrl,
     publishTime: modifyAlbumInfo.value.publishTime,
     subType: modifyAlbumInfo.value.subType,
     updateTime: modifyAlbumInfo.value.updateTime
@@ -105,7 +106,7 @@ const toArtist = id => {
             <el-input v-model="modifyAlbumInfo.albumName" />
           </el-form-item>
           <el-form-item label="封面">
-            <el-input v-model="modifyAlbumInfo.pic" />
+            <el-input v-model="modifyAlbumInfo.picId" />
           </el-form-item>
           <el-form-item label="专辑版本">
             <el-input v-model="modifyAlbumInfo.subType" />
@@ -171,7 +172,7 @@ const toArtist = id => {
       </template>
       <template #default>
         <div class="layout-container">
-          <LoadImg :src="albumInfo.pic" />
+          <LoadImg :src="albumInfo.picUrl" />
           <div class="show-artist-data">
             <div>
               <span class="name">{{ albumInfo.albumName }}</span>

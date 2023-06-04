@@ -52,7 +52,7 @@ const closeDialog = () => {
             >
               <div class="flex">
                 <LoadImg
-                  :src="item.pic"
+                  :src="item.picUrl"
                   height="3rem"
                   width="3rem"
                   radius="8px"

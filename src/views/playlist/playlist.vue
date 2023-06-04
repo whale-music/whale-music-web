@@ -9,6 +9,7 @@ import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
 import { storageLocal, useDark } from "@pureadmin/utils";
 import { CellStyle, ElTable } from "element-plus";
 import {
+  createPlayList,
   deletePlayList,
   getPlayListPage,
   PlayInfoReq,
@@ -20,7 +21,10 @@ import MenuFill from "@iconify-icons/mingcute/menu-fill";
 import ListCheckFill from "@iconify-icons/mingcute/list-check-fill";
 import Segmented, { type OptionsType } from "@/components/ReSegmented";
 import { usePermissionStoreHook } from "@/store/modules/permission";
+import { initRouter } from "@/router/utils";
+import { useDialog } from "@/layout/hooks/useDialog";
 
+const { widthRef } = useDialog();
 const { isDark } = useDark();
 const router = useRouter();
 
@@ -41,6 +45,12 @@ function reDrawLayout(width: number) {
 }
 
 const state = reactive<{
+  creatPlay: {
+    name: string;
+  };
+  dialog: {
+    creatPlayList: boolean;
+  };
   search: {
     req: PlayInfoReq;
     res: PlayInfoRes[];
@@ -67,6 +77,12 @@ const state = reactive<{
     optionSwitch: Array<OptionsType>;
   };
 }>({
+  creatPlay: {
+    name: ""
+  },
+  dialog: {
+    creatPlayList: false
+  },
   search: {
     req: undefined,
     res: undefined,
@@ -89,11 +105,12 @@ const state = reactive<{
 });
 
 state.search.req = {
+  picId: undefined,
   count: 0,
   createTime: "",
   description: null,
   id: null,
-  pic: "",
+  picUrl: "",
   playListName: state.search.name,
   sort: null,
   subscribed: false,
@@ -292,6 +309,26 @@ const deleteButton = async () => {
   }
 };
 
+const createPlayListButton = () => {
+  if (state.creatPlay.name !== "") {
+    createPlayList(state.creatPlay.name)
+      .then(res => {
+        state.dialog.creatPlayList = false;
+        if (res.code === "200") {
+          message("创建成功", { type: "success" });
+          initRouter().then(() => router.push(String(res.data.id)));
+        } else {
+          message(`创建失败${res.message}`, { type: "error" });
+        }
+      })
+      .catch(res => {
+        message(`创建失败${res}`, { type: "error" });
+      });
+  } else {
+    message("请输入歌单名", { type: "error" });
+  }
+};
+
 // 表格颜色
 const cellStyle = ({ columnIndex }): CellStyle<any> => {
   let styles = {};
@@ -350,6 +387,27 @@ const toPlayList = id => {
 
 <template>
   <div class="singer">
+    <!--新建歌单-->
+    <el-dialog
+      v-model="state.dialog.creatPlayList"
+      :width="widthRef"
+      align-center
+    >
+      <h1 class="text-center">新建歌单</h1>
+      <el-input
+        v-model="state.creatPlay.name"
+        placeholder="输入新建歌单名"
+        @keydown.enter="createPlayListButton"
+      />
+      <template #footer>
+        <span class="flex justify-center">
+          <el-button type="primary" @click="createPlayListButton">
+            添加
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
+
     <div class="operation-panel-bg" v-show="selectFlag">
       <div class="operation-panel">
         <el-dialog
@@ -474,13 +532,28 @@ const toPlayList = id => {
               suffix-icon="download"
             />
           </el-select>
+
+          <el-button
+            v-if="state.table.show.sort"
+            type="primary"
+            @click="state.dialog.creatPlayList = true"
+          >
+            新建
+          </el-button>
         </div>
       </div>
 
       <div>
         <el-collapse-transition>
           <div v-show="menuFlag">
-            <div class="flex flex-row-reverse p-4">
+            <div class="flex flex-row-reverse p-4 items-center gap-4">
+              <el-button
+                v-if="!state.table.show.sort"
+                type="primary"
+                @click="state.dialog.creatPlayList = true"
+              >
+                新建
+              </el-button>
               <el-select
                 v-if="!state.table.show.sort"
                 v-model="sortConfig"
@@ -543,7 +616,7 @@ const toPlayList = id => {
             <el-image
               style="width: 5rem; height: 5rem"
               class="rounded shadow-md"
-              :src="scope.row.pic"
+              :src="scope.row.picUrl"
               fit="cover"
             />
           </template>

@@ -20,7 +20,7 @@ export interface AlbumRes {
   subType: string;
   description: string;
   company: string;
-  pic: string;
+  picId: number;
   publishTime: string;
   updateTime: string;
   createTime: string;
@@ -29,6 +29,15 @@ export interface AlbumRes {
   artistList: ArtistList[];
   orderBy: string;
   order: boolean;
+  picUrl: string;
+}
+
+export interface PicConvert {
+  id: number;
+  url: string;
+  md5: string;
+  createTime: string;
+  updateTime: string;
 }
 
 export interface AlbumReq {
@@ -41,7 +50,7 @@ export interface AlbumReq {
   page: Page;
   albumName: string;
   description: string;
-  pic: string;
+  pic: PicConvert;
   updateTime: string;
   createTime: string;
 }
@@ -49,7 +58,6 @@ export interface AlbumReq {
 export interface selectAlbum {
   value: string;
   link: string;
-
   id: number;
   albumName: string;
   aliasName?: any;
@@ -93,7 +101,8 @@ export interface AlbumDataRes {
   subType: string;
   description: string;
   company: string;
-  pic: string;
+  picId: number;
+  picUrl: string;
   publishTime: string;
   updateTime: string;
   createTime: string;

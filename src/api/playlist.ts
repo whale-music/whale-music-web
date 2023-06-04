@@ -1,5 +1,5 @@
 import { http } from "@/utils/http";
-import { R, Data, MusicSearchReq, Page } from "@/api/common";
+import { R, Data, MusicSearchReq, Page, PicUrl } from "@/api/common";
 
 export interface Album {
   id: number;
@@ -26,11 +26,10 @@ export interface Artist {
   updateTime: string;
 }
 
-export interface PlayListRes {
+export interface PlayListRes extends PicUrl {
   id: number;
   musicName: string;
   aliasName: string;
-  pic: string;
   albumId: number;
   sort: number;
   timeLength: number;
@@ -50,7 +49,8 @@ export const getPlayListById = (id: string, data?: MusicSearchReq) => {
 export interface PlayInfoRes {
   id: number;
   playListName: string;
-  pic: string;
+  picId: number;
+  picUrl: string;
   type: number;
   description?: any;
   userId: number;

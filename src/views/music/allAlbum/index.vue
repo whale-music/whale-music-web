@@ -117,7 +117,7 @@ state.search.req = {
   laterTime: "",
   page: page,
   description: "",
-  pic: "",
+  pic: undefined,
   updateTime: "",
   createTime: ""
 };
@@ -520,7 +520,7 @@ const toArtist = id => {
             <el-table-column width="110" :show-overflow-tooltip="false">
               <template #default="scope">
                 <load-img
-                  :src="scope.row.pic"
+                  :src="scope.row.picUrl"
                   width="5rem"
                   height="5rem"
                   radius="1rem"
