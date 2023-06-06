@@ -431,6 +431,7 @@ const toArtist = res => {
         :header-cell-style="tableHeaderCellStyle"
         @selection-change="handleSelectionChange"
         v-show="!emptyFlag && !state.table.intiLoading"
+        class="rounded-2xl"
       >
         <el-table-column
           type="selection"

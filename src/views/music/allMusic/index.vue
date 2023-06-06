@@ -968,6 +968,7 @@ const toMusicInfo = id => {
         </div>
         <el-table
           v-else
+          class="rounded-2xl"
           v-loading="state.table.loading"
           ref="multipleTableRef"
           :data="state.table.storeData"

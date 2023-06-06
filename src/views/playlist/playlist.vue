@@ -590,6 +590,7 @@ const toPlayList = id => {
         :key="switchTableAndRadioFlag"
         :header-cell-style="tableHeaderCellStyle"
         @selection-change="handleSelectionChange"
+        class="rounded-2xl"
         v-show="!emptyFlag"
       >
         <el-table-column
