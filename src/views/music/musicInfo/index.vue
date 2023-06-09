@@ -33,7 +33,8 @@ import { DataInfo, sessionKey } from "@/utils/auth";
 import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
 import { getSelectAlbumList } from "@/api/album";
 import { getSelectSingerList } from "@/api/singer";
-import { ElLoading, ElMessage, ElMessageBox, UploadProps } from "element-plus";
+import { ElLoading, ElMessage, ElMessageBox, genFileId } from "element-plus";
+import type { UploadInstance, UploadProps, UploadRawFile } from "element-plus";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
 import { emitter } from "@/utils/mitt";
@@ -65,6 +66,8 @@ const state = reactive({
     width: "45%"
   }
 });
+
+const picUpload = ref<UploadInstance>();
 
 const musicInfo = ref<MusicDetailInfo>({
   albumArtist: [],
@@ -432,6 +435,14 @@ const beforeAvatarUpload: UploadProps["beforeUpload"] = () => {
   return true;
 };
 
+// 上传封面
+const handleExceed: UploadProps["onExceed"] = files => {
+  picUpload.value!.clearFiles();
+  const file = files[0] as UploadRawFile;
+  file.uid = genFileId();
+  picUpload.value!.handleStart(file);
+};
+
 const toAlbum = albumId => {
   router.push({
     path: "/music/albumInfo",
@@ -631,7 +642,20 @@ const toMusicPlay = async res => {
         <h1>音乐别名</h1>
         <el-input v-model="modifyMusicInfo.musicNameAlias" />
         <h1>封面</h1>
-        <el-input v-model="modifyMusicInfo.pic.url" />
+        <div class="flex-c gap-4">
+          <el-input v-model="modifyMusicInfo.pic.url" />
+          <el-upload
+            ref="upload"
+            action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+            :limit="1"
+            :on-exceed="handleExceed"
+            :auto-upload="true"
+          >
+            <template #trigger>
+              <el-button type="primary">上传图片</el-button>
+            </template>
+          </el-upload>
+        </div>
         <h1>艺术家</h1>
         <el-tag
           v-for="(item, index) in modifyMusicInfo.musicArtist"
