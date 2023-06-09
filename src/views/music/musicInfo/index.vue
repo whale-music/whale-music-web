@@ -76,7 +76,7 @@ const musicInfo = ref<MusicDetailInfo>({
   musicName: "",
   musicNameAlias: "",
   order: false,
-  pic: "",
+  pic: undefined,
   publishTime: "",
   timeLength: 0
 });
@@ -631,7 +631,7 @@ const toMusicPlay = async res => {
         <h1>音乐别名</h1>
         <el-input v-model="modifyMusicInfo.musicNameAlias" />
         <h1>封面</h1>
-        <el-input v-model="modifyMusicInfo.pic" />
+        <el-input v-model="modifyMusicInfo.pic.url" />
         <h1>艺术家</h1>
         <el-tag
           v-for="(item, index) in modifyMusicInfo.musicArtist"
@@ -800,7 +800,7 @@ const toMusicPlay = async res => {
           </div>
         </template>
         <template #default>
-          <LoadImg :src="musicInfo?.pic" />
+          <LoadImg :src="musicInfo?.pic.url" />
           <div class="data">
             <div>
               <div>

@@ -41,3 +41,11 @@ export interface MusicSearchReq {
 export interface PicUrl {
   picUrl: string;
 }
+
+export interface PicConvert {
+  id: number;
+  url: string;
+  md5: string;
+  createTime: string;
+  updateTime: string;
+}

@@ -1,5 +1,5 @@
 import { http } from "@/utils/http";
-import { R, MusicSearchReq, Page, Data } from "@/api/common";
+import { R, MusicSearchReq, Page, Data, PicConvert } from "@/api/common";
 
 // 音乐搜索返回
 export interface MusicSearchRes {
@@ -89,7 +89,7 @@ export interface MusicDetailInfo {
   id: number;
   musicName: string;
   musicNameAlias: string;
-  pic: string;
+  pic: PicConvert;
   musicArtist: Artist[];
   albumArtist: Artist[];
   albumId: number;
