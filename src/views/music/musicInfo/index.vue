@@ -411,6 +411,8 @@ watch(publishTime, value => {
 
 const proxyHost = VITE_PROXY_HOST == null ? "" : VITE_PROXY_HOST;
 const uploadAction = ref(`${proxyHost}/admin/music/auto/upload`);
+const uploadPicAction = ref(`${proxyHost}/admin/music/pic/upload`);
+
 const uploadLoadingFlag = ref();
 const handleAvatarSuccess: UploadProps["onSuccess"] = async response => {
   console.log(response, "onSuccess");
@@ -645,8 +647,8 @@ const toMusicPlay = async res => {
         <div class="flex-c gap-4">
           <el-input v-model="modifyMusicInfo.pic.url" />
           <el-upload
-            ref="upload"
-            action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+            ref="picUpload"
+            :action="uploadPicAction"
             :limit="1"
             :on-exceed="handleExceed"
             :auto-upload="true"
