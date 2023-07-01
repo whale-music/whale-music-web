@@ -209,6 +209,7 @@ const getAlbumPageList = async () => {
     state.table.loading = false;
   } catch (e) {
     state.table.loading = false;
+    state.search.req.page.total = 0;
     message(`${e}`, { type: "error" });
   }
 };
