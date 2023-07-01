@@ -595,6 +595,7 @@ const toArtist = id => {
             <div class="flex">
               <el-pagination
                 background
+                :hide-on-single-page="state.search.req.page.total === 0"
                 :default-current-page="state.search.req.page.pageIndex"
                 :default-page-size="state.search.req.page.pageNum"
                 :current-page="state.search.req.page.pageIndex"

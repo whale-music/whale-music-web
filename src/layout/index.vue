@@ -68,7 +68,7 @@ function toggle(device: string, bool: boolean) {
 }
 
 // 判断是否可自动关闭菜单栏
-let isAutoCloseSidebar = true;
+let isAutoCloseSidebar = false;
 
 // 监听容器
 emitter.on("resize", ({ detail }) => {
