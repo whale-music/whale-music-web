@@ -179,7 +179,6 @@ const onChangeOptionSwitch = ({ option }) => {
   );
 };
 
-const emptyFlag = ref<boolean>(false);
 const getAlbumPageList = async () => {
   state.table.loading = true;
 
@@ -210,7 +209,6 @@ const getAlbumPageList = async () => {
     state.table.loading = false;
   } catch (e) {
     state.table.loading = false;
-    emptyFlag.value = true;
     message(`${e}`, { type: "error" });
   }
 };
@@ -495,9 +493,13 @@ const toArtist = id => {
         <transition name="el-fade-in">
           <ShowLoading :loading="state.table.initLoading" />
         </transition>
-        <el-empty v-if="emptyFlag" description="description" />
+        <el-empty
+          v-if="state.search.req.page.total === 0"
+          description="description"
+        />
         <div>
           <el-table
+            v-if="state.search.req.page.total !== 0"
             v-loading="state.table.loading"
             ref="multipleTableRef"
             :data="state.search.res"
@@ -505,7 +507,7 @@ const toArtist = id => {
             style="width: 100%"
             table-layout="fixed"
             :key="state.table.optionSwitchValue"
-            v-show="!emptyFlag && !state.table.initLoading"
+            v-show="!state.table.initLoading"
             @selection-change="handleSelectionChange"
             :header-cell-style="tableHeaderCellStyle"
             @row-click="rowClick"
