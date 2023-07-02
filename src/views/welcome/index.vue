@@ -341,7 +341,7 @@ const toPluginTaskInfo = id => {
         </div>
       </div>
       <div class="flex justify-between items-center">
-        <h1>最新专辑</h1>
+        <h1 class="ml-4">最新专辑</h1>
         <div class="font-bold">
           <el-tooltip
             class="box-item"
@@ -408,7 +408,7 @@ const toPluginTaskInfo = id => {
         </el-skeleton>
       </div>
       <div class="flex justify-between items-center">
-        <h1>最新艺术家</h1>
+        <h1 class="ml-4">最新艺术家</h1>
         <div class="font-bold">
           <el-tooltip
             class="box-item"

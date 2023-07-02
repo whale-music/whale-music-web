@@ -55,7 +55,7 @@ export interface Album {
   createTime: string;
 }
 
-export interface AlbumConvert extends Artist {
+export interface AlbumConvert extends Album {
   picUrl: string;
 }
 
