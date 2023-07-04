@@ -417,7 +417,7 @@ const toArtist = res => {
       </transition>
       <el-empty
         v-if="!state.table.loading && state.search.req.page.total === 0"
-        description="description"
+        description="这里没有歌手，请在主页添加歌手"
       />
       <el-table
         v-loading="state.table.loading"

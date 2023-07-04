@@ -1,10 +1,9 @@
 <script lang="ts" setup>
-import { onBeforeMount, ref, watch } from "vue";
+import { onMounted, reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import {
-  Album,
-  AlbumDataRes,
   getAlbumDataInfo,
+  SaveOrUpdateAlbum,
   saveOrUpdateAlbum
 } from "@/api/album";
 import { dateFormater } from "@/utils/dateUtil";
@@ -12,30 +11,41 @@ import { Icon } from "@iconify/vue";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { clone } from "@pureadmin/utils";
 import { message } from "@/utils/message";
+import { getSelectSingerList } from "@/api/singer";
+import {
+  genFileId,
+  UploadInstance,
+  UploadProps,
+  UploadRawFile
+} from "element-plus";
 
 const router = useRouter();
 
+const state = reactive({
+  input: {
+    musicArtistSearch: ""
+  }
+});
+
 const albumId = ref();
 
-const albumInfo = ref<AlbumDataRes>({
-  artistList: [],
+const albumInfo = ref<AlbumSave>({
+  link: [],
   albumName: "",
-  albumSize: 0,
+  artistIds: [],
   company: "",
   createTime: "",
   description: "",
   id: 0,
-  picId: undefined,
-  picUrl: "",
-  musicList: [],
+  pic: "",
   publishTime: "",
   subType: "",
   updateTime: ""
 });
 
 const skeletonLoadingFlag = ref<boolean>(false);
-onBeforeMount(() => {
-  albumId.value = useRouter().currentRoute.value.query.id;
+
+function initAlbumInfo() {
   skeletonLoadingFlag.value = true;
   console.log(albumId);
   getAlbumDataInfo(albumId.value).then(res => {
@@ -44,6 +54,11 @@ onBeforeMount(() => {
     publishTime.value = clone(modifyAlbumInfo.value.publishTime, true);
     skeletonLoadingFlag.value = false;
   });
+}
+
+onMounted(() => {
+  albumId.value = useRouter().currentRoute.value.query.id;
+  initAlbumInfo();
 });
 
 const publishTime = ref<Date>();
@@ -54,19 +69,35 @@ watch(publishTime, value => {
   );
 });
 
+interface AlbumSave extends SaveOrUpdateAlbum {
+  link: LinkItem[];
+}
 const editAlbumInfoFlag = ref<boolean>(false);
-const modifyAlbumInfo = ref<AlbumDataRes>();
+const modifyAlbumInfo = ref<AlbumSave>({
+  albumName: "",
+  artistIds: [],
+  company: "",
+  createTime: "",
+  description: "",
+  id: 0,
+  pic: "",
+  publishTime: "",
+  subType: "",
+  updateTime: "",
+  link: []
+});
 
 const centerDialogVisible = ref(false);
 
 const saveOrUpdate = async () => {
-  const data: Album = {
+  const data: SaveOrUpdateAlbum = {
+    artistIds: modifyAlbumInfo.value.artistIds,
     albumName: modifyAlbumInfo.value.albumName,
     company: modifyAlbumInfo.value.company,
     createTime: modifyAlbumInfo.value.createTime,
     description: modifyAlbumInfo.value.description,
     id: modifyAlbumInfo.value.id,
-    pic: modifyAlbumInfo.value.picUrl,
+    pic: modifyAlbumInfo.value.pic,
     publishTime: modifyAlbumInfo.value.publishTime,
     subType: modifyAlbumInfo.value.subType,
     updateTime: modifyAlbumInfo.value.updateTime
@@ -79,6 +110,58 @@ const saveOrUpdate = async () => {
   } else {
     message(`更新失败${r.message}`, { type: "error" });
     modifyAlbumInfo.value = albumInfo.value;
+  }
+};
+
+// 删除歌手数据
+const albumArtistHandleClose = index => {
+  modifyAlbumInfo.value.link.splice(index, 1);
+  modifyAlbumInfo.value.artistList.splice(index, 1);
+};
+
+// 获取专辑歌手数据
+const albumArtistQuerySearchAsync = async (
+  queryString: string,
+  cb: (arg: any) => void
+) => {
+  const selectAlbumR = await getSelectSingerList(queryString);
+  if (selectAlbumR.code === "200" && selectAlbumR.data.length !== 0) {
+    cb(selectAlbumR.data);
+  }
+};
+
+interface LinkItem {
+  value: string;
+  link: number;
+  display: string;
+}
+
+const albumArtistSearch = ref<string>("");
+// 歌手添加到保存数据中
+const albumArtistHandleSelect = (item: LinkItem) => {
+  modifyAlbumInfo.value.link.push(item);
+  albumArtistSearch.value = "";
+};
+
+const { VITE_PROXY_HOST } = import.meta.env;
+const proxyHost = VITE_PROXY_HOST == null ? "" : VITE_PROXY_HOST;
+const uploadPicAction = ref(`${proxyHost}/admin/music/pic/upload`);
+
+const picUpload = ref<UploadInstance>();
+// 上传封面
+const handleExceed: UploadProps["onExceed"] = files => {
+  picUpload.value!.clearFiles();
+  const file = files[0] as UploadRawFile;
+  file.uid = genFileId();
+  picUpload.value!.handleStart(file);
+};
+
+const handleSuccess = (response: any) => {
+  if (response.code == 200) {
+    initAlbumInfo();
+    message("封面更新成功", { type: "success" });
+  } else {
+    message("封面更新失败", { type: "error" });
   }
 };
 
@@ -106,8 +189,43 @@ const toArtist = id => {
             <el-input v-model="modifyAlbumInfo.albumName" />
           </el-form-item>
           <el-form-item label="封面">
-            <el-input v-model="modifyAlbumInfo.picId" />
+            <div class="flex items-center justify-center w-full gap-4">
+              <el-input disabled v-model="modifyAlbumInfo.pic" />
+              <el-upload
+                class="flex justify-center items-center"
+                ref="picUpload"
+                :data="{ id: modifyAlbumInfo.id, type: 'album' }"
+                :action="uploadPicAction"
+                :limit="1"
+                :on-exceed="handleExceed"
+                :on-success="handleSuccess"
+                :auto-upload="true"
+              >
+                <template #trigger>
+                  <el-button type="primary"> 上传封面 </el-button>
+                </template>
+              </el-upload>
+            </div>
           </el-form-item>
+          <div class="flex flex-nowrap items-end">
+            <h1>专辑艺术家</h1>
+          </div>
+          <el-tag
+            v-for="(item, index) in modifyAlbumInfo.artistList"
+            :key="item"
+            @close="albumArtistHandleClose(index)"
+            effect="dark"
+            closable
+            round
+            >{{ item.artistName }}</el-tag
+          >
+          <el-autocomplete
+            class="w-full mt-1"
+            v-model="state.input.musicArtistSearch"
+            :fetch-suggestions="albumArtistQuerySearchAsync"
+            placeholder="请输入歌手名"
+            @select="albumArtistHandleSelect"
+          />
           <el-form-item label="专辑版本">
             <el-input v-model="modifyAlbumInfo.subType" />
           </el-form-item>
@@ -172,7 +290,7 @@ const toArtist = id => {
       </template>
       <template #default>
         <div class="layout-container">
-          <LoadImg :src="albumInfo.picUrl" />
+          <LoadImg :src="albumInfo.pic" />
           <div class="show-artist-data">
             <div>
               <span class="name">{{ albumInfo.albumName }}</span>

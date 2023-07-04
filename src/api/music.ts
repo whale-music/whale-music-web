@@ -1,5 +1,6 @@
 import { http } from "@/utils/http";
 import { R, MusicSearchReq, Page, Data, PicConvert } from "@/api/common";
+import { Artist } from "@/api/model/Artist";
 
 // 音乐搜索返回
 export interface MusicSearchRes {
@@ -27,19 +28,6 @@ export interface MusicSearchRes {
   timeLength: number;
   updateTime: string;
   createTime: string;
-}
-
-export interface Artist {
-  id: number;
-  artistName: string;
-  alias: string;
-  sex: string;
-  pic: string;
-  birth: string;
-  location: string;
-  introduction: string;
-  createTime: string;
-  updateTime: string;
 }
 
 export interface ArtistConvert extends Artist {
@@ -137,7 +125,7 @@ export const saveOrUpdateLyric = (
 };
 
 export const updateMusic = (data: MusicDetailInfo) => {
-  return http.request<R<Lyric[]>>("post", `/admin/music`, {
+  return http.request<R<any>>("post", `/admin/music/`, {
     data: data
   });
 };
@@ -308,4 +296,12 @@ export const updateSourceMusic = (data: MusicUrl) => {
 
 export const deleteSourceMusic = (id: number) => {
   return http.request<R<string>>("delete", `/admin/music/delete/source/${id}`);
+};
+
+export const selectResources = (md5: string) => {
+  return http.request<R<[string[]]>>("get", `/admin/music/select`, {
+    params: {
+      md5: md5
+    }
+  });
 };

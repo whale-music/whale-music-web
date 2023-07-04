@@ -1,6 +1,7 @@
 import { http } from "@/utils/http";
 import { R, Page, Data } from "@/api/common";
 import { MusicSearchRes } from "@/api/music";
+import { Album } from "@/api/model/Album";
 export interface ArtistList {
   id: number;
   artistName: string;
@@ -102,7 +103,7 @@ export interface AlbumDataRes {
   description: string;
   company: string;
   picId: number;
-  picUrl: string;
+  pic: string;
   publishTime: string;
   updateTime: string;
   createTime: string;
@@ -114,7 +115,7 @@ export interface AlbumDataRes {
 }
 
 export const getAlbumDataInfo = (id: string) => {
-  return http.request<R<AlbumDataRes>>("get", "/admin/album/" + id);
+  return http.request<R<AlbumDataRes>>("get", `/admin/album/${id}`);
 };
 
 export const deleteAlbum = (id: number[], compel?: boolean) => {
@@ -129,18 +130,10 @@ export const deleteAlbum = (id: number[], compel?: boolean) => {
   );
 };
 
-export interface Album {
-  id: number;
-  albumName: string;
-  subType: string;
-  description: string;
-  company: string;
-  pic: string;
-  publishTime: string;
-  updateTime: string;
-  createTime: string;
+export interface SaveOrUpdateAlbum extends Album {
+  artistIds: number[];
 }
-export const saveOrUpdateAlbum = (data: Album) => {
+export const saveOrUpdateAlbum = (data: SaveOrUpdateAlbum) => {
   return http.request<R<AlbumDataRes>>("post", "/admin/album/", {
     data
   });

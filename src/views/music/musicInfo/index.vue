@@ -11,6 +11,7 @@ import {
   MusicUrl,
   MusicUrlInfo,
   saveOrUpdateLyric,
+  selectResources,
   updateMusic,
   updateSourceMusic,
   UploadManualMusic
@@ -62,6 +63,18 @@ const reLayout = (width: number) => {
 
 const state = reactive({
   operateButton: false,
+  loading: {
+    selectMd5: false
+  },
+  input: {
+    selectMd5: ""
+  },
+  visible: {
+    musicSelectResourcePath: false
+  },
+  table: {
+    data: []
+  },
   dialog: {
     width: "45%"
   }
@@ -122,7 +135,7 @@ function copy(value) {
   }
   clipboardValue.value = unref(value);
   if (copied.value) {
-    message("拷贝音源地址成功", { type: "success" });
+    message("拷贝成功", { type: "success" });
   }
 }
 
@@ -236,7 +249,7 @@ const tempSource = {
   url: "",
   userId: null
 };
-const addSource = ref<UploadManualMusic>(clone(tempSource));
+const addSource = ref<UploadManualMusic>(tempSource);
 const addSourceLoadingBottomFlag = ref<boolean>(false);
 const addSoundSource = async () => {
   console.log("添加音源");
@@ -265,7 +278,7 @@ interface LinkItem {
   display: string;
 }
 
-// 获取专辑歌手数据
+// 获取歌手数据
 const musicArtistQuerySearchAsync = async (
   queryString: string,
   cb: (arg: any) => void
@@ -295,44 +308,9 @@ const musicArtistHandleSelect = (item: LinkItem) => {
   musicArtistSearch.value = "";
 };
 
-// 获取专辑歌手数据
-const albumArtistQuerySearchAsync = async (
-  queryString: string,
-  cb: (arg: any) => void
-) => {
-  const selectAlbumR = await getSelectSingerList(queryString);
-  if (selectAlbumR.code === "200" && selectAlbumR.data.length !== 0) {
-    cb(selectAlbumR.data);
-  }
-};
-
-// 删除歌手数据
-const albumArtistHandleClose = index => {
-  modifyMusicInfo.value.albumArtist.splice(index, 1);
-};
-
 // 删除歌手数据
 const musicArtistHandleClose = index => {
   modifyMusicInfo.value.musicArtist.splice(index, 1);
-};
-
-const albumArtistSearch = ref<string>("");
-// 歌手添加到保存数据中
-const albumArtistHandleSelect = (item: LinkItem) => {
-  const items = {
-    alias: "",
-    artistName: item.value,
-    birth: "",
-    createTime: "",
-    id: item.link,
-    introduction: "",
-    location: "",
-    pic: "",
-    sex: "",
-    updateTime: ""
-  };
-  modifyMusicInfo.value.albumArtist.push(items);
-  albumArtistSearch.value = "";
 };
 
 const albumSearch = ref<string>("");
@@ -445,6 +423,24 @@ const handleExceed: UploadProps["onExceed"] = files => {
   picUpload.value!.handleStart(file);
 };
 
+const selectMd5Search = async (value: string | number) => {
+  state.loading.selectMd5 = true;
+  try {
+    const r = await selectResources(String(value));
+    state.table.data = r.data;
+  } finally {
+    state.loading.selectMd5 = false;
+  }
+};
+
+const paddingData = data => {
+  console.log(data);
+  state.visible.musicSelectResourcePath = false;
+  addSource.value.md5 = data.md5;
+  addSource.value.name = data.fileName;
+  addSource.value.size = data.size;
+};
+
 const toAlbum = albumId => {
   router.push({
     path: "/music/albumInfo",
@@ -475,6 +471,70 @@ const toMusicPlay = async res => {
 </script>
 <template>
   <div>
+    <!--选择音源MD5-->
+    <el-dialog
+      title="选择音源"
+      v-model="state.visible.musicSelectResourcePath"
+      width="60%"
+    >
+      <el-input v-model="state.input.selectMd5" @input="selectMd5Search" />
+      <el-table
+        height="10rem"
+        :data="state.table.data"
+        style="width: 100%"
+        v-loading="state.loading.selectMd5"
+      >
+        <el-table-column
+          min-width="30"
+          show-overflow-tooltip
+          fixed
+          label="MD5"
+          property="md5"
+        >
+          <template #default="scope">
+            <span class="cursor-pointer" @click="copy(scope.row.md5)">{{
+              scope.row.md5
+            }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          min-width="30"
+          show-overflow-tooltip
+          label="文件名"
+          property="fileName"
+        >
+          <template #default="scope">
+            <span class="cursor-pointer" @click="copy(scope.row.fileName)">{{
+              scope.row.fileName
+            }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          min-width="30"
+          show-overflow-tooltip
+          label="文件大小"
+          property="size"
+        >
+          <template #default="scope">
+            <span class="cursor-pointer" @click="copy(scope.row.size)">{{
+              scope.row.size
+            }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column>
+          <template #default="scope">
+            <audio :src="scope.row.audio" controls />
+          </template>
+        </el-table-column>
+        <el-table-column fixed="right" label="操作" width="120">
+          <template #default="scope">
+            <el-button type="primary" @click="paddingData(scope.row)">
+              填入数据
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
     <!--编辑音源-->
     <el-dialog
       :width="state.dialog.width"
@@ -543,7 +603,19 @@ const toMusicPlay = async res => {
               label="文件名(请以md5+文件格式命名)"
               :rules="[{ required: true }]"
             >
-              <el-input v-model="addSource.name" />
+              <div class="w-full flex gap-4">
+                <el-input v-model="addSource.name" />
+                <el-button
+                  type="primary"
+                  @click="
+                    () => {
+                      state.visible.musicSelectResourcePath = true;
+                      selectMd5Search('');
+                    }
+                  "
+                  >选择</el-button
+                >
+              </div>
             </el-form-item>
             <el-form-item label="MD5" :rules="[{ required: true }]">
               <el-input v-model="addSource.md5" />
@@ -644,10 +716,12 @@ const toMusicPlay = async res => {
         <h1>音乐别名</h1>
         <el-input v-model="modifyMusicInfo.musicNameAlias" />
         <h1>封面</h1>
-        <div class="flex-c gap-4">
-          <el-input v-model="modifyMusicInfo.pic.url" />
+        <div class="flex-c gap-4 items-center">
+          <el-input :disabled="true" v-model="modifyMusicInfo.pic.url" />
           <el-upload
+            class="flex justify-center items-center"
             ref="picUpload"
+            :data="{ id: modifyMusicInfo.id, type: 'music' }"
             :action="uploadPicAction"
             :limit="1"
             :on-exceed="handleExceed"
@@ -674,25 +748,6 @@ const toMusicPlay = async res => {
           :fetch-suggestions="musicArtistQuerySearchAsync"
           placeholder="请输入歌手名"
           @select="musicArtistHandleSelect"
-        />
-        <div class="flex flex-nowrap items-end">
-          <h1>专辑艺术家</h1>
-        </div>
-        <el-tag
-          v-for="(item, index) in modifyMusicInfo.albumArtist"
-          :key="item"
-          @close="albumArtistHandleClose(index)"
-          effect="dark"
-          closable
-          round
-          >{{ item.artistName }}</el-tag
-        >
-        <el-autocomplete
-          class="w-full mt-1"
-          v-model="musicArtistSearch"
-          :fetch-suggestions="albumArtistQuerySearchAsync"
-          placeholder="请输入歌手名"
-          @select="albumArtistHandleSelect"
         />
         <div class="flex flex-nowrap items-center">
           <h1>专辑</h1>

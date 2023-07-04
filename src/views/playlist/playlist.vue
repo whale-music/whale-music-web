@@ -21,7 +21,6 @@ import MenuFill from "@iconify-icons/mingcute/menu-fill";
 import ListCheckFill from "@iconify-icons/mingcute/list-check-fill";
 import Segmented, { type OptionsType } from "@/components/ReSegmented";
 import { usePermissionStoreHook } from "@/store/modules/permission";
-import { initRouter } from "@/router/utils";
 import { useDialog } from "@/layout/hooks/useDialog";
 
 const { widthRef } = useDialog();
@@ -316,7 +315,8 @@ const createPlayListButton = () => {
         state.dialog.creatPlayList = false;
         if (res.code === "200") {
           message("创建成功", { type: "success" });
-          initRouter().then(() => router.push(String(res.data.id)));
+          router.go(0);
+          // initRouter().then(() => router.push(String(res.data.id)));
         } else {
           message(`创建失败${res.message}`, { type: "error" });
         }
@@ -579,7 +579,10 @@ const toPlayList = id => {
       <transition name="el-fade-in">
         <ShowLoading :loading="state.table.initLoading" />
       </transition>
-      <el-empty v-if="!loadingFlag && emptyFlag" description="description" />
+      <el-empty
+        v-if="!loadingFlag && emptyFlag"
+        description="这里没有歌单请点击右上角添加歌单"
+      />
       <el-table
         v-loading="loadingFlag"
         ref="multipleTableRef"

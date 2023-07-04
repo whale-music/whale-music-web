@@ -1,5 +1,6 @@
 import { http } from "@/utils/http";
 import { R, Page, Data, PicUrl } from "@/api/common";
+import { Artist } from "@/api/model/Artist";
 
 export interface SingerReq {
   artistName: string;
@@ -109,18 +110,6 @@ export const deleteArtist = (id: number[]) => {
   );
 };
 
-export interface Artist {
-  id: number;
-  artistName: string;
-  aliasName: string;
-  sex: string;
-  pic: string;
-  birth: string;
-  location: string;
-  introduction: string;
-  createTime: string;
-  updateTime: string;
-}
 export const saveOrUpdateArtist = (data: Artist) => {
   return http.request<R<ArtistInfoRes>>("post", "/admin/singer/", { data });
 };

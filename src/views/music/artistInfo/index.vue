@@ -1,16 +1,18 @@
 <script lang="ts" setup>
-import { onBeforeMount, ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
-import {
-  Artist,
-  ArtistInfoRes,
-  getArtistInfo,
-  saveOrUpdateArtist
-} from "@/api/singer";
+import { ArtistInfoRes, getArtistInfo, saveOrUpdateArtist } from "@/api/singer";
 import { dateFormater } from "@/utils/dateUtil";
 import { clone } from "@pureadmin/utils";
 import { message } from "@/utils/message";
+import {
+  genFileId,
+  UploadInstance,
+  UploadProps,
+  UploadRawFile
+} from "element-plus";
+import { Artist } from "@/api/model/Artist";
 const router = useRouter();
 
 const idValue = ref();
@@ -32,8 +34,8 @@ const artistInfo = ref<ArtistInfoRes>({
 });
 
 const skeletonLoadingFlag = ref<boolean>(false);
-onBeforeMount(() => {
-  idValue.value = useRouter().currentRoute.value.query.id;
+
+function initInfo() {
   skeletonLoadingFlag.value = true;
   getArtistInfo(idValue.value).then(res => {
     console.log(res);
@@ -41,6 +43,11 @@ onBeforeMount(() => {
     modifyArtistInfo.value = clone(artistInfo.value, true);
     skeletonLoadingFlag.value = false;
   });
+}
+
+onMounted(() => {
+  idValue.value = useRouter().currentRoute.value.query.id;
+  initInfo();
 });
 
 const modifyArtistInfo = ref<ArtistInfoRes>();
@@ -72,6 +79,28 @@ const editArtistInfo = async () => {
   }
 };
 
+const { VITE_PROXY_HOST } = import.meta.env;
+const proxyHost = VITE_PROXY_HOST == null ? "" : VITE_PROXY_HOST;
+const uploadPicAction = ref(`${proxyHost}/admin/music/pic/upload`);
+
+const picUpload = ref<UploadInstance>();
+// 上传封面
+const handleExceed: UploadProps["onExceed"] = files => {
+  picUpload.value!.clearFiles();
+  const file = files[0] as UploadRawFile;
+  file.uid = genFileId();
+  picUpload.value!.handleStart(file);
+};
+
+const handleSuccess = (response: any) => {
+  if (response.code == 200) {
+    initInfo();
+    message("封面更新成功", { type: "success" });
+  } else {
+    message("封面更新失败", { type: "error" });
+  }
+};
+
 const toAlbum = res => {
   router.push({
     path: "/music/albumInfo",
@@ -92,7 +121,23 @@ const toAlbum = res => {
               <el-input v-model="modifyArtistInfo.aliasName" />
             </el-form-item>
             <el-form-item label="封面">
-              <el-input v-model="modifyArtistInfo.picUrl" />
+              <div class="flex items-center justify-center w-full gap-4">
+                <el-input disabled v-model="modifyArtistInfo.picUrl" />
+                <el-upload
+                  class="flex justify-center items-center"
+                  ref="picUpload"
+                  :data="{ id: modifyArtistInfo.id, type: 'artist' }"
+                  :action="uploadPicAction"
+                  :limit="1"
+                  :on-exceed="handleExceed"
+                  :on-success="handleSuccess"
+                  :auto-upload="true"
+                >
+                  <template #trigger>
+                    <el-button type="primary"> 上传封面 </el-button>
+                  </template>
+                </el-upload>
+              </div>
             </el-form-item>
             <el-form-item label="出生日期">
               <el-input v-model="modifyArtistInfo.birth" />

@@ -871,7 +871,10 @@ const throttle = ref(0);
         />
       </div>
     </div>
-    <el-empty description="description" v-if="emptyFlag" />
+    <el-empty
+      description="这里没有歌曲，请在歌单界面添加歌曲到歌单"
+      v-if="emptyFlag"
+    />
   </div>
 </template>
 <style lang="scss" scoped>

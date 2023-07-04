@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onBeforeMount, Ref, computed } from "vue";
+import { ref, onBeforeMount, Ref, computed, reactive } from "vue";
 import {
   Count,
   getAlbumTop,
@@ -10,21 +10,65 @@ import {
   MusicStatisticsRes,
   PluginTaskRes
 } from "@/api/hone";
-import { AlbumConvert, ArtistConvert } from "@/api/music";
+import {
+  AlbumConvert,
+  ArtistConvert,
+  MusicDetailInfo,
+  updateMusic
+} from "@/api/music";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { EchartOptions, useDark, useECharts } from "@pureadmin/utils";
-import { ElScrollbar } from "element-plus";
+import { ElMessageBox, ElScrollbar } from "element-plus";
 import dayjs from "dayjs";
 import { dateFormater } from "@/utils/dateUtil";
 import { FriendlyTime } from "@/utils/DateFormat.ts";
 import Wbutton from "@/components/button/index.vue";
 import { ReNormalCountTo } from "@/components/ReCountTo";
 import { useRouter } from "vue-router";
+import ContextMenu from "@imengyu/vue3-context-menu";
+import ArrowDownBold from "@iconify-icons/ep/arrow-down-bold";
+import { message } from "@/utils/message";
+import { getSelectSingerList, saveOrUpdateArtist } from "@/api/singer";
+import {
+  getSelectAlbumList,
+  SaveOrUpdateAlbum,
+  saveOrUpdateAlbum
+} from "@/api/album";
+import { Artist } from "@/api/model/Artist";
 
 const router = useRouter();
 
 defineOptions({
   name: "Welcome"
+});
+
+interface LinkItem {
+  value: string;
+  link: number;
+  display: string;
+}
+
+interface AlbumReq extends SaveOrUpdateAlbum {
+  link: LinkItem[];
+}
+const state = reactive({
+  show: {
+    uploadMusicFlag: false,
+    uploadAlbumFlag: false,
+    uploadArtistFlag: false,
+    sourceInfoFlag: false
+  },
+  form: {
+    uploadMusicInfo: { musicArtist: [] } as MusicDetailInfo,
+    uploadAlbum: { artistIds: [], link: [] } as AlbumReq,
+    uploadArtist: {} as Artist,
+    sourceInfo: {} as any
+  },
+  autocomplete: {
+    musicArtistInputValue: "",
+    albumArtistInputValue: "",
+    albumSearch: ""
+  }
 });
 
 const artistList = ref<ArtistConvert[]>([]);
@@ -42,7 +86,8 @@ const musicMusicStatistics = ref<MusicStatisticsRes[]>();
 const pluginTask = ref<PluginTaskRes[]>();
 
 const skeletonLoadingFlag = ref<boolean>(false);
-onBeforeMount(async () => {
+
+async function initHomeInfo() {
   skeletonLoadingFlag.value = true;
   const countMap = await getCount();
 
@@ -83,6 +128,10 @@ onBeforeMount(async () => {
   setEchaerOption();
 
   skeletonLoadingFlag.value = false;
+}
+
+onBeforeMount(async () => {
+  await initHomeInfo();
 });
 
 const effectiveMusic = ref<number>();
@@ -95,7 +144,7 @@ const theme: EchartOptions["theme"] = computed(() => {
   return isDark.value ? "dark" : "default";
 });
 
-const pieDataChartRef = ref<HTMLDivElement | null>(null);
+const pieDataChartRef = ref<HTMLDivElement>();
 const { setOptions } = useECharts(pieDataChartRef as Ref<HTMLDivElement>, {
   theme: theme
 });
@@ -115,6 +164,10 @@ const artistHandleScroll = e => {
   // scrollbar.wrap$获取到包裹容器的element对象
   scrollbar.setScrollLeft(scrollbar.wrapRef.scrollLeft - wheelDelta);
 };
+
+const { VITE_PROXY_HOST } = import.meta.env;
+const proxyHost = VITE_PROXY_HOST == null ? "" : VITE_PROXY_HOST;
+const uploadAction = ref(`${proxyHost}/admin/music/auto/upload`);
 
 const statusIcon = status => {
   switch (status) {
@@ -184,6 +237,192 @@ const getType = (
   return type ? positive : negative;
 };
 
+// 音乐右键菜单
+const onMusicContextMenu = (e: MouseEvent) => {
+  //prevent the browser's default menu
+  e.preventDefault();
+  //show our menu
+  ContextMenu.showContextMenu({
+    x: e.x,
+    y: e.y,
+    items: [
+      {
+        label: "添加音乐",
+        onClick: () => {
+          state.show.uploadMusicFlag = true;
+        }
+      }
+    ]
+  });
+};
+
+// 专辑右键菜单
+const onAlbumContextMenu = (e: MouseEvent) => {
+  //prevent the browser's default menu
+  e.preventDefault();
+  //show our menu
+  ContextMenu.showContextMenu({
+    x: e.x,
+    y: e.y,
+    items: [
+      {
+        label: "添加专辑",
+        onClick: () => {
+          state.show.uploadAlbumFlag = true;
+        }
+      }
+    ]
+  });
+};
+
+// 歌手右键菜单
+const onArtistContextMenu = (e: MouseEvent) => {
+  //prevent the browser's default menu
+  e.preventDefault();
+  //show our menu
+  ContextMenu.showContextMenu({
+    x: e.x,
+    y: e.y,
+    items: [
+      {
+        label: "添加歌手(艺术家)",
+        onClick: () => {
+          state.show.uploadArtistFlag = true;
+        }
+      }
+    ]
+  });
+};
+
+const handleClose = (done: () => void) => {
+  ElMessageBox.confirm("确认退出吗？")
+    .then(() => {
+      done();
+    })
+    .catch(() => {
+      // catch error
+    });
+};
+
+const updateMusicButton = async () => {
+  try {
+    const r = await updateMusic(state.form.uploadMusicInfo);
+    if (r.code === "200") {
+      message("上传成功", { type: "success" });
+      state.autocomplete.albumSearch = "";
+      state.form.uploadMusicInfo = {} as MusicDetailInfo;
+    } else {
+      message(`更新失败${r.message}`, { type: "error" });
+    }
+  } catch (e) {
+    message(`请求失败${e}`, { type: "error" });
+  }
+};
+
+// 删除歌手数据
+const musicArtistHandleClose = index => {
+  state.form.uploadMusicInfo.musicArtist.splice(index, 1);
+};
+
+// 获取歌手数据
+const musicArtistQuerySearchAsync = async (
+  queryString: string,
+  cb: (arg: any) => void
+) => {
+  const selectAlbumR = await getSelectSingerList(queryString);
+  if (selectAlbumR.code === "200" && selectAlbumR.data.length !== 0) {
+    cb(selectAlbumR.data);
+  } else {
+    setTimeout(() => cb([]), 200);
+  }
+};
+
+// 歌手添加到保存数据中
+const musicArtistHandleSelect = (item: LinkItem) => {
+  const items = {
+    aliasName: "",
+    artistName: item.value,
+    birth: "",
+    createTime: "",
+    id: item.link,
+    introduction: "",
+    location: "",
+    pic: "",
+    sex: "",
+    updateTime: ""
+  };
+  state.form.uploadMusicInfo.musicArtist.push(items);
+  state.autocomplete.musicArtistInputValue = "";
+};
+
+// 删除歌手数据
+const albumArtistHandleClose = index => {
+  state.form.uploadAlbum.link.splice(index, 1);
+  state.form.uploadAlbum.artistIds.splice(index, 1);
+};
+
+// 获取专辑歌手数据
+const albumArtistQuerySearchAsync = async (
+  queryString: string,
+  cb: (arg: any) => void
+) => {
+  const selectAlbumR = await getSelectSingerList(queryString);
+  if (selectAlbumR.code === "200" && selectAlbumR.data.length !== 0) {
+    cb(selectAlbumR.data);
+  } else {
+    setTimeout(() => cb([]), 200);
+  }
+};
+
+// 歌手添加到保存数据中
+const albumArtistHandleSelect = (item: LinkItem) => {
+  state.form.uploadAlbum.link.push(item);
+  state.form.uploadAlbum.artistIds.push(item.link);
+  state.autocomplete.albumArtistInputValue = "";
+};
+
+// 专辑搜索
+const albumQuerySearchAsync = async (
+  queryString: string,
+  cb: (arg: any) => void
+) => {
+  const selectAlbumR = await getSelectAlbumList(queryString);
+  if (selectAlbumR.code === "200" && selectAlbumR.data.length !== 0) {
+    cb(selectAlbumR.data);
+  } else {
+    setTimeout(() => cb([]), 200);
+  }
+};
+
+// 选择专辑
+const albumHandleSelect = (item: LinkItem) => {
+  state.form.uploadMusicInfo.albumName = item.value;
+  state.form.uploadMusicInfo.albumId = item.link;
+};
+
+const editArtistInfo = async () => {
+  const r = await saveOrUpdateArtist(state.form.uploadArtist);
+  if (r.code == "200") {
+    message("保存成功", { type: "success" });
+    state.form.uploadArtist = {} as Artist;
+    await initHomeInfo();
+  } else {
+    message(`保存失败: ${r.message}`, { type: "error" });
+  }
+};
+
+const albumSaveOrUpdate = async () => {
+  const r = await saveOrUpdateAlbum(state.form.uploadAlbum);
+  if (r.code === "200") {
+    message("更新成功", { type: "success" });
+    state.form.uploadAlbum = {} as AlbumReq;
+    state.autocomplete.albumArtistInputValue = "";
+    await initHomeInfo();
+  } else {
+    message(`更新失败${r.message}`, { type: "error" });
+  }
+};
+
 const toAlbum = id => {
   router.push({
     path: "/music/albumInfo",
@@ -208,6 +447,224 @@ const toPluginTaskInfo = id => {
 
 <template>
   <div class="welcome">
+    <!--添加音乐侧栏-->
+    <el-drawer
+      v-model="state.show.uploadMusicFlag"
+      :with-header="false"
+      :before-close="handleClose"
+      :show-close="false"
+      size="40%"
+    >
+      <h1>上传音乐信息</h1>
+      <el-upload
+        class="upload-demo"
+        drag
+        :action="uploadAction"
+        multiple
+        :limit="1"
+      >
+        <el-icon class="el-icon--upload">
+          <IconifyIconOnline
+            class="cursor-pointer"
+            style="color: #636e72"
+            icon="solar:cloud-upload-bold-duotone"
+            width="2rem"
+            height="2rem"
+          />
+        </el-icon>
+        <div class="el-upload__text">
+          托动音乐文件到此 或 <em>点击上传音乐</em>
+        </div>
+      </el-upload>
+
+      <h1 class="mb-4">音乐信息</h1>
+      <el-form
+        label-position="right"
+        label-width="auto"
+        :model="state.form.uploadMusicInfo"
+      >
+        <el-form-item label="音乐名">
+          <el-input
+            placeholder="输入歌曲名"
+            v-model="state.form.uploadMusicInfo.musicName"
+          />
+        </el-form-item>
+        <el-form-item label="别名">
+          <el-input
+            placeholder="输入歌曲名别名"
+            v-model="state.form.uploadMusicInfo.musicNameAlias"
+          />
+        </el-form-item>
+        <el-form-item label="歌手(艺术家)">
+          <el-tag
+            v-for="(item, index) in state.form.uploadMusicInfo.musicArtist"
+            :key="item.id"
+            @close="musicArtistHandleClose(index)"
+            effect="dark"
+            closable
+            round
+          >
+            {{ item.artistName }}</el-tag
+          >
+          <el-autocomplete
+            style="width: 100%"
+            v-model="state.autocomplete.musicArtistInputValue"
+            :fetch-suggestions="musicArtistQuerySearchAsync"
+            placeholder="输入歌手名"
+            @select="musicArtistHandleSelect"
+          />
+        </el-form-item>
+        <el-form-item label="专辑">
+          <el-autocomplete
+            class="w-full mt-1"
+            v-model="state.autocomplete.albumSearch"
+            :fetch-suggestions="albumQuerySearchAsync"
+            placeholder="请输入专辑名"
+            @select="albumHandleSelect"
+          >
+            <template #default="{ item }">
+              <span v-html="item.display" />
+            </template>
+          </el-autocomplete>
+        </el-form-item>
+      </el-form>
+
+      <div class="cursor-pointer flex justify-between items-center">
+        <div
+          class="flex-c"
+          @click="state.show.sourceInfoFlag = !state.show.sourceInfoFlag"
+        >
+          <span>显示音乐源</span>
+          <IconifyIconOffline :icon="ArrowDownBold" />
+        </div>
+        <el-button type="primary" @click="updateMusicButton">保存</el-button>
+      </div>
+      <el-collapse-transition>
+        <div v-show="state.show.sourceInfoFlag">
+          <el-form
+            label-position="right"
+            label-width="auto"
+            :model="state.form.sourceInfo"
+          >
+            <el-form-item label="比特率">
+              <el-input v-model="state.form.sourceInfo.rate" />
+            </el-form-item>
+            <el-form-item label="音乐路径">
+              <el-input v-model="state.form.sourceInfo.path" />
+            </el-form-item>
+            <el-form-item label="md5">
+              <el-input v-model="state.form.sourceInfo.md5" />
+            </el-form-item>
+            <el-form-item label="size">
+              <el-input v-model="state.form.sourceInfo.size" />
+            </el-form-item>
+          </el-form>
+        </div>
+      </el-collapse-transition>
+    </el-drawer>
+
+    <!--添加专辑侧栏-->
+    <el-drawer
+      v-model="state.show.uploadAlbumFlag"
+      :with-header="false"
+      :before-close="handleClose"
+      :show-close="false"
+      size="40%"
+    >
+      <h1 class="mb-4">添加专辑侧栏</h1>
+      <el-form
+        label-position="right"
+        label-width="auto"
+        :model="state.form.uploadAlbum"
+      >
+        <el-form-item label="专辑名">
+          <el-input v-model="state.form.uploadAlbum.albumName" />
+        </el-form-item>
+        <el-form-item label="专辑歌手(艺术家)">
+          <el-tag
+            v-for="(item, index) in state.form.uploadAlbum.link"
+            :key="item"
+            @close="albumArtistHandleClose(index)"
+            effect="dark"
+            closable
+            round
+            >{{ item.value }}</el-tag
+          >
+          <el-autocomplete
+            class="w-full mt-1"
+            v-model="state.autocomplete.albumArtistInputValue"
+            :fetch-suggestions="albumArtistQuerySearchAsync"
+            placeholder="请输入歌手名"
+            @select="albumArtistHandleSelect"
+          />
+        </el-form-item>
+        <el-form-item label="发布时间">
+          <el-input v-model="state.form.uploadAlbum.publishTime" />
+        </el-form-item>
+        <el-form-item label="发行公司">
+          <el-input v-model="state.form.uploadAlbum.company" />
+        </el-form-item>
+        <el-form-item label="专辑版本">
+          <el-input v-model="state.form.uploadAlbum.subType" />
+        </el-form-item>
+        <el-form-item label="描述">
+          <el-input
+            type="textarea"
+            v-model="state.form.uploadAlbum.description"
+          />
+        </el-form-item>
+        <el-form-item>
+          <div class="flex flex-row-reverse w-full">
+            <el-button type="primary" @click="albumSaveOrUpdate"
+              >保存</el-button
+            >
+          </div>
+        </el-form-item>
+      </el-form>
+    </el-drawer>
+
+    <!--添加艺术家-->
+    <el-drawer
+      v-model="state.show.uploadArtistFlag"
+      :with-header="false"
+      :before-close="handleClose"
+      :show-close="false"
+      size="40%"
+    >
+      <h1 class="mb-4">添加艺术家</h1>
+      <el-form
+        label-position="right"
+        label-width="auto"
+        :model="state.form.uploadArtist"
+      >
+        <el-form-item label="歌手(艺术家)">
+          <el-input v-model="state.form.uploadArtist.artistName" />
+        </el-form-item>
+        <el-form-item label="别名">
+          <el-input v-model="state.form.uploadArtist.aliasName" />
+        </el-form-item>
+        <el-form-item label="性别">
+          <el-input v-model="state.form.uploadArtist.sex" />
+        </el-form-item>
+        <el-form-item label="出生日期">
+          <el-input v-model="state.form.uploadArtist.birth" />
+        </el-form-item>
+        <el-form-item label="居住地">
+          <el-input v-model="state.form.uploadArtist.location" />
+        </el-form-item>
+        <el-form-item label="描述">
+          <el-input
+            type="textarea"
+            v-model="state.form.uploadArtist.introduction"
+          />
+        </el-form-item>
+        <el-form-item>
+          <div class="flex flex-row-reverse w-full">
+            <el-button type="primary" @click="editArtistInfo">保存</el-button>
+          </div>
+        </el-form-item>
+      </el-form>
+    </el-drawer>
     <div class="data">
       <div class="data-header">
         <div class="header">
@@ -221,12 +678,17 @@ const toPluginTaskInfo = id => {
               />
               <span class="text-xl ml-4 font-bold"> 音乐 </span>
             </div>
-            <IconifyIconOnline
-              class="cursor-pointer mr-4"
-              icon="mingcute:more-1-line"
-              width="2rem"
-              height="2rem"
-            />
+            <div
+              class="flex flex-nowrap gap-4"
+              @contextmenu="onMusicContextMenu($event)"
+            >
+              <IconifyIconOnline
+                class="cursor-pointer mr-4"
+                icon="mingcute:more-1-line"
+                width="2rem"
+                height="2rem"
+              />
+            </div>
           </div>
           <div class="ml-6 flex items-center justify-between whitespace-nowrap">
             <ReNormalCountTo
@@ -264,12 +726,17 @@ const toPluginTaskInfo = id => {
               />
               <span class="text-xl ml-4 font-bold"> 专辑 </span>
             </div>
-            <IconifyIconOnline
-              class="cursor-pointer mr-4"
-              icon="mingcute:more-1-line"
-              width="2rem"
-              height="2rem"
-            />
+            <div
+              class="flex flex-nowrap gap-4"
+              @contextmenu="onAlbumContextMenu($event)"
+            >
+              <IconifyIconOnline
+                class="cursor-pointer mr-4"
+                icon="mingcute:more-1-line"
+                width="2rem"
+                height="2rem"
+              />
+            </div>
           </div>
           <div class="ml-6 flex items-center justify-between whitespace-nowrap">
             <ReNormalCountTo
@@ -307,12 +774,17 @@ const toPluginTaskInfo = id => {
               />
               <span class="text-xl font-bold"> 艺术家 </span>
             </div>
-            <IconifyIconOnline
-              class="cursor-pointer mr-4"
-              icon="mingcute:more-1-line"
-              width="2rem"
-              height="2rem"
-            />
+            <div
+              class="flex flex-nowrap gap-4"
+              @contextmenu="onArtistContextMenu($event)"
+            >
+              <IconifyIconOnline
+                class="cursor-pointer mr-4"
+                icon="mingcute:more-1-line"
+                width="2rem"
+                height="2rem"
+              />
+            </div>
           </div>
           <div class="ml-6 flex items-center justify-between whitespace-nowrap">
             <ReNormalCountTo
