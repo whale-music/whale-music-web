@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { deleteMusic, getAllMusicList, MusicSearchRes } from "@/api/music";
-import { MusicSearchReq, Page } from "@/api/common";
+import { MusicSearchReq, Page } from "@/api/model/common";
 import DownloadIcon from "@/components/DownloadIcon/download.vue";
 import { ref, reactive, onMounted, watch } from "vue";
 import { message } from "@/utils/message";

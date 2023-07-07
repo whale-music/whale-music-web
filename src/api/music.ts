@@ -1,6 +1,7 @@
 import { http } from "@/utils/http";
-import { R, MusicSearchReq, Page, Data, PicConvert } from "@/api/common";
+import { R, MusicSearchReq, Page, Data, PicUrl } from "@/api/model/common";
 import { Artist } from "@/api/model/Artist";
+import { Resource, SaveOrUpdateMusic } from "@/api/model/Music";
 
 // 音乐搜索返回
 export interface MusicSearchRes {
@@ -30,23 +31,6 @@ export interface MusicSearchRes {
   createTime: string;
 }
 
-export interface ArtistConvert extends Artist {
-  picUrl: string;
-}
-
-export interface Album {
-  id: number;
-  albumName: string;
-  description: string;
-  pic: string;
-  updateTime: string;
-  createTime: string;
-}
-
-export interface AlbumConvert extends Album {
-  picUrl: string;
-}
-
 export interface MusicUrlList {
   id: number;
   musicId: number;
@@ -73,11 +57,10 @@ export const getAllMusicList = (data?: MusicSearchReq) => {
   );
 };
 
-export interface MusicDetailInfo {
+export interface MusicDetailInfo extends PicUrl {
   id: number;
   musicName: string;
-  musicNameAlias: string;
-  pic: PicConvert;
+  aliasName: string;
   musicArtist: Artist[];
   albumArtist: Artist[];
   albumId: number;
@@ -95,7 +78,7 @@ export const getMusicInfo = (id: number) => {
   );
 };
 
-export interface MusicUrlInfo extends MusicUrl {
+export interface MusicUrlInfo extends Resource {
   rawUrl: string;
   exists: boolean;
 }
@@ -124,7 +107,7 @@ export const saveOrUpdateLyric = (
   });
 };
 
-export const updateMusic = (data: MusicDetailInfo) => {
+export const saveOrUpdateMusic = (data: SaveOrUpdateMusic) => {
   return http.request<R<any>>("post", `/admin/music/`, {
     data: data
   });
@@ -237,27 +220,12 @@ export interface Lyric {
   updateTime: string;
 }
 
-export interface MusicUrl {
-  id: number;
-  musicId: number;
-  rate: number;
-  level: string;
-  url: string;
-  md5: string;
-  encodeType: string;
-  size: number;
-  userId: number;
-  origin: string;
-  createTime: string;
-  updateTime: string;
-}
-
 export interface UploadMusicRes {
   music: Music;
   album: Album;
   singer: Singer[];
   lyrics: Lyric[];
-  musicUrl: MusicUrl;
+  musicUrl: Resource;
 }
 
 export const uploadMusic = (data: UploadMusicReq) => {
@@ -278,7 +246,7 @@ export const deleteMusic = (musicId: number[], compel?: boolean) => {
   );
 };
 
-export interface UploadManualMusic extends MusicUrl {
+export interface UploadManualMusic extends Resource {
   name: string;
 }
 
@@ -288,7 +256,7 @@ export const manualUploadMusic = (data: UploadManualMusic) => {
   });
 };
 
-export const updateSourceMusic = (data: MusicUrl) => {
+export const updateSourceMusic = (data: Resource) => {
   return http.request<R<string>>("post", "/admin/music/update/source", {
     data
   });

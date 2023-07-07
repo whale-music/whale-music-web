@@ -1,6 +1,6 @@
 import { http } from "@/utils/http";
-import { R, Page, Data, PicUrl } from "@/api/common";
-import { Artist } from "@/api/model/Artist";
+import { R, Page, Data, PicUrl } from "@/api/model/common";
+import { Artist, SelectArtist } from "@/api/model/Artist";
 
 export interface SingerReq {
   artistName: string;
@@ -45,7 +45,7 @@ export interface SelectSinger {
 }
 
 export const getSelectSingerList = (name: string) => {
-  return http.request<R<SelectSinger[]>>(
+  return http.request<R<SelectArtist[]>>(
     "get",
     "/admin/singer/select?name=" + name
   );

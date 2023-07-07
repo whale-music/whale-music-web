@@ -140,7 +140,12 @@ const toAlbum = res => {
               </div>
             </el-form-item>
             <el-form-item label="出生日期">
-              <el-input v-model="modifyArtistInfo.birth" />
+              <el-date-picker
+                v-model="modifyArtistInfo.birth"
+                type="date"
+                value-format="YYYY-MM-DDT00:00:00"
+                size="default"
+              />
             </el-form-item>
             <el-form-item label="居住地">
               <el-input v-model="modifyArtistInfo.location" />

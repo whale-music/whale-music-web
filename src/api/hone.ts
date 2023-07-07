@@ -1,6 +1,8 @@
 import { http } from "@/utils/http";
-import { R } from "@/api/common";
-import { AlbumConvert, ArtistConvert, MusicConvert } from "@/api/music";
+import { R } from "@/api/model/common";
+import { MusicConvert } from "@/api/music";
+import { ArtistConvert } from "@/api/model/Artist";
+import { AlbumConvert } from "@/api/model/Album";
 
 export interface Count {
   sumCount: number;

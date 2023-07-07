@@ -1,5 +1,5 @@
 import { http } from "@/utils/http";
-import { R } from "@/api/common";
+import { R } from "@/api/model/common";
 
 export interface PluginList {
   id: number;

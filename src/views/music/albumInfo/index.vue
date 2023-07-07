@@ -1,11 +1,7 @@
 <script lang="ts" setup>
-import { onMounted, reactive, ref, watch } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
-import {
-  getAlbumDataInfo,
-  SaveOrUpdateAlbum,
-  saveOrUpdateAlbum
-} from "@/api/album";
+import { getAlbumDataInfo, saveOrUpdateAlbum } from "@/api/album";
 import { dateFormater } from "@/utils/dateUtil";
 import { Icon } from "@iconify/vue";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
@@ -18,105 +14,63 @@ import {
   UploadProps,
   UploadRawFile
 } from "element-plus";
+import { AlbumInfo, SaveOrUpdateAlbum } from "@/api/model/Album";
+import { SelectArtist } from "@/api/model/Artist";
 
 const router = useRouter();
 
 const state = reactive({
+  loading: {
+    skeletonLoadingFlag: false
+  },
   input: {
     musicArtistSearch: ""
-  }
+  },
+  albumInfo: {} as AlbumInfo,
+  modifyAlbumInfo: { artistIds: [] } as SaveOrUpdateAlbum
 });
-
-const albumId = ref();
-
-const albumInfo = ref<AlbumSave>({
-  link: [],
-  albumName: "",
-  artistIds: [],
-  company: "",
-  createTime: "",
-  description: "",
-  id: 0,
-  pic: "",
-  publishTime: "",
-  subType: "",
-  updateTime: ""
-});
-
-const skeletonLoadingFlag = ref<boolean>(false);
-
-function initAlbumInfo() {
-  skeletonLoadingFlag.value = true;
-  console.log(albumId);
-  getAlbumDataInfo(albumId.value).then(res => {
-    albumInfo.value = res.data;
-    modifyAlbumInfo.value = clone(albumInfo.value, true);
-    publishTime.value = clone(modifyAlbumInfo.value.publishTime, true);
-    skeletonLoadingFlag.value = false;
-  });
-}
 
 onMounted(() => {
-  albumId.value = useRouter().currentRoute.value.query.id;
+  state.albumInfo.id = Number(useRouter().currentRoute.value.query.id);
   initAlbumInfo();
 });
 
-const publishTime = ref<Date>();
-watch(publishTime, value => {
-  modifyAlbumInfo.value.publishTime = dateFormater(
-    "YYYY-MM-ddTHH:mm:ss",
-    value
-  );
-});
-
-interface AlbumSave extends SaveOrUpdateAlbum {
-  link: LinkItem[];
+function initAlbumInfo() {
+  state.loading.skeletonLoadingFlag = true;
+  getAlbumDataInfo(String(state.albumInfo.id)).then(res => {
+    state.albumInfo = res.data;
+    state.modifyAlbumInfo = clone(state.albumInfo, true);
+    state.modifyAlbumInfo.artistIds = state.modifyAlbumInfo.artistList.map(
+      value => value.id
+    );
+    // publishTime.value = clone(state.modifyAlbumInfo.publishTime, true);
+    state.loading.skeletonLoadingFlag = false;
+  });
 }
-const editAlbumInfoFlag = ref<boolean>(false);
-const modifyAlbumInfo = ref<AlbumSave>({
-  albumName: "",
-  artistIds: [],
-  company: "",
-  createTime: "",
-  description: "",
-  id: 0,
-  pic: "",
-  publishTime: "",
-  subType: "",
-  updateTime: "",
-  link: []
-});
 
+const editAlbumInfoFlag = ref<boolean>(false);
 const centerDialogVisible = ref(false);
 
 const saveOrUpdate = async () => {
-  const data: SaveOrUpdateAlbum = {
-    artistIds: modifyAlbumInfo.value.artistIds,
-    albumName: modifyAlbumInfo.value.albumName,
-    company: modifyAlbumInfo.value.company,
-    createTime: modifyAlbumInfo.value.createTime,
-    description: modifyAlbumInfo.value.description,
-    id: modifyAlbumInfo.value.id,
-    pic: modifyAlbumInfo.value.pic,
-    publishTime: modifyAlbumInfo.value.publishTime,
-    subType: modifyAlbumInfo.value.subType,
-    updateTime: modifyAlbumInfo.value.updateTime
-  };
-  const r = await saveOrUpdateAlbum(data);
+  const r = await saveOrUpdateAlbum(state.modifyAlbumInfo);
   if (r.code === "200") {
     message("更新成功", { type: "success" });
-    albumInfo.value = modifyAlbumInfo.value;
+    initAlbumInfo();
     editAlbumInfoFlag.value = false;
   } else {
     message(`更新失败${r.message}`, { type: "error" });
-    modifyAlbumInfo.value = albumInfo.value;
+    state.modifyAlbumInfo = {} as SaveOrUpdateAlbum;
   }
 };
 
 // 删除歌手数据
 const albumArtistHandleClose = index => {
-  modifyAlbumInfo.value.link.splice(index, 1);
-  modifyAlbumInfo.value.artistList.splice(index, 1);
+  state.modifyAlbumInfo.artistIds =
+    state.modifyAlbumInfo.artistIds == undefined
+      ? []
+      : state.modifyAlbumInfo.artistIds;
+  state.modifyAlbumInfo.artistIds.splice(index, 1);
+  state.modifyAlbumInfo.artistList.splice(index, 1);
 };
 
 // 获取专辑歌手数据
@@ -130,17 +84,20 @@ const albumArtistQuerySearchAsync = async (
   }
 };
 
-interface LinkItem {
-  value: string;
-  link: number;
-  display: string;
-}
-
-const albumArtistSearch = ref<string>("");
 // 歌手添加到保存数据中
-const albumArtistHandleSelect = (item: LinkItem) => {
-  modifyAlbumInfo.value.link.push(item);
-  albumArtistSearch.value = "";
+const albumArtistHandleSelect = (item: SelectArtist) => {
+  state.modifyAlbumInfo.artistIds =
+    state.modifyAlbumInfo.artistIds == undefined
+      ? []
+      : state.modifyAlbumInfo.artistIds;
+  const filter = state.modifyAlbumInfo.artistList.findIndex(
+    value => value.id === item.id
+  );
+  if (filter === -1) {
+    state.modifyAlbumInfo.artistList.push(item);
+    state.modifyAlbumInfo.artistIds.push(item.link);
+  }
+  state.input.musicArtistSearch = "";
 };
 
 const { VITE_PROXY_HOST } = import.meta.env;
@@ -186,15 +143,15 @@ const toArtist = id => {
       <el-scrollbar height="20rem">
         <el-form label-position="top">
           <el-form-item label="专辑名">
-            <el-input v-model="modifyAlbumInfo.albumName" />
+            <el-input v-model="state.modifyAlbumInfo.albumName" />
           </el-form-item>
           <el-form-item label="封面">
             <div class="flex items-center justify-center w-full gap-4">
-              <el-input disabled v-model="modifyAlbumInfo.pic" />
+              <el-input disabled v-model="state.modifyAlbumInfo.picUrl" />
               <el-upload
                 class="flex justify-center items-center"
                 ref="picUpload"
-                :data="{ id: modifyAlbumInfo.id, type: 'album' }"
+                :data="{ id: state.modifyAlbumInfo.id, type: 'album' }"
                 :action="uploadPicAction"
                 :limit="1"
                 :on-exceed="handleExceed"
@@ -211,7 +168,7 @@ const toArtist = id => {
             <h1>专辑艺术家</h1>
           </div>
           <el-tag
-            v-for="(item, index) in modifyAlbumInfo.artistList"
+            v-for="(item, index) in state.modifyAlbumInfo.artistList"
             :key="item"
             @close="albumArtistHandleClose(index)"
             effect="dark"
@@ -227,22 +184,22 @@ const toArtist = id => {
             @select="albumArtistHandleSelect"
           />
           <el-form-item label="专辑版本">
-            <el-input v-model="modifyAlbumInfo.subType" />
+            <el-input v-model="state.modifyAlbumInfo.subType" />
           </el-form-item>
           <el-form-item label="唱片公司">
-            <el-input v-model="modifyAlbumInfo.company" />
+            <el-input v-model="state.modifyAlbumInfo.company" />
           </el-form-item>
           <el-form-item label="发布时间">
             <el-date-picker
-              v-model="publishTime"
+              v-model="state.modifyAlbumInfo.publishTime"
               type="date"
-              placeholder="Pick a day"
+              value-format="YYYY-MM-DDT00:00:00"
               size="default"
             />
           </el-form-item>
           <el-form-item label="专辑描述">
             <el-input
-              v-model="modifyAlbumInfo.description"
+              v-model="state.modifyAlbumInfo.description"
               type="textarea"
               :autosize="{ maxRows: 10, minRows: 4 }"
             />
@@ -254,7 +211,7 @@ const toArtist = id => {
         <el-button @click="saveOrUpdate" type="primary">更新</el-button>
       </template>
     </el-dialog>
-    <el-skeleton :loading="skeletonLoadingFlag" animated>
+    <el-skeleton :loading="state.loading.skeletonLoadingFlag" animated>
       <template #template>
         <div class="layout-container">
           <el-skeleton-item
@@ -290,17 +247,17 @@ const toArtist = id => {
       </template>
       <template #default>
         <div class="layout-container">
-          <LoadImg :src="albumInfo.pic" />
+          <LoadImg :src="state.albumInfo.picUrl" />
           <div class="show-artist-data">
             <div>
-              <span class="name">{{ albumInfo.albumName }}</span>
+              <span class="name">{{ state.albumInfo.albumName }}</span>
               <br />
               <div class="flex items-center">
                 <span>艺术家:&#32;</span>
                 <el-link
                   :underline="false"
                   @click="toArtist(item.id)"
-                  v-for="(item, index) in albumInfo.artistList"
+                  v-for="(item, index) in state.albumInfo.artistList"
                   :key="index"
                   ><span
                     class="font-semibold"
@@ -308,28 +265,32 @@ const toArtist = id => {
                 /></el-link>
               </div>
               <span>类型: </span>
-              <span>{{ albumInfo.subType }}</span>
+              <span>{{ state.albumInfo.subType }}</span>
               <br />
               <div
                 v-if="
-                  albumInfo.company !== '' &&
-                  albumInfo.company !== null &&
-                  albumInfo.company !== undefined
+                  state.albumInfo.company !== '' &&
+                  state.albumInfo.company !== null &&
+                  state.albumInfo.company !== undefined
                 "
               >
                 <span>唱片公司: </span>
-                <span>{{ albumInfo.company }}</span>
+                <span>{{ state.albumInfo.company }}</span>
               </div>
               <div>
                 <span
                   >发布时间:
-                  {{ dateFormater("YYYY-MM-dd", albumInfo.publishTime) }}</span
+                  {{
+                    dateFormater("YYYY-MM-dd", state.albumInfo.publishTime)
+                  }}</span
                 >
               </div>
               <br />
               <div>
                 <p class="content">
-                  <span class="font-bold">{{ albumInfo.description }} </span>
+                  <span class="font-bold"
+                    >{{ state.albumInfo.description }}
+                  </span>
                 </p>
                 <el-link
                   class="tail"
@@ -346,21 +307,23 @@ const toArtist = id => {
                   :show-close="false"
                 >
                   <template #header>
-                    <h2>{{ albumInfo.albumName }}</h2>
+                    <h2>{{ state.albumInfo.albumName }}</h2>
                     <span
                       class="text-sm text-neutral-400"
-                      v-for="(item, index) in albumInfo.artistList"
+                      v-for="(item, index) in state.albumInfo.artistList"
                       :key="index"
                       >{{ item.artistName }}</span
                     >
                     <span class="text-sm text-neutral-400">&#32;·&#32;</span>
                     <span class="text-sm text-neutral-400">
-                      {{ dateFormater("YYYY", albumInfo.publishTime) }}</span
+                      {{
+                        dateFormater("YYYY", state.albumInfo.publishTime)
+                      }}</span
                     >
                   </template>
                   <el-scrollbar class="show-desc">
                     <span class="whitespace-pre-wrap">{{
-                      albumInfo.description
+                      state.albumInfo.description
                     }}</span>
                   </el-scrollbar>
                 </el-dialog>
@@ -376,7 +339,7 @@ const toArtist = id => {
       </template>
     </el-skeleton>
     <!--专辑音乐列表-->
-    <el-skeleton :loading="skeletonLoadingFlag" animated>
+    <el-skeleton :loading="state.loading.skeletonLoadingFlag" animated>
       <template #template>
         <el-skeleton-item
           variant="h1"
@@ -399,11 +362,11 @@ const toArtist = id => {
               'border-top-left-radius': index === 0 ? '1rem' : '0',
               'border-top-right-radius': index === 0 ? '1rem' : '0',
               'border-bottom-left-radius':
-                index === albumInfo.musicList.length - 1 ? '1rem' : '0',
+                index === state.albumInfo.musicList.length - 1 ? '1rem' : '0',
               'border-bottom-right-radius':
-                index === albumInfo.musicList.length - 1 ? '1rem' : '0'
+                index === state.albumInfo.musicList.length - 1 ? '1rem' : '0'
             }"
-            v-for="(item, index) in albumInfo.musicList"
+            v-for="(item, index) in state.albumInfo.musicList"
             :key="index"
           >
             <div

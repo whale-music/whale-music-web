@@ -5,9 +5,9 @@ import {
   getMusicLyric,
   getMusicUrl,
   Lyric,
-  MusicSearchRes,
-  MusicUrl
+  MusicSearchRes
 } from "@/api/music";
+import { Resource } from "@/api/model/Music";
 
 const playSongList = "Play-Song-List";
 export const userPlaySongList = defineStore({
@@ -19,7 +19,7 @@ export const userPlaySongList = defineStore({
       // 当前播放音乐
       currentIndex: 0,
       // 当前音乐地址
-      currentMusicUrlArr: new Map<Number, MusicUrl[]>(),
+      currentMusicUrlArr: new Map<Number, Resource[]>(),
       // 当前音乐歌词信息
       musicLyricArr: new Map<Number, Lyric[]>(),
       // 是否在播放

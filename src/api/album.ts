@@ -1,140 +1,40 @@
 import { http } from "@/utils/http";
-import { R, Page, Data } from "@/api/common";
-import { MusicSearchRes } from "@/api/music";
-import { Album } from "@/api/model/Album";
-export interface ArtistList {
-  id: number;
-  artistName: string;
-  aliasName: string;
-  sex?: any;
-  pic: string;
-  birth?: any;
-  location?: any;
-  introduction: string;
-  createTime: string;
-  updateTime: string;
-}
+import { R, Data } from "@/api/model/common";
+import {
+  AlbumInfo,
+  AlbumPageReq,
+  AlbumPageRes,
+  SaveOrUpdateAlbum,
+  SelectAlbum
+} from "@/api/model/Album";
 
-export interface AlbumRes {
-  id: number;
-  albumName: string;
-  subType: string;
-  description: string;
-  company: string;
-  picId: number;
-  publishTime: string;
-  updateTime: string;
-  createTime: string;
-  musicList?: any;
-  albumSize: number;
-  artistList: ArtistList[];
-  orderBy: string;
-  order: boolean;
-  picUrl: string;
-}
-
-export interface PicConvert {
-  id: number;
-  url: string;
-  md5: string;
-  createTime: string;
-  updateTime: string;
-}
-
-export interface AlbumReq {
-  artistName: string;
-  orderBy: string;
-  order: boolean;
-  timeBy: boolean;
-  beforeTime: string;
-  laterTime: string;
-  page: Page;
-  albumName: string;
-  description: string;
-  pic: PicConvert;
-  updateTime: string;
-  createTime: string;
-}
-
-export interface selectAlbum {
-  value: string;
-  link: string;
-  id: number;
-  albumName: string;
-  aliasName?: any;
-  subType: string;
-  description?: any;
-  company: string;
-  pic: string;
-  publishTime: string;
-  updateTime: string;
-  createTime: string;
-}
-
-export const getAlbumPage = (data?: AlbumReq) => {
-  return http.request<R<Data<AlbumRes>>>("post", "/admin/album/allAlbum", {
+export const getAlbumPage = (data?: AlbumPageReq) => {
+  return http.request<R<Data<AlbumPageRes>>>("post", "/admin/album/page", {
     data
   });
 };
 
 export const getSelectAlbumList = (name: string) => {
-  return http.request<R<selectAlbum[]>>(
+  return http.request<R<SelectAlbum[]>>(
     "get",
     `/admin/album/select?name=${name}`
   );
 };
-export interface ArtistRes {
-  id: number;
-  artistName: string;
-  aliasName: string;
-  sex: string;
-  pic: string;
-  birth: string;
-  location: string;
-  introduction: string;
-  createTime: string;
-  updateTime: string;
-}
-
-export interface AlbumDataRes {
-  id: number;
-  albumName: string;
-  subType: string;
-  description: string;
-  company: string;
-  picId: number;
-  pic: string;
-  publishTime: string;
-  updateTime: string;
-  createTime: string;
-  musicList: MusicSearchRes[];
-  albumSize: number;
-  artistList: ArtistRes[];
-  orderBy?: any;
-  order?: any;
-}
 
 export const getAlbumDataInfo = (id: string) => {
-  return http.request<R<AlbumDataRes>>("get", `/admin/album/${id}`);
+  return http.request<R<AlbumInfo>>("get", `/admin/album/${id}`);
 };
 
 export const deleteAlbum = (id: number[], compel?: boolean) => {
-  return http.request<R<AlbumDataRes>>(
-    "delete",
-    `/admin/album/${id.join(",")}`,
-    {
-      params: {
-        compel: compel
-      }
+  return http.request<R<AlbumInfo>>("delete", `/admin/album/${id.join(",")}`, {
+    params: {
+      compel: compel
     }
-  );
+  });
 };
 
-export interface SaveOrUpdateAlbum extends Album {
-  artistIds: number[];
-}
 export const saveOrUpdateAlbum = (data: SaveOrUpdateAlbum) => {
-  return http.request<R<AlbumDataRes>>("post", "/admin/album/", {
+  return http.request<R<any>>("post", "/admin/album/", {
     data
   });
 };

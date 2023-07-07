@@ -51,13 +51,17 @@ import "@imengyu/vue3-context-menu/lib/vue3-context-menu.css";
 import ContextMenu from "@imengyu/vue3-context-menu";
 
 getServerConfig(app).then(async config => {
+  console.log("getServerConfig");
   app.use(router);
   await router.isReady();
   injectResponsiveStorage(app, config);
   setupStore(app);
-  app.use(MotionPlugin).use(useI18n).use(ElementPlus);
-  app.use(ContextMenu).use(useEcharts);
+  app.use(MotionPlugin);
+  app.use(useI18n);
+  app.use(ContextMenu);
+  app.use(useEcharts);
   // .use(Table);
   // .use(PureDescriptions);
+  app.use(ElementPlus);
   app.mount("#app");
 });

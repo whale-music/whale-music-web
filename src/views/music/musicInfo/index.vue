@@ -8,11 +8,10 @@ import {
   getMusicUrl,
   manualUploadMusic,
   MusicDetailInfo,
-  MusicUrl,
   MusicUrlInfo,
   saveOrUpdateLyric,
   selectResources,
-  updateMusic,
+  saveOrUpdateMusic,
   updateSourceMusic,
   UploadManualMusic
 } from "@/api/music";
@@ -40,6 +39,9 @@ import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
 import { emitter } from "@/utils/mitt";
 import { useNav } from "@/layout/hooks/useNav";
+import { Resource, SaveOrUpdateMusic } from "@/api/model/Music";
+import { SelectAlbum } from "@/api/model/Album";
+import { ArtistConvert, SelectArtist } from "@/api/model/Artist";
 const { VITE_PROXY_HOST } = import.meta.env;
 
 const { onPlayMusic } = useNav();
@@ -61,6 +63,8 @@ const reLayout = (width: number) => {
   }
 };
 
+const picUpload = ref<UploadInstance>();
+
 const state = reactive({
   operateButton: false,
   loading: {
@@ -69,10 +73,44 @@ const state = reactive({
   input: {
     selectMd5: ""
   },
+  selectPreview: {
+    artist: {} as ArtistConvert[],
+    album: {} as SelectAlbum
+  },
+  musicInfo: {
+    albumArtist: [],
+    albumId: 0,
+    albumName: "",
+    createTime: "",
+    id: null,
+    musicArtist: [],
+    musicName: "",
+    aliasName: "",
+    order: false,
+    pic: undefined,
+    publishTime: "",
+    timeLength: 0
+  } as MusicDetailInfo,
+  modifyMusicInfo: {
+    albumId: null,
+    aliasName: "",
+    artistIds: [],
+    createTime: "",
+    id: null,
+    musicName: "",
+    picUrl: "",
+    resource: undefined,
+    sort: 0,
+    tempMusicFile: "",
+    tempPicFile: "",
+    timeLength: 0,
+    updateTime: "",
+    userId: null
+  } as SaveOrUpdateMusic,
   visible: {
     musicSelectResourcePath: false
   },
-  table: {
+  listResource: {
     data: []
   },
   dialog: {
@@ -80,42 +118,27 @@ const state = reactive({
   }
 });
 
-const picUpload = ref<UploadInstance>();
-
-const musicInfo = ref<MusicDetailInfo>({
-  albumArtist: [],
-  albumId: 0,
-  albumName: "",
-  createTime: "",
-  id: null,
-  musicArtist: [],
-  musicName: "",
-  musicNameAlias: "",
-  order: false,
-  pic: undefined,
-  publishTime: "",
-  timeLength: 0
-});
-const modifyMusicInfo = ref<MusicDetailInfo>();
-
 const musicUrl = ref<MusicUrlInfo[]>();
 
-const publishTime = ref<Date>();
-
 async function intiGetMusicLyric() {
-  musicUrl.value = (await getMusicUrl(musicInfo.value.id.toString())).data;
+  musicUrl.value = (await getMusicUrl(String(state.musicInfo.id))).data;
 }
 
 const skeletonLoadingFlag = ref();
-onMounted(async () => {
+
+async function initInfo() {
   id.value = useRouter().currentRoute.value.query.id;
 
   skeletonLoadingFlag.value = true;
   const _musicInfo = await getMusicInfo(id.value);
 
-  musicInfo.value = _musicInfo.data;
-  modifyMusicInfo.value = clone(_musicInfo.data, true);
-  publishTime.value = clone(modifyMusicInfo.value.publishTime);
+  // 显示和更新数据分离
+  state.musicInfo = _musicInfo.data;
+  state.modifyMusicInfo = clone(_musicInfo.data, true);
+  state.modifyMusicInfo.artistIds = [];
+  state.selectPreview.artist = clone(_musicInfo.data.musicArtist, true);
+  state.selectPreview.album.artists = clone(_musicInfo.data.albumArtist, true);
+  state.selectPreview.album.albumName = clone(_musicInfo.data.albumName, true);
 
   await intiGetMusicLyric();
   skeletonLoadingFlag.value = false;
@@ -125,6 +148,10 @@ onMounted(async () => {
     document.documentElement.clientWidth ||
     document.body.clientWidth;
   reLayout(width);
+}
+
+onMounted(async () => {
+  await initInfo();
 });
 
 const { clipboardValue, copied } = useCopyToClipboard();
@@ -161,21 +188,20 @@ const download = (name, suffix, url) => {
 };
 
 const editSourceFlag = ref<boolean>(false);
-const editSourceValue = ref<MusicUrl>({
+const editSourceValue = ref<Resource>({
   createTime: "",
   encodeType: "",
   id: 0,
   level: "",
   md5: "",
   musicId: 0,
-  origin: "",
   rate: 0,
   size: 0,
   updateTime: "",
-  url: "",
+  path: "",
   userId: 0
 });
-const editSource = async (url: MusicUrl) => {
+const editSource = async (url: Resource) => {
   editSourceFlag.value = true;
   editSourceValue.value = url;
 };
@@ -224,7 +250,7 @@ const getUserPlayInfo = (id: number) => {
 const addPlaySongList = async () => {
   console.log("添加到播放歌单");
   await usePlaySongListStoreHook().addMusicToNextPlaySongList(
-    musicInfo.value.id
+    state.musicInfo.id
   );
   message("成功添加音乐到歌单", { type: "success" });
 };
@@ -237,17 +263,16 @@ const switchUploadFlag = ref<boolean>(false);
 const tempSource = {
   createTime: "",
   encodeType: "",
-  id: null,
+  id: 0,
   level: "",
   md5: "",
-  musicId: null,
+  musicId: 0,
   name: "",
-  origin: "",
-  rate: null,
-  size: null,
+  path: "",
+  rate: 0,
+  size: 0,
   updateTime: "",
-  url: "",
-  userId: null
+  userId: 0
 };
 const addSource = ref<UploadManualMusic>(tempSource);
 const addSourceLoadingBottomFlag = ref<boolean>(false);
@@ -255,7 +280,7 @@ const addSoundSource = async () => {
   console.log("添加音源");
   try {
     addSourceLoadingBottomFlag.value = true;
-    addSource.value.musicId = musicInfo.value.id;
+    addSource.value.musicId = state.musicInfo.id;
     addSource.value.userId = parseInt(userInfo.id);
     const r = await manualUploadMusic(addSource.value);
     if (r.code === "200") {
@@ -272,48 +297,40 @@ const addSoundSource = async () => {
   addSourceLoadingBottomFlag.value = false;
 };
 
-interface LinkItem {
-  value: string;
-  link: number;
-  display: string;
-}
-
 // 获取歌手数据
 const musicArtistQuerySearchAsync = async (
   queryString: string,
   cb: (arg: any) => void
 ) => {
-  const selectAlbumR = await getSelectSingerList(queryString);
-  if (selectAlbumR.code === "200" && selectAlbumR.data.length !== 0) {
-    cb(selectAlbumR.data);
+  const selectArtists = await getSelectSingerList(queryString);
+  if (selectArtists.code === "200" && selectArtists.data.length !== 0) {
+    cb(selectArtists.data);
   }
 };
 
 const musicArtistSearch = ref<string>("");
 // 歌手添加到保存数据中
-const musicArtistHandleSelect = (item: LinkItem) => {
-  const items = {
-    alias: "",
-    artistName: item.value,
-    birth: "",
-    createTime: "",
-    id: item.link,
-    introduction: "",
-    location: "",
-    pic: "",
-    sex: "",
-    updateTime: ""
-  };
-  modifyMusicInfo.value.musicArtist.push(items);
+const musicArtistHandleSelect = (item: SelectArtist) => {
+  if (
+    state.selectPreview.artist.findIndex(value => value.id === item.id) === -1
+  ) {
+    state.selectPreview.artist.push(item);
+  }
+
+  if (
+    state.modifyMusicInfo.artistIds.findIndex(value => value === item.id) === -1
+  ) {
+    state.modifyMusicInfo.artistIds.push(item.id);
+  }
   musicArtistSearch.value = "";
 };
 
 // 删除歌手数据
 const musicArtistHandleClose = index => {
-  modifyMusicInfo.value.musicArtist.splice(index, 1);
+  state.modifyMusicInfo.artistIds.splice(index, 1);
+  state.selectPreview.artist.splice(index, 1);
 };
 
-const albumSearch = ref<string>("");
 // 专辑搜索
 const albumQuerySearchAsync = async (
   queryString: string,
@@ -326,22 +343,31 @@ const albumQuerySearchAsync = async (
 };
 
 // 选择专辑
-const albumHandleSelect = (item: LinkItem) => {
-  modifyMusicInfo.value.albumName = item.value;
-  modifyMusicInfo.value.albumId = item.link;
-  albumSearch.value = "";
+const albumHandleSelect = (item: SelectAlbum) => {
+  state.selectPreview.album = item;
+  state.modifyMusicInfo.albumId = item.id;
 };
+
+watch(
+  () => state.selectPreview.album.albumName,
+  value => {
+    if (value === "") {
+      state.selectPreview.album.artists = [];
+      state.modifyMusicInfo.albumId = null;
+    }
+  }
+);
 
 const lyricType = ref("lyric");
 const klyricType = ref("klyric");
 
 const lyricValueFlag = ref<boolean>(false);
 const kLyricValueFlag = ref<boolean>(false);
-const lyricValue = ref<string>(null);
-const kLyricValue = ref<string>(null);
+const lyricValue = ref<string>("");
+const kLyricValue = ref<string>("");
 const getLyricList = async () => {
   if (lyricValue.value == null || kLyricValue.value == null) {
-    const r = await getMusicLyric(musicInfo.value.id.toString());
+    const r = await getMusicLyric(state.musicInfo.id.toString());
     const lyricIndex = r.data.findIndex(
       value => value.type === lyricType.value
     );
@@ -354,7 +380,7 @@ const getLyricList = async () => {
 };
 const updateLyric = async (type: string, lyric: string) => {
   try {
-    const r = await saveOrUpdateLyric(musicInfo.value.id, type, lyric);
+    const r = await saveOrUpdateLyric(state.musicInfo.id, type, lyric);
     if (r.code === "200") {
       message("更新成功", { type: "success" });
     } else {
@@ -367,11 +393,11 @@ const updateLyric = async (type: string, lyric: string) => {
 
 const updateMusicButton = async () => {
   try {
-    const r = await updateMusic(modifyMusicInfo.value);
+    const r = await saveOrUpdateMusic(state.modifyMusicInfo);
     if (r.code === "200") {
       message("更新成功", { type: "success" });
       editMusicInfoFlag.value = false;
-      musicInfo.value = modifyMusicInfo.value;
+      await initInfo();
     } else {
       message(`更新失败${r.message}`, { type: "error" });
     }
@@ -379,13 +405,6 @@ const updateMusicButton = async () => {
     message(`请求失败${e}`, { type: "error" });
   }
 };
-
-watch(publishTime, value => {
-  modifyMusicInfo.value.publishTime = dateFormater(
-    "YYYY-MM-ddTHH:mm:ss",
-    value
-  );
-});
 
 const proxyHost = VITE_PROXY_HOST == null ? "" : VITE_PROXY_HOST;
 const uploadAction = ref(`${proxyHost}/admin/music/auto/upload`);
@@ -427,7 +446,7 @@ const selectMd5Search = async (value: string | number) => {
   state.loading.selectMd5 = true;
   try {
     const r = await selectResources(String(value));
-    state.table.data = r.data;
+    state.listResource.data = r.data;
   } finally {
     state.loading.selectMd5 = false;
   }
@@ -461,7 +480,7 @@ const toMusicPlay = async res => {
     return;
   }
   try {
-    await usePlaySongListStoreHook().playSongList(musicInfo.value.id);
+    await usePlaySongListStoreHook().playSongList(state.musicInfo.id);
   } catch (e) {
     message(e, { type: "error" });
     return;
@@ -480,7 +499,7 @@ const toMusicPlay = async res => {
       <el-input v-model="state.input.selectMd5" @input="selectMd5Search" />
       <el-table
         height="10rem"
-        :data="state.table.data"
+        :data="state.listResource.data"
         style="width: 100%"
         v-loading="state.loading.selectMd5"
       >
@@ -548,7 +567,7 @@ const toMusicPlay = async res => {
             <el-input v-model="editSourceValue.musicId" />
           </el-form-item>
           <el-form-item label="地址">
-            <el-input v-model="editSourceValue.url" />
+            <el-input v-model="editSourceValue.path" />
           </el-form-item>
           <el-form-item label="MD5">
             <el-input v-model="editSourceValue.md5" />
@@ -561,9 +580,6 @@ const toMusicPlay = async res => {
           </el-form-item>
           <el-form-item label="比特率">
             <el-input v-model="editSourceValue.rate" />
-          </el-form-item>
-          <el-form-item label="音乐来源">
-            <el-input v-model="editSourceValue.origin" />
           </el-form-item>
         </el-form>
       </el-scrollbar>
@@ -652,7 +668,7 @@ const toMusicPlay = async res => {
           :multiple="false"
           :data="{
             userId: userInfo.id,
-            id: musicInfo.id
+            id: state.musicInfo.id
           }"
           :action="uploadAction"
           :on-change="handleAvatarSuccess"
@@ -712,16 +728,16 @@ const toMusicPlay = async res => {
     >
       <el-scrollbar height="20rem">
         <h1>音乐名</h1>
-        <el-input v-model="modifyMusicInfo.musicName" />
+        <el-input v-model="state.modifyMusicInfo.musicName" />
         <h1>音乐别名</h1>
-        <el-input v-model="modifyMusicInfo.musicNameAlias" />
+        <el-input v-model="state.modifyMusicInfo.aliasName" />
         <h1>封面</h1>
         <div class="flex-c gap-4 items-center">
-          <el-input :disabled="true" v-model="modifyMusicInfo.pic.url" />
+          <el-input :disabled="true" v-model="state.modifyMusicInfo.picUrl" />
           <el-upload
             class="flex justify-center items-center"
             ref="picUpload"
-            :data="{ id: modifyMusicInfo.id, type: 'music' }"
+            :data="{ id: state.modifyMusicInfo.id, type: 'music' }"
             :action="uploadPicAction"
             :limit="1"
             :on-exceed="handleExceed"
@@ -733,15 +749,17 @@ const toMusicPlay = async res => {
           </el-upload>
         </div>
         <h1>艺术家</h1>
-        <el-tag
-          v-for="(item, index) in modifyMusicInfo.musicArtist"
-          :key="item.id"
-          @close="musicArtistHandleClose(index)"
-          effect="dark"
-          closable
-          round
-          >{{ item.artistName }}</el-tag
-        >
+        <div class="flex gap-2">
+          <el-tag
+            v-for="(item, index) in state.selectPreview.artist"
+            :key="item.id"
+            @close="musicArtistHandleClose(index)"
+            effect="dark"
+            closable
+            round
+            >{{ item.artistName }}</el-tag
+          >
+        </div>
         <el-autocomplete
           class="w-full mt-1"
           v-model="musicArtistSearch"
@@ -755,10 +773,20 @@ const toMusicPlay = async res => {
             >#符号仅提示,防止相同专辑名引起用户选择困扰</span
           >
         </div>
-        <el-tag effect="dark" round>{{ modifyMusicInfo.albumName }}</el-tag>
+        <div class="flex gap-2">
+          <el-link
+            v-for="item in state.selectPreview.album.artists"
+            class="font-bold"
+            type="primary"
+            :underline="false"
+            :key="item.id"
+          >
+            <span class="font-bold">#{{ item.artistName }}#</span>
+          </el-link>
+        </div>
         <el-autocomplete
           class="w-full mt-1"
-          v-model="albumSearch"
+          v-model="state.selectPreview.album.albumName"
           :fetch-suggestions="albumQuerySearchAsync"
           placeholder="请输入专辑名"
           @select="albumHandleSelect"
@@ -804,26 +832,14 @@ const toMusicPlay = async res => {
             <div>显示音乐毫秒，可以手动修改</div>
             <div>
               <span class="text-xl font-bold">{{
-                dateFormater("mm:ss", modifyMusicInfo.timeLength)
+                dateFormater("mm:ss", state.modifyMusicInfo.timeLength)
               }}</span>
               <el-input-number
                 class="ml-4"
                 :step="1000"
-                v-model="modifyMusicInfo.timeLength"
+                v-model="state.modifyMusicInfo.timeLength"
               />
             </div>
-          </div>
-        </div>
-        <div>
-          <h1>发布时间</h1>
-          <div class="flex flex-row flex-nowrap justify-between">
-            <div>该发布时间与专辑同步</div>
-            <el-date-picker
-              v-model="publishTime"
-              type="date"
-              placeholder="请选择发布时间"
-              size="default"
-            />
           </div>
         </div>
       </el-scrollbar>
@@ -832,6 +848,7 @@ const toMusicPlay = async res => {
         <el-button @click="updateMusicButton" type="primary">更新</el-button>
       </template>
     </el-dialog>
+
     <div class="info">
       <el-skeleton :loading="skeletonLoadingFlag" animated>
         <template #template>
@@ -881,27 +898,32 @@ const toMusicPlay = async res => {
           </div>
         </template>
         <template #default>
-          <LoadImg :src="musicInfo?.pic.url" />
+          <LoadImg :src="state.musicInfo?.picUrl" />
           <div class="data">
             <div>
               <div>
                 <p class="name">
                   {{
-                    musicInfo?.musicName === "" ? "加载中" : musicInfo.musicName
+                    state.musicInfo?.musicName === ""
+                      ? "加载中"
+                      : state.musicInfo.musicName
                   }}
                 </p>
-                <p class="name-alis">{{ musicInfo.musicNameAlias }}</p>
+                <p class="name-alis">{{ state.musicInfo.aliasName }}</p>
                 <span class="show-font">专辑: </span>
-                <el-link :underline="false" @click="toAlbum(musicInfo.albumId)">
+                <el-link
+                  :underline="false"
+                  @click="toAlbum(state.musicInfo.albumId)"
+                >
                   <span class="cursor-pointer font-semibold">
-                    {{ musicInfo.albumName }}
+                    {{ state.musicInfo.albumName }}
                   </span>
                 </el-link>
                 <br />
                 <span class="show-font">艺术家: </span>
                 <el-link
                   :underline="false"
-                  v-for="(item, index) in musicInfo.musicArtist"
+                  v-for="(item, index) in state.musicInfo.musicArtist"
                   :key="index"
                   ><span
                     @click="toArtist(item.id)"
@@ -911,9 +933,7 @@ const toMusicPlay = async res => {
                 <br />
                 <span class="show-font">发行时间: </span>
                 <span class="font-bold">{{
-                  musicInfo.publishTime === ""
-                    ? "加载中"
-                    : dateFormater("YYYY-MM-dd", musicInfo.publishTime)
+                  dateFormater("YYYY-MM-dd", state.musicInfo.publishTime)
                 }}</span>
               </div>
               <div class="edit-music">
@@ -932,7 +952,7 @@ const toMusicPlay = async res => {
                       class="edit-music-button"
                       round
                       size="default"
-                      @click="getUserPlayInfo(musicInfo.id)"
+                      @click="getUserPlayInfo(state.musicInfo.id)"
                     >
                       <IconifyIconOnline
                         color="#ffffff"
@@ -1062,7 +1082,7 @@ const toMusicPlay = async res => {
                 @click="toMusicPlay(item)"
               >
                 <span class="index">{{ index + 1 }}</span>
-                <span class="music-name">{{ musicInfo.musicName }}</span>
+                <span class="music-name">{{ state.musicInfo.musicName }}</span>
                 <span class="md5">{{ item.md5 }}</span>
               </div>
               <div
@@ -1110,7 +1130,7 @@ const toMusicPlay = async res => {
                           <el-dropdown-item
                             @click="
                               download(
-                                musicInfo.musicName,
+                                state.musicInfo.musicName,
                                 item.encodeType,
                                 item.rawUrl
                               )

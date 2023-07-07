@@ -19,7 +19,6 @@ const toLast = () => {
 const toNext = () => {
   router.go(1);
 };
-const topPath = getTopMenu().path;
 </script>
 
 <template>
@@ -32,7 +31,7 @@ const topPath = getTopMenu().path;
             key="props.collapse"
             :title="title"
             class="sidebar-logo-link"
-            :to="topPath"
+            :to="getTopMenu()?.path ?? '/'"
           >
             <img src="/logo.svg" alt="logo" />
             <span class="sidebar-title">{{ title }}</span>
@@ -42,7 +41,7 @@ const topPath = getTopMenu().path;
             key="expand"
             :title="title"
             class="sidebar-logo-link"
-            :to="topPath"
+            :to="getTopMenu()?.path ?? '/'"
           >
             <img src="/logo.svg" alt="logo" />
             <span class="sidebar-title">{{ title }}</span>

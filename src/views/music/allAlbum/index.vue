@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AlbumReq, AlbumRes, deleteAlbum, getAlbumPage } from "@/api/album";
+import { deleteAlbum, getAlbumPage } from "@/api/album";
 import { ref, reactive, onMounted, watch } from "vue";
 import { dateFormater } from "@/utils/dateUtil";
 import { useI18n } from "vue-i18n";
@@ -8,13 +8,14 @@ import { message } from "@/utils/message";
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
 import { storageLocal, useDark } from "@pureadmin/utils";
 import { CellStyle, ElTable } from "element-plus";
-import { Page } from "@/api/common";
+import { Page } from "@/api/model/common";
 import MenuFill from "@iconify-icons/mingcute/menu-fill";
 import ListCheckFill from "@iconify-icons/mingcute/list-check-fill";
 import Segmented, { type OptionsType } from "@/components/ReSegmented";
 import NameSearch from "@/components/nameSearch/index.vue";
 import { emitter } from "@/utils/mitt";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
+import { AlbumPageReq, AlbumPageRes } from "@/api/model/Album";
 
 const { isDark } = useDark();
 const router = useRouter();
@@ -56,8 +57,8 @@ const state = reactive<{
     }[];
     searchType: string;
     name: string;
-    req: AlbumReq;
-    res: AlbumRes[];
+    req: AlbumPageReq;
+    res: AlbumPageRes[];
   };
   menuFlag: boolean;
   table: {
@@ -108,6 +109,11 @@ const page: Page =
     : storageLocal().getItem("album-page");
 
 state.search.req = {
+  company: "",
+  id: null,
+  picUrl: "",
+  publishTime: undefined,
+  subType: "",
   artistName: "",
   albumName: "",
   orderBy: "sort",
@@ -233,7 +239,7 @@ const multipleTableRef = ref<InstanceType<typeof ElTable>>();
 const deleteMusicFlag = ref<boolean>(false);
 const deleteCompelMusicFlag = ref<boolean>(false);
 
-const multipleSelection = ref<AlbumRes[]>([]);
+const multipleSelection = ref<AlbumPageRes[]>([]);
 const selectFlag = ref<boolean>(false);
 // 监听是否选择音乐
 watch(multipleSelection, async newQuestion => {

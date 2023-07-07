@@ -49,3 +49,9 @@ export interface PicConvert {
   createTime: string;
   updateTime: string;
 }
+
+export interface LinkItem {
+  value: string;
+  link: number;
+  display: string;
+}

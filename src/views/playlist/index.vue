@@ -16,7 +16,7 @@ import { dateFormater } from "@/utils/dateUtil";
 import { message } from "@/utils/message";
 import { CellStyle } from "element-plus/es";
 import DownloadIcon from "@/components/DownloadIcon/download.vue";
-import { MusicSearchReq } from "@/api/common";
+import { MusicSearchReq } from "@/api/model/common";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { getUserInfo, UserInfoRes } from "@/api/user";
 import { initRouter } from "@/router/utils";

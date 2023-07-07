@@ -1,3 +1,5 @@
+import { LinkItem, PicUrl } from "@/api/model/common";
+
 export interface Artist {
   id: number;
   artistName: string;
@@ -9,4 +11,12 @@ export interface Artist {
   introduction: string;
   createTime: string;
   updateTime: string;
+}
+
+export interface ArtistConvert extends Artist, PicUrl {}
+
+export interface SelectArtist extends ArtistConvert, LinkItem {}
+
+export interface SaveOrUpdateArtist extends ArtistConvert {
+  tempFile: string;
 }

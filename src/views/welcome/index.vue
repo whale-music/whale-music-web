@@ -10,15 +10,21 @@ import {
   MusicStatisticsRes,
   PluginTaskRes
 } from "@/api/hone";
-import {
-  AlbumConvert,
-  ArtistConvert,
-  MusicDetailInfo,
-  updateMusic
-} from "@/api/music";
+import { saveOrUpdateMusic } from "@/api/music";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
-import { EchartOptions, useDark, useECharts } from "@pureadmin/utils";
-import { ElMessageBox, ElScrollbar } from "element-plus";
+import {
+  EchartOptions,
+  useDark,
+  useECharts,
+  UtilsEChartsOption
+} from "@pureadmin/utils";
+import {
+  ElMessageBox,
+  ElScrollbar,
+  genFileId,
+  UploadInstance,
+  UploadRawFile
+} from "element-plus";
 import dayjs from "dayjs";
 import { dateFormater } from "@/utils/dateUtil";
 import { FriendlyTime } from "@/utils/DateFormat.ts";
@@ -27,14 +33,22 @@ import { ReNormalCountTo } from "@/components/ReCountTo";
 import { useRouter } from "vue-router";
 import ContextMenu from "@imengyu/vue3-context-menu";
 import ArrowDownBold from "@iconify-icons/ep/arrow-down-bold";
+import CircleClose from "@iconify-icons/ep/circle-close";
 import { message } from "@/utils/message";
 import { getSelectSingerList, saveOrUpdateArtist } from "@/api/singer";
+import { getSelectAlbumList, saveOrUpdateAlbum } from "@/api/album";
 import {
-  getSelectAlbumList,
+  ArtistConvert,
+  SaveOrUpdateArtist,
+  SelectArtist
+} from "@/api/model/Artist";
+import { LinkItem, R } from "@/api/model/common";
+import {
+  AlbumConvert,
   SaveOrUpdateAlbum,
-  saveOrUpdateAlbum
-} from "@/api/album";
-import { Artist } from "@/api/model/Artist";
+  SelectAlbum
+} from "@/api/model/Album";
+import { AudioInfoRes, SaveOrUpdateMusic } from "@/api/model/Music";
 
 const router = useRouter();
 
@@ -42,28 +56,49 @@ defineOptions({
   name: "Welcome"
 });
 
-interface LinkItem {
-  value: string;
-  link: number;
-  display: string;
-}
-
 interface AlbumReq extends SaveOrUpdateAlbum {
   link: LinkItem[];
 }
 const state = reactive({
+  loading: {
+    skeletonLoadingFlag: false
+  },
   show: {
     uploadMusicFlag: false,
     uploadAlbumFlag: false,
     uploadArtistFlag: false,
-    sourceInfoFlag: false
+    sourceInfoFlag: false,
+    musicPreviewPic: false,
+    albumPreviewPic: false,
+    artistPreviewPic: false
+  },
+  select: {
+    musicSelectArtist: [] as SelectArtist[],
+    musicSelectAlbum: {} as SelectAlbum,
+    albumSelectArtist: [] as SelectArtist[]
   },
   form: {
-    uploadMusicInfo: { musicArtist: [] } as MusicDetailInfo,
+    uploadMusicInfo: { artistIds: [], resource: {} } as SaveOrUpdateMusic,
     uploadAlbum: { artistIds: [], link: [] } as AlbumReq,
-    uploadArtist: {} as Artist,
-    sourceInfo: {} as any
+    uploadArtist: {} as SaveOrUpdateArtist
   },
+  list: {
+    artist: {} as ArtistConvert[],
+    album: {} as AlbumConvert[]
+  },
+  count: {
+    music: {} as Count,
+    album: {} as Count,
+    artist: {} as Count
+  },
+  pie: {
+    effectiveMusic: 0,
+    invalidMusicOrigin: 0,
+    discardMusicOrigin: 0,
+    noSoundSourceCount: 0
+  },
+  musicStatic: {} as MusicStatisticsRes[],
+  pluginTask: {} as PluginTaskRes[],
   autocomplete: {
     musicArtistInputValue: "",
     albumArtistInputValue: "",
@@ -71,80 +106,65 @@ const state = reactive({
   }
 });
 
-const artistList = ref<ArtistConvert[]>([]);
-const albumList = ref<AlbumConvert[]>([]);
-
-const musicCount = ref<Count>();
-const albumCount = ref<Count>();
-const artistCount = ref<Count>();
-
 const albumInnerRef = ref<HTMLDivElement>();
 const artistInnerRef = ref<HTMLDivElement>();
 
-const musicMusicStatistics = ref<MusicStatisticsRes[]>();
-
-const pluginTask = ref<PluginTaskRes[]>();
-
-const skeletonLoadingFlag = ref<boolean>(false);
+const pieDataChartRef = ref<HTMLDivElement>();
 
 async function initHomeInfo() {
-  skeletonLoadingFlag.value = true;
+  state.loading.skeletonLoadingFlag = true;
   const countMap = await getCount();
 
-  musicCount.value = countMap.data["music"];
-  albumCount.value = countMap.data["album"];
-  artistCount.value = countMap.data["artist"];
+  state.count.music = countMap.data["music"];
+  state.count.album = countMap.data["album"];
+  state.count.artist = countMap.data["artist"];
   const album = await getAlbumTop();
   const artist = await getArtistTop();
-  albumList.value = album.data;
-  artistList.value = artist.data;
+  state.list.album = album.data;
+  state.list.artist = artist.data;
 
   const _musicMusicStatistics = await getMusicStatistics();
-  musicMusicStatistics.value = _musicMusicStatistics.data;
+  state.musicStatic = _musicMusicStatistics.data;
 
   const _pluginTask = await getPluginTask();
-  pluginTask.value = _pluginTask.data;
+  state.pluginTask = _pluginTask.data;
 
   let _count = 0;
   const _maps = [];
-  for (const musicStatisticsRe of musicMusicStatistics.value) {
+  for (const musicStatisticsRe of state.musicStatic) {
     _count += musicStatisticsRe.value;
     _maps[musicStatisticsRe.name] = musicStatisticsRe.value;
   }
   // 有效音乐
-  effectiveMusic.value = Math.ceil((_maps["effectiveMusic"] / _count) * 100);
+  state.pie.effectiveMusic = Math.ceil(
+    (_maps["effectiveMusic"] / _count) * 100
+  );
   // 无音源
-  noSoundSourceCount.value = Math.ceil(
+  state.pie.noSoundSourceCount = Math.ceil(
     (_maps["noSoundSourceCount"] / _count) * 100
   );
   // 失效音源
-  invalidMusicOrigin.value = parseInt(
+  state.pie.invalidMusicOrigin = parseInt(
     (_maps["invalidMusicOrigin"] / _count) * 100
   );
   // 废弃音源
-  discardMusicOrigin.value = parseInt(
+  state.pie.discardMusicOrigin = parseInt(
     (_maps["discardMusicOrigin"] / _count) * 100
   );
   setEchaerOption();
 
-  skeletonLoadingFlag.value = false;
+  state.loading.skeletonLoadingFlag = false;
 }
 
 onBeforeMount(async () => {
   await initHomeInfo();
 });
 
-const effectiveMusic = ref<number>();
-const invalidMusicOrigin = ref<number>();
-const discardMusicOrigin = ref<number>();
-const noSoundSourceCount = ref<number>();
-
 const { isDark } = useDark();
 const theme: EchartOptions["theme"] = computed(() => {
   return isDark.value ? "dark" : "default";
 });
 
-const pieDataChartRef = ref<HTMLDivElement>();
 const { setOptions } = useECharts(pieDataChartRef as Ref<HTMLDivElement>, {
   theme: theme
 });
@@ -167,7 +187,12 @@ const artistHandleScroll = e => {
 
 const { VITE_PROXY_HOST } = import.meta.env;
 const proxyHost = VITE_PROXY_HOST == null ? "" : VITE_PROXY_HOST;
-const uploadAction = ref(`${proxyHost}/admin/music/auto/upload`);
+const uploadAction = ref(`${proxyHost}/admin/music/upload/music/file`);
+const uploadPicAction = ref(`${proxyHost}/admin/music/upload/pic/file`);
+const previewPic = ref(`${proxyHost}/admin/pic/get/temp/`);
+const picUpload = ref<UploadInstance>();
+const musicPicUpload = ref<UploadInstance>();
+const musicFileUpload = ref<UploadInstance>();
 
 const statusIcon = status => {
   switch (status) {
@@ -221,10 +246,10 @@ function setEchaerOption() {
         labelLine: {
           show: false
         },
-        data: musicMusicStatistics.value
+        data: state.musicStatic
       }
     ]
-  });
+  } as UtilsEChartsOption);
 }
 
 const getType = (
@@ -305,23 +330,19 @@ const handleClose = (done: () => void) => {
 };
 
 const updateMusicButton = async () => {
-  try {
-    const r = await updateMusic(state.form.uploadMusicInfo);
-    if (r.code === "200") {
-      message("上传成功", { type: "success" });
-      state.autocomplete.albumSearch = "";
-      state.form.uploadMusicInfo = {} as MusicDetailInfo;
-    } else {
-      message(`更新失败${r.message}`, { type: "error" });
-    }
-  } catch (e) {
-    message(`请求失败${e}`, { type: "error" });
+  const r = await saveOrUpdateMusic(state.form.uploadMusicInfo);
+  if (r.code === "200") {
+    message("上传成功", { type: "success" });
+    cleanUploadMusicInfo();
+  } else {
+    message(`更新失败${r.message}`, { type: "error" });
   }
 };
 
 // 删除歌手数据
 const musicArtistHandleClose = index => {
-  state.form.uploadMusicInfo.musicArtist.splice(index, 1);
+  state.select.musicSelectArtist.splice(index, 1);
+  state.form.uploadMusicInfo.artistIds.splice(index, 1);
 };
 
 // 获取歌手数据
@@ -329,29 +350,18 @@ const musicArtistQuerySearchAsync = async (
   queryString: string,
   cb: (arg: any) => void
 ) => {
-  const selectAlbumR = await getSelectSingerList(queryString);
-  if (selectAlbumR.code === "200" && selectAlbumR.data.length !== 0) {
-    cb(selectAlbumR.data);
+  const selectArtist = await getSelectSingerList(queryString);
+  if (selectArtist.code === "200" && selectArtist.data.length !== 0) {
+    cb(selectArtist.data);
   } else {
     setTimeout(() => cb([]), 200);
   }
 };
 
 // 歌手添加到保存数据中
-const musicArtistHandleSelect = (item: LinkItem) => {
-  const items = {
-    aliasName: "",
-    artistName: item.value,
-    birth: "",
-    createTime: "",
-    id: item.link,
-    introduction: "",
-    location: "",
-    pic: "",
-    sex: "",
-    updateTime: ""
-  };
-  state.form.uploadMusicInfo.musicArtist.push(items);
+const musicArtistHandleSelect = (item: SelectArtist) => {
+  state.select.musicSelectArtist.push(item);
+  state.form.uploadMusicInfo.artistIds.push(item.id);
   state.autocomplete.musicArtistInputValue = "";
 };
 
@@ -395,16 +405,28 @@ const albumQuerySearchAsync = async (
 };
 
 // 选择专辑
-const albumHandleSelect = (item: LinkItem) => {
-  state.form.uploadMusicInfo.albumName = item.value;
+const musicAlbumHandleSelect = (item: SelectAlbum) => {
+  state.select.musicSelectAlbum = item;
   state.form.uploadMusicInfo.albumId = item.link;
+};
+const musicAlbumChange = (value: string | number) => {
+  if (value === "") {
+    state.select.musicSelectAlbum = {} as any;
+  }
+};
+
+// 清除音乐上传中的各种信息
+const cleanMusicAlbumAutocompleteInput = () => {
+  state.autocomplete.albumSearch = "";
+  musicAlbumChange(state.autocomplete.albumSearch);
+  state.select.musicSelectArtist = [];
 };
 
 const editArtistInfo = async () => {
   const r = await saveOrUpdateArtist(state.form.uploadArtist);
   if (r.code == "200") {
     message("保存成功", { type: "success" });
-    state.form.uploadArtist = {} as Artist;
+    state.form.uploadArtist = {} as SaveOrUpdateArtist;
     await initHomeInfo();
   } else {
     message(`保存失败: ${r.message}`, { type: "error" });
@@ -421,6 +443,54 @@ const albumSaveOrUpdate = async () => {
   } else {
     message(`更新失败${r.message}`, { type: "error" });
   }
+};
+
+// 上传封面
+const handleExceed = (files: File[]) => {
+  picUpload.value!.clearFiles();
+  const file = files[0] as UploadRawFile;
+  file.uid = genFileId();
+  picUpload.value!.handleStart(file);
+};
+
+const artistHandleSuccess = (response: any) => {
+  state.form.uploadArtist.tempFile = response.data;
+  message("上传成功", { type: "success" });
+  picUpload.value!.clearFiles();
+};
+
+const albumHandleSuccess = (response: any) => {
+  state.form.uploadAlbum.tempFile = response.data;
+  console.log(state.form.uploadAlbum.tempFile);
+  message("上传成功", { type: "success" });
+  picUpload.value!.clearFiles();
+};
+
+const musicHandleSuccess = (response: any) => {
+  state.form.uploadMusicInfo.tempPicFile = response.data;
+  message("上传成功", { type: "success" });
+  picUpload.value!.clearFiles();
+};
+
+const uploadMusicOnSuccess = (response: R<AudioInfoRes>) => {
+  if (response.code === "200") {
+    state.form.uploadMusicInfo.musicName = response.data.musicName;
+    state.form.uploadMusicInfo.aliasName = response.data.aliasName;
+    state.form.uploadMusicInfo.tempMusicFile = response.data.musicFileTemp;
+
+    state.form.uploadMusicInfo.resource = response.data;
+  } else {
+    message("上传音乐文件错误", { type: "error" });
+  }
+};
+
+const cleanUploadMusicInfo = () => {
+  state.autocomplete.albumSearch = "";
+  state.form.uploadMusicInfo = {} as any;
+  state.form.uploadMusicInfo.resource = {} as any;
+  musicFileUpload.value.clearFiles();
+
+  cleanMusicAlbumAutocompleteInput();
 };
 
 const toAlbum = id => {
@@ -459,8 +529,10 @@ const toPluginTaskInfo = id => {
       <el-upload
         class="upload-demo"
         drag
-        :action="uploadAction"
         multiple
+        ref="musicFileUpload"
+        :action="uploadAction"
+        :on-success="uploadMusicOnSuccess"
         :limit="1"
       >
         <el-icon class="el-icon--upload">
@@ -476,8 +548,10 @@ const toPluginTaskInfo = id => {
           托动音乐文件到此 或 <em>点击上传音乐</em>
         </div>
       </el-upload>
-
-      <h1 class="mb-4">音乐信息</h1>
+      <div class="flex justify-between items-center">
+        <h1 class="mb-4">音乐信息</h1>
+        <el-button type="danger" @click="cleanUploadMusicInfo">清除</el-button>
+      </div>
       <el-form
         label-position="right"
         label-width="auto"
@@ -492,20 +566,56 @@ const toPluginTaskInfo = id => {
         <el-form-item label="别名">
           <el-input
             placeholder="输入歌曲名别名"
-            v-model="state.form.uploadMusicInfo.musicNameAlias"
+            v-model="state.form.uploadMusicInfo.aliasName"
           />
         </el-form-item>
+        <el-form-item label="封面">
+          <div class="flex w-full gap-4">
+            <el-input
+              :disabled="true"
+              v-model="state.form.uploadMusicInfo.tempPicFile"
+            />
+            <el-image-viewer
+              v-if="state.show.musicPreviewPic"
+              :url-list="[previewPic + state.form.uploadMusicInfo.tempPicFile]"
+              @close="state.show.musicPreviewPic = false"
+            />
+            <el-button
+              :disabled="
+                state.form.uploadMusicInfo.tempPicFile == null ||
+                state.form.uploadMusicInfo.tempPicFile === ''
+              "
+              @click="state.show.musicPreviewPic = true"
+              >预览</el-button
+            >
+            <el-upload
+              class="flex justify-center items-center"
+              ref="musicPicUpload"
+              :action="uploadPicAction"
+              :on-exceed="handleExceed"
+              :on-success="musicHandleSuccess"
+              :show-file-list="false"
+              :auto-upload="true"
+            >
+              <template #trigger>
+                <el-button type="primary">点击上传封面</el-button>
+              </template>
+            </el-upload>
+          </div>
+        </el-form-item>
         <el-form-item label="歌手(艺术家)">
-          <el-tag
-            v-for="(item, index) in state.form.uploadMusicInfo.musicArtist"
-            :key="item.id"
-            @close="musicArtistHandleClose(index)"
-            effect="dark"
-            closable
-            round
-          >
-            {{ item.artistName }}</el-tag
-          >
+          <div class="flex gap-2">
+            <el-tag
+              v-for="(item, index) in state.select.musicSelectArtist"
+              :key="item.id"
+              @close="musicArtistHandleClose(index)"
+              effect="dark"
+              closable
+              round
+            >
+              {{ item.artistName }}</el-tag
+            >
+          </div>
           <el-autocomplete
             style="width: 100%"
             v-model="state.autocomplete.musicArtistInputValue"
@@ -515,15 +625,35 @@ const toPluginTaskInfo = id => {
           />
         </el-form-item>
         <el-form-item label="专辑">
+          <div class="flex gap-4">
+            <el-tag
+              v-for="item in state.select.musicSelectAlbum.artists"
+              type="primary"
+              effect="dark"
+              :round="true"
+              :underline="false"
+              :key="item.id"
+            >
+              {{ item.artistName }}
+            </el-tag>
+          </div>
           <el-autocomplete
             class="w-full mt-1"
             v-model="state.autocomplete.albumSearch"
             :fetch-suggestions="albumQuerySearchAsync"
             placeholder="请输入专辑名"
-            @select="albumHandleSelect"
+            @change="musicAlbumChange"
+            @select="musicAlbumHandleSelect"
           >
             <template #default="{ item }">
               <span v-html="item.display" />
+            </template>
+            <template #suffix>
+              <IconifyIconOffline
+                :icon="CircleClose"
+                v-if="state.autocomplete.albumSearch !== ''"
+                @click="cleanMusicAlbumAutocompleteInput"
+              />
             </template>
           </el-autocomplete>
         </el-form-item>
@@ -544,19 +674,27 @@ const toPluginTaskInfo = id => {
           <el-form
             label-position="right"
             label-width="auto"
-            :model="state.form.sourceInfo"
+            :model="state.form.uploadMusicInfo.resource"
           >
             <el-form-item label="比特率">
-              <el-input v-model="state.form.sourceInfo.rate" />
+              <el-input v-model="state.form.uploadMusicInfo.resource.rate" />
             </el-form-item>
-            <el-form-item label="音乐路径">
-              <el-input v-model="state.form.sourceInfo.path" />
+            <el-form-item label="音乐临时路径">
+              <el-input v-model="state.form.uploadMusicInfo.tempMusicFile" />
+            </el-form-item>
+            <el-form-item label="音乐等级">
+              <el-input v-model="state.form.uploadMusicInfo.resource.level" />
+            </el-form-item>
+            <el-form-item label="音乐格式">
+              <el-input
+                v-model="state.form.uploadMusicInfo.resource.encodeType"
+              />
             </el-form-item>
             <el-form-item label="md5">
-              <el-input v-model="state.form.sourceInfo.md5" />
+              <el-input v-model="state.form.uploadMusicInfo.resource.md5" />
             </el-form-item>
             <el-form-item label="size">
-              <el-input v-model="state.form.sourceInfo.size" />
+              <el-input v-model="state.form.uploadMusicInfo.resource.size" />
             </el-form-item>
           </el-form>
         </div>
@@ -580,6 +718,43 @@ const toPluginTaskInfo = id => {
         <el-form-item label="专辑名">
           <el-input v-model="state.form.uploadAlbum.albumName" />
         </el-form-item>
+        <el-form-item label="封面">
+          <div class="flex w-full gap-4">
+            <el-input
+              :disabled="true"
+              v-model="state.form.uploadAlbum.tempFile"
+            />
+            <el-image-viewer
+              v-if="state.show.albumPreviewPic"
+              :url-list="[previewPic + state.form.uploadAlbum.tempFile]"
+              @close="state.show.albumPreviewPic = false"
+            />
+            <el-button
+              :disabled="
+                state.form.uploadAlbum.tempFile == null ||
+                state.form.uploadAlbum.tempFile === ''
+              "
+              @click="state.show.albumPreviewPic = true"
+            >
+              预览
+            </el-button>
+            <el-upload
+              class="flex justify-center items-center"
+              ref="picUpload"
+              :data="{ type: 'album' }"
+              :action="uploadPicAction"
+              :limit="1"
+              :show-file-list="false"
+              :on-exceed="handleExceed"
+              :on-success="albumHandleSuccess"
+              :auto-upload="true"
+            >
+              <template #trigger>
+                <el-button type="primary">点击上传封面</el-button>
+              </template>
+            </el-upload>
+          </div>
+        </el-form-item>
         <el-form-item label="专辑歌手(艺术家)">
           <el-tag
             v-for="(item, index) in state.form.uploadAlbum.link"
@@ -599,7 +774,13 @@ const toPluginTaskInfo = id => {
           />
         </el-form-item>
         <el-form-item label="发布时间">
-          <el-input v-model="state.form.uploadAlbum.publishTime" />
+          <el-date-picker
+            v-model="state.form.uploadAlbum.publishTime"
+            type="date"
+            value-format="YYYY-MM-DDT00:00:00"
+            size="default"
+            placeholder="点击选择发布时间"
+          />
         </el-form-item>
         <el-form-item label="发行公司">
           <el-input v-model="state.form.uploadAlbum.company" />
@@ -643,11 +824,50 @@ const toPluginTaskInfo = id => {
         <el-form-item label="别名">
           <el-input v-model="state.form.uploadArtist.aliasName" />
         </el-form-item>
+        <el-form-item label="封面">
+          <div class="flex w-full gap-4">
+            <el-input disabled v-model="state.form.uploadArtist.tempFile" />
+            <el-image-viewer
+              v-if="state.show.artistPreviewPic"
+              :url-list="[previewPic + state.form.uploadArtist.tempFile]"
+              @close="state.show.artistPreviewPic = false"
+            />
+            <el-button
+              :disabled="
+                state.form.uploadArtist.tempFile == null ||
+                state.form.uploadArtist.tempFile === ''
+              "
+              @click="state.show.artistPreviewPic = true"
+            >
+              预览
+            </el-button>
+            <el-upload
+              class="flex justify-center items-center"
+              ref="picUpload"
+              :action="uploadPicAction"
+              :limit="1"
+              :show-file-list="false"
+              :on-exceed="handleExceed"
+              :on-success="artistHandleSuccess"
+              :auto-upload="true"
+            >
+              <template #trigger>
+                <el-button type="primary">上传封面</el-button>
+              </template>
+            </el-upload>
+          </div>
+        </el-form-item>
         <el-form-item label="性别">
           <el-input v-model="state.form.uploadArtist.sex" />
         </el-form-item>
         <el-form-item label="出生日期">
-          <el-input v-model="state.form.uploadArtist.birth" />
+          <el-date-picker
+            v-model="state.form.uploadArtist.birth"
+            type="date"
+            value-format="YYYY-MM-DDT00:00:00"
+            size="default"
+            placeholder="点击选择发布时间"
+          />
         </el-form-item>
         <el-form-item label="居住地">
           <el-input v-model="state.form.uploadArtist.location" />
@@ -665,6 +885,7 @@ const toPluginTaskInfo = id => {
         </el-form-item>
       </el-form>
     </el-drawer>
+
     <div class="data">
       <div class="data-header">
         <div class="header">
@@ -697,21 +918,23 @@ const toPluginTaskInfo = id => {
               :color="'var(--el-text-color-primary)'"
               :fontSize="'2em'"
               :startVal="1"
-              :endVal="musicCount?.sumCount"
+              :endVal="state.count.music?.sumCount"
             />
             <el-tag
               size="small"
               effect="dark"
               class="mr-4"
-              v-show="musicCount?.percent != null"
-              :type="getType(musicCount?.fluctuate, 'info', '', 'danger')"
+              v-show="state.count.music?.percent != null"
+              :type="
+                getType(state.count.music?.fluctuate, 'info', '', 'danger')
+              "
               :hit="false"
               :disable-transitions="true"
               round
             >
-              {{ getType(musicCount?.fluctuate, "", "+", "-") }}
-              {{ musicCount?.percent }}
-              {{ getType(musicCount?.fluctuate, "", "↑", "↓") }}
+              {{ getType(state.count.music?.fluctuate, "", "+", "-") }}
+              {{ state.count.music?.percent }}
+              {{ getType(state.count.music?.fluctuate, "", "↑", "↓") }}
             </el-tag>
           </div>
         </div>
@@ -745,21 +968,23 @@ const toPluginTaskInfo = id => {
               :color="'var(--el-text-color-primary)'"
               :fontSize="'2em'"
               :startVal="1"
-              :endVal="albumCount?.sumCount"
+              :endVal="state.count.album?.sumCount"
             />
             <el-tag
               size="small"
               effect="dark"
               class="mr-4"
-              v-show="musicCount?.percent != null"
-              :type="getType(albumCount?.fluctuate, 'info', '', 'danger')"
+              v-show="state.count.music?.percent != null"
+              :type="
+                getType(state.count.album?.fluctuate, 'info', '', 'danger')
+              "
               :hit="false"
               :disable-transitions="true"
               round
             >
-              {{ getType(albumCount?.fluctuate, "", "+", "-") }}
-              {{ albumCount?.percent }}
-              {{ getType(albumCount?.fluctuate, "", "↑", "↓") }}
+              {{ getType(state.count.album?.fluctuate, "", "+", "-") }}
+              {{ state.count.album?.percent }}
+              {{ getType(state.count.album?.fluctuate, "", "↑", "↓") }}
             </el-tag>
           </div>
         </div>
@@ -793,21 +1018,23 @@ const toPluginTaskInfo = id => {
               :color="'var(--el-text-color-primary)'"
               :fontSize="'2em'"
               :startVal="1"
-              :endVal="artistCount?.sumCount"
+              :endVal="state.count.artist?.sumCount"
             />
             <el-tag
               size="small"
               effect="dark"
               class="mr-4"
-              v-show="artistCount?.percent != null"
-              :type="getType(artistCount?.fluctuate, 'info', '', 'danger')"
+              v-show="state.count.artist?.percent != null"
+              :type="
+                getType(state.count.artist?.fluctuate, 'info', '', 'danger')
+              "
               :hit="false"
               :disable-transitions="true"
               round
             >
-              {{ getType(artistCount?.fluctuate, "", "+", "-") }}
-              {{ artistCount?.percent }}
-              {{ getType(artistCount?.fluctuate, "", "↑", "↓") }}
+              {{ getType(state.count.artist?.fluctuate, "", "+", "-") }}
+              {{ state.count.artist?.percent }}
+              {{ getType(state.count.artist?.fluctuate, "", "↑", "↓") }}
             </el-tag>
           </div>
         </div>
@@ -831,7 +1058,7 @@ const toPluginTaskInfo = id => {
         </div>
       </div>
       <div class="album-new">
-        <el-skeleton :loading="skeletonLoadingFlag" animated>
+        <el-skeleton :loading="state.loading.skeletonLoadingFlag" animated>
           <template #template>
             <div class="album-list overflow-hidden">
               <div v-for="item in 5" :key="item" style="margin: 1rem">
@@ -859,7 +1086,7 @@ const toPluginTaskInfo = id => {
               <div class="album-list" ref="albumInnerRef">
                 <div
                   class="album-item"
-                  v-for="(item, index) in albumList"
+                  v-for="(item, index) in state.list.album"
                   :key="index"
                 >
                   <LoadImg
@@ -898,7 +1125,7 @@ const toPluginTaskInfo = id => {
         </div>
       </div>
       <div class="artist-new">
-        <el-skeleton :loading="skeletonLoadingFlag" animated>
+        <el-skeleton :loading="state.loading.skeletonLoadingFlag" animated>
           <template #template>
             <div class="artist-list overflow-hidden">
               <div v-for="item in 5" :key="item" style="margin: 1rem">
@@ -923,7 +1150,7 @@ const toPluginTaskInfo = id => {
               <div class="artist-list" ref="artistInnerRef">
                 <div
                   class="artist-item"
-                  v-for="(item, index) in artistList"
+                  v-for="(item, index) in state.list.artist"
                   :key="index"
                 >
                   <el-avatar
@@ -945,7 +1172,7 @@ const toPluginTaskInfo = id => {
     </div>
     <div class="task-sidebar">
       <div class="flex music-count">
-        <el-skeleton :loading="skeletonLoadingFlag" animated>
+        <el-skeleton :loading="state.loading.skeletonLoadingFlag" animated>
           <template #template>
             <div class="w-full h-full flex justify-center items-center">
               <div class="w-1/2 flex justify-center">
@@ -976,13 +1203,25 @@ const toPluginTaskInfo = id => {
               <h1>音乐统计</h1>
               <div>
                 <span> 有效音乐 </span>
-                <el-progress :percentage="effectiveMusic" color="#626aef" />
+                <el-progress
+                  :percentage="state.pie.effectiveMusic"
+                  color="#626aef"
+                />
                 <span> 无音源 </span>
-                <el-progress :percentage="noSoundSourceCount" color="#c12c1f" />
+                <el-progress
+                  :percentage="state.pie.noSoundSourceCount"
+                  color="#c12c1f"
+                />
                 <span> 错误音源 </span>
-                <el-progress :percentage="invalidMusicOrigin" color="#80a492" />
+                <el-progress
+                  :percentage="state.pie.invalidMusicOrigin"
+                  color="#80a492"
+                />
                 <span> 废弃音源 </span>
-                <el-progress :percentage="discardMusicOrigin" color="#c7c6b6" />
+                <el-progress
+                  :percentage="state.pie.discardMusicOrigin"
+                  color="#c7c6b6"
+                />
               </div>
             </div>
           </template>
@@ -990,7 +1229,7 @@ const toPluginTaskInfo = id => {
       </div>
       <div class="music-task">
         <el-scrollbar>
-          <el-skeleton :loading="skeletonLoadingFlag" animated>
+          <el-skeleton :loading="state.loading.skeletonLoadingFlag" animated>
             <template #template>
               <div>
                 <el-skeleton-item
@@ -1031,7 +1270,7 @@ const toPluginTaskInfo = id => {
             <template #default>
               <div>
                 <h1 class="ml-6">插件运行任务</h1>
-                <ul v-for="(item, index) in pluginTask" :key="index">
+                <ul v-for="(item, index) in state.pluginTask" :key="index">
                   <li>
                     <div class="flex justify-between items-center ml-3">
                       <div
@@ -1092,8 +1331,8 @@ const toPluginTaskInfo = id => {
           </el-skeleton>
           <el-empty
             v-show="
-              !skeletonLoadingFlag &&
-              (pluginTask == null || pluginTask.length === 0)
+              !state.loading.skeletonLoadingFlag &&
+              (state.pluginTask == null || state.pluginTask.length === 0)
             "
           />
         </el-scrollbar>
