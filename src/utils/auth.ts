@@ -1,6 +1,7 @@
 import Cookies from "js-cookie";
 import { storageSession } from "@pureadmin/utils";
 import { useUserStoreHook } from "@/store/modules/user";
+import { userLogout } from "@/api/user";
 
 export interface DataInfo {
   // 用户ID
@@ -70,6 +71,7 @@ export function setToken(data: DataInfo) {
 export function removeToken() {
   Cookies.remove(TokenKey);
   sessionStorage.clear();
+  userLogout();
 }
 
 /** 格式化token（jwt格式） */

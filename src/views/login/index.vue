@@ -9,16 +9,14 @@ import type { FormInstance } from "element-plus";
 import { $t, transformI18n } from "@/plugins/i18n";
 import { useLayout } from "@/layout/hooks/useLayout";
 import { useUserStoreHook } from "@/store/modules/user";
-import { bg, avatar, illustration } from "./utils/static";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
-import { ref, reactive, toRaw, onMounted, onBeforeUnmount } from "vue";
+import { ref, reactive, onMounted, onBeforeUnmount } from "vue";
 import { useTranslationLang } from "@/layout/hooks/useTranslationLang";
 import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
 import { initRouter } from "@/router/utils";
 
 import dayIcon from "@/assets/svg/day.svg?component";
 import darkIcon from "@/assets/svg/dark.svg?component";
-import globalization from "@/assets/svg/globalization.svg?component";
 import Lock from "@iconify-icons/ri/lock-fill";
 import Check from "@iconify-icons/ep/check";
 import User from "@iconify-icons/ri/user-3-fill";
@@ -102,7 +100,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="select-none">
-    <img :src="bg" class="wave" />
+    <!--<img :src="bg" class="wave" />-->
     <div class="absolute flex-c right-5 top-3">
       <!-- 主题 -->
       <el-switch
@@ -146,9 +144,9 @@ onBeforeUnmount(() => {
       </el-dropdown>
     </div>
     <div class="login-container">
-      <div class="img">
+      <!--<div class="img">
         <component :is="toRaw(illustration)" />
-      </div>
+      </div>-->
       <div class="login-box">
         <div class="login-form">
           <avatar class="avatar" />

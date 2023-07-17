@@ -133,12 +133,10 @@ class PureHttp {
           PureHttp.initConfig.beforeResponseCallback(response);
           return response.data;
         }
-
         // 如果没有登录或者token过期直接跳转login
         if (
-          response.status === 200 &&
-          response.data.code === "10005" &&
-          response.data.code === "20001"
+          response.status !== 200 ||
+          (response.data.code === "10005" && response.data.code === "20001")
         ) {
           useUserStoreHook().logOut();
         }

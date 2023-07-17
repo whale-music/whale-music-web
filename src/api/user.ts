@@ -28,6 +28,11 @@ export const refreshTokenApi = (data?: object) => {
   return http.request<UserResult>("post", "/admin/user/refreshToken", { data });
 };
 
+/** 登出*/
+export const userLogout = () => {
+  return http.request<UserResult>("get", "/admin/user/logout");
+};
+
 export interface UserInfoRes {
   id: number;
   username: string;
