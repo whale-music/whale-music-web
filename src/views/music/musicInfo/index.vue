@@ -127,8 +127,6 @@ async function intiGetMusicLyric() {
 const skeletonLoadingFlag = ref();
 
 async function initInfo() {
-  id.value = useRouter().currentRoute.value.query.id;
-
   skeletonLoadingFlag.value = true;
   const _musicInfo = await getMusicInfo(id.value);
 
@@ -151,6 +149,7 @@ async function initInfo() {
 }
 
 onMounted(async () => {
+  id.value = useRouter().currentRoute.value.query.id;
   await initInfo();
 });
 
@@ -269,10 +268,10 @@ const tempSource = {
   musicId: 0,
   name: "",
   path: "",
-  rate: 0,
-  size: 0,
+  rate: null,
+  size: null,
   updateTime: "",
-  userId: 0
+  userId: null
 };
 const addSource = ref<UploadManualMusic>(tempSource);
 const addSourceLoadingBottomFlag = ref<boolean>(false);
@@ -425,7 +424,6 @@ const handleAvatarSuccess: UploadProps["onSuccess"] = async response => {
 };
 
 const beforeAvatarUpload: UploadProps["beforeUpload"] = () => {
-  console.log(`beforeAvatarUpload`);
   uploadLoadingFlag.value = ElLoading.service({
     lock: true,
     text: "Loading",
@@ -442,6 +440,14 @@ const handleExceed: UploadProps["onExceed"] = files => {
   picUpload.value!.handleStart(file);
 };
 
+const uploadPicHandleOnError = (error: Error) => {
+  message(`${error.message}`, { type: "error" });
+};
+
+const uploadPicHandleOnSuccess = () => {
+  initInfo();
+};
+
 const selectMd5Search = async (value: string | number) => {
   state.loading.selectMd5 = true;
   try {
@@ -452,6 +458,7 @@ const selectMd5Search = async (value: string | number) => {
   }
 };
 
+// 填充数据
 const paddingData = data => {
   console.log(data);
   state.visible.musicSelectResourcePath = false;
@@ -740,7 +747,10 @@ const toMusicPlay = async res => {
             :data="{ id: state.modifyMusicInfo.id, type: 'music' }"
             :action="uploadPicAction"
             :limit="1"
+            :show-file-list="false"
+            :on-error="uploadPicHandleOnError"
             :on-exceed="handleExceed"
+            :on-success="uploadPicHandleOnSuccess"
             :auto-upload="true"
           >
             <template #trigger>

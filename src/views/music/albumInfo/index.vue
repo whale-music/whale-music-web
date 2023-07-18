@@ -154,6 +154,7 @@ const toArtist = id => {
                 :data="{ id: state.modifyAlbumInfo.id, type: 'album' }"
                 :action="uploadPicAction"
                 :limit="1"
+                :show-file-list="false"
                 :on-exceed="handleExceed"
                 :on-success="handleSuccess"
                 :auto-upload="true"
@@ -393,9 +394,15 @@ const toArtist = id => {
                   </el-icon>
                   <template #dropdown>
                     <el-dropdown-menu>
-                      <el-dropdown-item>Action 1</el-dropdown-item>
-                      <el-dropdown-item>Action 2</el-dropdown-item>
-                      <el-dropdown-item>Action 3</el-dropdown-item>
+                      <el-dropdown-item @click="message('该功能未开发')">
+                        播放
+                      </el-dropdown-item>
+                      <el-dropdown-item @click="message('该功能未开发')">
+                        下载
+                      </el-dropdown-item>
+                      <el-dropdown-item @click="message('该功能未开发')">
+                        分享
+                      </el-dropdown-item>
                     </el-dropdown-menu>
                   </template>
                 </el-dropdown>
