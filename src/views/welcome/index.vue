@@ -188,7 +188,7 @@ const artistHandleScroll = e => {
 const { VITE_PROXY_HOST } = import.meta.env;
 const proxyHost = VITE_PROXY_HOST == null ? "" : VITE_PROXY_HOST;
 const uploadAction = ref(`${proxyHost}/admin/music/upload/music/file`);
-const uploadPicAction = ref(`${proxyHost}/admin/music/upload/pic/file`);
+const uploadPicAction = ref(`${proxyHost}/admin/pic/upload`);
 const previewPic = ref(`${proxyHost}/admin/pic/get/temp/`);
 const picUpload = ref<UploadInstance>();
 const musicPicUpload = ref<UploadInstance>();

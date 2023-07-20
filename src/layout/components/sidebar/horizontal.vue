@@ -9,6 +9,7 @@ import { usePermissionStoreHook } from "@/store/modules/permission";
 import globalization from "@/assets/svg/globalization.svg?component";
 import user from "@/assets/svg/user.svg?component";
 import LogoutCircleRLine from "@iconify-icons/ri/logout-circle-r-line";
+import ShieldUserLine from "@iconify-icons/ri/shield-user-line";
 import Setting from "@iconify-icons/ri/settings-3-line";
 import Check from "@iconify-icons/ep/check";
 import PlayMusic from "@/layout/components/sidebar/playMusic.vue";
@@ -111,6 +112,15 @@ watch(
         </span>
         <template #dropdown>
           <el-dropdown-menu class="logout">
+            <el-dropdown-item>
+              <router-link to="/userInfo">
+                <IconifyIconOffline
+                  :icon="ShieldUserLine"
+                  style="margin: 5px"
+                />
+                {{ t("buttons.hsUserInfo") }}
+              </router-link>
+            </el-dropdown-item>
             <el-dropdown-item @click="logout">
               <IconifyIconOffline
                 :icon="LogoutCircleRLine"

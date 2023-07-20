@@ -1,5 +1,6 @@
 buttons:
   hsLoginOut: LoginOut
+  hsUserInfo: UserInfo
   hsfullscreen: FullScreen
   hsexitfullscreen: ExitFullscreen
   hsrefreshRoute: RefreshRoute
@@ -25,6 +26,7 @@ buttons:
   search: Search
 menus:
   hshome: Home
+  userManagement: User
   hslogin: Login
   playList: PlayList
   hsabnormal: Abnormal Page

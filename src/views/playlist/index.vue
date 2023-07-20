@@ -18,7 +18,7 @@ import { CellStyle } from "element-plus/es";
 import DownloadIcon from "@/components/DownloadIcon/download.vue";
 import { MusicSearchReq } from "@/api/model/common";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
-import { getUserInfo, UserInfoRes } from "@/api/user";
+import { getUserInfo } from "@/api/user";
 import { initRouter } from "@/router/utils";
 import Wbutton from "@/components/button/index.vue";
 import { clone, storageLocal, storageSession, useDark } from "@pureadmin/utils";
@@ -28,6 +28,7 @@ import Segmented, { type OptionsType } from "@/components/ReSegmented";
 import MenuFill from "@iconify-icons/mingcute/menu-fill";
 import ListCheckFill from "@iconify-icons/mingcute/list-check-fill";
 import { useNav } from "@/layout/hooks/useNav";
+import { UserConverter } from "@/api/model/User";
 
 const { onPlayMusic } = useNav();
 const route = useRoute();
@@ -188,9 +189,16 @@ const playlistInfo = ref<PlayInfoRes>({
 
 const modifyPlayListInfo = ref<PlayInfoRes>();
 
-const userInfo = ref<UserInfoRes>({
+const userInfo = ref<UserConverter>({
+  accountType: null,
+  avatarUrl: "",
+  backgroundPicUrl: "",
+  lastLoginIp: "",
+  roleName: "",
+  signature: "",
+  status: false,
   createTime: "",
-  id: 0,
+  id: null,
   lastLoginTime: "",
   nickname: "",
   password: "",

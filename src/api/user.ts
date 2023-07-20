@@ -1,5 +1,12 @@
 import { http } from "@/utils/http";
-import { R } from "@/api/model/common";
+import { Data, R } from "@/api/model/common";
+import {
+  PageUserReq,
+  PageUserRes,
+  SaveOrUpdateUserReq,
+  SaveOrUpdateUserRes,
+  UserConverter
+} from "@/api/model/User";
 
 export type UserResult = {
   code: string;
@@ -33,21 +40,46 @@ export const userLogout = () => {
   return http.request<UserResult>("get", "/admin/user/logout");
 };
 
-export interface UserInfoRes {
-  id: number;
-  username: string;
-  nickname: string;
-  password: string;
-  avatarUrl?: any;
-  backgroundUrl?: any;
-  signature?: any;
-  accountType?: any;
-  lastLoginIp?: any;
-  lastLoginTime: string;
-  createTime: string;
-  updateTime: string;
-}
-/** 刷新token */
+/** 获取用户信息 */
 export const getUserInfo = (id: number) => {
-  return http.request<R<UserInfoRes>>("get", `/admin/user/${id}`);
+  return http.request<R<UserConverter>>("get", `/admin/user/${id}`);
+};
+
+export const getUserPage = (pageUserReq: PageUserReq) => {
+  return http.request<R<Data<PageUserRes>>>("post", `/admin/user/page`, {
+    data: pageUserReq
+  });
+};
+
+// 保存或更新用户
+export const saveOrUpdateUser = (data: SaveOrUpdateUserReq) => {
+  return http.request<R<SaveOrUpdateUserRes>>("post", `/admin/user/`, {
+    data: data
+  });
+};
+
+// 更新用户密码
+export const updateUserPassword = (
+  id: number,
+  username: string,
+  nickname: string,
+  password: string
+) => {
+  return http.request<R<SaveOrUpdateUserRes>>(
+    "post",
+    `/admin/user/update/account`,
+    {
+      params: {
+        id: id,
+        username: username,
+        nickname: nickname,
+        password: password
+      }
+    }
+  );
+};
+
+// 删除用户
+export const deleteUser = (id: number) => {
+  return http.request<R<any>>("delete", `/admin/user/${id}`);
 };
