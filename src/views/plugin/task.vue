@@ -77,7 +77,7 @@ const typeOptions = [
 
 const pluginTypeOptions = ref<string>("");
 
-const pluginStatusOptions = ref<number>(null);
+const pluginStatusOptions = ref<number>();
 const statusOptions = [
   {
     value: "null",
@@ -146,8 +146,6 @@ const deleteTaskArr = async (id: number, index: number) => {
       message("删除成功", { type: "success" });
       taskList.value[index].loading = false;
       taskList.value.splice(index, 1);
-    } else {
-      message(`删除失败${r.message}`, { type: "success" });
     }
     taskList.value[index].loading = false;
   } catch (e) {
@@ -157,16 +155,10 @@ const deleteTaskArr = async (id: number, index: number) => {
 };
 
 const deleteTaskAll = async () => {
-  try {
-    const r = await deletePluginTask(taskList.value.map(value => value.id));
-    if (r.code === "200") {
-      taskList.value = [];
-      message("删除成功", { type: "success" });
-    } else {
-      message(`删除失败${r.message}`, { type: "success" });
-    }
-  } catch (e) {
-    message(`删除失败${e}`, { type: "error" });
+  const r = await deletePluginTask(taskList.value.map(value => value.id));
+  if (r.code === "200") {
+    taskList.value = [];
+    message("删除成功", { type: "success" });
   }
 };
 

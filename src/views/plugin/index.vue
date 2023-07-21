@@ -216,7 +216,9 @@ export default defineComponent({
       </div>
     </div>
     <el-dialog v-model="deletePlugin" width="30%">
-      <span>确定删除吗？</span>
+      <template #header>
+        <h1>确定删除吗？</h1>
+      </template>
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="deletePlugin = false">否</el-button>
