@@ -112,15 +112,15 @@ watch(
         </span>
         <template #dropdown>
           <el-dropdown-menu class="logout">
-            <el-dropdown-item>
-              <router-link to="/userInfo">
+            <router-link to="/userInfo">
+              <el-dropdown-item>
                 <IconifyIconOffline
                   :icon="ShieldUserLine"
                   style="margin: 5px"
                 />
                 {{ t("buttons.hsUserInfo") }}
-              </router-link>
-            </el-dropdown-item>
+              </el-dropdown-item>
+            </router-link>
             <el-dropdown-item @click="logout">
               <IconifyIconOffline
                 :icon="LogoutCircleRLine"
