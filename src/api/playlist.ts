@@ -51,6 +51,7 @@ export interface PlayInfoRes {
   playListName: string;
   picId: number;
   picUrl: string;
+  collectTag: string;
   type: number;
   description?: any;
   userId: number;

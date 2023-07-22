@@ -40,6 +40,7 @@ function initAlbumInfo() {
   getAlbumDataInfo(String(state.albumInfo.id)).then(res => {
     state.albumInfo = res.data;
     state.modifyAlbumInfo = clone(state.albumInfo, true);
+    state.modifyAlbumInfo.albumGenre = state.albumInfo.albumGenre;
     state.modifyAlbumInfo.artistIds = state.modifyAlbumInfo.artistList.map(
       value => value.id
     );
@@ -184,6 +185,9 @@ const toArtist = id => {
             placeholder="请输入歌手名"
             @select="albumArtistHandleSelect"
           />
+          <el-form-item label="专辑流派">
+            <el-input v-model="state.modifyAlbumInfo.albumGenre" />
+          </el-form-item>
           <el-form-item label="专辑版本">
             <el-input v-model="state.modifyAlbumInfo.subType" />
           </el-form-item>
@@ -212,6 +216,7 @@ const toArtist = id => {
         <el-button @click="saveOrUpdate" type="primary">更新</el-button>
       </template>
     </el-dialog>
+    <!--专辑信息-->
     <el-skeleton :loading="state.loading.skeletonLoadingFlag" animated>
       <template #template>
         <div class="layout-container">
@@ -253,6 +258,12 @@ const toArtist = id => {
             <div>
               <span class="name">{{ state.albumInfo.albumName }}</span>
               <br />
+              <div>
+                流派:
+                <el-link>
+                  {{ state.albumInfo.albumGenre }}
+                </el-link>
+              </div>
               <div class="flex items-center">
                 <span>艺术家:&#32;</span>
                 <el-link

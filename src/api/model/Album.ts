@@ -17,6 +17,7 @@ export interface Album {
 export interface AlbumConvert extends Album, PicUrl {}
 
 export interface AlbumInfo extends AlbumConvert {
+  albumGenre: string;
   musicList: MusicConvert[];
   artistList: ArtistConvert[];
   albumSize: number;
@@ -44,6 +45,7 @@ export interface SelectAlbum extends AlbumConvert, LinkItem {
 }
 
 export interface SaveOrUpdateAlbum extends AlbumPageRes {
+  albumGenre: string;
   artistIds: number[];
   tempFile: string;
 }

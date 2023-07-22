@@ -183,6 +183,7 @@ const playlistInfo = ref<PlayInfoRes>({
   sort: 0,
   subscribed: false,
   type: 0,
+  collectTag: null,
   updateTime: "",
   userId: 0
 });
@@ -470,6 +471,9 @@ const throttle = ref(0);
             v-model="modifyPlayListInfo.picUrl"
             placeholder="https://"
           />
+        </el-form-item>
+        <el-form-item label="歌单Tag">
+          <el-input v-model="modifyPlayListInfo.collectTag" />
         </el-form-item>
         <el-form-item label="歌单状态">
           <el-select v-model="modifyPlayListInfo.type" placeholder="">
