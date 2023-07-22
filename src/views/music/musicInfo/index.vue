@@ -94,6 +94,8 @@ const state = reactive({
   modifyMusicInfo: {
     albumId: null,
     aliasName: "",
+    musicGenre: "",
+    musicTag: "",
     artistIds: [],
     createTime: "",
     id: null,
@@ -133,7 +135,12 @@ async function initInfo() {
   // 显示和更新数据分离
   state.musicInfo = _musicInfo.data;
   state.modifyMusicInfo = clone(_musicInfo.data, true);
-  state.modifyMusicInfo.artistIds = [];
+  state.modifyMusicInfo.musicTag = _musicInfo.data.musicTag
+    .map(value => value)
+    .join(",");
+  state.modifyMusicInfo.artistIds = _musicInfo.data.musicArtist.map(
+    value => value.id
+  );
   state.selectPreview.artist = clone(_musicInfo.data.musicArtist, true);
   state.selectPreview.album.artists = clone(_musicInfo.data.albumArtist, true);
   state.selectPreview.album.albumName = clone(_musicInfo.data.albumName, true);
@@ -738,6 +745,13 @@ const toMusicPlay = async res => {
         <el-input v-model="state.modifyMusicInfo.musicName" />
         <h1>音乐别名</h1>
         <el-input v-model="state.modifyMusicInfo.aliasName" />
+        <h1>流派</h1>
+        <el-input v-model="state.modifyMusicInfo.musicGenre" />
+        <div>
+          <h1>音乐Tag</h1>
+          <span>多个请用逗号标注</span>
+        </div>
+        <el-input v-model="state.modifyMusicInfo.musicTag" />
         <h1>封面</h1>
         <div class="flex-c gap-4 items-center">
           <el-input :disabled="true" v-model="state.modifyMusicInfo.picUrl" />
@@ -913,13 +927,29 @@ const toMusicPlay = async res => {
             <div>
               <div>
                 <p class="name">
-                  {{
-                    state.musicInfo?.musicName === ""
-                      ? "加载中"
-                      : state.musicInfo.musicName
-                  }}
+                  {{ state.musicInfo.musicName }}
                 </p>
                 <p class="name-alis">{{ state.musicInfo.aliasName }}</p>
+                <div>
+                  <span class="show-font">流派: </span>
+                  <el-link :underline="false">
+                    <span class="font-semibold">
+                      {{ state.musicInfo.musicGenre }}
+                    </span>
+                  </el-link>
+                </div>
+                <div>
+                  <span class="show-font">Tag: </span>
+                  <el-link
+                    :underline="false"
+                    v-for="item in state.musicInfo.musicTag"
+                    :key="item"
+                  >
+                    <span class="font-semibold">
+                      {{ item + "\u00a0" }}
+                    </span>
+                  </el-link>
+                </div>
                 <span class="show-font">专辑: </span>
                 <el-link
                   :underline="false"

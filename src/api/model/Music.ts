@@ -29,6 +29,8 @@ export interface Resource {
 export interface MusicConvert extends Music, PicUrl {}
 
 export interface SaveOrUpdateMusic extends MusicConvert {
+  musicTag: string;
+  musicGenre: string;
   artistIds: number[];
   resource: Resource;
   tempPicFile: string;

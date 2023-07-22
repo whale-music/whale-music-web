@@ -61,6 +61,8 @@ export interface MusicDetailInfo extends PicUrl {
   id: number;
   musicName: string;
   aliasName: string;
+  musicTag: string[];
+  musicGenre: string[];
   musicArtist: Artist[];
   albumArtist: Artist[];
   albumId: number;
