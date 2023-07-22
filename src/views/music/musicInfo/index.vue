@@ -172,6 +172,15 @@ function copy(value) {
   }
 }
 
+function copyData(data: string) {
+  clipboardValue.value = unref(data);
+  if (copied.value) {
+    message("拷贝成功", { type: "success" });
+  } else {
+    message("拷贝失败", { type: "error" });
+  }
+}
+
 const playMusic = () => {
   for (const musicUrlInfo of musicUrl.value) {
     // 只取第一条数据
@@ -802,6 +811,7 @@ const toMusicPlay = async res => {
             v-for="item in state.selectPreview.album.artists"
             class="font-bold"
             type="primary"
+            @click="copyData(item.artistName)"
             :underline="false"
             :key="item.id"
           >

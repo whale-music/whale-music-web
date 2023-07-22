@@ -473,6 +473,11 @@ const throttle = ref(0);
           />
         </el-form-item>
         <el-form-item label="歌单Tag">
+          <span
+            class="text-xs font-bold"
+            style="color: var(--el-text-color-placeholder)"
+            >多个可以使用英文逗号隔开</span
+          >
           <el-input v-model="modifyPlayListInfo.collectTag" />
         </el-form-item>
         <el-form-item label="歌单状态">
