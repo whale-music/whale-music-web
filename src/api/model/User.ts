@@ -31,3 +31,11 @@ export interface SaveOrUpdateUserReq extends UserConverter {
   backgroundTempFile: string;
 }
 export type SaveOrUpdateUserRes = UserConverter;
+
+export interface Config {
+  enablePlugin: boolean;
+  logEnable: boolean;
+  enableAdminSpringBootApplication: boolean;
+  enableNeteaseCloudMusicSpringBootApplication: boolean;
+  enableSubsonicSpringBootApplication: boolean;
+}

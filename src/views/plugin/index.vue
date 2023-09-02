@@ -11,7 +11,9 @@ import ContextMenu from "@imengyu/vue3-context-menu";
 import { message } from "@/utils/message";
 import Wbutton from "@/components/button/index.vue";
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
+import { getEnabledPluginStatus } from "@/api/config";
 import { defineComponent } from "vue";
+import { ElMessageBox } from "element-plus";
 
 export default defineComponent({
   setup() {
@@ -23,9 +25,26 @@ export default defineComponent({
     Wbutton
   },
   mounted() {
-    this.initPluginList();
+    this.isEnabledPlugin();
   },
   methods: {
+    async isEnabledPlugin() {
+      const enablePlugin = await getEnabledPluginStatus();
+      if (enablePlugin.data) {
+        this.initPluginList();
+      } else {
+        const enablePluginStr = "插件未启动";
+        message(enablePluginStr, { type: "error" });
+        ElMessageBox.alert(enablePluginStr, "提示", {
+          confirmButtonText: "首页",
+          callback: () => {
+            this.$router.push({
+              path: "/"
+            });
+          }
+        });
+      }
+    },
     initPluginList(name?: string) {
       this.pluginListLoadingFlag = true;
       getPluginList(null, name)

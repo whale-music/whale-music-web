@@ -1,5 +1,6 @@
 import { http } from "@/utils/http";
 import { Data, R } from "@/api/model/common";
+import { Config } from "@/api/model/User";
 import {
   PageUserReq,
   PageUserRes,
@@ -82,4 +83,9 @@ export const updateUserPassword = (
 // 删除用户
 export const deleteUser = (id: number) => {
   return http.request<R<any>>("delete", `/admin/user/${id}`);
+};
+
+// 获取项目配置
+export const getConfig = () => {
+  return http.request<R<Config>>("get", "/admin/config/");
 };
