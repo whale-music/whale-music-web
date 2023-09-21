@@ -1,10 +1,8 @@
 <div>    
-    <center>
-        <h1 style="font-size:3rem">
+      <h1 align="center" style="font-size:3rem">
         Whale music
-        </h1>
-    </center>
-    <center><span color="blue">whale music web application front-end</span></center>
+      </h1>
+    <h4 align="center">whale music web application front-end</h4>
 </div>
 
 # Usage
