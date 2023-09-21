@@ -60,7 +60,7 @@ const deleteUserButton = async (id: number) => {
   <div>
     <div class="flex gap-2">
       <el-button type="success" @click="initInfo">刷新</el-button>
-      <router-link to="/userInfo/">
+      <router-link to="/userManagement/">
         <el-button type="primary"> 添加用户 </el-button>
       </router-link>
     </div>
@@ -95,7 +95,7 @@ const deleteUserButton = async (id: number) => {
         </template>
         <template #default="scope">
           <div class="flex gap-1">
-            <router-link :to="`/userInfo/${scope.row.id}`">
+            <router-link :to="`/userManagement/${scope.row.id}`">
               <el-button type="primary"> 编辑 </el-button>
             </router-link>
             <el-popconfirm

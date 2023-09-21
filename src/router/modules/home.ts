@@ -23,7 +23,7 @@ export default {
     },
     {
       path: "/users",
-      name: "userManagement",
+      name: "Users",
       component: () => import("@/views/welcome/users.vue"),
       meta: {
         icon: "ep:user-filled",
@@ -34,7 +34,7 @@ export default {
     },
     {
       path: "/userManagement/:id(.*)",
-      name: "userInfo",
+      name: "UserManagement",
       component: () => import("@/views/welcome/userManagementInfo.vue"),
       meta: {
         icon: "ep:user-filled",
