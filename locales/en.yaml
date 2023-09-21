@@ -1,0 +1,72 @@
+buttons:
+  hsLoginOut: LoginOut
+  hsUserInfo: UserInfo
+  hsfullscreen: FullScreen
+  hsexitfullscreen: ExitFullscreen
+  hsrefreshRoute: RefreshRoute
+  hslogin: Login
+  hsadd: Add
+  hsmark: Mark/Cancel
+  hssave: Save
+  hssearch: Search
+  hsexpendAll: Expand All
+  hscollapseAll: Collapse All
+  hssystemSet: Open ProjectConfig
+  hsdelete: Delete
+  hsreload: Reload
+  hscloseCurrentTab: Close CurrentTab
+  hscloseLeftTabs: Close LeftTabs
+  hscloseRightTabs: Close RightTabs
+  hscloseOtherTabs: Close OtherTabs
+  hscloseAllTabs: Close AllTabs
+  hswholeFullScreen: FullScreen
+  hswholeExitFullScreen: ExitFull
+  hscontentFullScreen: Content FullScreen
+  hscontentExitFullScreen: Content ExitFullScreen
+  search: Search
+menus:
+  hshome: Home
+  userManagement: User
+  hslogin: Login
+  playList: PlayList
+  hsabnormal: Abnormal Page
+  plugin: plugin
+  hsfourZeroFour: "404"
+  hsfourZeroOne: "403"
+  hsFive: "500"
+  permission: Permission Manage
+  permissionPage: Page Permission
+  permissionButton: Button Permission
+status:
+  hsLoad: Loading...
+login:
+  username: Username
+  password: Password
+  login: Login
+  usernameReg: Please enter username
+  passwordReg: Please enter password
+  passwordRuleReg: The password format should be any combination of 8-18 digits
+list:
+  music: music
+  allmusic: All Music
+  allAlbum: all Album
+  allSinger: All Singer
+  addPlugin: Add Plugin
+  runPlugin: Run Plugin
+  task: Task
+  taskInfo: Run Log
+  playList: Play List
+  schedule: Schedule
+  scheduleEdit: Schedule Edit
+msg:
+  loginSuccess: Login Success
+  serverError: Please check whether the server is started
+input:
+  menuBotton: Menu
+  albumName: Album Name
+  pleaseEnterAlbumName: Please Enter Album Name
+  singerName: Singer Name
+  pleaseEnterSingerName: Please Enter Singer Name
+table:
+  albumSize: Album Size
+  musicSize: Music Size

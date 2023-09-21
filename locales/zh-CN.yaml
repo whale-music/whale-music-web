@@ -1,0 +1,72 @@
+buttons:
+  hsLoginOut: 退出系统
+  hsUserInfo: 用户信息
+  hsfullscreen: 全屏
+  hsexitfullscreen: 退出全屏
+  hsrefreshRoute: 刷新路由
+  hslogin: 登录
+  hsadd: 新增
+  hsmark: 标记/取消
+  hssave: 保存
+  hssearch: 搜索
+  hsexpendAll: 全部展开
+  hscollapseAll: 全部折叠
+  hssystemSet: 打开项目配置
+  hsdelete: 删除
+  hsreload: 重新加载
+  hscloseCurrentTab: 关闭当前标签页
+  hscloseLeftTabs: 关闭左侧标签页
+  hscloseRightTabs: 关闭右侧标签页
+  hscloseOtherTabs: 关闭其他标签页
+  hscloseAllTabs: 关闭全部标签页
+  hswholeFullScreen: 全屏
+  hswholeExitFullScreen: 退出全屏
+  hscontentFullScreen: 内容区全屏
+  hscontentExitFullScreen: 内容区退出全屏
+  search: 搜索
+menus:
+  hshome: 首页
+  userManagement: 用户
+  hslogin: 登录
+  playList: 歌单
+  hsabnormal: 异常页面
+  plugin: 插件
+  hsfourZeroFour: "404"
+  hsfourZeroOne: "403"
+  hsFive: "500"
+  permission: 权限管理
+  permissionPage: 页面权限
+  permissionButton: 按钮权限
+status:
+  hsLoad: 加载中...
+login:
+  username: 账号
+  password: 密码
+  login: 登录
+  usernameReg: 请输入账号
+  passwordReg: 请输入密码
+  passwordRuleReg: 密码格式应为8-18位数字、字母、符号的任意两种组合
+list:
+  music: 音乐
+  allmusic: 全部音乐
+  allAlbum: 全部专辑
+  allSinger: 全部歌手
+  addPlugin: 添加插件
+  runPlugin: 运行插件
+  task: 任务
+  taskInfo: 运行日志
+  playList: 全部歌单
+  schedule: 定时任务
+  scheduleEdit: 定时任务编辑
+msg:
+  loginSuccess: 登录成功
+  serverError: 请检查服务器是否启动
+input:
+  menuBotton: 菜单
+  albumName: 专辑名
+  pleaseEnterAlbumName: 请输入专辑名
+  singerName: 歌手名
+  pleaseEnterSingerName: 请输入歌手名
+table:
+  albumSize: 专辑数
+  musicSize: 歌曲数

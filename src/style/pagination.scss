@@ -1,0 +1,8 @@
+:deep(.el-pager li) {
+  border-radius: 6px;
+}
+
+:deep(.is-active.number) {
+  background-color: var(--el-color-primary-light-7) !important;
+  color: var(--el-color-primary) !important;
+}
