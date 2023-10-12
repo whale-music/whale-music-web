@@ -479,6 +479,7 @@ const uploadMusicOnSuccess = (response: R<AudioInfoRes>) => {
     state.form.uploadMusicInfo.tempMusicFile = response.data.musicFileTemp;
 
     state.form.uploadMusicInfo.resource = response.data;
+    state.form.uploadMusicInfo.timeLength = response.data.timeLength;
   } else {
     message("上传音乐文件错误", { type: "error" });
   }
@@ -548,7 +549,7 @@ const toPluginTaskInfo = id => {
           托动音乐文件到此 或 <em>点击上传音乐</em>
         </div>
       </el-upload>
-      <div class="flex justify-between items-center">
+      <div class="flex items-center justify-between">
         <h1 class="mb-4">音乐信息</h1>
         <el-button type="danger" @click="cleanUploadMusicInfo">清除</el-button>
       </div>
@@ -589,7 +590,7 @@ const toPluginTaskInfo = id => {
               >预览</el-button
             >
             <el-upload
-              class="flex justify-center items-center"
+              class="flex items-center justify-center"
               ref="musicPicUpload"
               :action="uploadPicAction"
               :on-exceed="handleExceed"
@@ -659,7 +660,7 @@ const toPluginTaskInfo = id => {
         </el-form-item>
       </el-form>
 
-      <div class="cursor-pointer flex justify-between items-center">
+      <div class="flex items-center justify-between cursor-pointer">
         <div
           class="flex-c"
           @click="state.show.sourceInfoFlag = !state.show.sourceInfoFlag"
@@ -676,6 +677,9 @@ const toPluginTaskInfo = id => {
             label-width="auto"
             :model="state.form.uploadMusicInfo.resource"
           >
+            <el-form-item label="音乐时长">
+              <el-input v-model="state.form.uploadMusicInfo.timeLength" />
+            </el-form-item>
             <el-form-item label="比特率">
               <el-input v-model="state.form.uploadMusicInfo.resource.rate" />
             </el-form-item>
@@ -739,7 +743,7 @@ const toPluginTaskInfo = id => {
               预览
             </el-button>
             <el-upload
-              class="flex justify-center items-center"
+              class="flex items-center justify-center"
               ref="picUpload"
               :data="{ type: 'album' }"
               :action="uploadPicAction"
@@ -842,7 +846,7 @@ const toPluginTaskInfo = id => {
               预览
             </el-button>
             <el-upload
-              class="flex justify-center items-center"
+              class="flex items-center justify-center"
               ref="picUpload"
               :action="uploadPicAction"
               :limit="1"
@@ -889,7 +893,7 @@ const toPluginTaskInfo = id => {
     <div class="data">
       <div class="data-header">
         <div class="header">
-          <div class="flex ml-4 mt-1 items-center justify-between">
+          <div class="flex items-center justify-between mt-1 ml-4">
             <div class="flex items-center">
               <IconifyIconOnline
                 class="cursor-pointer text-[#626aef]"
@@ -897,21 +901,21 @@ const toPluginTaskInfo = id => {
                 width="3rem"
                 height="3rem"
               />
-              <span class="text-xl ml-4 font-bold"> 音乐 </span>
+              <span class="ml-4 text-xl font-bold"> 音乐 </span>
             </div>
             <div
-              class="flex flex-nowrap gap-4"
+              class="flex gap-4 flex-nowrap"
               @contextmenu="onMusicContextMenu($event)"
             >
               <IconifyIconOnline
-                class="cursor-pointer mr-4"
+                class="mr-4 cursor-pointer"
                 icon="mingcute:more-1-line"
                 width="2rem"
                 height="2rem"
               />
             </div>
           </div>
-          <div class="ml-6 flex items-center justify-between whitespace-nowrap">
+          <div class="flex items-center justify-between ml-6 whitespace-nowrap">
             <ReNormalCountTo
               prefix="# "
               :duration="1000"
@@ -939,7 +943,7 @@ const toPluginTaskInfo = id => {
           </div>
         </div>
         <div class="header">
-          <div class="flex ml-4 mt-1 items-center justify-between">
+          <div class="flex items-center justify-between mt-1 ml-4">
             <div class="flex items-center">
               <IconifyIconOnline
                 class="cursor-pointer text-[#626aef]"
@@ -947,21 +951,21 @@ const toPluginTaskInfo = id => {
                 width="3rem"
                 height="3rem"
               />
-              <span class="text-xl ml-4 font-bold"> 专辑 </span>
+              <span class="ml-4 text-xl font-bold"> 专辑 </span>
             </div>
             <div
-              class="flex flex-nowrap gap-4"
+              class="flex gap-4 flex-nowrap"
               @contextmenu="onAlbumContextMenu($event)"
             >
               <IconifyIconOnline
-                class="cursor-pointer mr-4"
+                class="mr-4 cursor-pointer"
                 icon="mingcute:more-1-line"
                 width="2rem"
                 height="2rem"
               />
             </div>
           </div>
-          <div class="ml-6 flex items-center justify-between whitespace-nowrap">
+          <div class="flex items-center justify-between ml-6 whitespace-nowrap">
             <ReNormalCountTo
               prefix="# "
               :duration="1000"
@@ -989,7 +993,7 @@ const toPluginTaskInfo = id => {
           </div>
         </div>
         <div class="header">
-          <div class="ml-6 flex items-center justify-between">
+          <div class="flex items-center justify-between ml-6">
             <div class="flex items-center">
               <IconifyIconOnline
                 class="cursor-pointer text-[#626aef]"
@@ -1000,18 +1004,18 @@ const toPluginTaskInfo = id => {
               <span class="text-xl font-bold"> 艺术家 </span>
             </div>
             <div
-              class="flex flex-nowrap gap-4"
+              class="flex gap-4 flex-nowrap"
               @contextmenu="onArtistContextMenu($event)"
             >
               <IconifyIconOnline
-                class="cursor-pointer mr-4"
+                class="mr-4 cursor-pointer"
                 icon="mingcute:more-1-line"
                 width="2rem"
                 height="2rem"
               />
             </div>
           </div>
-          <div class="ml-6 flex items-center justify-between whitespace-nowrap">
+          <div class="flex items-center justify-between ml-6 whitespace-nowrap">
             <ReNormalCountTo
               prefix="# "
               :duration="1000"
@@ -1039,7 +1043,7 @@ const toPluginTaskInfo = id => {
           </div>
         </div>
       </div>
-      <div class="flex justify-between items-center">
+      <div class="flex items-center justify-between">
         <h1 class="ml-4">最新专辑</h1>
         <div class="font-bold">
           <el-tooltip
@@ -1060,7 +1064,7 @@ const toPluginTaskInfo = id => {
       <div class="album-new">
         <el-skeleton :loading="state.loading.skeletonLoadingFlag" animated>
           <template #template>
-            <div class="album-list overflow-hidden">
+            <div class="overflow-hidden album-list">
               <div v-for="item in 5" :key="item" style="margin: 1rem">
                 <el-skeleton-item
                   variant="image"
@@ -1097,7 +1101,7 @@ const toPluginTaskInfo = id => {
                   />
                   <span
                     @click="toAlbum(item.id)"
-                    class="block font-semibold truncate w-40"
+                    class="block w-40 font-semibold truncate"
                     >{{ item.albumName }}</span
                   >
                 </div>
@@ -1106,7 +1110,7 @@ const toPluginTaskInfo = id => {
           </template>
         </el-skeleton>
       </div>
-      <div class="flex justify-between items-center">
+      <div class="flex items-center justify-between">
         <h1 class="ml-4">最新艺术家</h1>
         <div class="font-bold">
           <el-tooltip
@@ -1127,7 +1131,7 @@ const toPluginTaskInfo = id => {
       <div class="artist-new">
         <el-skeleton :loading="state.loading.skeletonLoadingFlag" animated>
           <template #template>
-            <div class="artist-list overflow-hidden">
+            <div class="overflow-hidden artist-list">
               <div v-for="item in 5" :key="item" style="margin: 1rem">
                 <el-skeleton-item
                   variant="circle"
@@ -1160,7 +1164,7 @@ const toPluginTaskInfo = id => {
                   />
                   <span
                     @click="toArtist(item.id)"
-                    class="text-center font-bold text-xl block truncate w-40"
+                    class="block w-40 text-xl font-bold text-center truncate"
                     >{{ item.artistName }}</span
                   >
                 </div>
@@ -1174,15 +1178,15 @@ const toPluginTaskInfo = id => {
       <div class="flex music-count">
         <el-skeleton :loading="state.loading.skeletonLoadingFlag" animated>
           <template #template>
-            <div class="w-full h-full flex justify-center items-center">
-              <div class="w-1/2 flex justify-center">
+            <div class="flex items-center justify-center w-full h-full">
+              <div class="flex justify-center w-1/2">
                 <el-skeleton-item
                   variant="circle"
                   style="height: 8rem; width: 8rem"
                 />
               </div>
               <div
-                class="w-1/2 flex flex-col justify-between gap-2 overflow-y-clip"
+                class="flex flex-col justify-between w-1/2 gap-2 overflow-y-clip"
               >
                 <div class="flex flex-col gap-1" v-for="item in 4" :key="item">
                   <el-skeleton-item
@@ -1199,7 +1203,7 @@ const toPluginTaskInfo = id => {
           </template>
           <template #default>
             <div ref="pieDataChartRef" class="w-1/2" />
-            <div class="w-1/2 flex flex-col justify-between overflow-y-clip">
+            <div class="flex flex-col justify-between w-1/2 overflow-y-clip">
               <h1>音乐统计</h1>
               <div>
                 <span> 有效音乐 </span>
@@ -1241,7 +1245,7 @@ const toPluginTaskInfo = id => {
                     width: 10rem;
                   "
                 />
-                <div class="mt-4 flex flex-col gap-2">
+                <div class="flex flex-col gap-2 mt-4">
                   <div v-for="item in 4" :key="item">
                     <div class="flex justify-around gap-1">
                       <el-skeleton-item
@@ -1272,9 +1276,9 @@ const toPluginTaskInfo = id => {
                 <h1 class="ml-6">插件运行任务</h1>
                 <ul v-for="(item, index) in state.pluginTask" :key="index">
                   <li>
-                    <div class="flex justify-between items-center ml-3">
+                    <div class="flex items-center justify-between ml-3">
                       <div
-                        class="flex justify-center items-center cursor-pointer"
+                        class="flex items-center justify-center cursor-pointer"
                         @click="toPluginTaskInfo(item.id)"
                       >
                         <IconifyIconOnline
@@ -1285,7 +1289,7 @@ const toPluginTaskInfo = id => {
                         />
                         <div>
                           <el-tooltip :content="item.pluginName" raw-content>
-                            <p class="text-xl font-bold w-20 truncate">
+                            <p class="w-20 text-xl font-bold truncate">
                               {{ item.pluginName }}
                             </p>
                           </el-tooltip>

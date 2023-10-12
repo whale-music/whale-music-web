@@ -75,7 +75,10 @@ const state = reactive({
   },
   selectPreview: {
     artist: {} as ArtistConvert[],
-    album: {} as SelectAlbum
+    album: {
+      albumName: ""
+    } as SelectAlbum,
+    albumName: ""
   },
   musicInfo: {
     albumArtist: [],
@@ -354,6 +357,8 @@ const albumQuerySearchAsync = async (
   const selectAlbumR = await getSelectAlbumList(queryString);
   if (selectAlbumR.code === "200" && selectAlbumR.data.length !== 0) {
     cb(selectAlbumR.data);
+  } else {
+    cb([]);
   }
 };
 
@@ -820,7 +825,7 @@ const toMusicPlay = async res => {
         </div>
         <el-autocomplete
           class="w-full mt-1"
-          v-model="state.selectPreview.album.albumName"
+          v-model="state.selectPreview.albumName"
           :fetch-suggestions="albumQuerySearchAsync"
           placeholder="请输入专辑名"
           @select="albumHandleSelect"

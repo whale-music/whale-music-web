@@ -136,8 +136,10 @@ class PureHttp {
         // 如果没有登录或者token过期直接跳转login
         if (
           response.status !== 200 ||
-          (response.data.code === "10005" && response.data.code === "20001")
+          response.data.code === "10005" ||
+          response.data.code === "20001"
         ) {
+          message(`${response.data.message}`, { type: "error" });
           useUserStoreHook().logOut();
         }
         return response.data;
