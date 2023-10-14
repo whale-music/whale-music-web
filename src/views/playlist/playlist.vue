@@ -416,7 +416,7 @@ const toPlayList = id => {
           title="确认需要删除吗?"
           :append-to-body="true"
         >
-          <span> 该操作只会删除歌手数据 </span>
+          <span> 该操作只会删除歌单，并不会删除歌曲 </span>
           <template #footer>
             <span class="dialog-footer">
               <el-button @click="deleteMusicFlag = false">否</el-button>

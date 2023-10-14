@@ -99,11 +99,14 @@ export const tracksMusicToPlayList = (
   musicIds: number[],
   flag?: boolean
 ) => {
-  return http.request<R<UserPlayListRes[]>>("get", `/admin/playlist/tracks`, {
+  return http.request<R<UserPlayListRes[]>>("post", `/admin/playlist/tracks`, {
     params: {
       pid: pid,
-      musicIds: musicIds.join(","),
+      // musicIds: musicIds.join(","),
       flag: flag
+    },
+    data: {
+      musicIds: musicIds
     }
   });
 };

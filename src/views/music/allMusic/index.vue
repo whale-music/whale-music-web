@@ -612,7 +612,7 @@ const toMusicInfo = id => {
           <br />
           <el-tooltip
             effect="dark"
-            content="<b>该操作只会删除<b class='text-rose-800'>歌曲</b>和<b class='text-rose-800'>歌单</b>关联的音乐，并不会删除歌手专辑</b>"
+            content="<b>该操作会强制删除<b class='text-rose-800'>歌曲</b>,<b class='text-rose-800'>歌单</b>,<b class='text-rose-800'>歌手</b>关联的音乐</b>"
             raw-content
           >
             <el-checkbox
