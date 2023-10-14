@@ -48,9 +48,9 @@ login:
   passwordRuleReg: The password format should be any combination of 8-18 digits
 list:
   music: music
-  allmusic: All Music
-  allAlbum: all Album
-  allSinger: All Singer
+  allmusic: Music
+  allAlbum: Album
+  allSinger: Artist
   addPlugin: Add Plugin
   runPlugin: Run Plugin
   task: Task

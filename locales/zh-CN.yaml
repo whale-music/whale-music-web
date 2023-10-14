@@ -48,14 +48,14 @@ login:
   passwordRuleReg: 密码格式应为8-18位数字、字母、符号的任意两种组合
 list:
   music: 音乐
-  allmusic: 全部音乐
-  allAlbum: 全部专辑
-  allSinger: 全部歌手
+  allmusic: 音乐
+  allAlbum: 专辑
+  allSinger: 歌手
   addPlugin: 添加插件
   runPlugin: 运行插件
   task: 任务
   taskInfo: 运行日志
-  playList: 全部歌单
+  playList: 歌单
   schedule: 定时任务
   scheduleEdit: 定时任务编辑
 msg:
