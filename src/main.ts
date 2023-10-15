@@ -51,7 +51,6 @@ import "@imengyu/vue3-context-menu/lib/vue3-context-menu.css";
 import ContextMenu from "@imengyu/vue3-context-menu";
 
 getServerConfig(app).then(async config => {
-  console.log("getServerConfig");
   app.use(router);
   await router.isReady();
   injectResponsiveStorage(app, config);
