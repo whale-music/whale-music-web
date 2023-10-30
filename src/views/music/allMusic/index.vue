@@ -602,17 +602,17 @@ const toMusicInfo = id => {
           <b>
             该删除会删除
             <b class="text-rose-800">歌曲</b>
-            本身，如果有关联歌单会删除失败
+            如果有关联歌单,专辑,歌手等会删除失败
           </b>
           <br />
           <i>
-            如需要同时删除歌单请点击
+            如需要删除关联数据请点击
             <b class="text-rose-800">强制删除</b>
           </i>
           <br />
           <el-tooltip
             effect="dark"
-            content="<b>该操作会强制删除<b class='text-rose-800'>歌曲</b>,<b class='text-rose-800'>歌单</b>,<b class='text-rose-800'>歌手</b>关联的音乐</b>"
+            content="<b>该操作会强制删除<b class='text-rose-800'>歌曲</b>关联数据</b>"
             raw-content
           >
             <el-checkbox

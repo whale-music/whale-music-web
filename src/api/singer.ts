@@ -104,10 +104,11 @@ export const getArtistInfo = (id: number) => {
 };
 
 export const deleteArtist = (id: number[]) => {
-  return http.request<R<ArtistInfoRes>>(
-    "delete",
-    `/admin/singer/${id.join(",")}`
-  );
+  return http.request<R<ArtistInfoRes>>("delete", `/admin/singer/`, {
+    data: {
+      ids: id
+    }
+  });
 };
 
 export const saveOrUpdateArtist = (data: Artist) => {

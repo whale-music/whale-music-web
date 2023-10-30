@@ -28,6 +28,7 @@ const props = defineProps({
   <el-image
     :src="props.src"
     fit="cover"
+    :lazy="true"
     :style="{ width: width, height: height, 'border-radius': props.radius }"
     :class="{
       'img-shadow': props.shadow,

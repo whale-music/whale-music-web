@@ -237,15 +237,14 @@ export const uploadMusic = (data: UploadMusicReq) => {
 };
 
 export const deleteMusic = (musicId: number[], compel?: boolean) => {
-  return http.request<R<UploadMusicRes>>(
-    "delete",
-    `/admin/music/${musicId.join(",")}`,
-    {
-      params: {
-        compel: compel
-      }
+  return http.request<R<UploadMusicRes>>("delete", `/admin/music/`, {
+    params: {
+      compel: compel
+    },
+    data: {
+      ids: musicId
     }
-  );
+  });
 };
 
 export interface UploadManualMusic extends Resource {

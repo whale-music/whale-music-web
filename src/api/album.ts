@@ -26,9 +26,12 @@ export const getAlbumDataInfo = (id: string) => {
 };
 
 export const deleteAlbum = (id: number[], compel?: boolean) => {
-  return http.request<R<AlbumInfo>>("delete", `/admin/album/${id.join(",")}`, {
+  return http.request<R<AlbumInfo>>("delete", `/admin/album/`, {
     params: {
       compel: compel
+    },
+    data: {
+      ids: id
     }
   });
 };

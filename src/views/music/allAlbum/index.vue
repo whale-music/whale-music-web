@@ -368,14 +368,14 @@ const toArtist = id => {
           <b>
             该删除会删除
             <b class="text-rose-800">专辑</b>
-            本身，如果有关联
+            ，如果有关联
             <b class="text-rose-800">歌曲</b>
             会删除失败
           </b>
           <br />
           <el-tooltip
             effect="dark"
-            content="<b>该操作会删除<b class='text-rose-800'>歌曲</b>和<b class='text-rose-800'>歌单</b>关联的<b class='text-rose-800'>音乐</b>，并不会删除歌手专辑</b>"
+            content="<b>该操作会强制删除<b class='text-rose-800'>专辑</b>, 并不会删除歌曲"
             raw-content
           >
             <el-checkbox
