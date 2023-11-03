@@ -274,3 +274,24 @@ export const selectResources = (md5: string) => {
     }
   });
 };
+
+export interface MusicMetaData {
+  resourceId: number;
+  picUrl: string;
+  picBase64: string;
+  musicName: string;
+  musicAliasName: string;
+  musicArtist: string;
+  albumArtist: string;
+  albumName: string;
+  year: string;
+  lyric: string;
+  genre: string;
+  tag: string;
+}
+
+export const syncMetaMusicFile = (data: MusicMetaData) => {
+  return http.request<R<[string[]]>>("post", `/admin/music/sync/metadata`, {
+    data
+  });
+};

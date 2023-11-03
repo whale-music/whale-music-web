@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, reactive, ref, unref, watch } from "vue";
+import { computed, onMounted, reactive, ref, unref, watch } from "vue";
 import { useRouter } from "vue-router";
 import {
   deleteSourceMusic,
@@ -13,7 +13,9 @@ import {
   selectResources,
   saveOrUpdateMusic,
   updateSourceMusic,
-  UploadManualMusic
+  UploadManualMusic,
+  syncMetaMusicFile,
+  MusicMetaData
 } from "@/api/music";
 import { dateFormater } from "@/utils/dateUtil";
 import { Icon } from "@iconify/vue";
@@ -80,6 +82,7 @@ const state = reactive({
     } as SelectAlbum,
     albumName: ""
   },
+  syncMusicMetaData: "",
   musicInfo: {
     albumArtist: [],
     albumId: 0,
@@ -112,6 +115,12 @@ const state = reactive({
     updateTime: "",
     userId: null
   } as SaveOrUpdateMusic,
+  metaDataMusic: { picBase64: undefined } as MusicMetaData,
+  metaUpload: {
+    title: "",
+    flag: false,
+    imageViewerFlag: false
+  },
   visible: {
     musicSelectResourcePath: false
   },
@@ -156,6 +165,8 @@ async function initInfo() {
     document.documentElement.clientWidth ||
     document.body.clientWidth;
   reLayout(width);
+
+  getLyricList();
 }
 
 onMounted(async () => {
@@ -276,6 +287,7 @@ const addPlaySongList = async () => {
 const editMusicInfoFlag = ref<boolean>(false);
 
 const addSoundSourceFlag = ref<boolean>(false);
+const syncMusicMetaDataFlag = ref<boolean>(false);
 const switchUploadFlag = ref<boolean>(false);
 
 const tempSource = {
@@ -386,17 +398,11 @@ const kLyricValueFlag = ref<boolean>(false);
 const lyricValue = ref<string>("");
 const kLyricValue = ref<string>("");
 const getLyricList = async () => {
-  if (lyricValue.value == null || kLyricValue.value == null) {
-    const r = await getMusicLyric(state.musicInfo.id.toString());
-    const lyricIndex = r.data.findIndex(
-      value => value.type === lyricType.value
-    );
-    const kyricIndex = r.data.findIndex(
-      value => value.type === klyricType.value
-    );
-    lyricValue.value = r.data[lyricIndex]?.lyric;
-    kLyricValue.value = r.data[kyricIndex]?.lyric;
-  }
+  const r = await getMusicLyric(state.musicInfo.id.toString());
+  const lyricIndex = r.data.findIndex(value => value.type === lyricType.value);
+  const kyricIndex = r.data.findIndex(value => value.type === klyricType.value);
+  lyricValue.value = r.data[lyricIndex]?.lyric;
+  kLyricValue.value = r.data[kyricIndex]?.lyric;
 };
 const updateLyric = async (type: string, lyric: string) => {
   try {
@@ -488,6 +494,122 @@ const paddingData = data => {
   addSource.value.size = data.size;
 };
 
+const musicArtistNames = computed(() =>
+  state.musicInfo.musicArtist.map(value => value.artistName).join(",")
+);
+
+const albumArtistNames = computed(() =>
+  state.musicInfo.albumArtist.map(value => value.artistName).join(",")
+);
+
+const musicPublishTime = computed(() =>
+  new Date(state.musicInfo.publishTime).toLocaleDateString()
+);
+
+const musicTagComputed = computed(() => state.musicInfo.musicTag.join(","));
+
+const syncMetaMusic = () => {
+  if (state.syncMusicMetaData === "") {
+    message("请选择音源", { type: "error" });
+    return;
+  }
+  if (state.metaDataMusic.musicName === "") {
+    message("请输入音乐元数据", { type: "error" });
+    return;
+  }
+  const loading = ElLoading.service({
+    lock: true,
+    text: "写入中",
+    background: "rgba(0, 0, 0, 0.7)"
+  });
+  syncMetaMusicFile(state.metaDataMusic)
+    .then(() => {
+      message(`写入成功`, { type: "success" });
+      loading.close();
+      cleanMetaDataChange();
+      state.syncMusicMetaData = "";
+    })
+    .catch(() => {
+      loading.close();
+    });
+};
+// 不为空
+const picBase64Flag = computed(() => !state.metaDataMusic.picBase64);
+
+const selectMetaDataChange = () => {
+  if (state.syncMusicMetaData === "") {
+    message("请选择音源", { type: "error" });
+    return;
+  }
+  state.metaDataMusic.resourceId = state.syncMusicMetaData;
+  state.metaDataMusic.musicName = state.musicInfo.musicName;
+  state.metaDataMusic.picUrl = state.musicInfo.picUrl;
+  state.metaDataMusic.musicAliasName = state.musicInfo.aliasName;
+  state.metaDataMusic.albumName = state.musicInfo.albumName;
+  state.metaDataMusic.musicArtist = musicArtistNames;
+  state.metaDataMusic.albumArtist = albumArtistNames;
+  state.metaDataMusic.lyric = lyricValue.value;
+  state.metaDataMusic.year = musicPublishTime;
+  state.metaDataMusic.genre = state.musicInfo.musicGenre;
+  state.metaDataMusic.tag = musicTagComputed;
+};
+
+const cleanMetaDataChange = () => {
+  state.metaDataMusic = {};
+};
+
+const metaDataUploadPic = ref<UploadInstance>();
+
+const metaDataUploadHandleExceed: UploadProps["onExceed"] = files => {
+  metaDataUploadPic.value!.clearFiles();
+  const file = files[0] as UploadRawFile;
+  file.uid = genFileId();
+  metaDataUploadPic.value!.handleStart(file);
+};
+
+function getBase64(file) {
+  return new Promise(function (resolve, reject) {
+    const reader = new FileReader();
+    let imgResult = "";
+    reader.readAsDataURL(file);
+    reader.onload = function () {
+      imgResult = reader.result;
+    };
+    reader.onerror = function (error) {
+      reject(error);
+    };
+    reader.onloadend = function () {
+      resolve(imgResult);
+    };
+  });
+}
+
+const getMetaDataPicBase = (file: any) => {
+  const isJPG = file.raw.type === "image/jpeg";
+  const isPNG = file.raw.type === "image/png";
+  if (!isJPG && !isPNG) {
+    message("上传图片只能是JPG或者PNG格式!", { type: "error" });
+    return;
+  }
+  if (isJPG || isPNG) {
+    const loading = ElLoading.service({
+      lock: true,
+      text: "写入中",
+      background: "rgba(0, 0, 0, 0.7)"
+    });
+    getBase64(file.raw)
+      .then(res => {
+        // base64赋值给meta数据
+        state.metaDataMusic.picBase64 = res;
+        loading.close();
+      })
+      .catch(reason => {
+        message(reason, { type: "error" });
+        loading.close();
+      });
+  }
+};
+
 const toAlbum = albumId => {
   router.push({
     path: "/music/albumInfo",
@@ -518,6 +640,144 @@ const toMusicPlay = async res => {
 </script>
 <template>
   <div>
+    <!--同步音乐元数据-->
+    <el-dialog v-model="syncMusicMetaDataFlag" :width="state.dialog.width">
+      <template #header>
+        <h1>同步音乐文件元数据</h1>
+      </template>
+      <el-form label-position="top">
+        <el-form-item label="选择音源">
+          <el-select
+            v-model="state.syncMusicMetaData"
+            placeholder="选择音源"
+            @change="selectMetaDataChange"
+          >
+            <el-option
+              v-for="item in musicUrl"
+              :label="item.level"
+              :value="item.id"
+              :key="item.id"
+            />
+          </el-select>
+
+          <div class="w-full mt-2 flex flex-row-reverse">
+            <el-form-item>
+              <el-button type="primary" @click="selectMetaDataChange"
+                >复制</el-button
+              >
+              <el-button type="danger" @click="cleanMetaDataChange"
+                >清除</el-button
+              >
+            </el-form-item>
+          </div>
+          <div class="flex w-full gap-8">
+            <el-form label-position="top" class="w-full">
+              <el-form-item label="音乐名">
+                <el-input v-model="state.musicInfo.musicName" disabled />
+              </el-form-item>
+              <el-form-item label="音乐别名">
+                <el-input v-model="state.musicInfo.aliasName" disabled />
+              </el-form-item>
+              <el-form-item label="封面">
+                <el-input v-model="state.musicInfo.picUrl" disabled />
+              </el-form-item>
+              <el-form-item label="专辑名">
+                <el-input v-model="state.musicInfo.albumName" disabled />
+              </el-form-item>
+              <el-form-item label="音乐歌手">
+                <el-input v-model="musicArtistNames" disabled />
+              </el-form-item>
+              <el-form-item label="专辑歌手">
+                <el-input v-model="albumArtistNames" disabled />
+              </el-form-item>
+              <el-form-item label="歌词">
+                <el-input v-model="lyricValue" disabled type="textarea" />
+              </el-form-item>
+              <el-form-item label="发布时间">
+                <el-input v-model="musicPublishTime" disabled />
+              </el-form-item>
+              <el-form-item label="流派">
+                <el-input v-model="state.musicInfo.musicGenre" disabled />
+              </el-form-item>
+              <el-form-item label="tag">
+                <el-input v-model="musicTagComputed" disabled />
+              </el-form-item>
+            </el-form>
+            <el-form label-position="top" class="w-full">
+              <el-form-item label="音乐名">
+                <el-input v-model="state.metaDataMusic.musicName" />
+              </el-form-item>
+              <el-form-item label="音乐别名">
+                <el-input v-model="state.metaDataMusic.musicAliasName" />
+              </el-form-item>
+              <el-form-item>
+                <div class="w-full flex justify-between">
+                  <b>封面</b>
+                  <el-switch
+                    v-model="state.metaUpload.flag"
+                    active-text="封面文件上传"
+                    inactive-text="封面url上传"
+                  />
+                </div>
+                <div v-if="state.metaUpload.flag" class="w-full flex gap-1">
+                  <el-image-viewer
+                    v-if="state.metaUpload.imageViewerFlag"
+                    :url-list="[state.metaDataMusic.picBase64]"
+                    @close="state.metaUpload.imageViewerFlag = false"
+                  />
+                  <el-button
+                    type="primary"
+                    class="w-1/2"
+                    @click="state.metaUpload.imageViewerFlag = true"
+                    :disabled="picBase64Flag"
+                  >
+                    预览
+                  </el-button>
+                  <el-upload
+                    ref="metaDataUploadPic"
+                    class="w-1/2"
+                    :limit="1"
+                    :on-exceed="metaDataUploadHandleExceed"
+                    :on-change="getMetaDataPicBase"
+                    :show-file-list="false"
+                    :auto-upload="false"
+                  >
+                    <template #trigger>
+                      <el-button type="success" class="w-full">上传</el-button>
+                    </template>
+                  </el-upload>
+                </div>
+                <el-input v-else v-model="state.metaDataMusic.picUrl" />
+              </el-form-item>
+              <el-form-item label="专辑名">
+                <el-input v-model="state.metaDataMusic.albumName" />
+              </el-form-item>
+              <el-form-item label="音乐歌手">
+                <el-input v-model="state.metaDataMusic.musicArtist" />
+              </el-form-item>
+              <el-form-item label="专辑歌手">
+                <el-input v-model="state.metaDataMusic.albumArtist" />
+              </el-form-item>
+              <el-form-item label="歌词">
+                <el-input v-model="state.metaDataMusic.lyric" type="textarea" />
+              </el-form-item>
+              <el-form-item label="发布时间">
+                <el-input v-model="state.metaDataMusic.year" />
+              </el-form-item>
+              <el-form-item label="流派">
+                <el-input v-model="state.metaDataMusic.genre" />
+              </el-form-item>
+              <el-form-item label="tag">
+                <el-input v-model="state.metaDataMusic.tag" />
+              </el-form-item>
+            </el-form>
+          </div>
+          <div class="w-full mt-4 flex flex-row-reverse">
+            <el-button type="primary" @click="syncMetaMusic">提交</el-button>
+          </div>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
     <!--选择音源MD5-->
     <el-dialog
       title="选择音源"
@@ -1070,6 +1330,19 @@ const toMusicPlay = async res => {
                     height="1.1rem"
                   />添加音源</el-button
                 >
+                <el-button
+                  v-show="!state.operateButton"
+                  class="edit-music-button"
+                  @click="syncMusicMetaDataFlag = true"
+                  round
+                >
+                  <IconifyIconOnline
+                    color="#868686"
+                    icon="solar:refresh-bold-duotone"
+                    width="1.1rem"
+                    height="1.1rem"
+                  />同步音乐元数据</el-button
+                >
                 <el-dropdown v-show="state.operateButton">
                   <el-button class="edit-music-button" round>
                     <IconifyIconOnline
@@ -1330,5 +1603,13 @@ const toMusicPlay = async res => {
   @media screen and (max-width: 1024px) {
     flex-direction: column;
   }
+}
+
+:deep(.el-select) {
+  width: 100%;
+}
+
+:deep(.el-upload.el-upload--text) {
+  width: 100%;
 }
 </style>
