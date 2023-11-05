@@ -66,7 +66,6 @@ const avatarHandleSuccess = (response: any) => {
 const backgroundHandleSuccess = (response: any) => {
   if (response?.code === "200") {
     message("上传成功", { type: "success" });
-    // state.previewPic + state.userInfo.backgroundTempFile
     state.userInfo.backgroundTempFile = response.data;
     state.userInfo.backgroundPicUrl =
       state.previewPic + state.userInfo.backgroundTempFile;
@@ -80,7 +79,7 @@ const saveOrUpdateUserButton = async () => {
     message("保存成功", { type: "success" });
     const userStoreHook = useUserStoreHook();
     if (userStoreHook.roles.filter(value => value === "admin") !== -1) {
-      router.push({
+      await router.push({
         path: "/users"
       });
     }
