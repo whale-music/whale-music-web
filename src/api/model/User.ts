@@ -11,6 +11,8 @@ export interface User {
   roleName: string;
   lastLoginIp: string;
   lastLoginTime: string;
+  loginDevice: string;
+  subAccountPassword: string;
   createTime: string;
   updateTime: string;
 }

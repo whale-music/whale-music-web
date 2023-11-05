@@ -60,24 +60,10 @@ export const saveOrUpdateUser = (data: SaveOrUpdateUserReq) => {
 };
 
 // 更新用户密码
-export const updateUserPassword = (
-  id: number,
-  username: string,
-  nickname: string,
-  password: string
-) => {
-  return http.request<R<SaveOrUpdateUserRes>>(
-    "post",
-    `/admin/user/update/account`,
-    {
-      params: {
-        id: id,
-        username: username,
-        nickname: nickname,
-        password: password
-      }
-    }
-  );
+export const updateUserPassword = data => {
+  return http.request<R<any>>("post", `/admin/user/update/account`, {
+    data
+  });
 };
 
 // 删除用户
