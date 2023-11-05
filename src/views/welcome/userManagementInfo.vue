@@ -24,7 +24,7 @@ const state = reactive({
     userAvatarPreviewPic: false,
     userBackgroundPreviewPic: false
   },
-  uploadPicAction: `${proxyHost}/admin/pic/upload`,
+  uploadPicAction: `${proxyHost}/admin/pic/temp/upload`,
   previewPic: `${proxyHost}/admin/pic/get/temp/`,
   userInfo: {} as SaveOrUpdateUserReq
 });
