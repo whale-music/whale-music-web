@@ -1,18 +1,32 @@
 <script lang="ts" setup>
-import { defineComponent, onMounted, reactive } from "vue";
+import { defineComponent, onMounted, reactive, ref } from "vue";
 import { DataInfo, sessionKey } from "@/utils/auth";
 import { storageSession } from "@pureadmin/utils";
 import { SaveOrUpdateUserRes } from "@/api/model/User";
 import { getUserInfo, updateUserPassword } from "@/api/user";
 import { message } from "@/utils/message";
+import {
+  genFileId,
+  UploadInstance,
+  UploadProps,
+  UploadRawFile
+} from "element-plus";
 
 defineComponent({
   name: "userInfo"
 });
 
+const { VITE_PROXY_HOST } = import.meta.env;
+const proxyHost = VITE_PROXY_HOST == null ? "" : VITE_PROXY_HOST;
+const picUpload = ref<UploadInstance>();
 const state = reactive({
+  dialog: {
+    viewerFlagAvatarPic: false,
+    viewerFlagBackgroundPic: false
+  },
   userInfo: {} as SaveOrUpdateUserRes,
-  subAccount: Array<Map<string, string>>
+  subAccount: Array<Map<string, string>>,
+  uploadPicAction: `${proxyHost}/admin/pic/upload`
 });
 
 onMounted(() => {
@@ -47,6 +61,23 @@ const addSubAccount = () => {
 const removeSubAccount = index => {
   state.subAccount.splice(index, 1);
 };
+
+// 上传封面
+const handleExceed: UploadProps["onExceed"] = files => {
+  picUpload.value!.clearFiles();
+  const file = files[0] as UploadRawFile;
+  file.uid = genFileId();
+  picUpload.value!.handleStart(file);
+};
+
+const handleSuccess = (response: any) => {
+  if (response.code == 200) {
+    initInfo();
+    message("封面更新成功", { type: "success" });
+  } else {
+    message("封面更新失败", { type: "error" });
+  }
+};
 </script>
 
 <template>
@@ -58,20 +89,66 @@ const removeSubAccount = index => {
       <el-form-item label="昵称">
         <el-input v-model="state.userInfo.nickname" />
       </el-form-item>
-      <!--<el-form-item label="头像">-->
-      <!--  <div class="flex w-full gap-1">-->
-      <!--    <el-input v-model="state.userInfo.avatarUrl" disabled />-->
-      <!--    <el-button type="primary">预览</el-button>-->
-      <!--    <el-button type="success">上传</el-button>-->
-      <!--  </div>-->
-      <!--</el-form-item>-->
-      <!--<el-form-item label="背景">-->
-      <!--  <div class="flex w-full gap-1">-->
-      <!--    <el-input v-model="state.userInfo.backgroundPicUrl" disabled />-->
-      <!--    <el-button type="primary">预览</el-button>-->
-      <!--    <el-button type="success">上传</el-button>-->
-      <!--  </div>-->
-      <!--</el-form-item>-->
+      <el-form-item label="头像">
+        <div class="flex w-full gap-1">
+          <el-input v-model="state.userInfo.avatarUrl" disabled />
+          <el-image-viewer
+            v-if="state.dialog.viewerFlagAvatarPic"
+            :url-list="[state.userInfo.avatarUrl]"
+            @close="state.dialog.viewerFlagAvatarPic = false"
+          />
+          <el-button
+            type="primary"
+            @click="state.dialog.viewerFlagAvatarPic = true"
+            >预览</el-button
+          >
+          <el-upload
+            class="flex justify-center items-center"
+            ref="picUpload"
+            :data="{ id: state.userInfo.id, type: 'userAvatar' }"
+            :action="state.uploadPicAction"
+            :limit="1"
+            :show-file-list="false"
+            :on-exceed="handleExceed"
+            :on-success="handleSuccess"
+            :auto-upload="true"
+          >
+            <template #trigger>
+              <el-button type="success">上传</el-button>
+            </template>
+          </el-upload>
+        </div>
+      </el-form-item>
+      <el-form-item label="背景">
+        <div class="flex w-full gap-1">
+          <el-input v-model="state.userInfo.backgroundPicUrl" disabled />
+          <el-image-viewer
+            v-if="state.dialog.viewerFlagBackgroundPic"
+            :url-list="[state.userInfo.backgroundPicUrl]"
+            @close="state.dialog.viewerFlagBackgroundPic = false"
+          />
+          <el-button
+            type="primary"
+            @click="state.dialog.viewerFlagBackgroundPic = true"
+            >预览</el-button
+          >
+          <el-upload
+            class="flex justify-center items-center"
+            ref="picUpload"
+            :data="{ id: state.userInfo.id, type: 'userBackground' }"
+            :action="state.uploadPicAction"
+            :limit="1"
+            :show-file-list="false"
+            :on-exceed="handleExceed"
+            :on-success="handleSuccess"
+            :auto-upload="true"
+          >
+            <template #trigger>
+              <el-button type="success">上传</el-button>
+            </template>
+          </el-upload>
+        </div>
+      </el-form-item>
       <el-form-item label="密码">
         <el-input show-password v-model="state.userInfo.password" />
       </el-form-item>
