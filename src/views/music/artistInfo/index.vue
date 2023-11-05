@@ -81,7 +81,7 @@ const editArtistInfo = async () => {
 
 const { VITE_PROXY_HOST } = import.meta.env;
 const proxyHost = VITE_PROXY_HOST == null ? "" : VITE_PROXY_HOST;
-const uploadPicAction = ref(`${proxyHost}/admin/music/pic/upload`);
+const uploadPicAction = ref(`${proxyHost}/admin/pic/upload`);
 
 const picUpload = ref<UploadInstance>();
 // 上传封面

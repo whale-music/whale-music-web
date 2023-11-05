@@ -434,7 +434,7 @@ const updateMusicButton = async () => {
 
 const proxyHost = VITE_PROXY_HOST == null ? "" : VITE_PROXY_HOST;
 const uploadAction = ref(`${proxyHost}/admin/music/auto/upload`);
-const uploadPicAction = ref(`${proxyHost}/admin/music/pic/upload`);
+const uploadPicAction = ref(`${proxyHost}/admin/pic/upload`);
 
 const uploadLoadingFlag = ref();
 const handleAvatarSuccess: UploadProps["onSuccess"] = async response => {
