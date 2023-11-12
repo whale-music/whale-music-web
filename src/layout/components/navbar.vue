@@ -126,7 +126,7 @@ const { t, locale, translationCh, translationEn } = useTranslationLang();
 <style lang="scss" scoped>
 .navbar {
   width: 100%;
-  height: 48px;
+  height: 100%;
   overflow: hidden;
   background: $menuBg;
 
