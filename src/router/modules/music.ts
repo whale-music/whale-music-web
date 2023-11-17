@@ -47,6 +47,15 @@ export default {
         icon: "solar:playlist-minimalistic-2-bold-duotone",
         title: $t("list.playList")
       }
+    },
+    {
+      path: "/music/mv",
+      name: "Mv",
+      component: () => import("@/views/music/mv/index.vue"),
+      meta: {
+        icon: "solar:videocamera-record-bold-duotone",
+        title: $t("list.mv")
+      }
     }
   ]
 } as RouteConfigsTable;

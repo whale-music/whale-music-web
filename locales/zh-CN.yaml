@@ -51,6 +51,7 @@ list:
   allmusic: 音乐
   allAlbum: 专辑
   allSinger: 歌手
+  mv: MV
   addPlugin: 添加插件
   runPlugin: 运行插件
   task: 任务

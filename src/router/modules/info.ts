@@ -36,6 +36,15 @@ export default {
         title: $t("list.allAlbum"),
         showLink: false
       }
+    },
+    {
+      path: "/music/mvInfo",
+      name: "MvInfo",
+      component: () => import("@/views/info/mvInfo/index.vue"),
+      meta: {
+        title: $t("list.allAlbum"),
+        showLink: false
+      }
     }
   ]
 } as RouteConfigsTable;

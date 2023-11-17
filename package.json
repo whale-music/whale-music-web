@@ -42,6 +42,7 @@
     "@vueuse/motion": "2.0.0-beta.12",
     "animate.css": "^4.1.1",
     "animejs": "^3.2.1",
+    "artplayer": "^5.0.9",
     "axios": "^1.4.0",
     "codemirror": "^6.0.1",
     "dayjs": "^1.11.7",

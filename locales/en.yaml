@@ -51,6 +51,7 @@ list:
   allmusic: Music
   allAlbum: Album
   allSinger: Artist
+  mv: MV
   addPlugin: Add Plugin
   runPlugin: Run Plugin
   task: Task

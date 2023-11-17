@@ -44,6 +44,9 @@ dependencies:
   animejs:
     specifier: ^3.2.1
     version: 3.2.1
+  artplayer:
+    specifier: ^5.0.9
+    version: 5.0.9
   axios:
     specifier: ^1.4.0
     version: 1.4.0
@@ -1498,8 +1501,8 @@ packages:
       vue-i18n:
         optional: true
     dependencies:
-      "@intlify/message-compiler": 9.3.0-beta.27
-      "@intlify/shared": 9.3.0-beta.27
+      "@intlify/message-compiler": 9.4.1
+      "@intlify/shared": 9.4.1
       jsonc-eslint-parser: 1.4.1
       source-map: 0.6.1
       vue-i18n: 9.2.2(vue@3.3.4)
@@ -1537,14 +1540,14 @@ packages:
       "@intlify/shared": 9.2.2
       source-map: 0.6.1
 
-  /@intlify/message-compiler@9.3.0-beta.27:
+  /@intlify/message-compiler@9.4.1:
     resolution:
       {
-        integrity: sha512-GC8rSbd7V67Zu+a9Z0bpV4riBek11YCURJU50YaEhV4Ub2JHEPtoYxK5r2eIsq/kp+M2hJyGLiC4NJUrGa2VwQ==
+        integrity: sha512-aN2N+dUx320108QhH51Ycd2LEpZ+NKbzyQ2kjjhqMcxhHdxtOnkgdx+MDBhOy/CObwBmhC3Nygzc6hNlfKvPNw==
       }
     engines: { node: ">= 16" }
     dependencies:
-      "@intlify/shared": 9.3.0-beta.27
+      "@intlify/shared": 9.4.1
       source-map-js: 1.0.2
     dev: true
 
@@ -1555,10 +1558,10 @@ packages:
       }
     engines: { node: ">= 14" }
 
-  /@intlify/shared@9.3.0-beta.27:
+  /@intlify/shared@9.4.1:
     resolution:
       {
-        integrity: sha512-hPMsmVCs+ZUVHHU5VORG6LopzXZT7zmyVNqc9OQG80YpA/N4lT/pkJ4B6DTNIsv2C7mwfGM7RdK+0qPki43YgA==
+        integrity: sha512-A51elBmZWf1FS80inf/32diO9DeXoqg9GR9aUDHFcfHoNDuT46Q+fpPOdj8jiJnSHSBh8E1E+6qWRhAZXdK3Ng==
       }
     engines: { node: ">= 16" }
     dev: true
@@ -1582,7 +1585,7 @@ packages:
         optional: true
     dependencies:
       "@intlify/bundle-utils": 4.0.0(vue-i18n@9.2.2)
-      "@intlify/shared": 9.3.0-beta.27
+      "@intlify/shared": 9.4.1
       "@rollup/pluginutils": 4.2.1
       "@vue/compiler-sfc": 3.2.47
       debug: 4.3.4
@@ -2925,6 +2928,15 @@ packages:
       }
     engines: { node: ">=8" }
     dev: true
+
+  /artplayer@5.0.9:
+    resolution:
+      {
+        integrity: sha512-IM/DShYdmKFEA9jl08LYbTK2Jfz9s7qIjEH0xWjnxvVArUKZZKcoqwr6i54U0c4grtc/Uvb4wtCd78kvtSVlgw==
+      }
+    dependencies:
+      option-validator: 2.0.6
+    dev: false
 
   /ast-walker-scope@0.4.0:
     resolution:
@@ -5357,7 +5369,6 @@ packages:
         integrity: sha512-dcS1ul+9tmeD95T+x28/ehLgd9mENa3LsvDTtzm3vyBEO7RPptvAD+t44WVXaUjTBRcrpFeFlC8WCruUR456hw==
       }
     engines: { node: ">=0.10.0" }
-    dev: true
 
   /klona@2.0.6:
     resolution:
@@ -6055,6 +6066,15 @@ packages:
       is-docker: 2.2.1
       is-wsl: 2.2.0
     dev: true
+
+  /option-validator@2.0.6:
+    resolution:
+      {
+        integrity: sha512-tmZDan2LRIRQyhUGvkff68/O0R8UmF+Btmiiz0SmSw2ng3CfPZB9wJlIjHpe/MKUZqyIZkVIXCrwr1tIN+0Dzg==
+      }
+    dependencies:
+      kind-of: 6.0.3
+    dev: false
 
   /optionator@0.9.1:
     resolution:
