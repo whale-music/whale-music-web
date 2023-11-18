@@ -122,7 +122,7 @@ const handleSuccess = (response: any) => {
 
 const toAlbum = res => {
   router.push({
-    path: "/music/albumInfo",
+    path: "/library/albumInfo",
     query: { id: res }
   });
 };

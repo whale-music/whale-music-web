@@ -1,8 +1,8 @@
 import { $t } from "@/plugins/i18n";
 
 export default {
-  path: "/music",
-  redirect: "/music/musicInfo",
+  path: "/library",
+  redirect: "/library/musicInfo",
   meta: {
     icon: "informationLine",
     title: $t("menus.hsabnormal"),
@@ -11,34 +11,34 @@ export default {
   },
   children: [
     {
-      path: "/music/musicInfo",
+      path: "/library/musicInfo",
       name: "MusicInfo",
-      component: () => import("@/views/music/musicInfo/index.vue"),
+      component: () => import("@/views/library/musicInfo/index.vue"),
       meta: {
         title: $t("list.allAlbum"),
         showLink: false
       }
     },
     {
-      path: "/music/albumInfo",
+      path: "/library/albumInfo",
       name: "AlbumInfo",
-      component: () => import("@/views/music/albumInfo/index.vue"),
+      component: () => import("@/views/library/albumInfo/index.vue"),
       meta: {
         title: $t("list.allAlbum"),
         showLink: false
       }
     },
     {
-      path: "/music/artistInfo",
+      path: "/library/artistInfo",
       name: "ArtistInfo",
-      component: () => import("@/views/music/artistInfo/index.vue"),
+      component: () => import("@/views/library/artistInfo/index.vue"),
       meta: {
         title: $t("list.allAlbum"),
         showLink: false
       }
     },
     {
-      path: "/music/mvInfo",
+      path: "/library/mvInfo",
       name: "MvInfo",
       component: () => import("@/views/info/mvInfo/index.vue"),
       meta: {

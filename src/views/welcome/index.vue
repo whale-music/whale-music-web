@@ -496,14 +496,14 @@ const cleanUploadMusicInfo = () => {
 
 const toAlbum = id => {
   router.push({
-    path: "/music/albumInfo",
+    path: "/library/albumInfo",
     query: { id: id }
   });
 };
 
 const toArtist = id => {
   router.push({
-    path: "/music/artistInfo",
+    path: "/library/artistInfo",
     query: { id: id }
   });
 };

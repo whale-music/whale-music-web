@@ -352,14 +352,14 @@ const onChangeOptionSwitch = ({ option }) => {
 
 const toMusicInfo = id => {
   router.push({
-    path: "/music/musicInfo",
+    path: "/library/musicInfo",
     query: { id: id }
   });
 };
 
 const toAlbum = id => {
   router.push({
-    path: "/music/albumInfo",
+    path: "/library/albumInfo",
     query: { id: id }
   });
 };

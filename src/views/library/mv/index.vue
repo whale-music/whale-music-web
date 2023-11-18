@@ -5,9 +5,9 @@ import VideoCard from "@/views/components/videoCard/index.vue";
 
 import { useI18n } from "vue-i18n";
 import { getMvPage, MvPageRes, MvPageReq, removeMvList } from "@/api/mv";
-import SelectVideoCard from "@/views/music/mv/components/selectedVideoCard/index.vue";
+import SelectVideoCard from "@/views/library/mv/components/selectedVideoCard/index.vue";
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
-import MvFloatingOperatingPanel from "@/views/music/mv/components/mvFloatingOperatingPanel/index.vue";
+import MvFloatingOperatingPanel from "@/views/library/mv/components/mvFloatingOperatingPanel/index.vue";
 import { message } from "@/utils/message";
 import { ElMessageBox } from "element-plus";
 import { Data } from "@/api/model/common";

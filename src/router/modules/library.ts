@@ -2,10 +2,10 @@ import { $t } from "@/plugins/i18n";
 const Layout = () => import("@/layout/index.vue");
 
 export default {
-  path: "/music",
+  path: "/library",
   name: "AllMusic",
   component: Layout,
-  redirect: "/music/allMusic",
+  redirect: "/library/allMusic",
   meta: {
     icon: "solar:music-library-2-bold-duotone",
     title: $t("list.music"),
@@ -13,34 +13,34 @@ export default {
   },
   children: [
     {
-      path: "/music/allMusic",
+      path: "/library/allMusic",
       name: "AllMusicList",
-      component: () => import("@/views/music/allMusic/index.vue"),
+      component: () => import("@/views/library/allMusic/index.vue"),
       meta: {
         icon: "solar:music-library-2-bold-duotone",
         title: $t("list.allmusic")
       }
     },
     {
-      path: "/music/allAlbum",
+      path: "/library/allAlbum",
       name: "AllAlbumList",
-      component: () => import("@/views/music/allAlbum/index.vue"),
+      component: () => import("@/views/library/allAlbum/index.vue"),
       meta: {
         icon: "mingcute:album-line",
         title: $t("list.allAlbum")
       }
     },
     {
-      path: "/music/allSinger",
+      path: "/library/allSinger",
       name: "AllSingerList",
-      component: () => import("@/views/music/allSinger/index.vue"),
+      component: () => import("@/views/library/allSinger/index.vue"),
       meta: {
         icon: "solar:user-bold-duotone",
         title: $t("list.allSinger")
       }
     },
     {
-      path: "/music/playlist",
+      path: "/library/playlist",
       name: "AllPlayList",
       component: () => import("@/views/playlist/playlist.vue"),
       meta: {
@@ -49,9 +49,9 @@ export default {
       }
     },
     {
-      path: "/music/mv",
+      path: "/library/mv",
       name: "Mv",
-      component: () => import("@/views/music/mv/index.vue"),
+      component: () => import("@/views/library/mv/index.vue"),
       meta: {
         icon: "solar:videocamera-record-bold-duotone",
         title: $t("list.mv")

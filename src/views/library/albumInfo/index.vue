@@ -125,14 +125,14 @@ const handleSuccess = (response: any) => {
 
 const toMusicInfo = id => {
   router.push({
-    path: "/music/musicInfo",
+    path: "/library/musicInfo",
     query: { id: id }
   });
 };
 
 const toArtist = id => {
   router.push({
-    path: "/music/artistInfo",
+    path: "/library/artistInfo",
     query: { id: id }
   });
 };

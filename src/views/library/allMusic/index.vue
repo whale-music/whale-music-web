@@ -575,7 +575,7 @@ const autoRollChange = val => {
 
 const toMusicInfo = id => {
   router.push({
-    path: "/music/musicInfo",
+    path: "/library/musicInfo",
     query: { id: id }
   });
 };
