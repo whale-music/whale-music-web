@@ -1,7 +1,7 @@
 <script lang="ts">
 import NameSearch from "@/components/nameSearch/index.vue";
 import Options from "./components/options/index.vue";
-import VideoCard from "./components/videoCard/index.vue";
+import VideoCard from "@/views/components/videoCard/index.vue";
 
 import { useI18n } from "vue-i18n";
 import { getMvPage, MvPageRes, MvPageReq, removeMvList } from "@/api/mv";

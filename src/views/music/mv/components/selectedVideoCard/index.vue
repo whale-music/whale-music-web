@@ -2,7 +2,7 @@
 import { defineComponent } from "vue";
 import CheckCircleLineDuotone from "@iconify-icons/solar/check-circle-line-duotone";
 import CheckCircleBold from "@iconify-icons/solar/check-circle-bold";
-import VideoCard from "../videoCard/index.vue";
+import VideoCard from "@/views/components/videoCard/index.vue";
 import { SimpleArtist } from "@/api/mv";
 
 export default defineComponent({

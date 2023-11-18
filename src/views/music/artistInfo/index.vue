@@ -2,7 +2,13 @@
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
-import { ArtistInfoRes, getArtistInfo, saveOrUpdateArtist } from "@/api/singer";
+import {
+  ArtistInfoRes,
+  ArtistMvListRes,
+  getArtistInfo,
+  getMvList,
+  saveOrUpdateArtist
+} from "@/api/singer";
 import { dateFormater } from "@/utils/dateUtil";
 import { clone } from "@pureadmin/utils";
 import { message } from "@/utils/message";
@@ -13,6 +19,7 @@ import {
   UploadRawFile
 } from "element-plus";
 import { Artist } from "@/api/model/Artist";
+import VideoCard from "@/views/components/videoCard/index.vue";
 const router = useRouter();
 
 const idValue = ref();
@@ -33,17 +40,29 @@ const artistInfo = ref<ArtistInfoRes>({
   updateTime: ""
 });
 
+const mvList = ref<Array<ArtistMvListRes>>();
+const tableFlag = ref<boolean>(true);
+
 const skeletonLoadingFlag = ref<boolean>(false);
 
-function initInfo() {
-  skeletonLoadingFlag.value = true;
-  getArtistInfo(idValue.value).then(res => {
-    console.log(res);
+const mvListRef = ref<HTMLElement>();
+async function initInfo() {
+  try {
+    skeletonLoadingFlag.value = true;
+    const res = await getArtistInfo(idValue.value);
     artistInfo.value = res.data;
     modifyArtistInfo.value = clone(artistInfo.value, true);
+
+    const resMvList = await getMvList(idValue.value);
+    mvList.value = resMvList.data;
+  } finally {
     skeletonLoadingFlag.value = false;
-  });
+  }
 }
+
+const getTableFlag = (flag: boolean) => {
+  return flag ? "primary" : "info";
+};
 
 onMounted(() => {
   idValue.value = useRouter().currentRoute.value.query.id;
@@ -290,8 +309,24 @@ const toAlbum = res => {
         </div>
       </template>
     </el-skeleton>
-    <p class="album-title">专辑</p>
-    <el-skeleton :loading="skeletonLoadingFlag" animated>
+    <div class="flex gap-4 mb-2">
+      <el-link
+        :underline="false"
+        @click="tableFlag = true"
+        :type="getTableFlag(tableFlag)"
+      >
+        <p class="album-title">专辑</p>
+      </el-link>
+      <el-link
+        :underline="false"
+        @click="tableFlag = false"
+        :type="getTableFlag(!tableFlag)"
+      >
+        <p class="album-title">MV</p>
+      </el-link>
+    </div>
+    <!--专辑-->
+    <el-skeleton :loading="skeletonLoadingFlag" animated v-if="tableFlag">
       <template #default>
         <div class="show-album">
           <div v-for="(item, index) in artistInfo.albumList" :key="index">
@@ -315,6 +350,34 @@ const toAlbum = res => {
             variant="image"
             style="width: 10rem; height: 10rem; border-radius: 1rem"
           />
+        </div>
+      </template>
+    </el-skeleton>
+    <!--MV-->
+    <el-skeleton :loading="skeletonLoadingFlag" animated v-else>
+      <template #default>
+        <div class="mv-layout" ref="mvListRef">
+          <div v-for="(item, index) in mvList" :key="index">
+            <video-card
+              :id="item.id"
+              :name="item.title"
+              :cover-img="item.picUrl"
+              :author="item.artists"
+              :scroll-container-ref="mvListRef"
+            />
+          </div>
+        </div>
+      </template>
+      <template #template>
+        <div class="mv-layout">
+          <div v-for="item in 4" :key="item">
+            <el-skeleton-item
+              variant="image"
+              style="width: 16rem; height: 10rem; border-radius: 1rem"
+            />
+            <el-skeleton-item variant="text" style="width: 90%" />
+            <el-skeleton-item variant="text" style="width: 40%" />
+          </div>
         </div>
       </template>
     </el-skeleton>
@@ -396,5 +459,13 @@ const toAlbum = res => {
   @apply font-bold;
   font-size: 0.7rem;
   color: var(--el-color-info);
+}
+
+.mv-layout {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  gap: 2rem;
 }
 </style>

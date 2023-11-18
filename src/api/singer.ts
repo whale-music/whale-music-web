@@ -1,6 +1,7 @@
 import { http } from "@/utils/http";
 import { R, Page, Data, PicUrl } from "@/api/model/common";
 import { Artist, SelectArtist } from "@/api/model/Artist";
+import { MV, SimpleArtist } from "@/api/mv";
 
 export interface SingerReq {
   artistName: string;
@@ -113,4 +114,19 @@ export const deleteArtist = (id: number[]) => {
 
 export const saveOrUpdateArtist = (data: Artist) => {
   return http.request<R<ArtistInfoRes>>("post", "/admin/singer/", { data });
+};
+
+export interface ArtistMvListRes extends MV {
+  mvUrl: string;
+  picUrl: string;
+  tags: string[];
+  artists: SimpleArtist[];
+}
+
+export const getMvList = (id: number) => {
+  return http.request<R<Array<ArtistMvListRes>>>("get", "/admin/singer/mv", {
+    params: {
+      id: id
+    }
+  });
 };
