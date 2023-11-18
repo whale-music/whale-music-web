@@ -3,9 +3,9 @@ const Layout = () => import("@/layout/index.vue");
 
 export default {
   path: "/library",
-  name: "AllMusic",
+  name: "Library",
   component: Layout,
-  redirect: "/library/allMusic",
+  redirect: "/library/music",
   meta: {
     icon: "solar:music-library-2-bold-duotone",
     title: $t("list.music"),
@@ -13,27 +13,27 @@ export default {
   },
   children: [
     {
-      path: "/library/allMusic",
-      name: "AllMusicList",
-      component: () => import("@/views/library/allMusic/index.vue"),
+      path: "/library/music",
+      name: "Music",
+      component: () => import("@/views/library/music/index.vue"),
       meta: {
         icon: "solar:music-library-2-bold-duotone",
         title: $t("list.allmusic")
       }
     },
     {
-      path: "/library/allAlbum",
-      name: "AllAlbumList",
-      component: () => import("@/views/library/allAlbum/index.vue"),
+      path: "/library/album",
+      name: "Album",
+      component: () => import("@/views/library/album/index.vue"),
       meta: {
         icon: "mingcute:album-line",
         title: $t("list.allAlbum")
       }
     },
     {
-      path: "/library/allSinger",
-      name: "AllSingerList",
-      component: () => import("@/views/library/allSinger/index.vue"),
+      path: "/library/artist",
+      name: "Artist",
+      component: () => import("@/views/library/artist/index.vue"),
       meta: {
         icon: "solar:user-bold-duotone",
         title: $t("list.allSinger")
@@ -41,7 +41,7 @@ export default {
     },
     {
       path: "/library/playlist",
-      name: "AllPlayList",
+      name: "PlayList",
       component: () => import("@/views/playlist/playlist.vue"),
       meta: {
         icon: "solar:playlist-minimalistic-2-bold-duotone",
