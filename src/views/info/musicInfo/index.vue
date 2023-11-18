@@ -612,14 +612,14 @@ const getMetaDataPicBase = (file: any) => {
 
 const toAlbum = albumId => {
   router.push({
-    path: "/library/albumInfo",
+    name: "AlbumInfo",
     query: { id: albumId }
   });
 };
 
 const toArtist = res => {
   router.push({
-    path: "/library/artistInfo",
+    name: "ArtistInfo",
     query: { id: res }
   });
 };

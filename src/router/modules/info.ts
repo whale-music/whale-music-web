@@ -13,7 +13,7 @@ export default {
     {
       path: "/library/musicInfo",
       name: "MusicInfo",
-      component: () => import("@/views/library/musicInfo/index.vue"),
+      component: () => import("@/views/info/musicInfo/index.vue"),
       meta: {
         title: $t("list.allAlbum"),
         showLink: false
@@ -22,7 +22,7 @@ export default {
     {
       path: "/library/albumInfo",
       name: "AlbumInfo",
-      component: () => import("@/views/library/albumInfo/index.vue"),
+      component: () => import("@/views/info/albumInfo/index.vue"),
       meta: {
         title: $t("list.allAlbum"),
         showLink: false
@@ -31,7 +31,7 @@ export default {
     {
       path: "/library/artistInfo",
       name: "ArtistInfo",
-      component: () => import("@/views/library/artistInfo/index.vue"),
+      component: () => import("@/views/info/artistInfo/index.vue"),
       meta: {
         title: $t("list.allAlbum"),
         showLink: false

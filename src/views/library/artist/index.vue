@@ -285,7 +285,7 @@ const tableHeaderCellStyle = ({ columnIndex }): CellStyle<any> => {
 const toArtist = res => {
   console.log(res);
   router.push({
-    path: "/library/artistInfo",
+    name: "ArtistInfo",
     query: { id: res.id }
   });
 };

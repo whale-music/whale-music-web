@@ -342,7 +342,7 @@ const tableHeaderCellStyle = ({ columnIndex }): CellStyle<any> => {
 
 const toAlbum = res => {
   router.push({
-    path: "/library/albumInfo",
+    name: "AlbumInfo",
     query: { id: res.id }
   });
 };
@@ -350,7 +350,7 @@ const toAlbum = res => {
 const toArtist = id => {
   console.log(id);
   router.push({
-    path: "/library/artistInfo",
+    name: "ArtistInfo",
     query: { id: id }
   });
 };
