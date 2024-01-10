@@ -52,6 +52,7 @@ list:
   allAlbum: 专辑
   allSinger: 歌手
   mv: MV
+  storeFile: 存储文件
   addPlugin: 添加插件
   runPlugin: 运行插件
   task: 任务

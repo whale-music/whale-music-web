@@ -71,8 +71,14 @@ export default defineComponent({
     <show-loading :loading="true" v-if="this.isLoading" />
     <div class="flex justify-between gap-4" v-else>
       <video-player
+        v-if="this.data.mvUrl"
         :mv-url="this.data.mvUrl"
         :preview-pic-url="this.data.picUrl"
+      />
+      <el-empty
+        v-else
+        description="无视频"
+        style="width: calc((100vw) * (6 / 10)); height: calc((100vh) * (3 / 5))"
       />
       <div class="text">
         <div class="flex justify-between">

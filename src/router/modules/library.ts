@@ -56,6 +56,15 @@ export default {
         icon: "solar:videocamera-record-bold-duotone",
         title: $t("list.mv")
       }
+    },
+    {
+      path: "/library/storefile",
+      name: "StoreFile",
+      component: () => import("@/views/library/storefile/index.vue"),
+      meta: {
+        icon: "solar:folder-with-files-bold",
+        title: $t("list.storeFile")
+      }
     }
   ]
 } as RouteConfigsTable;

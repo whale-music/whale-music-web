@@ -52,6 +52,7 @@ list:
   allAlbum: Album
   allSinger: Artist
   mv: MV
+  storeFile: Store File
   addPlugin: Add Plugin
   runPlugin: Run Plugin
   task: Task

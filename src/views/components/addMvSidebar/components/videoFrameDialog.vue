@@ -39,8 +39,12 @@ export default {
     <template #header>
       <h1>设置视频封面帧</h1>
     </template>
-    <p>设置视频封面，指定从第 {{ this.setSeekFrame }} 秒，截取图片作为MV封面</p>
-    <el-input-number v-model="this.setSeekFrame" :min="1" />
+    <div class="flex justify-between">
+      <p>
+        设置视频封面，指定从第 {{ this.setSeekFrame }} 秒，截取图片作为MV封面
+      </p>
+      <el-input-number v-model="this.setSeekFrame" :min="1" />
+    </div>
   </el-dialog>
 </template>
 
