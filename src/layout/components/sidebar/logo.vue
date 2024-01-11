@@ -24,60 +24,54 @@ const toNext = () => {
 <template>
   <div class="sidebar-logo-container" :class="{ collapses: props.collapse }">
     <transition name="sidebarLogoFade">
-      <div class="flex justify-between w-full">
-        <div>
-          <router-link
-            v-if="props.collapse"
-            key="props.collapse"
-            :title="title"
-            class="sidebar-logo-link"
-            :to="getTopMenu()?.path ?? '/'"
-          >
-            <img src="/logo.svg" alt="logo" />
-            <span class="sidebar-title">{{ title }}</span>
-          </router-link>
-          <router-link
-            v-else
-            key="expand"
-            :title="title"
-            class="sidebar-logo-link"
-            :to="getTopMenu()?.path ?? '/'"
-          >
-            <img src="/logo.svg" alt="logo" />
-            <span class="sidebar-title">{{ title }}</span>
-          </router-link>
-        </div>
-
-        <div class="mr-4">
-          <a class="sidebar-logo-link">
-            <div class="flex-c">
-              <div class="flex flex-nowrap items-center justify-center gap-2">
-                <div class="router-bg">
-                  <IconifyIconOffline
-                    class="router"
-                    @click="toLast"
-                    :icon="LeftOutline"
-                  />
-                </div>
-                <div class="router-bg">
-                  <IconifyIconOffline
-                    class="router"
-                    @click="toNext"
-                    :icon="RightOutline"
-                  />
-                </div>
-              </div>
-            </div>
-          </a>
-        </div>
-      </div>
+      <router-link
+        v-if="props.collapse"
+        key="props.collapse"
+        :title="title"
+        class="sidebar-logo-link"
+        :to="getTopMenu()?.path ?? '/'"
+      >
+        <img src="/logo.svg" alt="logo" />
+        <span class="sidebar-title">{{ title }}</span>
+      </router-link>
+      <router-link
+        v-else
+        key="expand"
+        :title="title"
+        class="sidebar-logo-link"
+        :to="getTopMenu()?.path ?? '/'"
+      >
+        <img src="/logo.svg" alt="logo" />
+        <span class="sidebar-title">{{ title }}</span>
+      </router-link>
     </transition>
+    <div class="mr-4">
+      <a class="sidebar-logo-link">
+        <div class="flex-c">
+          <div class="flex flex-nowrap items-center justify-center gap-2">
+            <div class="router-bg">
+              <IconifyIconOffline
+                class="router"
+                @click="toLast"
+                :icon="LeftOutline"
+              />
+            </div>
+            <div class="router-bg">
+              <IconifyIconOffline
+                class="router"
+                @click="toNext"
+                :icon="RightOutline"
+              />
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .sidebar-logo-container {
-  //@apply shadow-sm;
   width: 100%;
   height: 48px;
   overflow: hidden;
@@ -85,12 +79,12 @@ const toNext = () => {
   display: flex;
 
   .sidebar-logo-link {
-    width: 100%;
-    height: 100%;
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
-    justify-content: space-between;
+    width: 100%;
+    height: 100%;
+    justify-content: start;
 
     img {
       height: 32px;
@@ -111,9 +105,6 @@ const toNext = () => {
     }
 
     .router {
-      //height: 32px;
-      //line-height: 32px;
-      //margin: 2px 0 0 12px;
       color: $subMenuActiveText;
       display: inline-block;
       overflow: hidden;
@@ -132,12 +123,12 @@ const toNext = () => {
       align-items: center;
       justify-content: center;
       border-radius: var(--el-border-radius-base);
-      background: $menuBg;
+      background: var(--el-bg-color-page);
     }
 
     .router-bg:hover {
       @apply dark:bg-gray-800;
-      background: $menuHover;
+      background: var(--el-bg-color-overlay);
     }
   }
 }

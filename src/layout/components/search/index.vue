@@ -65,8 +65,8 @@ onMounted(() => {
   align-items: center;
   border-radius: var(--el-border-radius-base);
   color: $menuText;
-  border: 2px solid $menuHover;
-  background: $subMenuBg;
+  border: 2px solid var(--el-bg-color-page);
+  background: var(--el-bg-color);
   box-shadow: inset 0 1px 0 0 $menuText;
 }
 </style>
