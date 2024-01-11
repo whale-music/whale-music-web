@@ -42,7 +42,7 @@ export default {
     {
       path: "/library/playlist",
       name: "PlayList",
-      component: () => import("@/views/playlist/playlist.vue"),
+      component: () => import("@/views/library/playlist/index.vue"),
       meta: {
         icon: "solar:playlist-minimalistic-2-bold-duotone",
         title: $t("list.playList")
