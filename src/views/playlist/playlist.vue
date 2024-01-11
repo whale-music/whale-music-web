@@ -682,6 +682,7 @@ const toPlayList = id => {
 
 <style lang="scss" scoped>
 @import url("@/style/pagination.scss");
+@import url("@/style/table.scss");
 
 .font {
   color: #a3a39cc3;

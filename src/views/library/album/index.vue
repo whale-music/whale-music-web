@@ -625,6 +625,7 @@ const toArtist = id => {
 
 <style scoped lang="scss">
 @import url("@/style/pagination.scss");
+@import url("@/style/table.scss");
 
 .album {
   display: flex;

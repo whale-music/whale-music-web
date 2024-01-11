@@ -1153,6 +1153,7 @@ const toMusicInfo = id => {
 
 <style lang="scss" scoped>
 @import url("@/style/pagination.scss");
+@import url("@/style/table.scss");
 
 .refresh {
   border-radius: 3px;
