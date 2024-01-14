@@ -84,7 +84,7 @@ const toNext = () => {
     align-items: center;
     width: 100%;
     height: 100%;
-    justify-content: start;
+    justify-content: flex-start;
 
     img {
       height: 32px;
@@ -116,13 +116,14 @@ const toNext = () => {
 
     .router-bg {
       @apply dark:bg-black;
-      width: 1.5rem;
-      height: 1.5rem;
+      width: 2rem;
+      height: 2rem;
       display: flex;
       flex-wrap: nowrap;
       align-items: center;
       justify-content: center;
       border-radius: var(--el-border-radius-base);
+      border: 1px solid var(--el-bg-color-overlay);
       background: var(--el-bg-color-page);
     }
 
