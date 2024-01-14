@@ -40,9 +40,9 @@ export default {
       }
     },
     {
-      path: "/library/playlist",
+      path: "/library/collect",
       name: "PlayList",
-      component: () => import("@/views/library/playlist/index.vue"),
+      component: () => import("@/views/library/collect/index.vue"),
       meta: {
         icon: "solar:playlist-minimalistic-2-bold-duotone",
         title: $t("list.playList")
