@@ -135,7 +135,7 @@ export default defineComponent({
         </el-descriptions-item>
         <el-descriptions-item label="类型">Audio</el-descriptions-item>
         <el-descriptions-item label="文件格式">
-          {{ this.data?.dbResource?.encodeType }}
+          {{ this.data?.fileExtension }}
         </el-descriptions-item>
         <el-descriptions-item label="创建时间">
           {{ this.data.creationTime }}

@@ -284,7 +284,7 @@ export default defineComponent({
               :key="item"
               class="a-item h-50"
               :class="item.status ? '' : 'grayscale'"
-              @click="this.openFileInfoDrawer(item.name, item.type)"
+              @click="this.openFileInfoDrawer(item.path, item.type)"
             >
               <div class="flex">
                 <IconifyIconOffline
