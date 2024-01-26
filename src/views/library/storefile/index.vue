@@ -217,6 +217,7 @@ export default defineComponent({
       :key="this.previewData.name"
       :name="this.previewData.name"
       @handleClose="this.drawerClose"
+      @updatePage="initStoreFileList"
     />
     <div class="table-container">
       <div class="panel">

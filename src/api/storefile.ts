@@ -188,7 +188,6 @@ export const updateLinkPic = (data: UpdateLinkPic) => {
 
 export interface UpdateLinkAudio {
   id: number;
-  path: string;
   musicId: number;
 }
 
@@ -205,6 +204,28 @@ export interface UpdateLinkVideo {
 
 export const updateLinkVideo = (data: UpdateLinkVideo) => {
   return http.request<R<any>>("post", `/admin/resource/link/video`, {
+    data
+  });
+};
+
+export interface SyncResourceReq {
+  type: string;
+  path: string;
+}
+export const syncResource = (data: SyncResourceReq) => {
+  return http.request<R<any>>("post", `/admin/resource/sync/resource`, {
+    data
+  });
+};
+
+export interface CleanResourceReq {
+  type: string;
+  id: number;
+  middleId: number;
+  isForceDelete: boolean;
+}
+export const cleanResource = (data: CleanResourceReq) => {
+  return http.request<R<any>>("post", `/admin/resource/clean/resource`, {
     data
   });
 };

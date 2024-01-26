@@ -2,9 +2,11 @@
 import { defineComponent } from "vue";
 import { getFileTypeColor } from "@/views/library/storefile/components/util/fileInfoUtil";
 import {
+  cleanResource,
   getAudioResourceInfo,
   getMusicAutocomplete,
   ResourceAudioInfoRes,
+  syncResource,
   UpdateLinkAudio,
   updateLinkAudio
 } from "@/api/storefile";
@@ -69,13 +71,42 @@ export default defineComponent({
     async updateLinkAudio() {
       const reqParam = {
         id: this.data?.dbResource?.id,
-        musicId: this.data.linkData.id,
-        path: this.data.path
+        musicId: this.data.linkData.id
       } as UpdateLinkAudio;
       try {
         const r = await updateLinkAudio(reqParam);
         if (r.code == "200") {
           message("更新成功", { type: "success" });
+        }
+      } finally {
+        await this.init();
+      }
+    },
+    async cleanAudioResource(flag) {
+      try {
+        const r = await cleanResource({
+          id: this.data.dbResource.id,
+          isForceDelete: flag,
+          middleId: this.data.dbResource.musicId,
+          type: "audio"
+        });
+        if (r.code == "200") {
+          message("更新成功", { type: "success" });
+          this.$emit("updatePage");
+        }
+      } finally {
+        await this.init();
+      }
+    },
+    async syncAudioResource() {
+      try {
+        const r = await syncResource({
+          path: this.data.path,
+          type: "audio"
+        });
+        if (r.code == "200") {
+          message("更新成功", { type: "success" });
+          this.$emit("updatePage");
         }
       } finally {
         await this.init();
@@ -148,6 +179,16 @@ export default defineComponent({
           >
             信息
           </el-button>
+          <el-button type="success" @click="syncAudioResource">
+            同步信息
+          </el-button>
+          <el-button
+            type="danger"
+            @click="cleanAudioResource(true)"
+            :disabled="this.data.dbResource == null"
+          >
+            删除信息
+          </el-button>
         </template>
         <el-descriptions-item label="文件名">
           {{ this.data.name }}
@@ -210,7 +251,12 @@ export default defineComponent({
                   </p>
                 </el-tooltip>
               </div>
-              <el-button type="danger" @click="this.data.linkData = {}" plain>
+              <el-button
+                type="danger"
+                @click="cleanAudioResource(false)"
+                :disabled="this.data.linkData.id == null"
+                plain
+              >
                 清除
               </el-button>
             </div>
