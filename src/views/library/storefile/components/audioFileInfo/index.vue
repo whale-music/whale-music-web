@@ -22,6 +22,9 @@ export default defineComponent({
   },
   data() {
     return {
+      previews: {
+        infoFlag: false
+      },
       data: { linkData: { value: "" } } as ResourceAudioInfoRes,
       oldData: { linkData: { value: "" } } as ResourceAudioInfoRes,
       musicQuery: ""
@@ -63,9 +66,9 @@ export default defineComponent({
       this.data.linkData.id = item.link;
       this.musicQuery = "";
     },
-    async updateLinkPic() {
+    async updateLinkAudio() {
       const reqParam = {
-        id: this.data.dbResource.id,
+        id: this.data?.dbResource?.id,
         musicId: this.data.linkData.id,
         path: this.data.path
       } as UpdateLinkAudio;
@@ -97,6 +100,34 @@ export default defineComponent({
 
 <template>
   <div>
+    <el-dialog v-model="this.previews.infoFlag">
+      <template #header>
+        <h3 class="dialog-title">图片信息(DB)</h3>
+      </template>
+      <el-descriptions title="">
+        <el-descriptions-item label="ID">
+          <b>{{ this.data.dbResource?.id }}</b>
+        </el-descriptions-item>
+        <el-descriptions-item label="MD5">
+          {{ this.data.dbResource?.md5 }}
+        </el-descriptions-item>
+        <el-descriptions-item label="关联数">
+          <el-tag type="success"> 1 </el-tag>
+        </el-descriptions-item>
+        <el-descriptions-item label="路径">
+          <el-link :underline="false" type="primary">
+            {{ this.data.dbResource?.path }}
+          </el-link>
+        </el-descriptions-item>
+        <el-descriptions-item label="更新时间">
+          {{ this.data.dbResource?.updateTime }}
+        </el-descriptions-item>
+        <el-descriptions-item label="创建时间">
+          {{ this.data.dbResource?.createTime }}
+        </el-descriptions-item>
+      </el-descriptions>
+    </el-dialog>
+
     <el-drawer
       v-model="this.isShow"
       :show-close="false"
@@ -113,7 +144,7 @@ export default defineComponent({
           <el-button
             type="primary"
             @click="this.previews.infoFlag = true"
-            :disabled="this.data.picResource == null"
+            :disabled="this.data.dbResource == null"
           >
             信息
           </el-button>
@@ -149,9 +180,10 @@ export default defineComponent({
         <el-button
           type="primary"
           :disabled="this.isDataUpdate"
-          @click="this.updateLinkPic()"
-          >保存</el-button
+          @click="this.updateLinkAudio()"
         >
+          保存
+        </el-button>
       </div>
       <el-form label-position="top">
         <el-form-item>
