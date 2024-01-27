@@ -223,6 +223,7 @@ export interface CleanResourceReq {
   id: number;
   middleId: number;
   isForceDelete: boolean;
+  picType: string;
 }
 export const cleanResource = (data: CleanResourceReq) => {
   return http.request<R<any>>("post", `/admin/resource/clean/resource`, {

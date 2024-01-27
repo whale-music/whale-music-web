@@ -5,10 +5,12 @@ import { getFileTypeColor } from "@/views/library/storefile/components/util/file
 import AddCircleLinear from "@iconify-icons/solar/add-circle-linear";
 import {
   AutocompletePicRes,
+  cleanResource,
   getPicAutocomplete,
   getPicResourceInfo,
   LinkList,
   ResourcePicInfoRes,
+  syncResource,
   updateLinkPic,
   UpdateLinkPic
 } from "@/api/storefile";
@@ -103,6 +105,37 @@ export default defineComponent({
         const r = await updateLinkPic(reqParam);
         if (r.code == "200") {
           message("更新成功", { type: "success" });
+        }
+      } finally {
+        await this.init();
+      }
+    },
+    async cleanPicResource(picId, type, flag) {
+      try {
+        const r = await cleanResource({
+          id: this.data.picResource.id,
+          isForceDelete: flag,
+          middleId: picId,
+          picType: type,
+          type: "pic"
+        });
+        if (r.code == "200") {
+          message("更新成功", { type: "success" });
+          this.$emit("updatePage");
+        }
+      } finally {
+        await this.init();
+      }
+    },
+    async syncPicResource() {
+      try {
+        const r = await syncResource({
+          path: this.data.path,
+          type: "pic"
+        });
+        if (r.code == "200") {
+          message("更新成功", { type: "success" });
+          this.$emit("updatePage");
         }
       } finally {
         await this.init();
@@ -219,6 +252,16 @@ export default defineComponent({
           >
             信息
           </el-button>
+          <el-button type="success" @click="syncPicResource">
+            同步信息
+          </el-button>
+          <el-button
+            type="danger"
+            @click="cleanPicResource(null, null, true)"
+            :disabled="this.data.picResource == null"
+          >
+            删除信息
+          </el-button>
         </template>
         <el-descriptions-item label="文件名">
           {{ this.data.name }}
@@ -304,10 +347,7 @@ export default defineComponent({
             </el-autocomplete>
           </div>
           <div class="m-2">
-            <el-form-item
-              v-for="(item, index) in this.data.linkData"
-              :key="item.id"
-            >
+            <el-form-item v-for="item in this.data.linkData" :key="item.id">
               <template #label>
                 <h2>{{ item.type }}</h2>
                 <div class="flex items-center justify-between">
@@ -334,7 +374,7 @@ export default defineComponent({
                   </div>
                   <el-button
                     type="danger"
-                    @click="this.data.linkData.splice(index, 1)"
+                    @click="cleanPicResource(item.id, item.type, false)"
                     plain
                   >
                     删除
@@ -353,10 +393,6 @@ export default defineComponent({
 :deep(.el-drawer__header) {
   border-top: 0.5rem solid var(--typeColor);
   margin-bottom: 0;
-}
-
-:deep(.el-button + .el-button) {
-  margin-left: 0;
 }
 
 :deep(.el-dialog__header) {
