@@ -198,6 +198,7 @@ export const updateLinkAudio = (data: UpdateLinkAudio) => {
 };
 
 export interface UpdateLinkVideo {
+  id: number;
   mvId: number;
   path: string;
 }
@@ -209,7 +210,7 @@ export const updateLinkVideo = (data: UpdateLinkVideo) => {
 };
 
 export interface SyncResourceReq {
-  type: string;
+  type: "audio" | "video" | "pic";
   path: string;
 }
 export const syncResource = (data: SyncResourceReq) => {
@@ -219,11 +220,11 @@ export const syncResource = (data: SyncResourceReq) => {
 };
 
 export interface CleanResourceReq {
-  type: string;
+  type: "audio" | "video" | "pic";
   id: number;
   middleId: number;
-  isForceDelete: boolean;
-  picType: string;
+  isForceDelete?: boolean;
+  picType?: string;
 }
 export const cleanResource = (data: CleanResourceReq) => {
   return http.request<R<any>>("post", `/admin/resource/clean/resource`, {

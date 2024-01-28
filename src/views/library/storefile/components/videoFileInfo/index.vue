@@ -2,9 +2,11 @@
 import { defineComponent } from "vue";
 import { getFileTypeColor } from "@/views/library/storefile/components/util/fileInfoUtil";
 import {
+  cleanResource,
   getMvAutocomplete,
   getVideoResourceInfo,
   ResourceVideoInfoRes,
+  syncResource,
   UpdateLinkVideo,
   updateLinkVideo
 } from "@/api/storefile";
@@ -21,6 +23,9 @@ export default defineComponent({
   },
   data() {
     return {
+      previews: {
+        infoFlag: false
+      },
       data: { linkData: { value: "" } } as ResourceVideoInfoRes,
       search: {
         name: ""
@@ -89,6 +94,7 @@ export default defineComponent({
     },
     async updateLinkVideo() {
       const reqParam = {
+        id: this.data.mvResource.id,
         mvId: this.data.linkData.id,
         path: this.data.name
       } as UpdateLinkVideo;
@@ -100,6 +106,35 @@ export default defineComponent({
       } finally {
         await this.init();
       }
+    },
+    async cleanVideoResource() {
+      try {
+        const r = await cleanResource({
+          id: this.data.mvResource.id,
+          middleId: this.data.linkData.id,
+          type: "video"
+        });
+        if (r.code == "200") {
+          message("更新成功", { type: "success" });
+          this.$emit("updatePage");
+        }
+      } finally {
+        await this.init();
+      }
+    },
+    async syncVideoResource() {
+      try {
+        const r = await syncResource({
+          path: this.data.path,
+          type: "video"
+        });
+        if (r.code == "200") {
+          message("更新成功", { type: "success" });
+          this.$emit("updatePage");
+        }
+      } finally {
+        await this.init();
+      }
     }
   }
 });
@@ -107,6 +142,34 @@ export default defineComponent({
 
 <template>
   <div>
+    <el-dialog v-model="this.previews.infoFlag">
+      <template #header>
+        <h3 class="dialog-title">图片信息(DB)</h3>
+      </template>
+      <el-descriptions title="">
+        <el-descriptions-item label="ID">
+          <b>{{ this.data.mvResource?.id }}</b>
+        </el-descriptions-item>
+        <el-descriptions-item label="MD5">
+          {{ this.data.mvResource?.md5 }}
+        </el-descriptions-item>
+        <el-descriptions-item label="关联数">
+          <el-tag type="success"> 1 </el-tag>
+        </el-descriptions-item>
+        <el-descriptions-item label="路径">
+          <el-link :underline="false" type="primary">
+            {{ this.data.mvResource?.path }}
+          </el-link>
+        </el-descriptions-item>
+        <el-descriptions-item label="更新时间">
+          {{ this.data.mvResource?.updateTime }}
+        </el-descriptions-item>
+        <el-descriptions-item label="创建时间">
+          {{ this.data.mvResource?.createTime }}
+        </el-descriptions-item>
+      </el-descriptions>
+    </el-dialog>
+
     <el-drawer
       v-model="this.isShow"
       :show-close="false"
@@ -127,9 +190,19 @@ export default defineComponent({
             <el-button
               type="primary"
               @click="this.previews.infoFlag = true"
-              :disabled="this.data.picResource == null"
+              :disabled="this.data.mvResource == null"
             >
               信息
+            </el-button>
+            <el-button type="success" @click="syncVideoResource">
+              同步信息
+            </el-button>
+            <el-button
+              type="danger"
+              @click="cleanVideoResource"
+              :disabled="this.data.mvResource == null"
+            >
+              删除信息
             </el-button>
           </template>
           <el-descriptions-item label="文件名">
@@ -168,7 +241,7 @@ export default defineComponent({
       <el-form label-position="top">
         <el-form-item>
           <template #label>
-            <h2>Audio</h2>
+            <h2>Video</h2>
             <div class="flex items-center justify-between">
               <div class="flex gap-4">
                 <el-tag
