@@ -631,7 +631,7 @@ const toPluginTaskInfo = id => {
       </div>
     </div>
     <div class="task-sidebar">
-      <div class="flex music-count">
+      <div class="music-count">
         <el-skeleton :loading="state.loading.skeletonLoadingFlag" animated>
           <template #template>
             <div class="flex items-center justify-center w-full h-full">
@@ -860,17 +860,16 @@ const toPluginTaskInfo = id => {
 
 // 音乐数据饼图
 .music-count {
+  display: flex;
   height: 30vh;
-  border-top-left-radius: 1rem;
-  border-top-right-radius: 1rem;
+  border-radius: 1rem;
 }
 
 // 插件运行历史记录
 .music-task {
   height: 62vh;
   background: var(--el-bg-color);
-  border-top: 1px solid #b0b0b0;
-  border-bottom-left-radius: 1rem;
+  border-radius: 1rem;
 }
 
 .artist-new {
