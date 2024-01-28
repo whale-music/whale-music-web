@@ -27,7 +27,7 @@ import {
 } from "element-plus";
 import dayjs from "dayjs";
 import { dateFormater } from "@/utils/dateUtil";
-import { FriendlyTime } from "@/utils/DateFormat.ts";
+import { FriendlyTime } from "@/utils/DateFormat";
 import Wbutton from "@/components/button/index.vue";
 import { ReNormalCountTo } from "@/components/ReCountTo";
 import { useRouter } from "vue-router";
