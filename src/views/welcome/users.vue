@@ -1,7 +1,11 @@
 <script lang="ts" setup>
 import { defineComponent, onMounted, reactive } from "vue";
 import { deleteUser, getUserPage, saveOrUpdateUser } from "@/api/user";
-import { PageUserReq, PageUserRes } from "@/api/model/User";
+import {
+  PageUserReq,
+  PageUserRes,
+  SaveOrUpdateUserReq
+} from "@/api/model/User";
 import { Data } from "@/api/model/common";
 import { message } from "@/utils/message";
 
@@ -34,13 +38,8 @@ const getPageUserMethod = async () => {
   const r = await getUserPage(state.pageReq);
   state.pageRes = r.data;
 };
-const updateUserInfo = async user => {
-  let r;
-  try {
-    r = await saveOrUpdateUser(user);
-  } catch (e) {
-    /* empty */
-  }
+const updateUserInfo = async (user: SaveOrUpdateUserReq) => {
+  const r = await saveOrUpdateUser(user);
   if (r?.code === "200") {
     message(`${r.data.status ? "启用" : "禁用"}成功`, { type: "success" });
   }
