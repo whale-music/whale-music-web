@@ -28,7 +28,7 @@ import {
 import dayjs from "dayjs";
 import { dateFormater } from "@/utils/dateUtil";
 import { FriendlyTime } from "@/utils/DateFormat";
-import Wbutton from "@/components/button/index.vue";
+import WButton from "@/components/button/index.vue";
 import { ReNormalCountTo } from "@/components/ReCountTo";
 import { useRouter } from "vue-router";
 import ContextMenu from "@imengyu/vue3-context-menu";
@@ -1323,9 +1323,9 @@ const toPluginTaskInfo = id => {
                           height="2rem"
                         />
                         <span class="mr-4" />
-                        <Wbutton :type="statusColor(item.status)">{{
+                        <WButton :type="statusColor(item.status)">{{
                           statusIcon(item.status)
-                        }}</Wbutton>
+                        }}</WButton>
                       </div>
                     </div>
                   </li>
