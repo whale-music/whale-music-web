@@ -163,7 +163,7 @@ const transitionMain = defineComponent({
   height: var(--content-height);
   position: relative;
   overflow-x: hidden;
-  background: var(--el-bg-color);
+  background: #f0f2f5;
   border-radius: var(--el-border-radius-base);
 }
 
