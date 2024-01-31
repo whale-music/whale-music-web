@@ -21,7 +21,7 @@ import { getUserPlayList, musicLike, UserPlayListRes } from "@/api/playlist";
 import { DataInfo, sessionKey } from "@/utils/auth";
 import { ElLoading, ElTable } from "element-plus";
 import RefreshIcon from "@/assets/svg/refresh.svg?component";
-import { FriendlyTime } from "@/utils/DateFormat.ts";
+import { FriendlyTime } from "@/utils/DateFormat";
 import dayjs from "dayjs";
 import axios from "axios";
 import { emitter } from "@/utils/mitt";
@@ -32,6 +32,7 @@ import ChecklistLine from "@iconify-icons/solar/checklist-line-duotone";
 import LayoutGridFill from "@iconify-icons/mingcute/layout-grid-fill";
 import HamburgerMenuLinear from "@iconify-icons/solar/hamburger-menu-linear";
 import Segmented, { type OptionsType } from "@/components/ReSegmented";
+import DrawerMusic from "@/components/AddData/DrawerMusic/index.vue";
 
 const { t } = useI18n();
 const { isDark } = useDark();
@@ -39,6 +40,9 @@ const router = useRouter();
 
 // 生命周期挂载
 onMounted(async () => {
+  await init();
+});
+async function init() {
   if (state.table.show.layout === "grid") {
     state.req.page.pageIndex = 1;
   }
@@ -53,7 +57,7 @@ onMounted(async () => {
     document.documentElement.clientWidth ||
     document.body.clientWidth;
   reDrawLayout(width);
-});
+}
 
 function reDrawLayout(width: number) {
   const isMobile = deviceDetection();
@@ -567,6 +571,8 @@ const onChangeOptionSwitch = ({ option }) => {
   storageLocal().setItem("music-table-layout", state.table.show.layout);
 };
 
+const uploadMusicFlag = ref(false);
+
 const autoRollChange = val => {
   storageLocal().setItem("music-table-grid", val);
   state.req.page.pageIndex = 0;
@@ -583,6 +589,7 @@ const toMusicInfo = id => {
 
 <template>
   <div class="absolute-container">
+    <DrawerMusic v-model="uploadMusicFlag" @change="init()" />
     <!--添加歌曲到歌单-->
     <add-music-to-play-list
       v-if="state.dialog.playItemDialogVisible"
@@ -783,6 +790,13 @@ const toMusicInfo = id => {
               </div>
             </template>
           </el-dropdown>
+          <el-button
+            type="primary"
+            size="large"
+            @click="uploadMusicFlag = !uploadMusicFlag"
+          >
+            添加
+          </el-button>
         </div>
       </div>
       <!--隐藏菜单-->
