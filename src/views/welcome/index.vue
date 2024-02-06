@@ -1,16 +1,21 @@
 <script setup lang="ts">
-import { ref, onBeforeMount, Ref, computed, reactive } from "vue";
+import {
+  ref,
+  onBeforeMount,
+  Ref,
+  computed,
+  reactive,
+  Component,
+  DefineComponent
+} from "vue";
 import {
   Count,
-  getAlbumTop,
-  getArtistTop,
   getCount,
   getMusicStatistics,
   getPluginTask,
   MusicStatisticsRes,
   PluginTaskRes
 } from "@/api/hone";
-import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import {
   EchartOptions,
   useDark,
@@ -22,24 +27,22 @@ import dayjs from "dayjs";
 import { dateFormater } from "@/utils/dateUtil";
 import { FriendlyTime } from "@/utils/DateFormat";
 import WButton from "@/components/button/index.vue";
-import { ReNormalCountTo } from "@/components/ReCountTo";
 import { useRouter } from "vue-router";
-import ContextMenu from "@imengyu/vue3-context-menu";
-import {
-  ArtistConvert,
-  SaveOrUpdateArtist,
-  SelectArtist
-} from "@/api/model/Artist";
+import { SaveOrUpdateArtist, SelectArtist } from "@/api/model/Artist";
 import { LinkItem } from "@/api/model/common";
-import {
-  AlbumConvert,
-  SaveOrUpdateAlbum,
-  SelectAlbum
-} from "@/api/model/Album";
+import { SaveOrUpdateAlbum, SelectAlbum } from "@/api/model/Album";
 import { SaveOrUpdateMusic } from "@/api/model/Music";
 import DrawerMusic from "@/components/AddData/DrawerMusic/index.vue";
 import DrawerAlbum from "@/components/AddData/DrawerAlbum/index.vue";
 import DrawerArtist from "@/components/AddData/DrawerArtist/index.vue";
+import LineCard from "@/views/welcome/components/LineCard/index.vue";
+import MusicNoteBoldDuotone from "@iconify-icons/solar/music-note-bold-duotone";
+import UserRoundedBoldDuotone from "@iconify-icons/solar/user-rounded-bold-duotone";
+import VideocameraBold from "@iconify-icons/solar/videocamera-bold";
+import AlbumLine from "@iconify-icons/mingcute/album-line";
+import ReCol from "@/components/ReCol";
+import type { IconifyIcon } from "@iconify/types";
+import HotData from "@/views/welcome/components/HotData/index.vue";
 
 const router = useRouter();
 
@@ -50,10 +53,39 @@ defineOptions({
 interface AlbumReq extends SaveOrUpdateAlbum {
   link: LinkItem[];
 }
+
+interface Static extends Count {
+  icon: IconifyIcon;
+  title: string;
+  comp: Component | DefineComponent;
+}
+
 const state = reactive({
   loading: {
     skeletonLoadingFlag: false
   },
+  statisticians: [
+    {
+      title: "音乐",
+      icon: MusicNoteBoldDuotone,
+      comp: DrawerMusic
+    },
+    {
+      title: "专辑",
+      icon: AlbumLine,
+      comp: DrawerAlbum
+    },
+    {
+      title: "艺术家",
+      icon: UserRoundedBoldDuotone,
+      comp: DrawerArtist
+    },
+    {
+      title: "MV",
+      icon: VideocameraBold,
+      comp: DrawerMusic
+    }
+  ] as PropType<Array<Static>>,
   show: {
     uploadMusicFlag: false,
     uploadAlbumFlag: false,
@@ -72,10 +104,6 @@ const state = reactive({
     uploadMusicInfo: { artistIds: [], resource: {} } as SaveOrUpdateMusic,
     uploadAlbum: { artistIds: [], link: [] } as AlbumReq,
     uploadArtist: {} as SaveOrUpdateArtist
-  },
-  list: {
-    artist: {} as ArtistConvert[],
-    album: {} as AlbumConvert[]
   },
   count: {
     music: {} as Count,
@@ -97,22 +125,30 @@ const state = reactive({
   }
 });
 
-const albumInnerRef = ref<HTMLDivElement>();
-const artistInnerRef = ref<HTMLDivElement>();
-
 const pieDataChartRef = ref<HTMLDivElement>();
 
 async function initHomeInfo() {
   state.loading.skeletonLoadingFlag = true;
   const countMap = await getCount();
 
-  state.count.music = countMap.data["music"];
-  state.count.album = countMap.data["album"];
-  state.count.artist = countMap.data["artist"];
-  const album = await getAlbumTop();
-  const artist = await getArtistTop();
-  state.list.album = album.data;
-  state.list.artist = artist.data;
+  const data = countMap.data;
+  state.statisticians[0] = {
+    ...state.statisticians[0],
+    ...data["music"]
+  };
+
+  state.statisticians[1] = {
+    ...state.statisticians[1],
+    ...data["album"]
+  };
+  state.statisticians[2] = {
+    ...state.statisticians[2],
+    ...data["artist"]
+  };
+  state.statisticians[3] = {
+    ...state.statisticians[3],
+    ...data["mv"]
+  };
 
   const _musicMusicStatistics = await getMusicStatistics();
   state.musicStatic = _musicMusicStatistics.data;
@@ -160,22 +196,6 @@ const { setOptions } = useECharts(pieDataChartRef as Ref<HTMLDivElement>, {
   theme: theme
 });
 
-const albumRefScrollbar = ref(null);
-const albumHandleScroll = e => {
-  const wheelDelta = e.wheelDelta || -e.deltaY * 40;
-  const scrollbar = albumRefScrollbar.value;
-  // scrollbar.wrap$获取到包裹容器的element对象
-  scrollbar.setScrollLeft(scrollbar.wrapRef.scrollLeft - wheelDelta);
-};
-
-const artistRefScrollbar = ref(null);
-const artistHandleScroll = e => {
-  const wheelDelta = e.wheelDelta || -e.deltaY * 40;
-  const scrollbar = artistRefScrollbar.value;
-  // scrollbar.wrap$获取到包裹容器的element对象
-  scrollbar.setScrollLeft(scrollbar.wrapRef.scrollLeft - wheelDelta);
-};
-
 const statusIcon = status => {
   switch (status) {
     // stop
@@ -207,17 +227,18 @@ function setEchaerOption() {
     tooltip: {
       trigger: "item"
     },
-    color: ["#626aef", "#c12c1f", "#80a492", "#c7c6b6"],
+    color: ["#626aef", "#ff664a", "#80a492", "#c7c6b6"],
     series: [
       {
         name: "Access From",
         type: "pie",
-        radius: ["50%", "80%"],
+        // radius: ["50%", "80%"],
         avoidLabelOverlap: false,
         label: {
           show: false,
           position: "center"
         },
+        // roseType: "radius",
         emphasis: {
           label: {
             show: false,
@@ -234,98 +255,71 @@ function setEchaerOption() {
   } as UtilsEChartsOption);
 }
 
-type enumType = "success" | "info" | "warning" | "danger" | "";
-const getType = (
-  type: boolean,
-  zero: enumType,
-  positive: enumType,
-  negative: enumType
-): enumType => {
-  if (type === undefined || type == null) return zero;
-  return type ? positive : negative;
-};
+type hotDataType =
+  | "latest-upload"
+  | "latest-music"
+  | "latest-album"
+  | "latest-artist"
+  | "latest-mv"
+  | "listening-history";
+const value = ref<hotDataType>("latest-upload");
 
-type enumUpOrDown = "↑" | "↓" | "+" | "-" | "";
-const getUpOrDownType = (
-  type: boolean,
-  zero: enumUpOrDown,
-  positive: enumUpOrDown,
-  negative: enumUpOrDown
-): enumUpOrDown => {
-  if (type === undefined || type == null) return zero;
-  return type ? positive : negative;
-};
+const options = [
+  {
+    value: "latest-upload",
+    label: "上传音乐",
+    enabled: true
+  },
+  {
+    value: "latest-music",
+    label: "最新音乐",
+    enabled: true
+  },
+  {
+    value: "latest-album",
+    label: "最新专辑",
+    enabled: false
+  },
+  {
+    value: "latest-artist",
+    label: "最新艺术家",
+    enabled: false
+  },
+  {
+    value: "latest-mv",
+    label: "最新MV",
+    enabled: false
+  },
+  {
+    value: "listening-history",
+    label: "听歌历史",
+    enabled: false
+  }
+] as Array<{ value: hotDataType; label: string; enabled: boolean }>;
 
-// 音乐右键菜单
-const onMusicContextMenu = (e: MouseEvent) => {
-  //prevent the browser's default menu
-  e.preventDefault();
-  //show our menu
-  ContextMenu.showContextMenu({
-    x: e.x,
-    y: e.y,
-    items: [
-      {
-        label: "添加音乐",
-        onClick: () => {
-          state.show.uploadMusicFlag = true;
-        }
-      }
-    ]
-  });
-};
-
-// 专辑右键菜单
-const onAlbumContextMenu = (e: MouseEvent) => {
-  //prevent the browser's default menu
-  e.preventDefault();
-  //show our menu
-  ContextMenu.showContextMenu({
-    x: e.x,
-    y: e.y,
-    items: [
-      {
-        label: "添加专辑",
-        onClick: () => {
-          state.show.uploadAlbumFlag = true;
-        }
-      }
-    ]
-  });
-};
-
-// 歌手右键菜单
-const onArtistContextMenu = (e: MouseEvent) => {
-  //prevent the browser's default menu
-  e.preventDefault();
-  //show our menu
-  ContextMenu.showContextMenu({
-    x: e.x,
-    y: e.y,
-    items: [
-      {
-        label: "添加歌手(艺术家)",
-        onClick: () => {
-          state.show.uploadArtistFlag = true;
-        }
-      }
-    ]
-  });
-};
-
-const toAlbum = id => {
-  router.push({
-    name: "AlbumInfo",
-    query: { id: id }
-  });
-};
-
-const toArtist = id => {
-  router.push({
-    name: "ArtistInfo",
-    query: { id: id }
-  });
-};
+const distribution = ref("resource-distribution");
+const musicDistributionOption = [
+  {
+    value: "resource-distribution",
+    label: "音源分布",
+    enabled: true
+  },
+  {
+    value: "music-distribution",
+    label: "音乐分布",
+    enabled: false
+  },
+  {
+    value: "album-distribution",
+    label: "专辑分布",
+    enabled: false
+  },
+  {
+    value: "artist-distribution",
+    label: "艺术家分布",
+    enabled: false
+  }
+] as Array<{ value: string; label: string; enabled: boolean }>;
 
 const toPluginTaskInfo = id => {
   router.push({
@@ -346,516 +340,301 @@ const toPluginTaskInfo = id => {
       @change="initHomeInfo"
     />
 
-    <div class="data">
-      <div class="data-header">
-        <div class="header">
-          <div class="flex items-center justify-between mt-1 ml-4">
-            <div class="flex items-center">
-              <IconifyIconOnline
-                class="cursor-pointer text-[#626aef]"
-                icon="solar:music-note-bold-duotone"
-                width="3rem"
-                height="3rem"
-              />
-              <span class="ml-4 text-xl font-bold"> 音乐 </span>
-            </div>
-            <div
-              class="flex gap-4 flex-nowrap"
-              @contextmenu="onMusicContextMenu($event)"
-            >
-              <IconifyIconOnline
-                class="mr-4 cursor-pointer"
-                icon="mingcute:more-1-line"
-                width="2rem"
-                height="2rem"
-              />
-            </div>
-          </div>
-          <div class="flex items-center justify-between ml-6 whitespace-nowrap">
-            <ReNormalCountTo
-              prefix="# "
-              :duration="1000"
-              :color="'var(--el-text-color-primary)'"
-              :fontSize="'2em'"
-              :startVal="1"
-              :endVal="state.count.music?.sumCount"
-            />
-            <el-tag
-              size="small"
-              effect="dark"
-              class="mr-4"
-              v-show="state.count.music?.percent != null"
-              :type="
-                getType(state.count.music?.fluctuate, 'info', '', 'danger')
-              "
-              :hit="false"
-              :disable-transitions="true"
-              round
-            >
-              {{ getUpOrDownType(state.count.music?.fluctuate, "", "+", "-") }}
-              {{ state.count.music?.percent }}
-              {{ getUpOrDownType(state.count.music?.fluctuate, "", "↑", "↓") }}
-            </el-tag>
-          </div>
-        </div>
-        <div class="header">
-          <div class="flex items-center justify-between mt-1 ml-4">
-            <div class="flex items-center">
-              <IconifyIconOnline
-                class="cursor-pointer text-[#626aef]"
-                icon="mingcute:album-line"
-                width="3rem"
-                height="3rem"
-              />
-              <span class="ml-4 text-xl font-bold"> 专辑 </span>
-            </div>
-            <div
-              class="flex gap-4 flex-nowrap"
-              @contextmenu="onAlbumContextMenu($event)"
-            >
-              <IconifyIconOnline
-                class="mr-4 cursor-pointer"
-                icon="mingcute:more-1-line"
-                width="2rem"
-                height="2rem"
-              />
-            </div>
-          </div>
-          <div class="flex items-center justify-between ml-6 whitespace-nowrap">
-            <ReNormalCountTo
-              prefix="# "
-              :duration="1000"
-              :color="'var(--el-text-color-primary)'"
-              :fontSize="'2em'"
-              :startVal="1"
-              :endVal="state.count.album?.sumCount"
-            />
-            <el-tag
-              size="small"
-              effect="dark"
-              class="mr-4"
-              v-show="state.count.music?.percent != null"
-              :type="
-                getType(state.count.album?.fluctuate, 'info', '', 'danger')
-              "
-              :hit="false"
-              :disable-transitions="true"
-              round
-            >
-              {{ getUpOrDownType(state.count.album?.fluctuate, "", "+", "-") }}
-              {{ state.count.album?.percent }}
-              {{ getUpOrDownType(state.count.album?.fluctuate, "", "↑", "↓") }}
-            </el-tag>
-          </div>
-        </div>
-        <div class="header">
-          <div class="flex items-center justify-between ml-6">
-            <div class="flex items-center">
-              <IconifyIconOnline
-                class="cursor-pointer text-[#626aef]"
-                icon="solar:user-rounded-bold-duotone"
-                width="3rem"
-                height="3rem"
-              />
-              <span class="text-xl font-bold"> 艺术家 </span>
-            </div>
-            <div
-              class="flex gap-4 flex-nowrap"
-              @contextmenu="onArtistContextMenu($event)"
-            >
-              <IconifyIconOnline
-                class="mr-4 cursor-pointer"
-                icon="mingcute:more-1-line"
-                width="2rem"
-                height="2rem"
-              />
-            </div>
-          </div>
-          <div class="flex items-center justify-between ml-6 whitespace-nowrap">
-            <ReNormalCountTo
-              prefix="# "
-              :duration="1000"
-              :color="'var(--el-text-color-primary)'"
-              :fontSize="'2em'"
-              :startVal="1"
-              :endVal="state.count.artist?.sumCount"
-            />
-            <el-tag
-              size="small"
-              effect="dark"
-              class="mr-4"
-              v-show="state.count.artist?.percent != null"
-              :type="
-                getType(state.count.artist?.fluctuate, 'info', '', 'danger')
-              "
-              :hit="false"
-              :disable-transitions="true"
-              round
-            >
-              {{ getUpOrDownType(state.count.artist?.fluctuate, "", "+", "-") }}
-              {{ state.count.artist?.percent }}
-              {{ getUpOrDownType(state.count.artist?.fluctuate, "", "↑", "↓") }}
-            </el-tag>
-          </div>
-        </div>
-      </div>
-      <div class="flex items-center justify-between">
-        <h1 class="ml-4">最新专辑</h1>
-        <div class="font-bold">
-          <el-tooltip
-            class="box-item"
-            effect="dark"
-            content="按住shift建鼠标滚动以查看"
-            placement="top"
+    <ElRow :gutter="24" justify="space-around">
+      <ReCol
+        v-for="(item, index) in state.statisticians"
+        :key="index"
+        class="mb-[18px] animate__slideInUp"
+        :value="6"
+        :md="12"
+        :sm="12"
+        :xs="24"
+        :initial="{
+          opacity: 0,
+          y: 100
+        }"
+        :enter="{
+          opacity: 1,
+          y: 0,
+          transition: {
+            delay: 80 * (index + 1)
+          }
+        }"
+      >
+        <LineCard
+          :title="item.title"
+          :count="item.sumCount"
+          :percentage-increase="item.percent"
+          :fluctuate="item.fluctuate"
+          :icon="item.icon"
+          :comp="item.comp"
+        />
+      </ReCol>
+    </ElRow>
+
+    <ElRow :gutter="24" justify="space-around">
+      <ReCol
+        :value="16"
+        :md="12"
+        :sm="12"
+        :xs="24"
+        :initial="{
+          opacity: 0,
+          y: 100
+        }"
+      >
+        <div class="flex items-center justify-between">
+          <h1>音乐统计</h1>
+          <el-select
+            v-model="value"
+            class="m-2"
+            placeholder="Select"
+            size="large"
+            style="width: 240px"
           >
-            <IconifyIconOnline
-              class="cursor-pointer text-[#a4b0be]"
-              icon="solar:info-circle-bold-duotone"
-              width="2rem"
-              height="2rem"
+            <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+              :disabled="!item.enabled"
             />
-          </el-tooltip>
+          </el-select>
         </div>
-      </div>
-      <div class="album-new">
-        <el-skeleton :loading="state.loading.skeletonLoadingFlag" animated>
-          <template #template>
-            <div class="overflow-hidden album-list">
-              <div v-for="item in 5" :key="item" style="margin: 1rem">
-                <el-skeleton-item
-                  variant="image"
-                  style="width: 10rem; height: 10rem; border-radius: 1rem"
-                />
-                <el-skeleton-item
-                  variant="h1"
-                  style="
-                    margin-top: 0.8rem;
-                    margin-left: 0.3rem;
-                    width: 8rem;
-                    height: 1rem;
-                  "
-                />
-              </div>
-            </div>
-          </template>
-          <template #default>
-            <el-scrollbar
-              ref="albumRefScrollbar"
-              @wheel.prevent="albumHandleScroll"
-            >
-              <div class="album-list" ref="albumInnerRef">
-                <div
-                  class="album-item"
-                  v-for="(item, index) in state.list.album"
-                  :key="index"
-                >
-                  <LoadImg
-                    @click="toAlbum(item.id)"
-                    :src="item.picUrl"
-                    height="10rem"
-                    width="10rem"
-                  />
-                  <span
-                    @click="toAlbum(item.id)"
-                    class="block w-40 font-semibold truncate"
-                    >{{ item.albumName }}</span
-                  >
-                </div>
-              </div>
-            </el-scrollbar>
-          </template>
-        </el-skeleton>
-      </div>
-      <div class="flex items-center justify-between">
-        <h1 class="ml-4">最新艺术家</h1>
-        <div class="font-bold">
-          <el-tooltip
-            class="box-item"
-            effect="dark"
-            content="按住shift建鼠标滚动以查看"
-            placement="top"
-          >
-            <IconifyIconOnline
-              class="cursor-pointer text-[#a4b0be]"
-              icon="solar:info-circle-bold-duotone"
-              width="2rem"
-              height="2rem"
-            />
-          </el-tooltip>
-        </div>
-      </div>
-      <div class="artist-new">
-        <el-skeleton :loading="state.loading.skeletonLoadingFlag" animated>
-          <template #template>
-            <div class="overflow-hidden artist-list">
-              <div v-for="item in 5" :key="item" style="margin: 1rem">
-                <el-skeleton-item
-                  variant="circle"
-                  style="width: 10rem; height: 10rem"
-                />
-                <div class="flex justify-center">
-                  <el-skeleton-item
-                    variant="h1"
-                    style="margin-top: 0.4rem; width: 8rem; height: 1rem"
-                  />
-                </div>
-              </div>
-            </div>
-          </template>
-          <template #default>
-            <el-scrollbar
-              ref="artistRefScrollbar"
-              @wheel.prevent="artistHandleScroll"
-            >
-              <div class="artist-list" ref="artistInnerRef">
-                <div
-                  class="artist-item"
-                  v-for="(item, index) in state.list.artist"
-                  :key="index"
-                >
-                  <el-avatar
-                    @click="toArtist(item.id)"
-                    :size="150"
-                    :src="item.picUrl"
-                  />
-                  <span
-                    @click="toArtist(item.id)"
-                    class="block w-40 text-xl font-bold text-center truncate"
-                    >{{ item.artistName }}</span
-                  >
-                </div>
-              </div>
-            </el-scrollbar>
-          </template>
-        </el-skeleton>
-      </div>
-    </div>
-    <div class="task-sidebar">
-      <div class="music-count">
-        <el-skeleton :loading="state.loading.skeletonLoadingFlag" animated>
-          <template #template>
-            <div class="flex items-center justify-center w-full h-full">
-              <div class="flex justify-center w-1/2">
-                <el-skeleton-item
-                  variant="circle"
-                  style="height: 8rem; width: 8rem"
-                />
-              </div>
-              <div
-                class="flex flex-col justify-between w-1/2 gap-2 overflow-y-clip"
-              >
-                <div class="flex flex-col gap-1" v-for="item in 4" :key="item">
-                  <el-skeleton-item
-                    variant="p"
-                    style="width: 3rem; height: 0.8rem"
-                  />
-                  <el-skeleton-item
-                    variant="p"
-                    style="width: 7rem; height: 0.8rem"
-                  />
-                </div>
-              </div>
-            </div>
-          </template>
-          <template #default>
-            <div ref="pieDataChartRef" class="w-1/2" />
-            <div class="flex flex-col justify-between w-1/2 overflow-y-clip">
+        <HotData v-model="value" />
+      </ReCol>
+
+      <ReCol
+        class="mb-[18px]"
+        :value="8"
+        :md="12"
+        :sm="12"
+        :xs="24"
+        :initial="{
+          opacity: 0,
+          y: 100
+        }"
+      >
+        <div class="flex flex-col">
+          <div>
+            <div class="flex-bc">
               <h1>音乐统计</h1>
-              <div>
-                <span> 有效音乐 </span>
-                <el-progress
-                  :percentage="state.pie.effectiveMusic"
-                  color="#626aef"
+              <el-select
+                v-model="distribution"
+                class="m-2"
+                placeholder="Select"
+                size="large"
+                style="width: 240px"
+              >
+                <el-option
+                  v-for="item in musicDistributionOption"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                  :disabled="!item.enabled"
                 />
-                <span> 无音源 </span>
-                <el-progress
-                  :percentage="state.pie.noSoundSourceCount"
-                  color="#c12c1f"
-                />
-                <span> 错误音源 </span>
-                <el-progress
-                  :percentage="state.pie.invalidMusicOrigin"
-                  color="#80a492"
-                />
-                <span> 废弃音源 </span>
-                <el-progress
-                  :percentage="state.pie.discardMusicOrigin"
-                  color="#c7c6b6"
-                />
-              </div>
+              </el-select>
             </div>
-          </template>
-        </el-skeleton>
-      </div>
-      <div class="music-task">
-        <el-scrollbar>
-          <el-skeleton :loading="state.loading.skeletonLoadingFlag" animated>
-            <template #template>
-              <div>
-                <el-skeleton-item
-                  variant="h1"
-                  style="
-                    margin-top: 1rem;
-                    margin-left: 1rem;
-                    height: 2rem;
-                    width: 10rem;
-                  "
-                />
-                <div class="flex flex-col gap-2 mt-4">
-                  <div v-for="item in 4" :key="item">
-                    <div class="flex justify-around gap-1">
+            <div class="music-count line-card">
+              <el-skeleton
+                :loading="state.loading.skeletonLoadingFlag"
+                animated
+              >
+                <template #template>
+                  <div class="flex items-center justify-center w-full h-full">
+                    <div class="flex justify-center w-1/2">
                       <el-skeleton-item
                         variant="circle"
-                        style="height: 3rem; width: 3rem"
+                        style="height: 8rem; width: 8rem"
                       />
-                      <div class="flex flex-col gap-1">
+                    </div>
+                    <div
+                      class="flex flex-col justify-between w-1/2 gap-2 overflow-y-clip"
+                    >
+                      <div
+                        class="flex flex-col gap-1"
+                        v-for="item in 4"
+                        :key="item"
+                      >
                         <el-skeleton-item
-                          variant="h1"
-                          style="height: 2rem; width: 10rem"
+                          variant="p"
+                          style="width: 3rem; height: 0.8rem"
                         />
                         <el-skeleton-item
-                          variant="text"
-                          style="height: 1rem; width: 3rem"
+                          variant="p"
+                          style="width: 7rem; height: 0.8rem"
                         />
                       </div>
-                      <el-skeleton-item
-                        variant="h1"
-                        style="height: 2rem; width: 3rem"
-                      />
                     </div>
                   </div>
-                </div>
-              </div>
-            </template>
-            <template #default>
-              <div>
-                <h1 class="ml-6">插件运行任务</h1>
-                <ul v-for="(item, index) in state.pluginTask" :key="index">
-                  <li>
-                    <div class="flex items-center justify-between ml-3">
-                      <div
-                        class="flex items-center justify-center cursor-pointer"
-                        @click="toPluginTaskInfo(item.id)"
-                      >
-                        <IconifyIconOnline
-                          color="#727272"
-                          icon="solar:user-circle-bold"
-                          width="4rem"
-                          height="4rem"
+                </template>
+                <template #default>
+                  <div class="flex w-full">
+                    <div ref="pieDataChartRef" class="w-1/2" />
+                    <div
+                      class="flex flex-col h-full w-1/2 justify-center overflow-y-clip"
+                    >
+                      <div>
+                        <span> 有效音乐 </span>
+                        <el-progress
+                          :percentage="state.pie.effectiveMusic"
+                          color="#626aef"
                         />
-                        <div>
-                          <el-tooltip :content="item.pluginName" raw-content>
-                            <p class="w-20 text-xl font-bold truncate">
-                              {{ item.pluginName }}
-                            </p>
-                          </el-tooltip>
-                          <p
-                            class="text-xs"
-                            style="color: var(--el-text-color-disabled)"
-                          >
-                            {{ item.id }}
-                          </p>
-                        </div>
-                      </div>
-                      <b
-                        class="text-sm"
-                        style="color: var(--el-text-color-disabled)"
-                      >
-                        {{
-                          FriendlyTime(
-                            dateFormater(
-                              "YYYY-MM-dd HH:mm:ss",
-                              item.updateTime
-                            ),
-                            dayjs()
-                          )
-                        }}
-                      </b>
-                      <div class="flex items-center mr-6">
-                        <IconifyIconOnline
-                          class="text-[#626aef]"
-                          icon="solar:cloud-upload-line-duotone"
-                          width="2rem"
-                          height="2rem"
+                        <span> 无音源 </span>
+                        <el-progress
+                          :percentage="state.pie.noSoundSourceCount"
+                          color="#c12c1f"
                         />
-                        <span class="mr-4" />
-                        <WButton :type="statusColor(item.status)">{{
-                          statusIcon(item.status)
-                        }}</WButton>
+                        <span> 错误音源 </span>
+                        <el-progress
+                          :percentage="state.pie.invalidMusicOrigin"
+                          color="#80a492"
+                        />
+                        <span> 废弃音源 </span>
+                        <el-progress
+                          :percentage="state.pie.discardMusicOrigin"
+                          color="#c7c6b6"
+                        />
                       </div>
                     </div>
-                  </li>
-                </ul>
-              </div>
-            </template>
-          </el-skeleton>
-          <el-empty
-            v-show="
-              !state.loading.skeletonLoadingFlag &&
-              (state.pluginTask == null || state.pluginTask.length === 0)
-            "
-          />
-        </el-scrollbar>
-      </div>
-    </div>
+                  </div>
+                </template>
+              </el-skeleton>
+            </div>
+          </div>
+
+          <div>
+            <h1>插件运行任务</h1>
+            <div class="music-task line-card">
+              <el-scrollbar>
+                <el-skeleton
+                  :loading="state.loading.skeletonLoadingFlag"
+                  animated
+                >
+                  <template #template>
+                    <div>
+                      <el-skeleton-item
+                        variant="h1"
+                        style="
+                          margin-top: 1rem;
+                          margin-left: 1rem;
+                          height: 2rem;
+                          width: 10rem;
+                        "
+                      />
+                      <div class="flex flex-col gap-2 mt-4">
+                        <div v-for="item in 4" :key="item">
+                          <div class="flex justify-around gap-1">
+                            <el-skeleton-item
+                              variant="circle"
+                              style="height: 3rem; width: 3rem"
+                            />
+                            <div class="flex flex-col gap-1">
+                              <el-skeleton-item
+                                variant="h1"
+                                style="height: 2rem; width: 10rem"
+                              />
+                              <el-skeleton-item
+                                variant="text"
+                                style="height: 1rem; width: 3rem"
+                              />
+                            </div>
+                            <el-skeleton-item
+                              variant="h1"
+                              style="height: 2rem; width: 3rem"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                  <template #default>
+                    <div>
+                      <ul
+                        v-for="(item, index) in state.pluginTask"
+                        :key="index"
+                      >
+                        <li>
+                          <div class="flex items-center justify-between ml-3">
+                            <div
+                              class="flex items-center justify-center cursor-pointer"
+                              @click="toPluginTaskInfo(item.id)"
+                            >
+                              <IconifyIconOnline
+                                color="#727272"
+                                icon="solar:user-circle-bold"
+                                width="4rem"
+                                height="4rem"
+                              />
+                              <div>
+                                <el-tooltip
+                                  :content="item.pluginName"
+                                  raw-content
+                                >
+                                  <p class="w-20 text-xl font-bold truncate">
+                                    {{ item.pluginName }}
+                                  </p>
+                                </el-tooltip>
+                                <p
+                                  class="text-xs"
+                                  style="color: var(--el-text-color-disabled)"
+                                >
+                                  {{ item.id }}
+                                </p>
+                              </div>
+                            </div>
+                            <b
+                              class="text-sm"
+                              style="color: var(--el-text-color-disabled)"
+                            >
+                              {{
+                                FriendlyTime(
+                                  dateFormater(
+                                    "YYYY-MM-dd HH:mm:ss",
+                                    item.updateTime
+                                  ),
+                                  dayjs()
+                                )
+                              }}
+                            </b>
+                            <div class="flex items-center mr-6">
+                              <IconifyIconOnline
+                                class="text-[#626aef]"
+                                icon="solar:cloud-upload-line-duotone"
+                                width="2rem"
+                                height="2rem"
+                              />
+                              <span class="mr-4" />
+                              <WButton :type="statusColor(item.status)"
+                                >{{ statusIcon(item.status) }}
+                              </WButton>
+                            </div>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                  </template>
+                </el-skeleton>
+                <el-empty
+                  v-show="
+                    !state.loading.skeletonLoadingFlag &&
+                    (state.pluginTask == null || state.pluginTask.length === 0)
+                  "
+                />
+              </el-scrollbar>
+            </div>
+          </div>
+        </div>
+      </ReCol>
+    </ElRow>
   </div>
 </template>
 
 <style lang="scss" scoped>
-* {
-  //border: 1px solid red;
-}
+@use "@/style/linear-card";
 
-.welcome {
-  display: flex;
-  flex-wrap: wrap;
-  margin: 0 !important;
-  width: 100%;
-  height: 100%;
-}
-
-.data {
-  width: 70%;
-  display: flex;
-  flex-direction: column;
-
-  @media screen and (max-width: 1440px) {
-    width: 100%;
-  }
-}
-
-.data-header {
-  display: grid;
-  /*  声明列的宽度  */
-  grid-template-columns: repeat(auto-fill, minmax(30%, 1fr));
-  /*  声明行间距和列间距  */
-  grid-gap: 25px;
-
-  @media screen and (max-width: 720px) {
-    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
-  }
-}
-
-.header {
-  @apply shadow-2xl shadow-indigo-500/50;
-  height: 7rem;
-  margin: 1rem;
-  background: var(--el-bg-color);
-  border-radius: 1rem;
-}
-
-// 音乐数据显示
-.task-sidebar {
-  width: 28%;
-  margin-left: auto;
-  margin-right: auto;
-  background: var(--el-bg-color);
-  border-radius: 1rem;
-
-  @media screen and (max-width: 1440px) {
-    width: 100%;
-    margin: 1rem;
-  }
+.main-content {
+  margin: 20px 20px 0 !important;
 }
 
 // 音乐数据饼图
@@ -863,29 +642,24 @@ const toPluginTaskInfo = id => {
   display: flex;
   height: 30vh;
   border-radius: 1rem;
+  background: var(--el-bg-color);
 }
 
 // 插件运行历史记录
 .music-task {
-  height: 62vh;
   background: var(--el-bg-color);
   border-radius: 1rem;
 }
 
 .artist-new {
-  width: 100%;
   height: 14rem;
   background: var(--el-bg-color);
-  //border: 1px solid var(--el-text-color-regular);
   border-radius: 1rem;
 }
 
 .album-new {
-  width: 100%;
-  //width: fit-content;
   height: 14rem;
   background: var(--el-bg-color);
-  //border: 1px solid var(--el-text-color-regular);
   border-radius: 1rem;
 }
 

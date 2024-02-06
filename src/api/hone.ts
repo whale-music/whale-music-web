@@ -1,28 +1,14 @@
 import { http } from "@/utils/http";
 import { R } from "@/api/model/common";
-import { MusicConvert } from "@/api/music";
-import { ArtistConvert } from "@/api/model/Artist";
-import { AlbumConvert } from "@/api/model/Album";
 
 export interface Count {
   sumCount: number;
-  percent: string;
+  percent: number;
   fluctuate: boolean;
+  lines: number[];
 }
 export const getCount = () => {
   return http.request<R<Map<string, Count>>>("get", "/admin/home/count");
-};
-
-export const getMusicTop = () => {
-  return http.request<R<MusicConvert[]>>("get", "/admin/home/musicTop");
-};
-
-export const getAlbumTop = () => {
-  return http.request<R<AlbumConvert[]>>("get", "/admin/home/albumTop");
-};
-
-export const getArtistTop = () => {
-  return http.request<R<ArtistConvert[]>>("get", "/admin/home/artistTop");
 };
 
 export interface MusicStatisticsRes {
@@ -51,4 +37,38 @@ export interface PluginTaskRes extends PluginTask {
 
 export const getPluginTask = () => {
   return http.request<R<PluginTaskRes[]>>("get", "/admin/home/music/task");
+};
+
+export interface UsersUploadRes {
+  avatarUrl: string;
+  username: string;
+  musicCount: number;
+  albumCount: number;
+  artistCount: number;
+  playlistCount: number;
+}
+
+export const getUsersUpload = () => {
+  return http.request<R<UsersUploadRes[]>>("get", "/admin/home/users/upload");
+};
+
+export interface Artist {
+  id: number;
+  name: string;
+}
+
+export interface LastMusicRes {
+  musicPic: string;
+  artists: Artist[];
+  musicName: string;
+  musicNameAlias: string;
+  musicId: number;
+  createDate: string;
+  playCount: number;
+  numberOfFavorites: number;
+  loveTheData: number;
+}
+
+export const getLastMusic = () => {
+  return http.request<R<LastMusicRes[]>>("get", "/admin/home/last/music");
 };
