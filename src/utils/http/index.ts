@@ -1,22 +1,27 @@
 import Axios, {
-  AxiosInstance,
-  AxiosRequestConfig,
-  CustomParamsSerializer
+  type AxiosInstance,
+  type AxiosRequestConfig,
+  type CustomParamsSerializer
 } from "axios";
-import {
-  PureHttpError,
-  RequestMethods,
-  PureHttpResponse,
-  PureHttpRequestConfig
-} from "./types.d";
 import { stringify } from "qs";
-// import NProgress from "../progress";
-import { getToken, formatToken } from "@/utils/auth";
+
 import { useUserStoreHook } from "@/store/modules/user";
+// import NProgress from "../progress";
+import { formatToken, getToken } from "@/utils/auth";
 import { message } from "@/utils/message";
+
+import type {
+  PureHttpError,
+  PureHttpRequestConfig,
+  PureHttpResponse,
+  RequestMethods
+} from "./types.d";
+
+const { VITE_PROXY_PREFIX } = import.meta.env;
 
 // 相关配置请参考：www.axios-js.com/zh-cn/docs/#axios-request-config-1
 const defaultConfig: AxiosRequestConfig = {
+  baseURL: `${VITE_PROXY_PREFIX}`,
   // 请求超时时间
   timeout: 10000,
   headers: {
@@ -74,8 +79,8 @@ class PureHttp {
           return config;
         }
         /** 请求白名单，放置一些不需要token的接口（通过设置请求白名单，防止token过期后再请求造成的死循环问题） */
-        const whiteList = ["/refreshToken", "/login"];
-        return whiteList.some(v => config.url.indexOf(v) > -1)
+        const whiteList = ["/refresh-token", "/login"];
+        return whiteList.find(url => url === config.url)
           ? config
           : new Promise(resolve => {
               const data = getToken();
@@ -171,9 +176,6 @@ class PureHttp {
 
     // 单独处理自定义请求/响应回调
     return new Promise((resolve, reject) => {
-      if (process.env.NODE_ENV === "development") {
-        config.url = `${import.meta.env.VITE_PROXY_PREFIX}${config.url}`;
-      }
       PureHttp.axiosInstance
         .request(config)
         .then((response: any) => {
