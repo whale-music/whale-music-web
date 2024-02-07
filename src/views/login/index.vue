@@ -10,13 +10,14 @@ import { useRouter } from "vue-router";
 
 import darkIcon from "@/assets/svg/dark.svg?component";
 import dayIcon from "@/assets/svg/day.svg?component";
+import globalization from "@/assets/svg/globalization.svg?component";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
 import { useLayout } from "@/layout/hooks/useLayout";
 import { useNav } from "@/layout/hooks/useNav";
 import { useTranslationLang } from "@/layout/hooks/useTranslationLang";
 import { $t, transformI18n } from "@/plugins/i18n";
-import { initRouter } from "@/router/utils";
+import { getTopMenu, initRouter } from "@/router/utils";
 import { useUserStoreHook } from "@/store/modules/user";
 import { message } from "@/utils/message";
 
@@ -46,10 +47,10 @@ const ruleForm = reactive({
 });
 
 const onLogin = async (formEl: FormInstance | undefined) => {
-  loading.value = true;
   if (!formEl) return;
   await formEl.validate((valid, fields) => {
     if (valid) {
+      loading.value = true;
       useUserStoreHook()
         .loginByUsername({
           username: ruleForm.username,
@@ -59,8 +60,9 @@ const onLogin = async (formEl: FormInstance | undefined) => {
           if (res.code === "200") {
             // 获取后端路由
             initRouter().then(() => {
-              router.push("/");
-              message(t("msg.loginSuccess"), { type: "success" });
+              router.push(getTopMenu(true).path).then(() => {
+                message(t("msg.loginSuccess"), { type: "success" });
+              });
             });
           } else {
             loading.value = false;
