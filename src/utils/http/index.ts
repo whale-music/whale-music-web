@@ -86,17 +86,16 @@ class PureHttp {
               const data = getToken();
               if (data) {
                 const now = new Date().getTime();
-                const expired = parseInt(data.expiryTime) - now <= 0;
+                const expired = data.expires - now <= 0;
                 if (expired) {
                   if (!PureHttp.isRefreshing) {
                     PureHttp.isRefreshing = true;
                     // token过期刷新
                     useUserStoreHook()
-                      .handRefreshToken({ refreshToken: data.id })
+                      .handRefreshToken({ refreshToken: data.refreshToken })
                       .then(res => {
-                        const token = res.data.token;
-                        // config.headers["Authorization"] = formatToken(token);
-                        config.headers["token"] = token;
+                        const token = res.data.accessToken;
+                        config.headers["Authorization"] = formatToken(token);
                         PureHttp.requests.forEach(cb => cb(token));
                         PureHttp.requests = [];
                       })
@@ -106,8 +105,9 @@ class PureHttp {
                   }
                   resolve(PureHttp.retryOriginalRequest(config));
                 } else {
-                  config.headers["token"] = data.token;
-                  // config.headers["Authorization"] = formatToken(data.token);
+                  config.headers["Authorization"] = formatToken(
+                    data.accessToken
+                  );
                   resolve(config);
                 }
               } else {
@@ -176,6 +176,9 @@ class PureHttp {
 
     // 单独处理自定义请求/响应回调
     return new Promise((resolve, reject) => {
+      // if (process.env.NODE_ENV === "development") {
+      //   config.url = `${import.meta.env.VITE_PROXY_PREFIX}${config.url}`;
+      // }
       PureHttp.axiosInstance
         .request(config)
         .then((response: any) => {

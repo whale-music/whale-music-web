@@ -1,4 +1,3 @@
-import { http } from "@/utils/http";
 import { Data, R } from "@/api/model/common";
 import { Config } from "@/api/model/User";
 import {
@@ -8,24 +7,19 @@ import {
   SaveOrUpdateUserRes,
   UserConverter
 } from "@/api/model/User";
+import { DataInfo } from "@/utils/auth";
+import { http } from "@/utils/http";
 
-export type UserResult = {
-  code: string;
-  message: string;
-  data: {
-    // 用户ID
-    id: string;
-    /** 用户名 */
-    username: string;
-    /** 当前登陆用户的角色 */
-    roles: Array<string>;
-    /** `token` */
-    token: string;
-    /** `accessToken`的过期时间（格式'xxxx/xx/xx xx:xx:xx'） */
-    expiryTime: number;
-  };
-};
+export type UserResult = R<DataInfo>;
 
+export type RefreshTokenResult = R<{
+  /** `token` */
+  accessToken: string;
+  /** 用于调用刷新`accessToken`的接口时所需的`token` */
+  refreshToken: string;
+  /** `accessToken`的过期时间（格式'xxxx/xx/xx xx:xx:xx'） */
+  expires: number;
+}>;
 /** 登录 */
 export const getLogin = (data?: object) => {
   return http.request<UserResult>("post", "/admin/user/login", { data });
@@ -33,7 +27,9 @@ export const getLogin = (data?: object) => {
 
 /** 刷新token */
 export const refreshTokenApi = (data?: object) => {
-  return http.request<UserResult>("post", "/admin/user/refreshToken", { data });
+  return http.request<RefreshTokenResult>("post", "/admin/user/refreshToken", {
+    data
+  });
 };
 
 /** 登出*/
