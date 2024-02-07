@@ -1,18 +1,20 @@
-import { storeToRefs } from "pinia";
-import { getConfig } from "@/config";
-import { useRouter } from "vue-router";
-import { emitter } from "@/utils/mitt";
-import { routeMetaType } from "../types";
-import userAvatar from "@/assets/user.png";
-import { getTopMenu } from "@/router/utils";
 import { useGlobal } from "@pureadmin/utils";
-import { transformI18n } from "@/plugins/i18n";
-import { router, remainingPaths } from "@/router";
+import { storeToRefs } from "pinia";
 import { computed, type CSSProperties } from "vue";
+import { useRouter } from "vue-router";
+
+import userAvatar from "@/assets/user.png";
+import { getConfig } from "@/config";
+import { transformI18n } from "@/plugins/i18n";
+import { remainingPaths, router } from "@/router";
+import { getTopMenu } from "@/router/utils";
 import { useAppStoreHook } from "@/store/modules/app";
-import { useUserStoreHook } from "@/store/modules/user";
 import { useEpThemeStoreHook } from "@/store/modules/epTheme";
 import { usePermissionStoreHook } from "@/store/modules/permission";
+import { useUserStoreHook } from "@/store/modules/user";
+import { emitter } from "@/utils/mitt";
+
+import { routeMetaType } from "../types";
 
 const errorInfo = "当前路由配置不正确，请检查配置";
 
