@@ -1,5 +1,5 @@
 <script lang="ts">
-import VideoFrameDialog from "@/views/components/addMvSidebar/components/videoFrameDialog.vue";
+import VideoFrameDialog from "./components/videoFrameDialog.vue";
 import {
   AutocompleteFetchSuggestionsCallback,
   genFileId,
@@ -9,16 +9,17 @@ import {
 } from "element-plus";
 import { saveMvInfo, SaveOrUpdateMv } from "@/api/mv";
 import { getSelectSingerList } from "@/api/singer";
-import PreviewVideo from "@/views/components/addMvSidebar/components/previewVideo/index.vue";
+import PreviewVideo from "./components/previewVideo/index.vue";
 import { ArtistConvert, SelectArtist } from "@/api/model/Artist";
 import { message } from "@/utils/message";
+import { defineComponent } from "vue";
 const { VITE_PROXY_HOST } = import.meta.env;
-export default {
+export default defineComponent({
+  name: "DrawerMv",
   components: { PreviewVideo, VideoFrameDialog },
   props: {
     value: Boolean,
-    direction: String,
-    title: String
+    direction: String
   },
   data() {
     return {
@@ -118,6 +119,7 @@ export default {
         message("上传成功", { type: "success" });
         this.mvSaveData = {};
         this.selectPreview.artist = [];
+        this.$emit("change");
       }
     },
     picUploadHandleSuccessfully(response: any) {
@@ -136,13 +138,13 @@ export default {
       this.$refs.picUpload!.handleStart(file);
     }
   }
-};
+});
 </script>
 <template>
   <el-drawer
     v-model="this.getVisible"
     :before-close="beforeClose"
-    :title="title"
+    title="上传MV"
     @open="handleOpen"
     @close="handleClose"
   >

@@ -178,6 +178,7 @@ export default {
       :sortConfig="this.filter.order"
       @sort-config="this.handelUpdateSortConfig"
       @update-order-config="this.handelUpdateOrderConfig"
+      @change="this.init"
     />
     <transition name="el-fade-in">
       <ShowLoading :loading="this.search.loadFlag" />

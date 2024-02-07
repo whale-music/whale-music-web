@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import {
-  ref,
-  onBeforeMount,
-  Ref,
-  computed,
-  reactive,
   Component,
-  DefineComponent
+  computed,
+  DefineComponent,
+  onBeforeMount,
+  reactive,
+  ref,
+  Ref
 } from "vue";
 import {
   Count,
@@ -43,6 +43,7 @@ import AlbumLine from "@iconify-icons/mingcute/album-line";
 import ReCol from "@/components/ReCol";
 import type { IconifyIcon } from "@iconify/types";
 import HotData from "@/views/welcome/components/HotData/index.vue";
+import DrawerMv from "@/components/AddData/DrawerMv/index.vue";
 
 const router = useRouter();
 
@@ -83,7 +84,7 @@ const state = reactive({
     {
       title: "MV",
       icon: VideocameraBold,
-      comp: DrawerMusic
+      comp: DrawerMv
     }
   ] as PropType<Array<Static>>,
   show: {

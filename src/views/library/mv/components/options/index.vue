@@ -5,7 +5,7 @@ import { useI18n } from "vue-i18n";
 import { reactive, watch } from "vue";
 import MenuFill from "@iconify-icons/mingcute/menu-fill";
 import ListCheckFill from "@iconify-icons/mingcute/list-check-fill";
-import AddMvSidebar from "@/views/components/addMvSidebar/index.vue";
+import DrawerMv from "@/components/AddData/DrawerMv/index.vue";
 
 const { t } = useI18n();
 
@@ -86,7 +86,8 @@ const state = reactive({
 const emits = defineEmits([
   "updateOrderConfig",
   "sortConfig",
-  "updateMultiple"
+  "updateMultiple",
+  "change"
 ]);
 
 watch(
@@ -117,7 +118,7 @@ const createMvMethod = () => {
 </script>
 <template>
   <div>
-    <add-mv-sidebar v-model="state.flag.addMvFlag" title="添加MV" />
+    <DrawerMv v-model="state.flag.addMvFlag" @change="this.emits('change')" />
     <div class="option">
       <div class="flex items-center">
         <MenuButton @click="state.menuFlag = !state.menuFlag">
