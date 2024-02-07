@@ -39,6 +39,7 @@ module.exports = {
     "@vue/prettier",
     "@vue/eslint-config-typescript"
   ],
+  plugins: ["simple-import-sort"],
   parser: "vue-eslint-parser",
   parserOptions: {
     parser: "@typescript-eslint/parser",
@@ -115,6 +116,8 @@ module.exports = {
       {
         endOfLine: "auto"
       }
-    ]
+    ],
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error"
   }
 };

@@ -47,6 +47,7 @@ specifiers:
   element-resize-detector: ^1.2.4
   eslint: ^8.8.0
   eslint-plugin-prettier: ^4.0.0
+  eslint-plugin-simple-import-sort: ^10.0.0
   eslint-plugin-vue: ^9.9.0
   howler: ^2.2.3
   husky: ^7.0.4
@@ -164,6 +165,7 @@ devDependencies:
   cssnano: 5.1.15_postcss@8.4.33
   eslint: 8.56.0
   eslint-plugin-prettier: 4.2.1_eslint@8.56.0+prettier@2.8.8
+  eslint-plugin-simple-import-sort: 10.0.0_eslint@8.56.0
   eslint-plugin-vue: 9.20.1_eslint@8.56.0
   husky: 7.0.4
   lint-staged: 11.1.2
@@ -4271,6 +4273,17 @@ packages:
       eslint: 8.56.0
       prettier: 2.8.8
       prettier-linter-helpers: 1.0.0
+    dev: true
+
+  /eslint-plugin-simple-import-sort/10.0.0_eslint@8.56.0:
+    resolution:
+      {
+        integrity: sha512-AeTvO9UCMSNzIHRkg8S6c3RPy5YEwKWSQPx3DYghLedo2ZQxowPFLGDN1AZ2evfg6r6mjBSZSLxLFsWSu3acsw==
+      }
+    peerDependencies:
+      eslint: ">=5.0.0"
+    dependencies:
+      eslint: 8.56.0
     dev: true
 
   /eslint-plugin-vue/9.20.1_eslint@8.56.0:
