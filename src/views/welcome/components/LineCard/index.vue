@@ -3,9 +3,8 @@ import AddCircleFill from "@iconify-icons/mingcute/add-circle-fill";
 import More2Fill from "@iconify-icons/mingcute/more-2-fill";
 import ContextMenu from "@imengyu/vue3-context-menu";
 import { useDark } from "@pureadmin/utils";
-import type { VNode } from "vue";
+import type { PropType, VNode } from "vue";
 import { computed, ref } from "vue";
-import { PropType } from "vue/dist/vue";
 
 import IcTwotoneTrendingDown from "@/assets/components/IcTwotoneTrendingDown.vue";
 import IcTwotoneTrendingFlat from "@/assets/components/IcTwotoneTrendingFlat.vue";
