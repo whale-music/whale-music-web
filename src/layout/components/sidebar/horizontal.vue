@@ -1,18 +1,20 @@
 <script setup lang="ts">
-import Search from "../search/index.vue";
-import Notice from "../notice/index.vue";
-import { ref, watch, nextTick } from "vue";
-import SidebarItem from "./sidebarItem.vue";
-import { useNav } from "@/layout/hooks/useNav";
-import { useTranslationLang } from "../../hooks/useTranslationLang";
-import { usePermissionStoreHook } from "@/store/modules/permission";
+import Check from "@iconify-icons/ep/check";
+import LogoutCircleRLine from "@iconify-icons/ri/logout-circle-r-line";
+import Setting from "@iconify-icons/ri/settings-3-line";
+import ShieldUserLine from "@iconify-icons/ri/shield-user-line";
+import { nextTick, ref, watch } from "vue";
+
 import globalization from "@/assets/svg/globalization.svg?component";
 import user from "@/assets/svg/user.svg?component";
-import LogoutCircleRLine from "@iconify-icons/ri/logout-circle-r-line";
-import ShieldUserLine from "@iconify-icons/ri/shield-user-line";
-import Setting from "@iconify-icons/ri/settings-3-line";
-import Check from "@iconify-icons/ep/check";
 import PlayMusic from "@/layout/components/sidebar/playMusic.vue";
+import { useNav } from "@/layout/hooks/useNav";
+import { usePermissionStoreHook } from "@/store/modules/permission";
+
+import { useTranslationLang } from "../../hooks/useTranslationLang";
+import Notice from "../notice/index.vue";
+import Search from "../search/index.vue";
+import SidebarItem from "./sidebarItem.vue";
 
 const menuRef = ref();
 

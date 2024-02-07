@@ -1,24 +1,25 @@
 <script setup lang="ts">
+import ListCheckFill from "@iconify-icons/mingcute/list-check-fill";
+import MenuFill from "@iconify-icons/mingcute/menu-fill";
+import { storageLocal, useDark } from "@pureadmin/utils";
+import { CellStyle, ElTable } from "element-plus";
+import { onMounted, reactive, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
+
 import {
   deleteArtist,
   getSingerPage,
   SingerReq,
   SingerRes
 } from "@/api/singer";
-import { ref, reactive, onMounted, watch } from "vue";
-import { dateFormater } from "@/utils/dateUtil";
-import { useI18n } from "vue-i18n";
-import { useRouter } from "vue-router";
-import { message } from "@/utils/message";
-import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
-import { storageLocal, useDark } from "@pureadmin/utils";
-import { CellStyle, ElTable } from "element-plus";
-import Segmented, { type OptionsType } from "@/components/ReSegmented";
-import MenuFill from "@iconify-icons/mingcute/menu-fill";
-import ListCheckFill from "@iconify-icons/mingcute/list-check-fill";
-import NameSearch from "@/components/nameSearch/index.vue";
-import { emitter } from "@/utils/mitt";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
+import NameSearch from "@/components/nameSearch/index.vue";
+import Segmented, { type OptionsType } from "@/components/ReSegmented";
+import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
+import { dateFormater } from "@/utils/dateUtil";
+import { message } from "@/utils/message";
+import { emitter } from "@/utils/mitt";
 
 const { isDark } = useDark();
 const router = useRouter();

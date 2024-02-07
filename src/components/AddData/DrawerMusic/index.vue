@@ -1,23 +1,24 @@
 <script lang="ts" setup>
-import { defineComponent, reactive, ref } from "vue";
-import CircleClose from "@iconify-icons/ep/circle-close";
 import ArrowDownBold from "@iconify-icons/ep/arrow-down-bold";
+import CircleClose from "@iconify-icons/ep/circle-close";
+import { useVModel } from "@vueuse/core";
 import {
   ElMessageBox,
   genFileId,
   UploadInstance,
   UploadRawFile
 } from "element-plus";
-import { saveOrUpdateMusic } from "@/api/music";
-import { message } from "@/utils/message";
-import { getSelectSingerList } from "@/api/singer";
-import { ArtistConvert, SelectArtist } from "@/api/model/Artist";
-import { AlbumConvert, SelectAlbum } from "@/api/model/Album";
-import { AudioInfoRes, SaveOrUpdateMusic } from "@/api/model/Music";
-import { Count } from "@/api/hone";
-import { R } from "@/api/model/common";
+import { defineComponent, reactive, ref } from "vue";
+
 import { getSelectAlbumList } from "@/api/album";
-import { useVModel } from "@vueuse/core";
+import { Count } from "@/api/hone";
+import { AlbumConvert, SelectAlbum } from "@/api/model/Album";
+import { ArtistConvert, SelectArtist } from "@/api/model/Artist";
+import { R } from "@/api/model/common";
+import { AudioInfoRes, SaveOrUpdateMusic } from "@/api/model/Music";
+import { saveOrUpdateMusic } from "@/api/music";
+import { getSelectSingerList } from "@/api/singer";
+import { message } from "@/utils/message";
 
 defineComponent({
   name: "DrawerMusic"

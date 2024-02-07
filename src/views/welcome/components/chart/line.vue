@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { type PropType, ref, computed } from "vue";
 import { useDark, useECharts } from "@pureadmin/utils";
+import { computed, type PropType, ref } from "vue";
 
 const props = defineProps({
   data: {

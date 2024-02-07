@@ -1,13 +1,28 @@
 <script setup lang="ts">
+import type { IconifyIcon } from "@iconify/types";
+import AlbumLine from "@iconify-icons/mingcute/album-line";
+import MusicNoteBoldDuotone from "@iconify-icons/solar/music-note-bold-duotone";
+import UserRoundedBoldDuotone from "@iconify-icons/solar/user-rounded-bold-duotone";
+import VideocameraBold from "@iconify-icons/solar/videocamera-bold";
+import {
+  EchartOptions,
+  useDark,
+  useECharts,
+  UtilsEChartsOption
+} from "@pureadmin/utils";
+import dayjs from "dayjs";
+import { ElScrollbar } from "element-plus";
 import {
   Component,
   computed,
   DefineComponent,
   onBeforeMount,
   reactive,
-  ref,
-  Ref
+  Ref,
+  ref
 } from "vue";
+import { useRouter } from "vue-router";
+
 import {
   Count,
   getCount,
@@ -16,34 +31,20 @@ import {
   MusicStatisticsRes,
   PluginTaskRes
 } from "@/api/hone";
-import {
-  EchartOptions,
-  useDark,
-  useECharts,
-  UtilsEChartsOption
-} from "@pureadmin/utils";
-import { ElScrollbar } from "element-plus";
-import dayjs from "dayjs";
-import { dateFormater } from "@/utils/dateUtil";
-import { FriendlyTime } from "@/utils/DateFormat";
-import WButton from "@/components/button/index.vue";
-import { useRouter } from "vue-router";
+import { SaveOrUpdateAlbum, SelectAlbum } from "@/api/model/Album";
 import { SaveOrUpdateArtist, SelectArtist } from "@/api/model/Artist";
 import { LinkItem } from "@/api/model/common";
-import { SaveOrUpdateAlbum, SelectAlbum } from "@/api/model/Album";
 import { SaveOrUpdateMusic } from "@/api/model/Music";
-import DrawerMusic from "@/components/AddData/DrawerMusic/index.vue";
 import DrawerAlbum from "@/components/AddData/DrawerAlbum/index.vue";
 import DrawerArtist from "@/components/AddData/DrawerArtist/index.vue";
-import LineCard from "@/views/welcome/components/LineCard/index.vue";
-import MusicNoteBoldDuotone from "@iconify-icons/solar/music-note-bold-duotone";
-import UserRoundedBoldDuotone from "@iconify-icons/solar/user-rounded-bold-duotone";
-import VideocameraBold from "@iconify-icons/solar/videocamera-bold";
-import AlbumLine from "@iconify-icons/mingcute/album-line";
-import ReCol from "@/components/ReCol";
-import type { IconifyIcon } from "@iconify/types";
-import HotData from "@/views/welcome/components/HotData/index.vue";
+import DrawerMusic from "@/components/AddData/DrawerMusic/index.vue";
 import DrawerMv from "@/components/AddData/DrawerMv/index.vue";
+import WButton from "@/components/button/index.vue";
+import ReCol from "@/components/ReCol";
+import { FriendlyTime } from "@/utils/DateFormat";
+import { dateFormater } from "@/utils/dateUtil";
+import HotData from "@/views/welcome/components/HotData/index.vue";
+import LineCard from "@/views/welcome/components/LineCard/index.vue";
 
 const router = useRouter();
 

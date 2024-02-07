@@ -1,24 +1,25 @@
 <script lang="ts">
-import { defineComponent, shallowRef } from "vue";
-import Mock from "mockjs";
+import FileBoldDuotone from "@iconify-icons/solar/file-bold-duotone";
 import GalleryMinimalisticBold from "@iconify-icons/solar/gallery-minimalistic-bold";
 import SoundwaveCircleBold from "@iconify-icons/solar/soundwave-circle-bold";
 import VideoFramePlayVerticalBold from "@iconify-icons/solar/video-frame-play-vertical-bold";
-import FileBoldDuotone from "@iconify-icons/solar/file-bold-duotone";
-import PicFileInfo from "@/views/library/storefile/components/picFileInfo/index.vue";
+import { ElLoading } from "element-plus";
+import Mock from "mockjs";
+import { defineComponent, shallowRef } from "vue";
+
 import {
   FilterTermsRes,
   getFilterType,
   getStoreFileInfoList,
-  StoreFileInfoReq,
-  ResourcePageRes
+  ResourcePageRes,
+  StoreFileInfoReq
 } from "@/api/storefile";
 import WSegmented from "@/components/WSegmented/index.vue";
 import AudioFileInfo from "@/views/library/storefile/components/audioFileInfo/index.vue";
+import PicFileInfo from "@/views/library/storefile/components/picFileInfo/index.vue";
 import VideoFileInfo from "@/views/library/storefile/components/videoFileInfo/index.vue";
-import FilterCheckout from "./components/filterCheckout/index.vue";
 
-import { ElLoading } from "element-plus";
+import FilterCheckout from "./components/filterCheckout/index.vue";
 
 export default defineComponent({
   name: "StoreFile",

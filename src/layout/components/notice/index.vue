@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import Bell from "@iconify-icons/ep/bell";
 import { ref } from "vue";
+
 import { noticesData } from "./data";
 import NoticeList from "./noticeList.vue";
-import Bell from "@iconify-icons/ep/bell";
 
 const noticesNum = ref(0);
 const notices = ref(noticesData);

@@ -1,13 +1,14 @@
 <script lang="tsx" setup>
-import { onMounted, ref } from "vue";
-import { PureTable } from "@pureadmin/table";
-import LoadImg from "@/components/LoadImg/LoadImg.vue";
-import TimeFill from "@iconify-icons/mingcute/time-fill";
-import PlayFill from "@iconify-icons/mingcute/play-fill";
 import AddFill from "@iconify-icons/mingcute/add-fill";
 import HeartFill from "@iconify-icons/mingcute/heart-fill";
-import IconifyIconOffline from "@/components/ReIcon/src/iconifyIconOffline";
+import PlayFill from "@iconify-icons/mingcute/play-fill";
+import TimeFill from "@iconify-icons/mingcute/time-fill";
+import { PureTable } from "@pureadmin/table";
+import { onMounted, ref } from "vue";
+
 import { getLastMusic, LastMusicRes } from "@/api/hone";
+import LoadImg from "@/components/LoadImg/LoadImg.vue";
+import IconifyIconOffline from "@/components/ReIcon/src/iconifyIconOffline";
 
 defineOptions({
   name: "HotMusic"

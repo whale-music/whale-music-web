@@ -1,6 +1,8 @@
 <script lang="ts">
+import { ElLoading } from "element-plus";
 import { defineComponent } from "vue";
-import { getFileTypeColor } from "@/views/library/storefile/components/util/fileInfoUtil";
+
+import { AutoCompleteCommon } from "@/api/model/StoreFile";
 import {
   cleanResource,
   getMvAutocomplete,
@@ -10,10 +12,9 @@ import {
   UpdateLinkVideo,
   updateLinkVideo
 } from "@/api/storefile";
-import { AutoCompleteCommon } from "@/api/model/StoreFile";
-import { ElLoading } from "element-plus";
 import { useCopy } from "@/utils/copy";
 import { message } from "@/utils/message";
+import { getFileTypeColor } from "@/views/library/storefile/components/util/fileInfoUtil";
 
 export default defineComponent({
   name: "VideoFileInfo",

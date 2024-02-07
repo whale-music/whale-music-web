@@ -1,9 +1,10 @@
 <script lang="ts">
-import { defineComponent } from "vue";
-import CheckCircleLineDuotone from "@iconify-icons/solar/check-circle-line-duotone";
 import CheckCircleBold from "@iconify-icons/solar/check-circle-bold";
-import VideoCard from "@/views/components/videoCard/index.vue";
+import CheckCircleLineDuotone from "@iconify-icons/solar/check-circle-line-duotone";
+import { defineComponent } from "vue";
+
 import { SimpleArtist } from "@/api/mv";
+import VideoCard from "@/views/components/videoCard/index.vue";
 
 export default defineComponent({
   name: "SelectVideoCard",

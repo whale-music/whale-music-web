@@ -1,5 +1,4 @@
 <script lang="ts">
-import VideoFrameDialog from "./components/videoFrameDialog.vue";
 import {
   AutocompleteFetchSuggestionsCallback,
   genFileId,
@@ -7,12 +6,15 @@ import {
   UploadFiles,
   UploadRawFile
 } from "element-plus";
+import { defineComponent } from "vue";
+
+import { ArtistConvert, SelectArtist } from "@/api/model/Artist";
 import { saveMvInfo, SaveOrUpdateMv } from "@/api/mv";
 import { getSelectSingerList } from "@/api/singer";
-import PreviewVideo from "./components/previewVideo/index.vue";
-import { ArtistConvert, SelectArtist } from "@/api/model/Artist";
 import { message } from "@/utils/message";
-import { defineComponent } from "vue";
+
+import PreviewVideo from "./components/previewVideo/index.vue";
+import VideoFrameDialog from "./components/videoFrameDialog.vue";
 const { VITE_PROXY_HOST } = import.meta.env;
 export default defineComponent({
   name: "DrawerMv",

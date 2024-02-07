@@ -1,8 +1,9 @@
 <script lang="ts">
-import IconifyIconOffline from "@/components/ReIcon/src/iconifyIconOffline";
 import UserRoundedLineDuotone from "@iconify-icons/solar/user-rounded-line-duotone";
-import { SimpleArtist } from "@/api/mv";
 import { defineComponent } from "vue";
+
+import { SimpleArtist } from "@/api/mv";
+import IconifyIconOffline from "@/components/ReIcon/src/iconifyIconOffline";
 
 export default defineComponent({
   name: "VideoCard",

@@ -1,25 +1,26 @@
 <script lang="ts" setup>
-import { onMounted, reactive, ref, watch } from "vue";
-import { Lyric, MusicSearchRes, MusicUrlInfo } from "@/api/music";
-import LoadImg from "@/components/LoadImg/LoadImg.vue";
-import { dateFormater } from "@/utils/dateUtil";
-import DownFill from "@iconify-icons/mingcute/down-fill";
-import { prominent } from "@/utils/color/color";
-import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
-import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
+import BScroll from "@better-scroll/core";
+import MouseWheel from "@better-scroll/mouse-wheel";
 import ArrowRightFill from "@iconify-icons/mingcute/arrow-right-fill";
+import DownFill from "@iconify-icons/mingcute/down-fill";
+import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
 import RepeatBold from "@iconify-icons/solar/repeat-bold";
 import RepeatOneBold from "@iconify-icons/solar/repeat-one-bold";
 import ShuffleLinear from "@iconify-icons/solar/shuffle-linear";
-import { getActualWidthOfChars } from "@/utils/textWidthUtil";
-import { Lrc } from "lrc-kit";
-import BScroll from "@better-scroll/core";
-import MouseWheel from "@better-scroll/mouse-wheel";
-import { useNav } from "@/layout/hooks/useNav";
-import { emitter } from "@/utils/mitt";
-import { useDialog } from "@/layout/hooks/useDialog";
 import { darken } from "@pureadmin/utils";
+import { Lrc } from "lrc-kit";
+import { onMounted, reactive, ref, watch } from "vue";
+
+import { Lyric, MusicSearchRes, MusicUrlInfo } from "@/api/music";
+import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import IconifyIconOffline from "@/components/ReIcon/src/iconifyIconOffline";
+import { useDialog } from "@/layout/hooks/useDialog";
+import { useNav } from "@/layout/hooks/useNav";
+import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
+import { prominent } from "@/utils/color/color";
+import { dateFormater } from "@/utils/dateUtil";
+import { emitter } from "@/utils/mitt";
+import { getActualWidthOfChars } from "@/utils/textWidthUtil";
 
 const { widthRef } = useDialog();
 const { closePlayMusic } = useNav();

@@ -1,21 +1,23 @@
 <script setup lang="ts">
-import extraIcon from "./extraIcon.vue";
-import Search from "../search/index.vue";
-import Notice from "../notice/index.vue";
-import { useNav } from "@/layout/hooks/useNav";
-import { transformI18n } from "@/plugins/i18n";
-import { ref, toRaw, watch, onMounted, nextTick } from "vue";
-import { useRenderIcon } from "@/components/ReIcon/src/hooks";
-import { getParentPaths, findRouteByPath } from "@/router/utils";
-import { useTranslationLang } from "../../hooks/useTranslationLang";
-import { usePermissionStoreHook } from "@/store/modules/permission";
+import Check from "@iconify-icons/ep/check";
+import LogoutCircleRLine from "@iconify-icons/ri/logout-circle-r-line";
+import Setting from "@iconify-icons/ri/settings-3-line";
+import ShieldUserLine from "@iconify-icons/ri/shield-user-line";
+import { nextTick, onMounted, ref, toRaw, watch } from "vue";
+
 import globalization from "@/assets/svg/globalization.svg?component";
 import user from "@/assets/svg/user.svg?component";
-import LogoutCircleRLine from "@iconify-icons/ri/logout-circle-r-line";
-import ShieldUserLine from "@iconify-icons/ri/shield-user-line";
-import Setting from "@iconify-icons/ri/settings-3-line";
-import Check from "@iconify-icons/ep/check";
+import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import PlayMusic from "@/layout/components/sidebar/playMusic.vue";
+import { useNav } from "@/layout/hooks/useNav";
+import { transformI18n } from "@/plugins/i18n";
+import { findRouteByPath, getParentPaths } from "@/router/utils";
+import { usePermissionStoreHook } from "@/store/modules/permission";
+
+import { useTranslationLang } from "../../hooks/useTranslationLang";
+import Notice from "../notice/index.vue";
+import Search from "../search/index.vue";
+import extraIcon from "./extraIcon.vue";
 
 const menuRef = ref();
 const defaultActive = ref(null);

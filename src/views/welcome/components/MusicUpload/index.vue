@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { PureTable } from "@pureadmin/table";
-import { getUsersUpload, UsersUploadRes } from "@/api/hone";
 import { onMounted, ref } from "vue";
+
+import { getUsersUpload, UsersUploadRes } from "@/api/hone";
 
 defineOptions({
   name: "MusicUpload"

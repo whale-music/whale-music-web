@@ -1,5 +1,10 @@
 <script lang="ts" setup>
+import "vue-json-pretty/lib/styles.css";
+
+import { ElMessageBox, ElScrollbar } from "element-plus";
 import { h, onMounted, reactive } from "vue";
+import VueJsonPretty from "vue-json-pretty";
+
 import {
   deleteSchedule,
   getScheduleList,
@@ -8,11 +13,8 @@ import {
   Schedule,
   ScheduleInfo
 } from "@/api/plugin";
-import { message } from "@/utils/message";
 import Wbutton from "@/components/button/index.vue";
-import { ElMessageBox, ElScrollbar } from "element-plus";
-import VueJsonPretty from "vue-json-pretty";
-import "vue-json-pretty/lib/styles.css";
+import { message } from "@/utils/message";
 
 const state = reactive<{
   scheduleReq: Schedule;

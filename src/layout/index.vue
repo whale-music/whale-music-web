@@ -2,21 +2,23 @@
 import "animate.css";
 // 引入 src/components/ReIcon/src/offlineIcon.ts 文件中所有使用addIcon添加过的本地图标
 import "@/components/ReIcon/src/offlineIcon";
-import { setType } from "./types";
-import { emitter } from "@/utils/mitt";
-import { useLayout } from "./hooks/useLayout";
+
+import { deviceDetection, useDark, useGlobal } from "@pureadmin/utils";
+import { computed, defineComponent, h, onMounted, reactive } from "vue";
+
+import backTop from "@/assets/svg/back_top.svg?component";
 import { useAppStoreHook } from "@/store/modules/app";
 import { useSettingStoreHook } from "@/store/modules/settings";
-import { deviceDetection, useDark, useGlobal } from "@pureadmin/utils";
-import { h, reactive, computed, onMounted, defineComponent } from "vue";
+import { emitter } from "@/utils/mitt";
 
-import navbar from "./components/navbar.vue";
-import tag from "./components/tag/index.vue";
 import appMain from "./components/appMain.vue";
+import navbar from "./components/navbar.vue";
 import setting from "./components/setting/index.vue";
-import Vertical from "./components/sidebar/vertical.vue";
 import Horizontal from "./components/sidebar/horizontal.vue";
-import backTop from "@/assets/svg/back_top.svg?component";
+import Vertical from "./components/sidebar/vertical.vue";
+import tag from "./components/tag/index.vue";
+import { useLayout } from "./hooks/useLayout";
+import { setType } from "./types";
 
 const { isDark } = useDark();
 const { layout } = useLayout();

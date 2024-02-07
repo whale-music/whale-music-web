@@ -1,8 +1,9 @@
 <script lang="ts">
-import { defineComponent } from "vue";
-import { message } from "@/utils/message";
 import { storageSession } from "@pureadmin/utils";
+import { defineComponent } from "vue";
+
 import { DataInfo, sessionKey } from "@/utils/auth";
+import { message } from "@/utils/message";
 const { VITE_PROXY_HOST } = import.meta.env;
 
 export default defineComponent({

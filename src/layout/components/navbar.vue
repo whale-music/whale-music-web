@@ -1,18 +1,20 @@
 <script setup lang="ts">
-import Search from "./search/index.vue";
-import Notice from "./notice/index.vue";
-import mixNav from "./sidebar/mixNav.vue";
-import { useNav } from "@/layout/hooks/useNav";
-import Breadcrumb from "./sidebar/breadCrumb.vue";
-import topCollapse from "./sidebar/topCollapse.vue";
-import { useTranslationLang } from "../hooks/useTranslationLang";
+import Check from "@iconify-icons/ep/check";
+import LogoutCircleRLine from "@iconify-icons/ri/logout-circle-r-line";
+import Setting from "@iconify-icons/ri/settings-3-line";
+import ShieldUserLine from "@iconify-icons/ri/shield-user-line";
+
 import globalization from "@/assets/svg/globalization.svg?component";
 import user from "@/assets/svg/user.svg?component";
-import LogoutCircleRLine from "@iconify-icons/ri/logout-circle-r-line";
-import ShieldUserLine from "@iconify-icons/ri/shield-user-line";
-import Setting from "@iconify-icons/ri/settings-3-line";
-import Check from "@iconify-icons/ep/check";
 import PlayMusic from "@/layout/components/sidebar/playMusic.vue";
+import { useNav } from "@/layout/hooks/useNav";
+
+import { useTranslationLang } from "../hooks/useTranslationLang";
+import Notice from "./notice/index.vue";
+import Search from "./search/index.vue";
+import Breadcrumb from "./sidebar/breadCrumb.vue";
+import mixNav from "./sidebar/mixNav.vue";
+import topCollapse from "./sidebar/topCollapse.vue";
 
 const {
   layout,

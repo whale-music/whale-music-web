@@ -1,16 +1,17 @@
 <script lang="ts">
-import NameSearch from "@/components/nameSearch/index.vue";
-import Options from "./components/options/index.vue";
-import VideoCard from "@/views/components/videoCard/index.vue";
-
-import { useI18n } from "vue-i18n";
-import { getMvPage, MvPageRes, MvPageReq, removeMvList } from "@/api/mv";
-import SelectVideoCard from "@/views/library/mv/components/selectedVideoCard/index.vue";
-import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
-import MvFloatingOperatingPanel from "@/views/library/mv/components/mvFloatingOperatingPanel/index.vue";
-import { message } from "@/utils/message";
 import { ElMessageBox } from "element-plus";
+import { useI18n } from "vue-i18n";
+
 import { Data } from "@/api/model/common";
+import { getMvPage, MvPageReq, MvPageRes, removeMvList } from "@/api/mv";
+import NameSearch from "@/components/nameSearch/index.vue";
+import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
+import { message } from "@/utils/message";
+import VideoCard from "@/views/components/videoCard/index.vue";
+import MvFloatingOperatingPanel from "@/views/library/mv/components/mvFloatingOperatingPanel/index.vue";
+import SelectVideoCard from "@/views/library/mv/components/selectedVideoCard/index.vue";
+
+import Options from "./components/options/index.vue";
 export default {
   components: {
     MvFloatingOperatingPanel,

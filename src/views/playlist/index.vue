@@ -1,34 +1,35 @@
 <script lang="ts" setup>
-import {
-  getPlayListInfo,
-  getPlayListById,
-  PlayListRes,
-  PlayInfoRes,
-  createPlayList,
-  deletePlayList,
-  updatePlayListInfo,
-  tracksMusicToPlayList
-} from "@/api/playlist";
-import { getMusicUrl } from "@/api/music";
-import { useRoute, useRouter } from "vue-router"; //1.先在需要跳转的页面引入useRouter
-import { ref, reactive, onMounted, watch } from "vue";
-import { dateFormater } from "@/utils/dateUtil";
-import { message } from "@/utils/message";
-import { CellStyle } from "element-plus/es";
-import DownloadIcon from "@/components/DownloadIcon/download.vue";
-import { MusicSearchReq } from "@/api/model/common";
-import LoadImg from "@/components/LoadImg/LoadImg.vue";
-import { getUserInfo } from "@/api/user";
-import { initRouter } from "@/router/utils";
-import Wbutton from "@/components/button/index.vue";
+import ListCheckFill from "@iconify-icons/mingcute/list-check-fill";
+import MenuFill from "@iconify-icons/mingcute/menu-fill";
 import { clone, storageLocal, storageSession, useDark } from "@pureadmin/utils";
 import { ElTable } from "element-plus";
-import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
-import Segmented, { type OptionsType } from "@/components/ReSegmented";
-import MenuFill from "@iconify-icons/mingcute/menu-fill";
-import ListCheckFill from "@iconify-icons/mingcute/list-check-fill";
-import { useNav } from "@/layout/hooks/useNav";
+import { CellStyle } from "element-plus/es";
+import { onMounted, reactive, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router"; //1.先在需要跳转的页面引入useRouter
+
+import { MusicSearchReq } from "@/api/model/common";
 import { UserConverter } from "@/api/model/User";
+import { getMusicUrl } from "@/api/music";
+import {
+  createPlayList,
+  deletePlayList,
+  getPlayListById,
+  getPlayListInfo,
+  PlayInfoRes,
+  PlayListRes,
+  tracksMusicToPlayList,
+  updatePlayListInfo
+} from "@/api/playlist";
+import { getUserInfo } from "@/api/user";
+import Wbutton from "@/components/button/index.vue";
+import DownloadIcon from "@/components/DownloadIcon/download.vue";
+import LoadImg from "@/components/LoadImg/LoadImg.vue";
+import Segmented, { type OptionsType } from "@/components/ReSegmented";
+import { useNav } from "@/layout/hooks/useNav";
+import { initRouter } from "@/router/utils";
+import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
+import { dateFormater } from "@/utils/dateUtil";
+import { message } from "@/utils/message";
 
 const { onPlayMusic } = useNav();
 const route = useRoute();

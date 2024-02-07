@@ -1,6 +1,22 @@
 <script lang="ts" setup>
+import { Icon } from "@iconify/vue";
+import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
+import {
+  clone,
+  downloadByData,
+  storageSession,
+  useCopyToClipboard
+} from "@pureadmin/utils";
+import axios from "axios";
+import type { UploadInstance, UploadProps, UploadRawFile } from "element-plus";
+import { ElLoading, ElMessage, ElMessageBox, genFileId } from "element-plus";
 import { computed, onMounted, reactive, ref, unref, watch } from "vue";
 import { useRouter } from "vue-router";
+
+import { getSelectAlbumList } from "@/api/album";
+import { SelectAlbum } from "@/api/model/Album";
+import { ArtistConvert, SelectArtist } from "@/api/model/Artist";
+import { Resource, SaveOrUpdateMusic } from "@/api/model/Music";
 import {
   deleteSourceMusic,
   getMusicInfo,
@@ -8,42 +24,27 @@ import {
   getMusicUrl,
   manualUploadMusic,
   MusicDetailInfo,
+  MusicMetaData,
   MusicUrlInfo,
   saveOrUpdateLyric,
-  selectResources,
   saveOrUpdateMusic,
-  updateSourceMusic,
-  UploadManualMusic,
+  selectResources,
   syncMetaMusicFile,
-  MusicMetaData
+  updateSourceMusic,
+  UploadManualMusic
 } from "@/api/music";
-import { dateFormater } from "@/utils/dateUtil";
-import { Icon } from "@iconify/vue";
-import LoadImg from "@/components/LoadImg/LoadImg.vue";
-import {
-  storageSession,
-  useCopyToClipboard,
-  downloadByData,
-  clone
-} from "@pureadmin/utils";
-import { message } from "@/utils/message";
-import axios from "axios";
+import { getUserPlayList, UserPlayListRes } from "@/api/playlist";
+import { getSelectSingerList } from "@/api/singer";
 import PlayIcon from "@/assets/svg/play.svg?component";
 import AddMusicToPlayList from "@/components/addMusicToPlayList/addMusicToPlayList.vue";
-import { getUserPlayList, UserPlayListRes } from "@/api/playlist";
-import { DataInfo, sessionKey } from "@/utils/auth";
-import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
-import { getSelectAlbumList } from "@/api/album";
-import { getSelectSingerList } from "@/api/singer";
-import { ElLoading, ElMessage, ElMessageBox, genFileId } from "element-plus";
-import type { UploadInstance, UploadProps, UploadRawFile } from "element-plus";
+import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
-import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
-import { emitter } from "@/utils/mitt";
 import { useNav } from "@/layout/hooks/useNav";
-import { Resource, SaveOrUpdateMusic } from "@/api/model/Music";
-import { SelectAlbum } from "@/api/model/Album";
-import { ArtistConvert, SelectArtist } from "@/api/model/Artist";
+import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
+import { DataInfo, sessionKey } from "@/utils/auth";
+import { dateFormater } from "@/utils/dateUtil";
+import { message } from "@/utils/message";
+import { emitter } from "@/utils/mitt";
 const { VITE_PROXY_HOST } = import.meta.env;
 
 const { onPlayMusic } = useNav();

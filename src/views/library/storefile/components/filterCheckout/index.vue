@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { computed, ref } from "vue";
+
 import { FilterTermsRes } from "@/api/storefile";
 
 const checkAll = ref(true);

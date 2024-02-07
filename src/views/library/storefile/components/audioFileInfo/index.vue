@@ -1,6 +1,9 @@
 <script lang="ts">
+import { clone, isEqualObject } from "@pureadmin/utils";
+import { ElLoading } from "element-plus";
 import { defineComponent } from "vue";
-import { getFileTypeColor } from "@/views/library/storefile/components/util/fileInfoUtil";
+
+import { AutoCompleteCommon } from "@/api/model/StoreFile";
 import {
   cleanResource,
   getAudioResourceInfo,
@@ -10,11 +13,9 @@ import {
   UpdateLinkAudio,
   updateLinkAudio
 } from "@/api/storefile";
-import { AutoCompleteCommon } from "@/api/model/StoreFile";
-import { ElLoading } from "element-plus";
 import { useCopy } from "@/utils/copy";
-import { clone, isEqualObject } from "@pureadmin/utils";
 import { message } from "@/utils/message";
+import { getFileTypeColor } from "@/views/library/storefile/components/util/fileInfoUtil";
 
 export default defineComponent({
   name: "AudioFileInfo",

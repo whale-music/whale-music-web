@@ -1,22 +1,23 @@
 <script setup lang="ts">
-import { $t } from "@/plugins/i18n";
-import { emitter } from "@/utils/mitt";
-import { RouteConfigs } from "../../types";
-import { useTags } from "../../hooks/useTag";
-import { routerArrays } from "@/layout/types";
-import { isEqual, isAllEmpty } from "@pureadmin/utils";
-import { handleAliveRoute, getTopMenu } from "@/router/utils";
-import { useSettingStoreHook } from "@/store/modules/settings";
-import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
-import { ref, watch, unref, toRaw, nextTick, onBeforeMount } from "vue";
-import { useResizeObserver, useDebounceFn, useFullscreen } from "@vueuse/core";
-
+import CloseBold from "@iconify-icons/ep/close-bold";
+import ArrowDown from "@iconify-icons/ri/arrow-down-s-line";
+import ArrowLeftSLine from "@iconify-icons/ri/arrow-left-s-line";
+import ArrowRightSLine from "@iconify-icons/ri/arrow-right-s-line";
 import ExitFullscreen from "@iconify-icons/ri/fullscreen-exit-fill";
 import Fullscreen from "@iconify-icons/ri/fullscreen-fill";
-import ArrowDown from "@iconify-icons/ri/arrow-down-s-line";
-import ArrowRightSLine from "@iconify-icons/ri/arrow-right-s-line";
-import ArrowLeftSLine from "@iconify-icons/ri/arrow-left-s-line";
-import CloseBold from "@iconify-icons/ep/close-bold";
+import { isAllEmpty, isEqual } from "@pureadmin/utils";
+import { useDebounceFn, useFullscreen, useResizeObserver } from "@vueuse/core";
+import { nextTick, onBeforeMount, ref, toRaw, unref, watch } from "vue";
+
+import { routerArrays } from "@/layout/types";
+import { $t } from "@/plugins/i18n";
+import { getTopMenu, handleAliveRoute } from "@/router/utils";
+import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
+import { useSettingStoreHook } from "@/store/modules/settings";
+import { emitter } from "@/utils/mitt";
+
+import { useTags } from "../../hooks/useTag";
+import { RouteConfigs } from "../../types";
 
 const {
   route,

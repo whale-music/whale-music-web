@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { getTopMenu } from "@/router/utils";
-import { useNav } from "@/layout/hooks/useNav";
 import LeftOutline from "@iconify-icons/solar/alt-arrow-left-bold";
 import RightOutline from "@iconify-icons/solar/alt-arrow-right-bold";
 import { useRouter } from "vue-router";
+
+import { useNav } from "@/layout/hooks/useNav";
+import { getTopMenu } from "@/router/utils";
 
 const router = useRouter();
 const props = defineProps({

@@ -1,38 +1,39 @@
 <script setup lang="ts">
-import { deleteMusic, getAllMusicList, MusicSearchRes } from "@/api/music";
-import { MusicSearchReq, Page } from "@/api/model/common";
-import DownloadIcon from "@/components/DownloadIcon/download.vue";
-import { ref, reactive, onMounted, watch } from "vue";
-import { message } from "@/utils/message";
-import { dateFormater } from "@/utils/dateUtil";
+import LayoutGridFill from "@iconify-icons/mingcute/layout-grid-fill";
+import ChecklistLine from "@iconify-icons/solar/checklist-line-duotone";
+import HamburgerMenuLinear from "@iconify-icons/solar/hamburger-menu-linear";
+import ContextMenu from "@imengyu/vue3-context-menu";
+import {
+  deviceDetection,
+  downloadByData,
+  storageLocal,
+  storageSession,
+  useDark
+} from "@pureadmin/utils";
+import axios from "axios";
+import dayjs from "dayjs";
+import { ElLoading, ElTable } from "element-plus";
 import { CellStyle } from "element-plus/es";
+import { onMounted, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
-import {
-  storageSession,
-  useDark,
-  storageLocal,
-  downloadByData,
-  deviceDetection
-} from "@pureadmin/utils";
-import ContextMenu from "@imengyu/vue3-context-menu";
-import AddMusicToPlayList from "@/components/addMusicToPlayList/addMusicToPlayList.vue";
+
+import { MusicSearchReq, Page } from "@/api/model/common";
+import { deleteMusic, getAllMusicList, MusicSearchRes } from "@/api/music";
 import { getUserPlayList, musicLike, UserPlayListRes } from "@/api/playlist";
-import { DataInfo, sessionKey } from "@/utils/auth";
-import { ElLoading, ElTable } from "element-plus";
 import RefreshIcon from "@/assets/svg/refresh.svg?component";
-import { FriendlyTime } from "@/utils/DateFormat";
-import dayjs from "dayjs";
-import axios from "axios";
-import { emitter } from "@/utils/mitt";
-import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
-import NameSearch from "@/components/nameSearch/index.vue";
-import LoadImg from "@/components/LoadImg/LoadImg.vue";
-import ChecklistLine from "@iconify-icons/solar/checklist-line-duotone";
-import LayoutGridFill from "@iconify-icons/mingcute/layout-grid-fill";
-import HamburgerMenuLinear from "@iconify-icons/solar/hamburger-menu-linear";
-import Segmented, { type OptionsType } from "@/components/ReSegmented";
 import DrawerMusic from "@/components/AddData/DrawerMusic/index.vue";
+import AddMusicToPlayList from "@/components/addMusicToPlayList/addMusicToPlayList.vue";
+import DownloadIcon from "@/components/DownloadIcon/download.vue";
+import LoadImg from "@/components/LoadImg/LoadImg.vue";
+import NameSearch from "@/components/nameSearch/index.vue";
+import Segmented, { type OptionsType } from "@/components/ReSegmented";
+import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
+import { DataInfo, sessionKey } from "@/utils/auth";
+import { FriendlyTime } from "@/utils/DateFormat";
+import { dateFormater } from "@/utils/dateUtil";
+import { message } from "@/utils/message";
+import { emitter } from "@/utils/mitt";
 
 const { t } = useI18n();
 const { isDark } = useDark();

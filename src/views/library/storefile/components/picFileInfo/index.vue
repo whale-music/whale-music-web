@@ -1,8 +1,9 @@
 <script lang="ts">
-import { defineComponent } from "vue";
-import { clone, isEqualObject } from "@pureadmin/utils";
-import { getFileTypeColor } from "@/views/library/storefile/components/util/fileInfoUtil";
 import AddCircleLinear from "@iconify-icons/solar/add-circle-linear";
+import { clone, isEqualObject } from "@pureadmin/utils";
+import { ElLoading } from "element-plus";
+import { defineComponent } from "vue";
+
 import {
   AutocompletePicRes,
   cleanResource,
@@ -11,12 +12,12 @@ import {
   LinkList,
   ResourcePicInfoRes,
   syncResource,
-  updateLinkPic,
-  UpdateLinkPic
+  UpdateLinkPic,
+  updateLinkPic
 } from "@/api/storefile";
-import { ElLoading } from "element-plus";
 import { useCopy } from "@/utils/copy";
 import { message } from "@/utils/message";
+import { getFileTypeColor } from "@/views/library/storefile/components/util/fileInfoUtil";
 
 export default defineComponent({
   name: "picFileInfo",

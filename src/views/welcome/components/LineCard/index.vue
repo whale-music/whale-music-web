@@ -1,17 +1,19 @@
 <script lang="ts" setup>
-import { computed, ref } from "vue";
-import type { VNode } from "vue";
-import { ReNormalCountTo } from "@/components/ReCountTo";
-import { useDark } from "@pureadmin/utils";
-import { lineChart } from "../chart/index";
-import IcTwotoneTrendingDown from "@/assets/components/IcTwotoneTrendingDown.vue";
-import IcTwotoneTrendingUp from "@/assets/components/IcTwotoneTrendingUp.vue";
-import IcTwotoneTrendingFlat from "@/assets/components/IcTwotoneTrendingFlat.vue";
 import AddCircleFill from "@iconify-icons/mingcute/add-circle-fill";
 import More2Fill from "@iconify-icons/mingcute/more-2-fill";
-import { PropType } from "vue/dist/vue";
-import FloatingComp from "@/views/components/FloatingComp/index.vue";
 import ContextMenu from "@imengyu/vue3-context-menu";
+import { useDark } from "@pureadmin/utils";
+import type { VNode } from "vue";
+import { computed, ref } from "vue";
+import { PropType } from "vue/dist/vue";
+
+import IcTwotoneTrendingDown from "@/assets/components/IcTwotoneTrendingDown.vue";
+import IcTwotoneTrendingFlat from "@/assets/components/IcTwotoneTrendingFlat.vue";
+import IcTwotoneTrendingUp from "@/assets/components/IcTwotoneTrendingUp.vue";
+import { ReNormalCountTo } from "@/components/ReCountTo";
+import FloatingComp from "@/views/components/FloatingComp/index.vue";
+
+import { lineChart } from "../chart/index";
 
 const { isDark } = useDark();
 

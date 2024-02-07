@@ -1,11 +1,12 @@
 <script lang="ts" setup>
-import Segmented from "@/components/ReSegmented";
-import MenuButton from "@/components/MenuButton/index.vue";
-import { useI18n } from "vue-i18n";
-import { reactive, watch } from "vue";
-import MenuFill from "@iconify-icons/mingcute/menu-fill";
 import ListCheckFill from "@iconify-icons/mingcute/list-check-fill";
+import MenuFill from "@iconify-icons/mingcute/menu-fill";
+import { reactive, watch } from "vue";
+import { useI18n } from "vue-i18n";
+
 import DrawerMv from "@/components/AddData/DrawerMv/index.vue";
+import MenuButton from "@/components/MenuButton/index.vue";
+import Segmented from "@/components/ReSegmented";
 
 const { t } = useI18n();
 

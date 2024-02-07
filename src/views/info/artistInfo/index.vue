@@ -1,7 +1,15 @@
 <script lang="ts" setup>
+import { clone } from "@pureadmin/utils";
+import {
+  genFileId,
+  UploadInstance,
+  UploadProps,
+  UploadRawFile
+} from "element-plus";
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import LoadImg from "@/components/LoadImg/LoadImg.vue";
+
+import { Artist } from "@/api/model/Artist";
 import {
   ArtistInfoRes,
   ArtistMvListRes,
@@ -9,16 +17,9 @@ import {
   getMvList,
   saveOrUpdateArtist
 } from "@/api/singer";
+import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { dateFormater } from "@/utils/dateUtil";
-import { clone } from "@pureadmin/utils";
 import { message } from "@/utils/message";
-import {
-  genFileId,
-  UploadInstance,
-  UploadProps,
-  UploadRawFile
-} from "element-plus";
-import { Artist } from "@/api/model/Artist";
 import VideoCard from "@/views/components/videoCard/index.vue";
 const router = useRouter();
 

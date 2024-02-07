@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { nextTick, onMounted, ref, unref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
-import { ref, unref, onMounted, nextTick } from "vue";
 
 defineOptions({
   name: "FrameView"

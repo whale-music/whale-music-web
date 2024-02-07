@@ -1,5 +1,6 @@
 <script lang="ts" setup name="DownloadIcon">
 import { Icon } from "@iconify/vue";
+
 import { getMusicUrl } from "@/api/music";
 const prop = defineProps({
   muiscId: Number

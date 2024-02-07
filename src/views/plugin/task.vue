@@ -1,17 +1,18 @@
 <script lang="ts" setup>
+import dayjs from "dayjs";
 import { onBeforeMount, ref } from "vue";
+import { useRouter } from "vue-router";
+
 import {
   deletePluginTask,
   getPluginList,
   getPluginTask,
   PluginTask
 } from "@/api/plugin";
-import { message } from "@/utils/message";
 import Wbutton from "@/components/button/index.vue";
 import { FriendlyTime } from "@/utils/DateFormat";
 import { dateFormater } from "@/utils/dateUtil";
-import dayjs from "dayjs";
-import { useRouter } from "vue-router";
+import { message } from "@/utils/message";
 
 const router = useRouter();
 

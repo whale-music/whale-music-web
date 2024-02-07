@@ -1,6 +1,13 @@
 <script lang="ts" setup>
+import "vue-json-pretty/lib/styles.css";
+
+import dayjs from "dayjs";
+import { ElNotification } from "element-plus";
+import { ElScrollbar } from "element-plus";
 import { h, onBeforeMount, onMounted, onUnmounted, ref } from "vue";
+import VueJsonPretty from "vue-json-pretty";
 import { useRouter } from "vue-router";
+
 import {
   getPluginList,
   getPluginRuntimeMessages,
@@ -9,16 +16,11 @@ import {
   PluginMsgRes,
   PluginTask
 } from "@/api/plugin";
-import dayjs from "dayjs";
-import { dateFormater } from "@/utils/dateUtil";
-import { FriendlyTime } from "@/utils/DateFormat.ts";
-import { message } from "@/utils/message";
 import Wbutton from "@/components/button/index.vue";
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
-import { ElNotification } from "element-plus";
-import { ElScrollbar } from "element-plus";
-import VueJsonPretty from "vue-json-pretty";
-import "vue-json-pretty/lib/styles.css";
+import { FriendlyTime } from "@/utils/DateFormat.ts";
+import { dateFormater } from "@/utils/dateUtil";
+import { message } from "@/utils/message";
 
 const taskId = ref();
 let timing = null;

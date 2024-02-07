@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { emitter } from "@/utils/mitt";
-import { onClickOutside } from "@vueuse/core";
 import Close from "@iconify-icons/ep/close";
+import { onClickOutside } from "@vueuse/core";
+import { computed, ref } from "vue";
+
+import { emitter } from "@/utils/mitt";
 
 const target = ref(null);
 const show = ref<Boolean>(false);

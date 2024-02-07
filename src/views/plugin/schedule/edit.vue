@@ -1,6 +1,9 @@
 <script lang="ts" setup>
+import { storageLocal, throttle } from "@pureadmin/utils";
+import { ElMessageBox } from "element-plus";
 import { onMounted, reactive } from "vue";
 import { useRouter } from "vue-router";
+
 import {
   getPluginList,
   getPluginParams,
@@ -11,8 +14,6 @@ import {
   Schedule
 } from "@/api/plugin";
 import { message } from "@/utils/message";
-import { ElMessageBox } from "element-plus";
-import { storageLocal, throttle } from "@pureadmin/utils";
 
 const state = reactive<{
   id: string | string[];

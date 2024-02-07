@@ -1,37 +1,38 @@
 <script setup lang="ts">
-import {
-  ref,
-  unref,
-  watch,
-  reactive,
-  computed,
-  nextTick,
-  onBeforeMount
-} from "vue";
-import {
-  useDark,
-  debounce,
-  useGlobal,
-  storageLocal,
-  storageSession
-} from "@pureadmin/utils";
-import { getConfig } from "@/config";
-import { useRouter } from "vue-router";
-import panel from "../panel/index.vue";
-import { emitter } from "@/utils/mitt";
-import { resetRouter } from "@/router";
-import { removeToken } from "@/utils/auth";
-import { routerArrays } from "@/layout/types";
-import { useNav } from "@/layout/hooks/useNav";
-import { useAppStoreHook } from "@/store/modules/app";
-import { toggleTheme } from "@pureadmin/theme/dist/browser-utils";
-import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
-import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
-
-import dayIcon from "@/assets/svg/day.svg?component";
-import darkIcon from "@/assets/svg/dark.svg?component";
 import Check from "@iconify-icons/ep/check";
 import Logout from "@iconify-icons/ri/logout-circle-r-line";
+import { toggleTheme } from "@pureadmin/theme/dist/browser-utils";
+import {
+  debounce,
+  storageLocal,
+  storageSession,
+  useDark,
+  useGlobal
+} from "@pureadmin/utils";
+import {
+  computed,
+  nextTick,
+  onBeforeMount,
+  reactive,
+  ref,
+  unref,
+  watch
+} from "vue";
+import { useRouter } from "vue-router";
+
+import darkIcon from "@/assets/svg/dark.svg?component";
+import dayIcon from "@/assets/svg/day.svg?component";
+import { getConfig } from "@/config";
+import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
+import { useNav } from "@/layout/hooks/useNav";
+import { routerArrays } from "@/layout/types";
+import { resetRouter } from "@/router";
+import { useAppStoreHook } from "@/store/modules/app";
+import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
+import { removeToken } from "@/utils/auth";
+import { emitter } from "@/utils/mitt";
+
+import panel from "../panel/index.vue";
 
 const router = useRouter();
 const { isDark } = useDark();

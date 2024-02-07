@@ -1,16 +1,17 @@
 <script lang="ts" setup>
-import { defineComponent, onMounted, reactive, ref } from "vue";
-import { DataInfo, sessionKey } from "@/utils/auth";
 import { storageSession } from "@pureadmin/utils";
-import { SaveOrUpdateUserRes } from "@/api/model/User";
-import { getUserInfo, updateUserPassword } from "@/api/user";
-import { message } from "@/utils/message";
 import {
   genFileId,
   UploadInstance,
   UploadProps,
   UploadRawFile
 } from "element-plus";
+import { defineComponent, onMounted, reactive, ref } from "vue";
+
+import { SaveOrUpdateUserRes } from "@/api/model/User";
+import { getUserInfo, updateUserPassword } from "@/api/user";
+import { DataInfo, sessionKey } from "@/utils/auth";
+import { message } from "@/utils/message";
 
 defineComponent({
   name: "userInfo"

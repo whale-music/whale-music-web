@@ -1,21 +1,22 @@
 <script lang="ts" setup>
-import { onMounted, reactive, ref } from "vue";
-import { useRouter } from "vue-router";
-import { getAlbumDataInfo, saveOrUpdateAlbum } from "@/api/album";
-import { dateFormater } from "@/utils/dateUtil";
 import { Icon } from "@iconify/vue";
-import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { clone } from "@pureadmin/utils";
-import { message } from "@/utils/message";
-import { getSelectSingerList } from "@/api/singer";
 import {
   genFileId,
   UploadInstance,
   UploadProps,
   UploadRawFile
 } from "element-plus";
+import { onMounted, reactive, ref } from "vue";
+import { useRouter } from "vue-router";
+
+import { getAlbumDataInfo, saveOrUpdateAlbum } from "@/api/album";
 import { AlbumInfo, SaveOrUpdateAlbum } from "@/api/model/Album";
 import { SelectArtist } from "@/api/model/Artist";
+import { getSelectSingerList } from "@/api/singer";
+import LoadImg from "@/components/LoadImg/LoadImg.vue";
+import { dateFormater } from "@/utils/dateUtil";
+import { message } from "@/utils/message";
 
 const router = useRouter();
 

@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { useI18n } from "vue-i18n";
-import { useResizeObserver } from "@vueuse/core";
-import { useEpThemeStoreHook } from "@/store/modules/epTheme";
-import { useRenderIcon } from "@/components/ReIcon/src/hooks";
-import { ref, computed, getCurrentInstance, onMounted } from "vue";
-import enterOutlined from "@/assets/svg/enter_outlined.svg?component";
 import Bookmark2Line from "@iconify-icons/ri/bookmark-2-line";
+import { useResizeObserver } from "@vueuse/core";
+import { computed, getCurrentInstance, onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
+
+import enterOutlined from "@/assets/svg/enter_outlined.svg?component";
+import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import { useEpThemeStoreHook } from "@/store/modules/epTheme";
 
 const { t } = useI18n();
 

@@ -1,8 +1,9 @@
 <script lang="ts">
-import { defineComponent } from "vue";
-import FloatingOperatingPanel from "@/views/components/floatingOperatingPanel/index.vue";
 import CloseCircleOutline from "@iconify-icons/solar/close-circle-outline";
 import TrashBin_2Outline from "@iconify-icons/solar/trash-bin-2-outline";
+import { defineComponent } from "vue";
+
+import FloatingOperatingPanel from "@/views/components/floatingOperatingPanel/index.vue";
 
 export default defineComponent({
   name: "MvFloatingOperatingPanel",

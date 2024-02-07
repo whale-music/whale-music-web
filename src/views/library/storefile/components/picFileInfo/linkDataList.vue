@@ -1,6 +1,6 @@
 <script lang="ts">
-import { defineComponent } from "vue";
 import AddCircleLinear from "@iconify-icons/solar/add-circle-linear";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   name: "linkDataList",

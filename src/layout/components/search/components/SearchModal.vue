@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { useRouter } from "vue-router";
+import Search from "@iconify-icons/ri/search-line";
 import { cloneDeep } from "@pureadmin/utils";
-import SearchResult from "./SearchResult.vue";
-import SearchFooter from "./SearchFooter.vue";
+import { onKeyStroke, useDebounceFn } from "@vueuse/core";
+import { computed, ref, shallowRef } from "vue";
+import { useRouter } from "vue-router";
+
 import { useNav } from "@/layout/hooks/useNav";
 import { transformI18n } from "@/plugins/i18n";
-import { ref, computed, shallowRef } from "vue";
-import { useDebounceFn, onKeyStroke } from "@vueuse/core";
 import { usePermissionStoreHook } from "@/store/modules/permission";
-import Search from "@iconify-icons/ri/search-line";
+
+import SearchFooter from "./SearchFooter.vue";
+import SearchResult from "./SearchResult.vue";
 
 interface Props {
   /** 弹窗显隐 */

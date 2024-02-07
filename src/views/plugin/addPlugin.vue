@@ -1,4 +1,8 @@
 <script lang="ts">
+import "vue-json-pretty/lib/styles.css";
+
+import { java } from "@codemirror/lang-java";
+import { oneDark } from "@codemirror/theme-one-dark";
 import {
   defineComponent,
   onBeforeMount,
@@ -6,10 +10,10 @@ import {
   ref,
   shallowRef
 } from "vue";
-import { useRouter } from "vue-router";
 import { Codemirror } from "vue-codemirror";
-import { java } from "@codemirror/lang-java";
-import { oneDark } from "@codemirror/theme-one-dark";
+import VueJsonPretty from "vue-json-pretty";
+import { useRouter } from "vue-router";
+
 import {
   execCommonPluginTask,
   execInteractivePluginTask,
@@ -22,11 +26,9 @@ import {
   PluginTaskLogRes,
   savePluginInfo
 } from "@/api/plugin";
-import { message } from "@/utils/message";
 import { dateFormater } from "@/utils/dateUtil";
+import { message } from "@/utils/message";
 import { saveOrUpdateCache } from "@/utils/pluginCache";
-import VueJsonPretty from "vue-json-pretty";
-import "vue-json-pretty/lib/styles.css";
 
 export default defineComponent({
   components: {

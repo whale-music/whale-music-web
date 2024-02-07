@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import { h, markRaw, ref, watchEffect } from "vue";
+
 import LinearCard from "@/components/Linear/Card/index.vue";
-import MusicUpload from "@/views/welcome/components/MusicUpload/index.vue";
-import { h, ref, markRaw, watchEffect } from "vue";
 import HotMusic from "@/views/welcome/components/HotMusic/index.vue";
+import MusicUpload from "@/views/welcome/components/MusicUpload/index.vue";
 
 const props = defineProps({
   modelValue: {

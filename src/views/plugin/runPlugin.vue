@@ -83,8 +83,13 @@
 </template>
 
 <script lang="ts" setup>
-import { useRouter } from "vue-router";
+import "vue-json-pretty/lib/styles.css";
+
+import { ElNotification } from "element-plus";
 import { h, onMounted, ref } from "vue";
+import VueJsonPretty from "vue-json-pretty";
+import { useRouter } from "vue-router";
+
 import {
   execCommonPluginTask,
   execInteractivePluginTask,
@@ -98,9 +103,6 @@ import {
 } from "@/api/plugin";
 import { message } from "@/utils/message";
 import { saveOrUpdateCache } from "@/utils/pluginCache";
-import { ElNotification } from "element-plus";
-import VueJsonPretty from "vue-json-pretty";
-import "vue-json-pretty/lib/styles.css";
 
 const inputs = ref<PluginInput>({ params: [], pluginType: "" });
 

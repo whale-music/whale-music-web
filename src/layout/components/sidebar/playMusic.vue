@@ -1,10 +1,11 @@
 <script lang="ts" setup="">
-import { defineComponent, reactive, watch } from "vue";
-import { emitter } from "@/utils/mitt";
 import AlbumLine from "@iconify-icons/mingcute/album-line";
-import MusicPlay from "@/layout/components/musicPlay/index.vue";
 import { storageLocal } from "@pureadmin/utils";
+import { defineComponent, reactive, watch } from "vue";
+
+import MusicPlay from "@/layout/components/musicPlay/index.vue";
 import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
+import { emitter } from "@/utils/mitt";
 
 defineComponent({
   name: "playMusic"

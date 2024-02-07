@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ListItem } from "./data";
-import { ref, PropType, nextTick } from "vue";
-import { useNav } from "@/layout/hooks/useNav";
 import { deviceDetection } from "@pureadmin/utils";
+import { nextTick, PropType, ref } from "vue";
+
+import { useNav } from "@/layout/hooks/useNav";
+
+import { ListItem } from "./data";
 
 const props = defineProps({
   noticeItem: {

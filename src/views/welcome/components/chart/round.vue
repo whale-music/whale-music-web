@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
 import { useDark, useECharts } from "@pureadmin/utils";
+import { computed, ref } from "vue";
 
 const { isDark } = useDark();
 

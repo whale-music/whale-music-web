@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import ArrowUpLine from "@iconify-icons/ri/arrow-up-line";
 import ArrowDownLine from "@iconify-icons/ri/arrow-down-line";
-import { useNav } from "@/layout/hooks/useNav";
-import mdiKeyboardEsc from "@/assets/svg/keyboard_esc.svg?component";
+import ArrowUpLine from "@iconify-icons/ri/arrow-up-line";
+
 import enterOutlined from "@/assets/svg/enter_outlined.svg?component";
+import mdiKeyboardEsc from "@/assets/svg/keyboard_esc.svg?component";
+import { useNav } from "@/layout/hooks/useNav";
 
 const props = withDefaults(defineProps<{ total: number }>(), {
   total: 0

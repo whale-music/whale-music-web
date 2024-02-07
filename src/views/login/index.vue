@@ -1,27 +1,28 @@
 <script setup lang="ts">
-import { useI18n } from "vue-i18n";
-import Motion from "./utils/motion";
-import { useRouter } from "vue-router";
-import { message } from "@/utils/message";
-import { loginRules } from "./utils/rule";
-import { useNav } from "@/layout/hooks/useNav";
-import type { FormInstance } from "element-plus";
-import { $t, transformI18n } from "@/plugins/i18n";
-import { useLayout } from "@/layout/hooks/useLayout";
-import { avatar } from "./utils/static";
-import { useUserStoreHook } from "@/store/modules/user";
-import { useRenderIcon } from "@/components/ReIcon/src/hooks";
-import { ref, reactive, onMounted, onBeforeUnmount } from "vue";
-import { useTranslationLang } from "@/layout/hooks/useTranslationLang";
-import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
-import { initRouter } from "@/router/utils";
-
-import dayIcon from "@/assets/svg/day.svg?component";
-import darkIcon from "@/assets/svg/dark.svg?component";
-import Lock from "@iconify-icons/ri/lock-fill";
 import Check from "@iconify-icons/ep/check";
+import Lock from "@iconify-icons/ri/lock-fill";
 import User from "@iconify-icons/ri/user-3-fill";
 import { debounce } from "@pureadmin/utils";
+import type { FormInstance } from "element-plus";
+import { onBeforeUnmount, onMounted, reactive, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
+
+import darkIcon from "@/assets/svg/dark.svg?component";
+import dayIcon from "@/assets/svg/day.svg?component";
+import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
+import { useLayout } from "@/layout/hooks/useLayout";
+import { useNav } from "@/layout/hooks/useNav";
+import { useTranslationLang } from "@/layout/hooks/useTranslationLang";
+import { $t, transformI18n } from "@/plugins/i18n";
+import { initRouter } from "@/router/utils";
+import { useUserStoreHook } from "@/store/modules/user";
+import { message } from "@/utils/message";
+
+import Motion from "./utils/motion";
+import { loginRules } from "./utils/rule";
+import { avatar } from "./utils/static";
 
 defineOptions({
   name: "Login"

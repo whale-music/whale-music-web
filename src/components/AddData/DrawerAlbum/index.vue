@@ -1,19 +1,20 @@
 <script setup lang="ts">
-import { defineComponent, reactive, ref } from "vue";
-import { ArtistConvert } from "@/api/model/Artist";
-import { AlbumConvert, SaveOrUpdateAlbum } from "@/api/model/Album";
-import { Count, PluginTaskRes } from "@/api/hone";
+import { useVModel } from "@vueuse/core";
 import {
   ElMessageBox,
   genFileId,
   UploadInstance,
   UploadRawFile
 } from "element-plus";
-import { message } from "@/utils/message";
+import { defineComponent, reactive, ref } from "vue";
+
 import { saveOrUpdateAlbum } from "@/api/album";
+import { Count, PluginTaskRes } from "@/api/hone";
+import { AlbumConvert, SaveOrUpdateAlbum } from "@/api/model/Album";
+import { ArtistConvert } from "@/api/model/Artist";
 import { LinkItem } from "@/api/model/common";
 import { getSelectSingerList } from "@/api/singer";
-import { useVModel } from "@vueuse/core";
+import { message } from "@/utils/message";
 
 defineComponent({
   name: "DrawerAlbum"

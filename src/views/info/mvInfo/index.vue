@@ -1,11 +1,12 @@
 <script lang="ts">
 import { defineComponent } from "vue";
+
 import { getMvInfo, MvInfo } from "@/api/mv";
-import VideoPlayer from "@/views/info/mvInfo/components/videoPlayer/index.vue";
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
 import { dateFormater } from "@/utils/dateUtil";
 import MvEditInfo from "@/views/info/mvInfo/components/dialog/mvEditInfo.vue";
 import MvFileInfo from "@/views/info/mvInfo/components/dialog/mvFileInfo.vue";
+import VideoPlayer from "@/views/info/mvInfo/components/videoPlayer/index.vue";
 
 export default defineComponent({
   name: "index",

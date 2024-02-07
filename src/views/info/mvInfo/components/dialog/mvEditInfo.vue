@@ -1,12 +1,13 @@
 <script lang="ts">
-import { defineComponent } from "vue";
+import { storageSession } from "@pureadmin/utils";
 import { AutocompleteFetchSuggestionsCallback } from "element-plus";
-import { getSelectSingerList } from "@/api/singer";
+import { defineComponent } from "vue";
+
 import { SelectArtist } from "@/api/model/Artist";
 import { updateMvInfo } from "@/api/mv";
-import { message } from "@/utils/message";
-import { storageSession } from "@pureadmin/utils";
+import { getSelectSingerList } from "@/api/singer";
 import { DataInfo, sessionKey } from "@/utils/auth";
+import { message } from "@/utils/message";
 const { VITE_PROXY_HOST } = import.meta.env;
 export default defineComponent({
   name: "mvEditInfo",

@@ -1,7 +1,7 @@
 <script lang="ts">
-import Artplayer from "@/components/artplayer/Artplayer.vue";
-
 import { defineComponent } from "vue";
+
+import Artplayer from "@/components/artplayer/Artplayer.vue";
 export default defineComponent({
   name: "VideoPlayer",
   props: {

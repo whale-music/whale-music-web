@@ -1,19 +1,20 @@
 <script lang="ts">
+import { Icon } from "@iconify/vue";
+import ContextMenu from "@imengyu/vue3-context-menu";
+import { ElMessageBox } from "element-plus";
+import { defineComponent } from "vue";
+import { useRouter } from "vue-router";
+
+import { getEnabledPluginStatus } from "@/api/config";
 import {
   deletePlugin,
   getPluginList,
   PluginList,
   savePluginInfo
 } from "@/api/plugin";
-import { Icon } from "@iconify/vue";
-import { useRouter } from "vue-router";
-import ContextMenu from "@imengyu/vue3-context-menu";
-import { message } from "@/utils/message";
 import Wbutton from "@/components/button/index.vue";
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
-import { getEnabledPluginStatus } from "@/api/config";
-import { defineComponent } from "vue";
-import { ElMessageBox } from "element-plus";
+import { message } from "@/utils/message";
 
 export default defineComponent({
   setup() {

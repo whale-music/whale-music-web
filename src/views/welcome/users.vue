@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import { defineComponent, onMounted, reactive } from "vue";
-import { deleteUser, getUserPage, saveOrUpdateUser } from "@/api/user";
+
+import { Data } from "@/api/model/common";
 import {
   PageUserReq,
   PageUserRes,
   SaveOrUpdateUserReq
 } from "@/api/model/User";
-import { Data } from "@/api/model/common";
+import { deleteUser, getUserPage, saveOrUpdateUser } from "@/api/user";
 import { message } from "@/utils/message";
 
 defineComponent({

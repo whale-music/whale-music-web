@@ -1,8 +1,9 @@
 <script lang="ts" setup>
-import LoadImg from "@/components/LoadImg/LoadImg.vue";
-import { tracksMusicToPlayList, UserPlayListRes } from "@/api/playlist";
-import { message } from "@/utils/message";
 import { ref } from "vue";
+
+import { tracksMusicToPlayList, UserPlayListRes } from "@/api/playlist";
+import LoadImg from "@/components/LoadImg/LoadImg.vue";
+import { message } from "@/utils/message";
 
 const props = defineProps<{
   playItem: UserPlayListRes[];

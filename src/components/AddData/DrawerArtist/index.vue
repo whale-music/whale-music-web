@@ -1,27 +1,28 @@
 <script setup lang="ts">
-import { defineComponent, reactive, ref } from "vue";
-import {
-  ArtistConvert,
-  SaveOrUpdateArtist,
-  SelectArtist
-} from "@/api/model/Artist";
-import {
-  AlbumConvert,
-  SaveOrUpdateAlbum,
-  SelectAlbum
-} from "@/api/model/Album";
-import { SaveOrUpdateMusic } from "@/api/model/Music";
-import { Count, MusicStatisticsRes, PluginTaskRes } from "@/api/hone";
+import { useVModel } from "@vueuse/core";
 import {
   ElMessageBox,
   genFileId,
   UploadInstance,
   UploadRawFile
 } from "element-plus";
-import { message } from "@/utils/message";
-import { saveOrUpdateArtist } from "@/api/singer";
-import { useVModel } from "@vueuse/core";
+import { defineComponent, reactive, ref } from "vue";
+
+import { Count, MusicStatisticsRes, PluginTaskRes } from "@/api/hone";
+import {
+  AlbumConvert,
+  SaveOrUpdateAlbum,
+  SelectAlbum
+} from "@/api/model/Album";
+import {
+  ArtistConvert,
+  SaveOrUpdateArtist,
+  SelectArtist
+} from "@/api/model/Artist";
 import { LinkItem } from "@/api/model/common";
+import { SaveOrUpdateMusic } from "@/api/model/Music";
+import { saveOrUpdateArtist } from "@/api/singer";
+import { message } from "@/utils/message";
 
 defineComponent({
   name: "DrawerArtist"

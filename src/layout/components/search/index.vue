@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { SearchModal } from "./components";
-import { useBoolean } from "../../hooks/useBoolean";
 import Search from "@iconify-icons/mingcute/search-3-line";
 import { onMounted, ref } from "vue";
+
 import { emitter } from "@/utils/mitt";
+
+import { useBoolean } from "../../hooks/useBoolean";
+import { SearchModal } from "./components";
 
 const { bool: show, toggle } = useBoolean();
 function handleSearch() {

@@ -1,11 +1,13 @@
 <script lang="ts" setup>
+import { genFileId, UploadRawFile } from "element-plus";
 import { defineComponent, onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
+
 import { SaveOrUpdateUserReq } from "@/api/model/User";
 import { getUserInfo, saveOrUpdateUser } from "@/api/user";
-import { genFileId, UploadRawFile } from "element-plus";
-import { message } from "@/utils/message";
 import { useUserStoreHook } from "@/store/modules/user";
+import { message } from "@/utils/message";
+
 import { loginRules } from "./utils/rule";
 
 defineComponent({
