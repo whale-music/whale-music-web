@@ -1,28 +1,30 @@
 import {
-  RouterHistory,
-  RouteRecordRaw,
-  RouteComponent,
-  createWebHistory,
-  createWebHashHistory
-} from "vue-router";
-import { router } from "./index";
-import { isProxy, toRaw } from "vue";
-import { useTimeoutFn } from "@vueuse/core";
-import { RouteConfigs } from "@/layout/types";
-import {
-  isString,
   cloneDeep,
-  isAllEmpty,
   intersection,
-  storageSession,
-  isIncludeAllChildren
+  isAllEmpty,
+  isIncludeAllChildren,
+  isString,
+  storageSession
 } from "@pureadmin/utils";
+import { useTimeoutFn } from "@vueuse/core";
+import { isProxy, toRaw } from "vue";
+import {
+  createWebHashHistory,
+  createWebHistory,
+  RouteComponent,
+  RouteRecordRaw,
+  RouterHistory
+} from "vue-router";
+
 import { getConfig } from "@/config";
+import { RouteConfigs } from "@/layout/types";
 import { menuType } from "@/layout/types";
-import { buildHierarchyTree } from "@/utils/tree";
-import { sessionKey, type DataInfo } from "@/utils/auth";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
 import { usePermissionStoreHook } from "@/store/modules/permission";
+import { type DataInfo, sessionKey } from "@/utils/auth";
+import { buildHierarchyTree } from "@/utils/tree";
+
+import { router } from "./index";
 const IFrame = () => import("@/layout/frameView.vue");
 // https://cn.vitejs.dev/guide/features.html#glob-import
 const modulesRoutes = import.meta.glob("/src/views/**/*.{vue,tsx}");
@@ -385,21 +387,21 @@ function getTopMenu(tag = false): menuType {
 }
 
 export {
-  hasAuth,
-  getAuths,
-  ascending,
-  filterTree,
-  initRouter,
-  getTopMenu,
-  addPathMatch,
-  isOneOfArray,
-  getHistoryMode,
   addAsyncRoutes,
+  addPathMatch,
+  ascending,
   delAliveRoutes,
-  getParentPaths,
+  filterNoPermissionTree,
+  filterTree,
   findRouteByPath,
-  handleAliveRoute,
-  formatTwoStageRoutes,
   formatFlatteningRoutes,
-  filterNoPermissionTree
+  formatTwoStageRoutes,
+  getAuths,
+  getHistoryMode,
+  getParentPaths,
+  getTopMenu,
+  handleAliveRoute,
+  hasAuth,
+  initRouter,
+  isOneOfArray
 };
