@@ -115,19 +115,18 @@ state.dropdownMap = map;
           <IconifyIconOnline icon="solar:close-circle-outline" />
         </i>
       </transition>
-      <Transition name="slide-fade">
-        <div class="flex flex-col justify-center m-1 search-bg">
-          <el-button
-            class="search-button"
-            type="primary"
-            size="large"
-            @click="emits('on-search')"
-            round
-          >
-            {{ props.buttonName }}
-          </el-button>
-        </div>
-      </Transition>
+      <!--todo 删除 Transition-->
+      <div class="flex flex-col justify-center m-1 search-bg">
+        <el-button
+          class="search-button"
+          type="primary"
+          size="large"
+          @click="emits('on-search')"
+          round
+        >
+          {{ props.buttonName }}
+        </el-button>
+      </div>
     </div>
   </div>
 </template>
