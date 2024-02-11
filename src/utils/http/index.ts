@@ -5,6 +5,7 @@ import Axios, {
 } from "axios";
 import { stringify } from "qs";
 
+import { loginUrl, refreshTokenUrl } from "@/api/user";
 import { useUserStoreHook } from "@/store/modules/user";
 // import NProgress from "../progress";
 import { formatToken, getToken } from "@/utils/auth";
@@ -79,7 +80,7 @@ class PureHttp {
           return config;
         }
         /** 请求白名单，放置一些不需要token的接口（通过设置请求白名单，防止token过期后再请求造成的死循环问题） */
-        const whiteList = ["/refresh-token", "/login"];
+        const whiteList = [loginUrl, refreshTokenUrl];
         return whiteList.find(url => url === config.url)
           ? config
           : new Promise(resolve => {
@@ -142,7 +143,8 @@ class PureHttp {
         if (
           response.status !== 200 ||
           response.data.code === "10005" ||
-          response.data.code === "20001"
+          response.data.code === "20001" ||
+          response.data.code === "10020"
         ) {
           message(`${response.data.message}`, { type: "error" });
           useUserStoreHook().logOut();

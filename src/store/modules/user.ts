@@ -53,7 +53,7 @@ export const useUserStore = defineStore({
     async logOut() {
       this.username = "";
       this.roles = [];
-      removeToken();
+      await removeToken();
       useMultiTagsStoreHook().handleTags("equal", [...routerArrays]);
       resetRouter();
       await router.push("/login");

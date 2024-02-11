@@ -20,14 +20,16 @@ export type RefreshTokenResult = R<{
   /** `accessToken`的过期时间（格式'xxxx/xx/xx xx:xx:xx'） */
   expires: number;
 }>;
+export const loginUrl = "/admin/user/login";
 /** 登录 */
 export const getLogin = (data?: object) => {
-  return http.request<UserResult>("post", "/admin/user/login", { data });
+  return http.request<UserResult>("post", loginUrl, { data });
 };
 
+export const refreshTokenUrl = "/admin/user/refreshToken";
 /** 刷新token */
 export const refreshTokenApi = (data?: object) => {
-  return http.request<RefreshTokenResult>("post", "/admin/user/refreshToken", {
+  return http.request<RefreshTokenResult>("post", refreshTokenUrl, {
     data
   });
 };
