@@ -16,6 +16,7 @@ import {
   Component,
   computed,
   DefineComponent,
+  markRaw,
   onBeforeMount,
   reactive,
   Ref,
@@ -70,22 +71,22 @@ const state = reactive({
     {
       title: "音乐",
       icon: MusicNoteBoldDuotone,
-      comp: DrawerMusic
+      comp: markRaw(DrawerMusic)
     },
     {
       title: "专辑",
       icon: AlbumLine,
-      comp: DrawerAlbum
+      comp: markRaw(DrawerAlbum)
     },
     {
       title: "艺术家",
       icon: UserRoundedBoldDuotone,
-      comp: DrawerArtist
+      comp: markRaw(DrawerArtist)
     },
     {
       title: "MV",
       icon: VideocameraBold,
-      comp: DrawerMv
+      comp: markRaw(DrawerMv)
     }
   ] as PropType<Array<Static>>,
   show: {
