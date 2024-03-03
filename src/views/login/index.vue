@@ -2,7 +2,7 @@
 import Check from "@iconify-icons/ep/check";
 import Lock from "@iconify-icons/ri/lock-fill";
 import User from "@iconify-icons/ri/user-3-fill";
-import { debounce, isEmpty } from "@pureadmin/utils";
+import { debounce, isAllEmpty } from "@pureadmin/utils";
 import type { FormInstance } from "element-plus";
 import { onBeforeUnmount, onMounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
@@ -16,6 +16,7 @@ import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
 import { useLayout } from "@/layout/hooks/useLayout";
 import { useNav } from "@/layout/hooks/useNav";
 import { useTranslationLang } from "@/layout/hooks/useTranslationLang";
+import { $t, transformI18n } from "@/plugins/i18n";
 import { getTopMenu, initRouter } from "@/router/utils";
 import { useUserStoreHook } from "@/store/modules/user";
 import { message } from "@/utils/message";
@@ -60,7 +61,9 @@ const onLogin = async (formEl: FormInstance | undefined) => {
             // 获取后端路由
             initRouter().then(() => {
               const redirect = router.currentRoute.value.query["redirect"];
-              const to = isEmpty(redirect) ? getTopMenu(true).path : redirect;
+              const to = isAllEmpty(redirect)
+                ? getTopMenu(true).path
+                : redirect;
               router.push(to).then(() => {
                 message(t("msg.loginSuccess"), { type: "success" });
               });
@@ -93,6 +96,13 @@ function onkeypress({ code }: KeyboardEvent) {
     onLogin(ruleFormRef.value);
   }
 }
+const rules = [
+  {
+    required: true,
+    message: transformI18n($t("login.usernameReg")),
+    trigger: "blur"
+  }
+];
 
 onMounted(() => {
   window.document.addEventListener("keypress", onkeypress);
@@ -166,16 +176,7 @@ onBeforeUnmount(() => {
             size="large"
           >
             <Motion :delay="100">
-              <el-form-item
-                :rules="[
-                  {
-                    required: true,
-                    message: transformI18n($t('login.usernameReg')),
-                    trigger: 'blur'
-                  }
-                ]"
-                prop="username"
-              >
+              <el-form-item :rules="rules" prop="username">
                 <el-input
                   clearable
                   v-model="ruleForm.username"
