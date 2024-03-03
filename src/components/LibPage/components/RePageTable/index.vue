@@ -1,11 +1,11 @@
 <script lang="ts" setup>
+import { cloneDeep } from "@pureadmin/utils";
 import { useVModel } from "@vueuse/core";
 import { ElTable } from "element-plus";
 import { defineExpose, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
-import { emitter } from "@/utils/mitt";
 import { pageIndexKey, pageNumKey } from "@/utils/SearchParse";
 
 defineOptions({
@@ -14,8 +14,6 @@ defineOptions({
 });
 
 const emit = defineEmits<{
-  (e: "size-change", val: number): boolean;
-  (e: "current-change", value: number): boolean;
   (e: "update:selectCount", value: number): boolean;
 }>();
 
@@ -41,18 +39,14 @@ const selectCount = useVModel(props, "selectCount", emit);
 const router = useRouter();
 const route = useRoute();
 const handleSizeChange = (val: number) => {
-  const query = route.query;
+  const query = cloneDeep(route.query);
   query[pageNumKey] = `${val}`;
   router.push({ query: query, replace: true });
-  emitter.emit("library", { page: { size: val } });
-  emit("size-change", val);
 };
 const handleCurrentChange = (val: number) => {
-  const query = route.query;
+  const query = cloneDeep(route.query);
   query[pageIndexKey] = `${val}`;
   router.push({ query: query, replace: true });
-  emitter.emit("library", { page: { current: val } });
-  emit("current-change", val);
 };
 
 const tableRef = ref<InstanceType<typeof ElTable>>();
@@ -70,12 +64,14 @@ const handleSelectionChange = (val: []) => {
 </script>
 
 <template>
+  <ShowLoading :loading="loading" />
   <div v-if="!loading && page.total !== 0">
     <ElTable
       v-bind="$attrs"
       ref="tableRef"
       class="table-container"
       :data="props.page.content"
+      v-loading="loading"
       @row-click="handleClickChange"
       @selection-change="handleSelectionChange"
     >
@@ -91,6 +87,7 @@ const handleSelectionChange = (val: []) => {
         :default-current-page="1"
         :default-page-size="props.page.size"
         :current-page="props.page.current"
+        :page-size="props.page.size"
         :total="props.page.total"
         :page-sizes="selectPageSize"
         @size-change="handleSizeChange"
@@ -104,7 +101,6 @@ const handleSelectionChange = (val: []) => {
       v-if="!loading && page.total === 0"
       description="这里没有音乐, 你可以首页添加音乐"
     />
-    <ShowLoading :loading="loading" />
   </div>
 </template>
 
