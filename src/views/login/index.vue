@@ -2,7 +2,7 @@
 import Check from "@iconify-icons/ep/check";
 import Lock from "@iconify-icons/ri/lock-fill";
 import User from "@iconify-icons/ri/user-3-fill";
-import { debounce } from "@pureadmin/utils";
+import { debounce, isEmpty } from "@pureadmin/utils";
 import type { FormInstance } from "element-plus";
 import { onBeforeUnmount, onMounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
@@ -16,7 +16,6 @@ import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
 import { useLayout } from "@/layout/hooks/useLayout";
 import { useNav } from "@/layout/hooks/useNav";
 import { useTranslationLang } from "@/layout/hooks/useTranslationLang";
-import { $t, transformI18n } from "@/plugins/i18n";
 import { getTopMenu, initRouter } from "@/router/utils";
 import { useUserStoreHook } from "@/store/modules/user";
 import { message } from "@/utils/message";
@@ -60,7 +59,9 @@ const onLogin = async (formEl: FormInstance | undefined) => {
           if (res.code === "200") {
             // 获取后端路由
             initRouter().then(() => {
-              router.push(getTopMenu(true).path).then(() => {
+              const redirect = router.currentRoute.value.query["redirect"];
+              const to = isEmpty(redirect) ? getTopMenu(true).path : redirect;
+              router.push(to).then(() => {
                 message(t("msg.loginSuccess"), { type: "success" });
               });
             });

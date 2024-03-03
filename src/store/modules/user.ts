@@ -51,12 +51,13 @@ export const useUserStore = defineStore({
     },
     /** 前端登出（不调用接口） */
     async logOut() {
+      const query = { redirect: window.location.hash.substring(1) };
       this.username = "";
       this.roles = [];
       await removeToken();
       useMultiTagsStoreHook().handleTags("equal", [...routerArrays]);
       resetRouter();
-      await router.push("/login");
+      await router.push({ path: "/login", query: query });
     },
     /** 刷新`token` */
     async handRefreshToken(data) {
