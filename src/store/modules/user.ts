@@ -27,10 +27,12 @@ export const useUserStore = defineStore({
     /** 存储用户名 */
     SET_USERNAME(username: string) {
       this.username = username;
+      storageLocal().setItem<DataInfo>(sessionKey, this);
     },
     /** 存储角色 */
     SET_ROLES(roles: Array<string>) {
       this.roles = roles;
+      storageLocal().setItem<DataInfo>(sessionKey, this);
     },
     /** 登入 */
     async loginByUsername(data) {
