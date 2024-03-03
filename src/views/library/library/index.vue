@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { cloneDeep } from "@pureadmin/utils";
 import { Action, ElMessage, ElMessageBox } from "element-plus";
 import { markRaw, onMounted, reactive, ref } from "vue";
 import { LocationQuery, useRoute } from "vue-router";
@@ -56,15 +55,10 @@ onMounted(() => {
 });
 
 function parasParam(type?: string) {
-  const urlParams = route.query;
   const query = parseSearchToQuery(searchInput.value);
-  const newQuery: LocationQuery = cloneDeep(urlParams);
-  Object.keys(query).forEach(value => {
-    newQuery[value] = query[value];
-  });
-  newQuery["type"] = type ?? "music";
-  newQuery["random"] = Date.now().toString();
-  return newQuery;
+  query["type"] = type ?? "music";
+  query["random"] = Date.now().toString();
+  return query;
 }
 
 // 监听容器
