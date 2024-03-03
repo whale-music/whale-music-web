@@ -13,7 +13,7 @@ import RePageTable from "@/components/LibPage/components/RePageTable/index.vue";
 import { FriendlyTime } from "@/utils/DateFormat";
 import { dateFormater } from "@/utils/dateUtil";
 import { message } from "@/utils/message";
-import { paramsToObj } from "@/utils/SearchParse";
+import { paramsQueryToPageReq } from "@/utils/SearchParse";
 
 defineOptions({
   name: "MusicLibrary"
@@ -39,7 +39,7 @@ const selectCount = useVModel(props, "selectCount", emit);
 const init = async () => {
   try {
     loading.value = true;
-    const r = await getMusicTabsPage(paramsToObj(route.query));
+    const r = await getMusicTabsPage(paramsQueryToPageReq(route.query));
     const data = r.data;
     page.content = data.content;
     page.current = data.current;
@@ -109,8 +109,6 @@ const cellStyle = ({ row, columnIndex }): CellStyle<any> => {
     :style="cellStyle"
     :cell-style="cellStyle"
     :loading="loading"
-    @size-change="init()"
-    @current-change="init()"
   >
     <el-table-column type="selection" width="40" />
     <el-table-column width="40" :show-overflow-tooltip="true">

@@ -8,7 +8,7 @@ import { getArtistPage } from "@/api/singer";
 import RePageTable from "@/components/LibPage/components/RePageTable/index.vue";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { dateFormater } from "@/utils/dateUtil";
-import { paramsToObj } from "@/utils/SearchParse";
+import { paramsQueryToPageReq } from "@/utils/SearchParse";
 
 defineOptions({
   name: "ArtistLibrary"
@@ -25,7 +25,7 @@ const page = reactive({ content: [], total: 0, size: 50, current: 1 });
 const init = async () => {
   try {
     loading.value = true;
-    const r = await getArtistPage(paramsToObj(route.query));
+    const r = await getArtistPage(paramsQueryToPageReq(route.query));
     const data = r.data;
     page.content = data.content;
     page.current = data.current;

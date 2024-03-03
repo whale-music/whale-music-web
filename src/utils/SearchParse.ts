@@ -31,7 +31,7 @@ export function parseSearchToQuery(str: string) {
   return obj;
 }
 
-export function paramsToObj(query: LocationQuery): MusicTabsPageReq {
+export function paramsQueryToPageReq(query: LocationQuery): MusicTabsPageReq {
   // const route = useRoute();
   // const query = route.query;
   const name = query[nameKey];
@@ -49,7 +49,7 @@ export function paramsToObj(query: LocationQuery): MusicTabsPageReq {
     albumName: String(album ?? ""),
     refresh: Boolean(refresh),
     isShowSource: Boolean(isShowSource),
-    pageIndex: Number(pageIndex ?? 0),
+    pageIndex: Number(pageIndex ?? 1),
     pageNum: Number(pageNum ?? 50)
   };
 }
