@@ -44,7 +44,7 @@ export function getToken(): DataInfo {
  * 将`username`、`roles`、`refreshToken`、`expires`这四条信息放在key值为`user-info`的sessionStorage里（浏览器关闭自动销毁）
  */
 export function setToken(data: DataInfo) {
-  const { accessToken, refreshToken } = data;
+  const { id, accessToken, refreshToken } = data;
   const { isRemembered, loginDay } = useUserStoreHook();
   const expires = data.expires; // 如果后端直接设置时间戳，将此处代码改为expires = data.expires，然后把上面的DataInfo<Date>改成DataInfo<number>即可
   const cookieString = JSON.stringify({ accessToken, expires });
@@ -68,7 +68,8 @@ export function setToken(data: DataInfo) {
   function setUserKey(username: string, roles: Array<string>) {
     useUserStoreHook().SET_USERNAME(username);
     useUserStoreHook().SET_ROLES(roles);
-    storageSession().setItem(sessionKey, {
+    storageSession().setItem<DataInfo>(sessionKey, {
+      id,
       refreshToken,
       expires,
       username,
