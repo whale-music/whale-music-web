@@ -1,6 +1,6 @@
+import { ArtistConvert } from "@/api/model/Artist";
 import { LinkItem, Page, PicUrl } from "@/api/model/common";
 import { MusicConvert } from "@/api/model/Music";
-import { ArtistConvert } from "@/api/model/Artist";
 
 export interface Album {
   id: number;
@@ -23,14 +23,14 @@ export interface AlbumInfo extends AlbumConvert {
   albumSize: number;
 }
 
-export interface AlbumPageRes extends AlbumConvert {
+export interface AlbumListPageRes extends AlbumConvert {
   artistList: ArtistConvert[];
   albumSize: number;
   orderBy: string;
   order: boolean;
 }
 
-export interface AlbumPageReq extends AlbumConvert {
+export interface AlbumListPageReq extends AlbumConvert {
   artistName: string;
   orderBy: string;
   order: boolean;
@@ -44,7 +44,7 @@ export interface SelectAlbum extends AlbumConvert, LinkItem {
   artists: ArtistConvert[];
 }
 
-export interface SaveOrUpdateAlbum extends AlbumPageRes {
+export interface SaveOrUpdateAlbum extends AlbumListPageRes {
   albumGenre: string;
   artistIds: number[];
   tempFile: string;

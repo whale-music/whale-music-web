@@ -8,6 +8,12 @@ type Events = {
       height: number;
     };
   };
+  library: {
+    page: {
+      current?: number;
+      size?: number;
+    };
+  };
   openPanel: string;
   tagViewsChange: string;
   tagViewsShowModel: string;

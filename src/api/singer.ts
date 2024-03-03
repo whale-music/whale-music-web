@@ -1,7 +1,14 @@
-import { http } from "@/utils/http";
-import { R, Page, Data, PicUrl } from "@/api/model/common";
 import { Artist, SelectArtist } from "@/api/model/Artist";
+import {
+  Data,
+  Page,
+  PageReqCommon,
+  PageResCommon,
+  PicUrl,
+  R
+} from "@/api/model/common";
 import { MV, SimpleArtist } from "@/api/mv";
+import { http } from "@/utils/http";
 
 export interface SingerReq {
   artistName: string;
@@ -129,4 +136,28 @@ export const getMvList = (id: number) => {
       id: id
     }
   });
+};
+
+export interface ArtistPageReq extends PageReqCommon {
+  musicName: string;
+  artistName: string;
+  albumName: string;
+}
+
+export interface ArtistPageRes {
+  id: number;
+  artistName: string;
+  aliasName: string;
+  userId: number;
+  picUrl: string;
+  albumSize: string;
+  musicSize: string;
+  createTime: string;
+}
+export const getArtistPage = (data: ArtistPageReq) => {
+  return http.request<R<PageResCommon<ArtistPageRes>>>(
+    "post",
+    "/admin/singer/page",
+    { data }
+  );
 };

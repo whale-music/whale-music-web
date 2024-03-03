@@ -20,7 +20,7 @@ import { useRouter } from "vue-router";
 
 import { MusicSearchReq, Page } from "@/api/model/common";
 import { deleteMusic, getAllMusicList, MusicSearchRes } from "@/api/music";
-import { getUserPlayList, musicLike, UserPlayListRes } from "@/api/playlist";
+import { musicLike } from "@/api/playlist";
 import RefreshIcon from "@/assets/svg/refresh.svg?component";
 import DrawerMusic from "@/components/AddData/DrawerMusic/index.vue";
 import AddMusicToPlayList from "@/components/addMusicToPlayList/addMusicToPlayList.vue";
@@ -149,7 +149,6 @@ const state = reactive<{
     playItemDialogVisible: boolean;
     deleteCompelMusicFlag: boolean;
   };
-  userPlayItem: UserPlayListRes[];
   addMusicId: number | number[];
   userInfo: DataInfo;
   isForceDeleteFlag: boolean;
@@ -189,7 +188,6 @@ const state = reactive<{
     playItemDialogVisible: false,
     deleteCompelMusicFlag: false
   },
-  userPlayItem: undefined,
   addMusicId: undefined,
   userInfo: storageSession().getItem<DataInfo>(sessionKey),
   isForceDeleteFlag: false
@@ -415,9 +413,7 @@ const tableHeaderCellStyle = ({ columnIndex }): CellStyle<any> => {
 
 const getUserPlayInfo = async (id: number | number[]) => {
   state.addMusicId = id;
-  const r = await getUserPlayList(state.userInfo.id);
   state.dialog.playItemDialogVisible = true;
-  state.userPlayItem = r.data;
 };
 
 // 右键菜单
@@ -592,10 +588,8 @@ const toMusicInfo = id => {
   <div class="absolute-container">
     <DrawerMusic v-model="uploadMusicFlag" @change="init()" />
     <!--添加歌曲到歌单-->
-    <add-music-to-play-list
-      v-if="state.dialog.playItemDialogVisible"
-      :play-item="state.userPlayItem"
-      :userId="Number.parseInt(state.userInfo.id)"
+    <AddMusicToPlayList
+      v-model="state.dialog.playItemDialogVisible"
       :music-id="state.addMusicId"
       :width="state.dialog.width"
       @closeDialog="() => (state.dialog.playItemDialogVisible = false)"

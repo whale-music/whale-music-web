@@ -1,7 +1,14 @@
-import { http } from "@/utils/http";
-import { R, MusicSearchReq, Page, Data, PicUrl } from "@/api/model/common";
 import { Artist } from "@/api/model/Artist";
+import {
+  Data,
+  MusicSearchReq,
+  Page,
+  PageResCommon,
+  PicUrl,
+  R
+} from "@/api/model/common";
 import { Resource, SaveOrUpdateMusic } from "@/api/model/Music";
+import { http } from "@/utils/http";
 
 // 音乐搜索返回
 export interface MusicSearchRes {
@@ -294,4 +301,44 @@ export const syncMetaMusicFile = (data: MusicMetaData) => {
   return http.request<R<[string[]]>>("post", `/admin/music/sync/metadata`, {
     data
   });
+};
+
+export interface MusicTabsPageReq {
+  name: string;
+  musicName: string;
+  artistName: string;
+  albumName: string;
+  refresh: boolean;
+  isShowSource: boolean;
+  pageIndex: number;
+  pageNum: number;
+}
+
+export interface MusicTabsPageRes {
+  id: number;
+  musicName: string;
+  musicNameAlias: string;
+  pic: string;
+  artistIds: number[];
+  artistNames: string[];
+  albumId: number;
+  albumName: string;
+  order: boolean;
+  isExist: boolean;
+  isLike: boolean;
+  musicRawUrl: string;
+  timeLength: number;
+  userId: string;
+  nickname: string;
+  publishTime: string;
+  createTime: string;
+}
+export const getMusicTabsPage = (data: MusicTabsPageReq) => {
+  return http.request<R<PageResCommon<MusicTabsPageRes>>>(
+    "post",
+    `/admin/music/page`,
+    {
+      data
+    }
+  );
 };

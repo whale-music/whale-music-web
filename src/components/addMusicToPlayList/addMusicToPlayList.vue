@@ -1,32 +1,66 @@
 <script lang="ts" setup>
-import { ref } from "vue";
+import { storageSession } from "@pureadmin/utils";
+import { useVModel } from "@vueuse/core";
+import { onMounted, reactive, ref, watch } from "vue";
 
-import { tracksMusicToPlayList, UserPlayListRes } from "@/api/playlist";
+import {
+  getUserPlayList,
+  tracksMusicToPlayList,
+  UserPlayListRes
+} from "@/api/playlist";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
+import { DataInfo, sessionKey } from "@/utils/auth";
 import { message } from "@/utils/message";
 
 const props = defineProps<{
-  playItem: UserPlayListRes[];
-  userId: number;
-  musicId: number | number[];
-  width: string;
+  modelValue: boolean;
+  musicId: number | number[] | undefined;
 }>();
 
-const emit = defineEmits(["closeDialog"]);
+const userInfo = reactive(storageSession().getItem<DataInfo>(sessionKey));
+const playItem = ref<UserPlayListRes[]>([]);
 
-const playItemDialogVisible = ref<boolean>(true);
+const emit = defineEmits(["closeDialog", "update:modelValue"]);
+const playItemDialogVisible = useVModel(props, "modelValue", emit);
+
+watch(playItemDialogVisible, async val => {
+  if (val) {
+    const r = await getUserPlayList(userInfo.id);
+    playItem.value = r.data;
+  }
+});
+
+onMounted(async () => {
+  const width =
+    window.innerWidth ||
+    document.documentElement.clientWidth ||
+    document.body.clientWidth;
+  reDrawLayout(width);
+});
+
+const dialogWidth = ref("");
+function reDrawLayout(width: number) {
+  if (width < 720) {
+    dialogWidth.value = "90%";
+  } else {
+    dialogWidth.value = "45%";
+  }
+}
+
 const addMusicToPlayList = (pid: string) => {
-  const numbers: number[] =
-    props.musicId instanceof Array ? props.musicId : [props.musicId];
-  tracksMusicToPlayList(pid, numbers, true).then(res => {
-    if (res.code === "200") {
-      message("添加成功", { type: "success" });
-      playItemDialogVisible.value = false;
-      emit("closeDialog", false);
-    } else {
-      message(`添加失败: ${res.message}`, { type: "error" });
-    }
-  });
+  if (props.musicId) {
+    const numbers: number[] =
+      props.musicId instanceof Array ? props.musicId : [props.musicId];
+    tracksMusicToPlayList(pid, numbers, true).then(res => {
+      if (res.code === "200") {
+        message("添加成功", { type: "success" });
+        playItemDialogVisible.value = false;
+        emit("closeDialog", false);
+      } else {
+        message(`添加失败: ${res.message}`, { type: "error" });
+      }
+    });
+  }
 };
 
 const closeDialog = () => {
@@ -39,14 +73,14 @@ const closeDialog = () => {
   <div>
     <el-dialog
       v-model="playItemDialogVisible"
-      :width="props.width ?? '45%'"
+      :width="dialogWidth ?? '45%'"
       center
       @close="closeDialog"
     >
       <h1>收藏歌单</h1>
       <el-scrollbar height="400px">
         <div>
-          <ul v-for="(item, index) in props.playItem" :key="index">
+          <ul v-for="(item, index) in playItem" :key="index">
             <li
               class="item cursor-pointer"
               @click="addMusicToPlayList(item.id.toString())"

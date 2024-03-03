@@ -10,6 +10,18 @@ export interface Page {
   total?: number;
 }
 
+export interface PageResCommon<T> {
+  current: number;
+  size: number;
+  total: number;
+  content: T[];
+}
+
+export interface PageReqCommon {
+  pageIndex: number;
+  pageNum: number;
+}
+
 export interface Data<T> {
   records: T[];
   total: number;

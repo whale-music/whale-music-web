@@ -96,6 +96,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "eslint-plugin-vue": "^9.9.0",
+    "highlightable-input": "^0.2.2",
     "husky": "^7.0.4",
     "lint-staged": "11.1.2",
     "picocolors": "^1.0.0",

@@ -7,8 +7,8 @@ import { onMounted, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
-import { deleteAlbum, getAlbumPage } from "@/api/album";
-import { AlbumPageReq, AlbumPageRes } from "@/api/model/Album";
+import { deleteAlbum, getAlbumListPage } from "@/api/album";
+import { AlbumListPageReq, AlbumListPageRes } from "@/api/model/Album";
 import { Page } from "@/api/model/common";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import NameSearch from "@/components/nameSearch/index.vue";
@@ -58,8 +58,8 @@ const state = reactive<{
     }[];
     searchType: string;
     name: string;
-    req: AlbumPageReq;
-    res: AlbumPageRes[];
+    req: AlbumListPageReq;
+    res: AlbumListPageRes[];
   };
   menuFlag: boolean;
   table: {
@@ -206,7 +206,7 @@ const getAlbumPageList = async () => {
   }
 
   try {
-    const res = await getAlbumPage(state.search.req);
+    const res = await getAlbumListPage(state.search.req);
 
     state.search.req.page.pageIndex = res.data.current;
     state.search.req.page.pageNum = res.data.size;
@@ -240,7 +240,7 @@ const multipleTableRef = ref<InstanceType<typeof ElTable>>();
 const deleteMusicFlag = ref<boolean>(false);
 const deleteCompelMusicFlag = ref<boolean>(false);
 
-const multipleSelection = ref<AlbumPageRes[]>([]);
+const multipleSelection = ref<AlbumListPageRes[]>([]);
 const selectFlag = ref<boolean>(false);
 // 监听是否选择音乐
 watch(multipleSelection, async newQuestion => {

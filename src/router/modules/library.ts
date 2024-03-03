@@ -5,13 +5,22 @@ export default {
   path: "/library",
   name: "Library",
   component: Layout,
-  redirect: "/library/music",
+  redirect: "/library/index",
   meta: {
     icon: "solar:music-library-2-bold-duotone",
     title: $t("list.music"),
     rank: 1
   },
   children: [
+    {
+      path: "/library/index",
+      name: "MusicLibrary",
+      component: () => import("@/views/library/library/index.vue"),
+      meta: {
+        icon: "solar:box-minimalistic-bold",
+        title: $t("list.musicLibrary")
+      }
+    },
     {
       path: "/library/music",
       name: "Music",
