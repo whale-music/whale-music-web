@@ -1,7 +1,8 @@
-import { useNav } from "./useNav";
+import { type Ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
-import { watch, type Ref } from "vue";
+
+import { useNav } from "./useNav";
 
 export function useTranslationLang(ref?: Ref) {
   const { $storage, changeTitle, handleResize } = useNav();

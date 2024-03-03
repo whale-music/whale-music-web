@@ -1,35 +1,36 @@
-import {
-  ref,
-  unref,
-  watch,
-  computed,
-  reactive,
-  onMounted,
-  CSSProperties,
-  getCurrentInstance
-} from "vue";
-import { tagsViewsType } from "../types";
-import { useEventListener } from "@vueuse/core";
-import { useRoute, useRouter } from "vue-router";
-import { transformI18n, $t } from "@/plugins/i18n";
-import { responsiveStorageNameSpace } from "@/config";
-import { useSettingStoreHook } from "@/store/modules/settings";
-import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
-import {
-  isEqual,
-  isBoolean,
-  storageLocal,
-  toggleClass,
-  hasClass
-} from "@pureadmin/utils";
-
+import Close from "@iconify-icons/ep/close";
+import RefreshRight from "@iconify-icons/ep/refresh-right";
 import Fullscreen from "@iconify-icons/ri/fullscreen-fill";
 import CloseAllTags from "@iconify-icons/ri/subtract-line";
-import CloseOtherTags from "@iconify-icons/ri/text-spacing";
 import CloseRightTags from "@iconify-icons/ri/text-direction-l";
 import CloseLeftTags from "@iconify-icons/ri/text-direction-r";
-import RefreshRight from "@iconify-icons/ep/refresh-right";
-import Close from "@iconify-icons/ep/close";
+import CloseOtherTags from "@iconify-icons/ri/text-spacing";
+import {
+  hasClass,
+  isBoolean,
+  isEqual,
+  storageLocal,
+  toggleClass
+} from "@pureadmin/utils";
+import { useEventListener } from "@vueuse/core";
+import {
+  computed,
+  CSSProperties,
+  getCurrentInstance,
+  onMounted,
+  reactive,
+  ref,
+  unref,
+  watch
+} from "vue";
+import { useRoute, useRouter } from "vue-router";
+
+import { responsiveStorageNameSpace } from "@/config";
+import { $t, transformI18n } from "@/plugins/i18n";
+import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
+import { useSettingStoreHook } from "@/store/modules/settings";
+
+import { tagsViewsType } from "../types";
 
 export function useTags() {
   const route = useRoute();

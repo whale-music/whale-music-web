@@ -1,4 +1,5 @@
 import { onMounted, ref } from "vue";
+
 import { emitter } from "@/utils/mitt";
 
 export function useDialog() {

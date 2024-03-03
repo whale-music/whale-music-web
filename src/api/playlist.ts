@@ -1,5 +1,5 @@
+import { Data, MusicSearchReq, Page, PicUrl, R } from "@/api/model/common";
 import { http } from "@/utils/http";
-import { R, Data, MusicSearchReq, Page, PicUrl } from "@/api/model/common";
 
 export interface Album {
   id: number;

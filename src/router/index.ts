@@ -1,31 +1,33 @@
 import "@/utils/sso";
+
+import { isAllEmpty, isUrl, openLink, storageSession } from "@pureadmin/utils";
+import {
+  createRouter,
+  RouteComponent,
+  Router,
+  RouteRecordRaw
+} from "vue-router";
+
 import { getConfig } from "@/config";
-import NProgress from "@/utils/progress";
 import { transformI18n } from "@/plugins/i18n";
-import { sessionKey, type DataInfo } from "@/utils/auth";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
 import { usePermissionStoreHook } from "@/store/modules/permission";
-import {
-  Router,
-  createRouter,
-  RouteRecordRaw,
-  RouteComponent
-} from "vue-router";
-import {
-  ascending,
-  getTopMenu,
-  initRouter,
-  isOneOfArray,
-  getHistoryMode,
-  findRouteByPath,
-  handleAliveRoute,
-  formatTwoStageRoutes,
-  formatFlatteningRoutes
-} from "./utils";
+import { type DataInfo, sessionKey } from "@/utils/auth";
+import NProgress from "@/utils/progress";
 import { buildHierarchyTree } from "@/utils/tree";
-import { isUrl, openLink, storageSession, isAllEmpty } from "@pureadmin/utils";
 
 import remainingRouter from "./modules/remaining";
+import {
+  ascending,
+  findRouteByPath,
+  formatFlatteningRoutes,
+  formatTwoStageRoutes,
+  getHistoryMode,
+  getTopMenu,
+  handleAliveRoute,
+  initRouter,
+  isOneOfArray
+} from "./utils";
 
 /** 自动导入全部静态路由，无需再手动引入！匹配 src/router/modules 目录（任何嵌套级别）中具有 .ts 扩展名的所有文件，除了 remaining.ts 文件
  * 如何匹配所有文件请看：https://github.com/mrmlnc/fast-glob#basic-syntax

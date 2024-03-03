@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
-import { store } from "@/store";
+
+import { Resource } from "@/api/model/Music";
 import {
   getAllMusicList,
   getMusicLyric,
@@ -7,7 +8,7 @@ import {
   Lyric,
   MusicSearchRes
 } from "@/api/music";
-import { Resource } from "@/api/model/Music";
+import { store } from "@/store";
 
 const playSongList = "Play-Song-List";
 export const userPlaySongList = defineStore({

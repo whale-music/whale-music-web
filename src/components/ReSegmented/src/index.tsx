@@ -1,16 +1,19 @@
 import "./index.css";
-import {
-  h,
-  ref,
-  watch,
-  nextTick,
-  defineComponent,
-  getCurrentInstance
-} from "vue";
-import type { OptionsType } from "./type";
+
 import { isFunction, useDark } from "@pureadmin/utils";
-import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { Props } from "@vueuse/motion";
+import {
+  defineComponent,
+  getCurrentInstance,
+  h,
+  nextTick,
+  ref,
+  watch
+} from "vue";
+
+import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+
+import type { OptionsType } from "./type";
 
 const props: Props = {
   options: {

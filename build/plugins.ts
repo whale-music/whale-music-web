@@ -1,18 +1,20 @@
-import { cdn } from "./cdn";
-import { resolve } from "path";
+import VueI18nPlugin from "@intlify/unplugin-vue-i18n/vite";
+import { themePreprocessorPlugin } from "@pureadmin/theme";
 import vue from "@vitejs/plugin-vue";
-import { viteBuildInfo } from "./info";
-import svgLoader from "vite-svg-loader";
 import vueJsx from "@vitejs/plugin-vue-jsx";
-// import { viteMockServe } from "vite-plugin-mock";
-import { configCompressPlugin } from "./compress";
+import { resolve } from "path";
 // import ElementPlus from "unplugin-element-plus/vite";
 import { visualizer } from "rollup-plugin-visualizer";
-import removeConsole from "vite-plugin-remove-console";
-import { themePreprocessorPlugin } from "@pureadmin/theme";
-import VueI18nPlugin from "@intlify/unplugin-vue-i18n/vite";
 import DefineOptions from "unplugin-vue-define-options/vite";
-import { genScssMultipleScopeVars } from "../src/layout/theme";
+import removeConsole from "vite-plugin-remove-console";
+import svgLoader from "vite-svg-loader";
+
+import { genScssMultipleScopeVars } from "@/layout/theme";
+
+import { cdn } from "./cdn";
+// import { viteMockServe } from "vite-plugin-mock";
+import { configCompressPlugin } from "./compress";
+import { viteBuildInfo } from "./info";
 
 export function getPluginsList(
   command: string,

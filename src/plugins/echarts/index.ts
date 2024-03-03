@@ -1,17 +1,17 @@
-import type { App } from "vue";
-import * as echarts from "echarts/core";
-import { CanvasRenderer } from "echarts/renderers";
-import { PieChart, BarChart, LineChart } from "echarts/charts";
+import { BarChart, LineChart, PieChart } from "echarts/charts";
 import {
-  GridComponent,
-  TitleComponent,
-  LegendComponent,
+  DataZoomComponent,
   GraphicComponent,
+  GridComponent,
+  LegendComponent,
+  TitleComponent,
   ToolboxComponent,
   TooltipComponent,
-  DataZoomComponent,
   VisualMapComponent
 } from "echarts/components";
+import * as echarts from "echarts/core";
+import { CanvasRenderer } from "echarts/renderers";
+import type { App } from "vue";
 
 const { use } = echarts;
 // const { use, registerTheme } = echarts;

@@ -1,5 +1,5 @@
-import type { VNode, Component } from "vue";
 import { IconifyIcon } from "@iconify/types";
+import type { Component, VNode } from "vue";
 
 export interface OptionsType {
   /** 文字 */

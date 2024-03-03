@@ -1,6 +1,7 @@
-import { Directive, type DirectiveBinding, type VNode } from "vue";
-import elementResizeDetectorMaker from "element-resize-detector";
 import type { Erd } from "element-resize-detector";
+import elementResizeDetectorMaker from "element-resize-detector";
+import { Directive, type DirectiveBinding, type VNode } from "vue";
+
 import { emitter } from "@/utils/mitt";
 
 const erd: Erd = elementResizeDetectorMaker({

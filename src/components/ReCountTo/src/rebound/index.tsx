@@ -1,11 +1,13 @@
 import "./rebound.css";
+
 import {
   defineComponent,
-  ref,
-  unref,
   onBeforeMount,
-  onBeforeUnmount
+  onBeforeUnmount,
+  ref,
+  unref
 } from "vue";
+
 import { reboundProps } from "./props";
 
 export default defineComponent({

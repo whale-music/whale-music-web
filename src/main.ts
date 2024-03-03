@@ -1,17 +1,5 @@
-import App from "./App.vue";
-import router from "./router";
-import { setupStore } from "@/store";
-import ElementPlus from "element-plus";
-import { useI18n } from "@/plugins/i18n";
-import { getServerConfig } from "./config";
-import { createApp, Directive } from "vue";
-import { MotionPlugin } from "@vueuse/motion";
-import { useEcharts } from "@/plugins/echarts";
-import { injectResponsiveStorage } from "@/utils/responsive";
-
 // import Table from "@pureadmin/table";
 // import PureDescriptions from "@pureadmin/descriptions";
-
 // 引入重置样式
 import "./style/reset.scss";
 // 导入公共样式
@@ -25,6 +13,19 @@ import "./assets/iconfont/iconfont.css";
 // 自定义element 样式
 import "./style/element/index.scss";
 
+import { MotionPlugin } from "@vueuse/motion";
+import ElementPlus from "element-plus";
+import { createApp, Directive } from "vue";
+
+import { useEcharts } from "@/plugins/echarts";
+import { useI18n } from "@/plugins/i18n";
+import { setupStore } from "@/store";
+import { injectResponsiveStorage } from "@/utils/responsive";
+
+import App from "./App.vue";
+import { getServerConfig } from "./config";
+import router from "./router";
+
 const app = createApp(App);
 
 // 自定义指令
@@ -35,9 +36,9 @@ Object.keys(directives).forEach(key => {
 
 // 全局注册`@iconify/vue`图标库
 import {
+  FontIcon,
   IconifyIconOffline,
-  IconifyIconOnline,
-  FontIcon
+  IconifyIconOnline
 } from "./components/ReIcon";
 app.component("IconifyIconOffline", IconifyIconOffline);
 app.component("IconifyIconOnline", IconifyIconOnline);
@@ -48,6 +49,7 @@ import { Auth } from "@/components/ReAuth";
 app.component("Auth", Auth);
 
 import "@imengyu/vue3-context-menu/lib/vue3-context-menu.css";
+
 import ContextMenu from "@imengyu/vue3-context-menu";
 
 getServerConfig(app).then(async config => {

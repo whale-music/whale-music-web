@@ -1,8 +1,10 @@
-import { store } from "@/store";
-import { appType } from "./types";
-import { defineStore } from "pinia";
-import { getConfig, responsiveStorageNameSpace } from "@/config";
 import { deviceDetection, storageLocal } from "@pureadmin/utils";
+import { defineStore } from "pinia";
+
+import { getConfig, responsiveStorageNameSpace } from "@/config";
+import { store } from "@/store";
+
+import { appType } from "./types";
 
 export const useAppStore = defineStore({
   id: "pure-app",

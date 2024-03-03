@@ -31,4 +31,4 @@ const exclude = [
   "@pureadmin/theme/dist/browser-utils"
 ];
 
-export { include, exclude };
+export { exclude, include };

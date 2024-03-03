@@ -1,5 +1,6 @@
-import { unref } from "vue";
 import { useCopyToClipboard } from "@pureadmin/utils";
+import { unref } from "vue";
+
 import { message } from "@/utils/message";
 
 export function useCopy(value: string) {

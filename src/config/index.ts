@@ -1,5 +1,5 @@
-import { App } from "vue";
 import axios from "axios";
+import { App } from "vue";
 
 let config: object = {};
 const { VITE_PUBLIC_PATH } = import.meta.env;
@@ -52,4 +52,4 @@ export const getServerConfig = async (app: App): Promise<any> => {
 /** 本地响应式存储的命名空间 */
 const responsiveStorageNameSpace = () => getConfig().ResponsiveStorageNameSpace;
 
-export { getConfig, setConfig, responsiveStorageNameSpace };
+export { getConfig, responsiveStorageNameSpace, setConfig };

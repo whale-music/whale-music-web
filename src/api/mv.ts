@@ -1,5 +1,5 @@
-import { http } from "@/utils/http";
 import { Data, R } from "@/api/model/common";
+import { http } from "@/utils/http";
 
 export interface MV {
   id: number;

@@ -1,14 +1,16 @@
-import { ref } from "vue";
-import { getConfig } from "@/config";
-import { useLayout } from "./useLayout";
-import { themeColorsType } from "../types";
-import { useGlobal } from "@pureadmin/utils";
-import { useEpThemeStoreHook } from "@/store/modules/epTheme";
 import {
   darken,
   lighten,
   toggleTheme
 } from "@pureadmin/theme/dist/browser-utils";
+import { useGlobal } from "@pureadmin/utils";
+import { ref } from "vue";
+
+import { getConfig } from "@/config";
+import { useEpThemeStoreHook } from "@/store/modules/epTheme";
+
+import { themeColorsType } from "../types";
+import { useLayout } from "./useLayout";
 
 export function useDataThemeChange() {
   const { layoutTheme, layout } = useLayout();

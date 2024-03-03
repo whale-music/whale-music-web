@@ -1,11 +1,13 @@
-import { defineStore } from "pinia";
-import { store } from "@/store";
-import { cacheType } from "./types";
-import router, { constantMenus } from "@/router";
 import { getKeyList } from "@pureadmin/utils";
-import { useMultiTagsStoreHook } from "./multiTags";
-import { ascending, filterTree, filterNoPermissionTree } from "@/router/utils";
+import { defineStore } from "pinia";
 import { RouteRecordName } from "vue-router";
+
+import router, { constantMenus } from "@/router";
+import { ascending, filterNoPermissionTree, filterTree } from "@/router/utils";
+import { store } from "@/store";
+
+import { useMultiTagsStoreHook } from "./multiTags";
+import { cacheType } from "./types";
 
 export const usePermissionStore = defineStore({
   id: "pure-permission",
