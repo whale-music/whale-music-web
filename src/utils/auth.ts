@@ -70,6 +70,7 @@ export function setToken(data: DataInfo) {
     useUserStoreHook().SET_ROLES(roles);
     storageSession().setItem<DataInfo>(sessionKey, {
       id,
+      accessToken,
       refreshToken,
       expires,
       username,
