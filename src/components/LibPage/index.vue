@@ -80,17 +80,15 @@ const tabs = () => {
   };
 
   const removeData = async () => {
-    const ids = selectCount.value.map(value1 => value1.id);
-
     switch (activeName.value) {
       case "music":
-        await removeMusic(ids, onSubmit);
+        await removeMusic(selectIds.value, onSubmit);
         break;
       case "album":
-        await removeAlbum(ids, onSubmit);
+        await removeAlbum(selectIds.value, onSubmit);
         break;
       case "artist":
-        await removeArtist(ids, onSubmit);
+        await removeArtist(selectIds.value, onSubmit);
         break;
       default:
         message("移除参数错误", { type: "error" });
@@ -103,21 +101,37 @@ const tabs = () => {
     removeData
   };
 };
+
+const useSelectData = () => {
+  const selectIds = computed(() => {
+    return selectCount.value.map((value: any) => value.id);
+  });
+  return {
+    selectIds
+  };
+};
+
+const useMusicToPlay = () => {
+  const addMusicDialogFlag = ref(false);
+  return {
+    addMusicDialogFlag
+  };
+};
+const { selectIds } = useSelectData();
 const { onSubmit } = useSearch();
 const { activeName, handleClick, clickDrawer, removeData } = tabs();
-
+const { addMusicDialogFlag } = useMusicToPlay();
 onMounted(() => {
   const { nameStr, musicStr, artistStr, albumStr } = parseQueryToSearchName(
     route.query
   );
   value.value = `${nameStr} ${musicStr} ${albumStr} ${artistStr}`.trim();
-  onSubmit();
+
+  const q = cloneDeep(route.query);
+  q["type"] = activeName.value;
+  router.push({ query: q });
 });
 
-const addMusicDialogFlag = ref(false);
-const addMusicDialog = computed(() => {
-  return selectCount.value.map(value => value.id);
-});
 const showFilterText = () => {
   showAddFilterDialogText();
 };
@@ -127,8 +141,8 @@ const showFilterText = () => {
   <div class="page-content">
     <AddMusicToPlayList
       v-model="addMusicDialogFlag"
-      :music-id="addMusicDialog"
-      @closeDialog="() => (addMusicDialog.isShow = false)"
+      :music-id="selectIds"
+      @closeDialog="() => (addMusicDialogFlag = false)"
     />
     <div class="flex gap-2 justify-between mb-4">
       <HighlightInput v-model="value" @keyup.enter="onSubmit" />
