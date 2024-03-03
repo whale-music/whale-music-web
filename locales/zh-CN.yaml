@@ -49,6 +49,7 @@ login:
 list:
   music: 音乐
   allmusic: 音乐
+  musicLibrary: 曲库
   allAlbum: 专辑
   allSinger: 歌手
   mv: MV

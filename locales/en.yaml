@@ -49,6 +49,7 @@ login:
 list:
   music: music
   allmusic: Music
+  musicLibrary: Music Library
   allAlbum: Album
   allSinger: Artist
   mv: MV
