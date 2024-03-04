@@ -101,9 +101,9 @@ const cellStyle = ({ columnIndex }): CellStyle<any> => {
     >
       <template #default="scope">
         <el-link
-          :underline="false"
           v-for="item in scope.row.artistList"
           :key="item.id"
+          :underline="false"
           class="m-1"
         >
           <router-link
@@ -143,5 +143,3 @@ const cellStyle = ({ columnIndex }): CellStyle<any> => {
     </el-table-column>
   </RePageTable>
 </template>
-
-<style scoped lang="scss"></style>

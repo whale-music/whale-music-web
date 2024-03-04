@@ -16,7 +16,7 @@ import {
   PluginMsgRes,
   PluginTask
 } from "@/api/plugin";
-import Wbutton from "@/components/button/index.vue";
+import WButton from "@/components/button/index.vue";
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
 import { FriendlyTime } from "@/utils/DateFormat.ts";
 import { dateFormater } from "@/utils/dateUtil";
@@ -197,18 +197,18 @@ const showLogLevelText = (level: number) => {
         </div>
       </el-scrollbar>
     </el-dialog>
-    <Wbutton @click="pluginTaskShowParams" type="danger" class="mt-4 mb-4"
-      >插件入参</Wbutton
+    <WButton type="danger" class="mt-4 mb-4" @click="pluginTaskShowParams"
+      >插件入参</WButton
     >
     <div class="flex items-center">
-      <Wbutton
+      <WButton
         :loading="refreshFlag"
-        @click="refreshButton(taskId)"
         type="danger"
         class="mt-4 mb-4"
-        >刷新</Wbutton
+        @click="refreshButton(taskId)"
+        >刷新</WButton
       >
-      <span class="ml-2 flex items-center" v-show="timerFlag">
+      <span v-show="timerFlag" class="ml-2 flex items-center">
         <IconifyIconOffline
           icon="loading3Fill"
           class="animate-spin"
@@ -221,14 +221,14 @@ const showLogLevelText = (level: number) => {
     </div>
     <ShowLoading :loading="refreshFlag" />
     <div
-      class="log-container"
       v-show="
         pluginTaskInfoList != null &&
         pluginTaskInfoList.length !== 0 &&
         !refreshFlag
       "
+      class="log-container"
     >
-      <el-scrollbar height="400px" ref="scroll">
+      <el-scrollbar ref="scroll" height="400px">
         <div ref="scrollContainer">
           <div
             v-for="(item, index) in pluginTaskInfoList"
@@ -299,8 +299,8 @@ const showLogLevelText = (level: number) => {
 }
 
 .log-container {
-  background: var(--el-bg-color);
   padding: 1rem;
+  background: var(--el-bg-color);
   border: 1px solid #c7c6c6;
   border-radius: 0.5rem;
 }

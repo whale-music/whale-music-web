@@ -116,7 +116,7 @@ const showParamsJsonDialog = async (json: string) => {
           >
             {{ !item.status ? "启用" : "禁用" }}
           </Wbutton>
-          <Wbutton @click="showParamsJsonDialog(item.params)" type="success"
+          <Wbutton type="success" @click="showParamsJsonDialog(item.params)"
             >参数</Wbutton
           >
           <el-popconfirm
@@ -145,17 +145,16 @@ const showParamsJsonDialog = async (json: string) => {
 
 .card {
   display: flex;
-  padding: 0.8rem;
   flex-direction: column;
+  row-gap: 0.8rem;
   align-items: center;
   justify-content: space-between;
-
   width: 20rem;
   height: 12rem;
-  border-radius: 1rem;
-  row-gap: 0.8rem;
-  border: 1px solid var(--el-color-info-light-7);
+  padding: 0.8rem;
   background: var(--el-bg-color-overlay);
+  border: 1px solid var(--el-color-info-light-7);
+  border-radius: 1rem;
 }
 
 .card:hover {

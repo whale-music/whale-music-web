@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { storageSession } from "@pureadmin/utils";
+import { storageLocal } from "@pureadmin/utils";
 import { computed, type CSSProperties, ref } from "vue";
 
 import { initRouter } from "@/router/utils";
@@ -35,7 +35,7 @@ function onChange() {
     .loginByUsername({ username: username.value, password: "admin123" })
     .then(res => {
       if (res.data) {
-        storageSession().removeItem("async-routes");
+        storageLocal().removeItem("async-routes");
         usePermissionStoreHook().clearAllCachePage();
         initRouter();
       }

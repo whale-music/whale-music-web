@@ -1,13 +1,15 @@
 import { $t } from "@/plugins/i18n";
+import { error } from "@/router/enums";
 
 export default {
   path: "/error",
   redirect: "/error/403",
   meta: {
-    icon: "informationLine",
+    icon: "ri:information-line",
+    // showLink: false,
     title: $t("menus.hsabnormal"),
     showLink: false,
-    rank: 9
+    rank: error
   },
   children: [
     {
@@ -35,4 +37,4 @@ export default {
       }
     }
   ]
-} as RouteConfigsTable;
+} satisfies RouteConfigsTable;

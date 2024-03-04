@@ -11,8 +11,8 @@ defineOptions({
     <noServer />
     <div class="ml-12">
       <p
-        class="font-medium text-4xl mb-4 dark:text-white"
         v-motion
+        class="font-medium text-4xl mb-4 dark:text-white"
         :initial="{
           opacity: 0,
           y: 100
@@ -28,8 +28,8 @@ defineOptions({
         500
       </p>
       <p
-        class="mb-4 text-gray-500"
         v-motion
+        class="mb-4 text-gray-500"
         :initial="{
           opacity: 0,
           y: 100
@@ -45,9 +45,8 @@ defineOptions({
         抱歉，服务器出错了
       </p>
       <el-button
-        type="primary"
-        @click="$router.push('/')"
         v-motion
+        type="primary"
         :initial="{
           opacity: 0,
           y: 100
@@ -59,6 +58,7 @@ defineOptions({
             delay: 500
           }
         }"
+        @click="$router.push('/')"
       >
         返回首页
       </el-button>

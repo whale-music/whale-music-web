@@ -3,23 +3,20 @@ import Axios, {
   type AxiosRequestConfig,
   type CustomParamsSerializer
 } from "axios";
-import { stringify } from "qs";
-
-import { loginUrl, refreshTokenUrl } from "@/api/user";
-import { useUserStoreHook } from "@/store/modules/user";
-// import NProgress from "../progress";
-import { formatToken, getToken } from "@/utils/auth";
-import { message } from "@/utils/message";
-
 import type {
   PureHttpError,
-  PureHttpRequestConfig,
+  RequestMethods,
   PureHttpResponse,
-  RequestMethods
+  PureHttpRequestConfig
 } from "./types.d";
+import { stringify } from "qs";
+// import NProgress from "../progress";
+import { getToken, formatToken } from "@/utils/auth";
+import { useUserStoreHook } from "@/store/modules/user";
+import { loginUrl, refreshTokenUrl } from "@/api/user";
+import { message } from "@/utils/message";
 
 const { VITE_PROXY_PREFIX } = import.meta.env;
-
 // 相关配置请参考：www.axios-js.com/zh-cn/docs/#axios-request-config-1
 const defaultConfig: AxiosRequestConfig = {
   baseURL: `${VITE_PROXY_PREFIX}`,
@@ -87,7 +84,7 @@ class PureHttp {
               const data = getToken();
               if (data) {
                 const now = new Date().getTime();
-                const expired = data.expires - now <= 0;
+                const expired = parseInt(data.expires) - now <= 0;
                 if (expired) {
                   if (!PureHttp.isRefreshing) {
                     PureHttp.isRefreshing = true;
@@ -178,9 +175,6 @@ class PureHttp {
 
     // 单独处理自定义请求/响应回调
     return new Promise((resolve, reject) => {
-      // if (process.env.NODE_ENV === "development") {
-      //   config.url = `${import.meta.env.VITE_PROXY_PREFIX}${config.url}`;
-      // }
       PureHttp.axiosInstance
         .request(config)
         .then((response: any) => {

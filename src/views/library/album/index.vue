@@ -359,7 +359,7 @@ const toArtist = id => {
 
 <template>
   <div class="album">
-    <div class="operation-panel-bg" v-show="selectFlag">
+    <div v-show="selectFlag" class="operation-panel-bg">
       <div class="operation-panel">
         <el-dialog
           v-model="deleteCompelMusicFlag"
@@ -408,22 +408,22 @@ const toArtist = id => {
             {{ multipleSelection.length }}
           </span>
           <IconifyIconOnline
-            @click="cancelButton"
             class="cursor-pointer"
             style="color: #636e72"
             icon="solar:close-circle-bold-duotone"
             width="2rem"
             height="2rem"
+            @click="cancelButton"
           />
         </div>
         <div class="flex items-center ml-2 mr-2 rounded">
           <IconifyIconOnline
-            @click="deleteCompelMusicFlag = true"
             class="cursor-pointer"
             style="color: #d63031"
             icon="solar:trash-bin-minimalistic-2-bold-duotone"
             width="2rem"
             height="2rem"
+            @click="deleteCompelMusicFlag = true"
           />
         </div>
       </div>
@@ -454,7 +454,7 @@ const toArtist = id => {
 
       <div class="option">
         <div class="flex items-center">
-          <button @click="state.menuFlag = !state.menuFlag" class="menu-button">
+          <button class="menu-button" @click="state.menuFlag = !state.menuFlag">
             <span>{{ t("input.menuBotton") }}</span>
           </button>
         </div>
@@ -508,23 +508,23 @@ const toArtist = id => {
         <div>
           <el-table
             v-if="state.search.req.page.total !== 0"
-            v-loading="state.table.loading"
+            v-show="!state.table.initLoading"
             ref="multipleTableRef"
+            :key="state.table.optionSwitchValue"
+            v-loading="state.table.loading"
             :data="state.search.res"
             class="album-table"
             style="width: 100%"
             table-layout="fixed"
-            :key="state.table.optionSwitchValue"
-            v-show="!state.table.initLoading"
-            @selection-change="handleSelectionChange"
             :header-cell-style="tableHeaderCellStyle"
-            @row-click="rowClick"
             :cell-style="cellStyle"
+            @selection-change="handleSelectionChange"
+            @row-click="rowClick"
           >
             <el-table-column
+              v-if="state.table.optionSwitchValue"
               type="selection"
               width="55"
-              v-if="state.table.optionSwitchValue"
             />
             <el-table-column type="index" />
             <el-table-column width="110" :show-overflow-tooltip="false">
@@ -552,17 +552,17 @@ const toArtist = id => {
               </template>
             </el-table-column>
             <el-table-column
+              v-if="state.table.show.artist"
               :label="t('input.singerName')"
               :show-overflow-tooltip="true"
-              v-if="state.table.show.artist"
             >
               <template #default="scope">
                 <el-link
-                  @click="toArtist(item.id)"
-                  :underline="false"
                   v-for="item in scope.row.artistList"
                   :key="item.id"
+                  :underline="false"
                   class="m-1"
+                  @click="toArtist(item.id)"
                 >
                   <span class="text-xl">
                     {{ item.artistName }}
@@ -571,10 +571,10 @@ const toArtist = id => {
               </template>
             </el-table-column>
             <el-table-column
+              v-if="state.table.show.musicCount"
               :label="t('table.musicSize')"
               :show-overflow-tooltip="true"
               width="100"
-              v-if="state.table.show.musicCount"
             >
               <template #default="scope">
                 <span
@@ -586,10 +586,10 @@ const toArtist = id => {
               </template>
             </el-table-column>
             <el-table-column
+              v-if="state.table.show.creatTime"
               prop="createTime"
               label="上传时间"
               :show-overflow-tooltip="true"
-              v-if="state.table.show.creatTime"
             >
               <template #default="scope">
                 <span style="color: var(--el-text-color-secondary)">{{
@@ -631,16 +631,18 @@ const toArtist = id => {
 .album {
   display: flex;
   flex-direction: column;
-  /*主轴上的对齐方式为居中*/
-  justify-content: center;
-  /*交叉轴上对齐方式为居中*/
+
+  /* 交叉轴上对齐方式为居中 */
   align-items: center;
+
+  /* 主轴上的对齐方式为居中 */
+  justify-content: center;
 }
 
 .center_album {
-  width: 100%;
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 .search {
@@ -650,39 +652,38 @@ const toArtist = id => {
 
 .option {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  flex-wrap: nowrap;
+  flex-flow: row nowrap;
   align-items: center;
+  justify-content: space-between;
 }
 
 .menu-button {
   display: inline-block;
+  width: 6rem;
+  height: 2.5rem;
+  margin: 5px;
+  font-size: 17px;
+  color: #fff;
+  text-align: center;
+  cursor: pointer;
   background-color: var(--el-color-primary);
   border-radius: var(--el-border-radius-base);
-  color: #ffffff;
-  text-align: center;
-  font-size: 17px;
-  height: 2.5rem;
-  width: 6rem;
   transition: all 0.5s;
-  cursor: pointer;
-  margin: 5px;
 }
 
 .menu-button span {
-  cursor: pointer;
-  display: inline-block;
   position: relative;
+  display: inline-block;
+  cursor: pointer;
   transition: 0.5s;
 }
 
-.menu-button span:after {
-  content: "↓";
+.menu-button span::after {
   position: absolute;
-  opacity: 0;
   top: 0;
   right: -15px;
+  content: "↓";
+  opacity: 0;
   transition: 0.5s;
 }
 
@@ -690,9 +691,9 @@ const toArtist = id => {
   padding-right: 15px;
 }
 
-.menu-button:hover span:after {
-  opacity: 1;
+.menu-button:hover span::after {
   right: 0;
+  opacity: 1;
 }
 
 .slide-fade-enter-active,
@@ -702,14 +703,14 @@ const toArtist = id => {
 
 .slide-fade-enter-from,
 .slide-fade-leave-to {
-  transform: translateX(20px);
   opacity: 0;
+  transform: translateX(20px);
 }
 
 .demo-pagination-block {
-  margin-top: 1rem;
   display: flex;
   justify-content: center;
+  margin-top: 1rem;
 }
 
 .album-table {
@@ -732,15 +733,15 @@ const toArtist = id => {
 
 .operation-panel {
   position: absolute;
-  display: flex;
-  z-index: 200;
   bottom: 0;
-  justify-content: center;
+  z-index: 200;
+  display: flex;
   align-items: center;
+  justify-content: center;
   height: 3.2rem;
-  background: var(--el-bg-color);
-  border-radius: 1rem;
-  border: 1px solid rgba(142, 142, 142, 0.2);
   margin-bottom: 20px;
+  background: var(--el-bg-color);
+  border: 1px solid rgb(142 142 142 / 20%);
+  border-radius: 1rem;
 }
 </style>

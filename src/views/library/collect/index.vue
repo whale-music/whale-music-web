@@ -409,7 +409,7 @@ const toPlayList = id => {
       </template>
     </el-dialog>
 
-    <div class="operation-panel-bg" v-show="selectFlag">
+    <div v-show="selectFlag" class="operation-panel-bg">
       <div class="operation-panel">
         <el-dialog
           v-model="deleteMusicFlag"
@@ -441,22 +441,22 @@ const toPlayList = id => {
             {{ multipleSelection.length }}
           </span>
           <IconifyIconOnline
-            @click="cancelButton"
             class="cursor-pointer"
             style="color: #636e72"
             icon="solar:close-circle-bold-duotone"
             width="2rem"
             height="2rem"
+            @click="cancelButton"
           />
         </div>
         <div class="flex items-center ml-2 mr-2 rounded">
           <IconifyIconOnline
-            @click="deleteMusicFlag = true"
             class="cursor-pointer"
             style="color: #636e72"
             icon="solar:trash-bin-2-outline"
             width="2rem"
             height="2rem"
+            @click="deleteMusicFlag = true"
           />
         </div>
       </div>
@@ -486,7 +486,7 @@ const toPlayList = id => {
 
       <div class="option">
         <div class="flex items-center">
-          <button @click="menuFlag = !menuFlag" class="menu-button">
+          <button class="menu-button" @click="menuFlag = !menuFlag">
             <span>{{ t("input.menuBotton") }}</span>
           </button>
         </div>
@@ -585,22 +585,22 @@ const toPlayList = id => {
         description="这里没有歌单请点击右上角添加歌单"
       />
       <el-table
-        v-loading="loadingFlag"
+        v-show="!emptyFlag"
         ref="multipleTableRef"
+        :key="switchTableAndRadioFlag"
+        v-loading="loadingFlag"
         :data="state.search.res"
         style="width: 100%"
         :cell-style="cellStyle"
         table-layout="fixed"
-        :key="switchTableAndRadioFlag"
         :header-cell-style="tableHeaderCellStyle"
-        @selection-change="handleSelectionChange"
         class="rounded-2xl"
-        v-show="!emptyFlag"
+        @selection-change="handleSelectionChange"
       >
         <el-table-column
+          v-if="switchTableAndRadioFlag"
           type="selection"
           width="55"
-          v-if="switchTableAndRadioFlag"
         />
         <el-table-column type="index" />
 
@@ -705,12 +705,11 @@ const toPlayList = id => {
 }
 
 .option {
-  margin: 0 auto;
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  flex-wrap: nowrap;
+  flex-flow: row nowrap;
   align-items: center;
+  justify-content: space-between;
+  margin: 0 auto;
 }
 
 .table {
@@ -721,31 +720,31 @@ const toPlayList = id => {
 
 .menu-button {
   display: inline-block;
+  width: 6rem;
+  height: 2.5rem;
+  margin: 5px;
+  font-size: 17px;
+  color: #fff;
+  text-align: center;
+  cursor: pointer;
   background-color: var(--el-color-primary);
   border-radius: var(--el-border-radius-base);
-  color: #ffffff;
-  text-align: center;
-  font-size: 17px;
-  height: 2.5rem;
-  width: 6rem;
   transition: all 0.5s;
-  cursor: pointer;
-  margin: 5px;
 }
 
 .menu-button span {
-  cursor: pointer;
-  display: inline-block;
   position: relative;
+  display: inline-block;
+  cursor: pointer;
   transition: 0.5s;
 }
 
-.menu-button span:after {
-  content: "↓";
+.menu-button span::after {
   position: absolute;
-  opacity: 0;
   top: 0;
   right: -15px;
+  content: "↓";
+  opacity: 0;
   transition: 0.5s;
 }
 
@@ -753,45 +752,46 @@ const toPlayList = id => {
   padding-right: 15px;
 }
 
-.menu-button:hover span:after {
-  opacity: 1;
+.menu-button:hover span::after {
   right: 0;
+  opacity: 1;
 }
 
 .inputGroup {
+  position: relative;
+  max-width: 20rem;
   margin: 10px;
   font-family: "Segoe UI", sans-serif;
-  max-width: 20rem;
-  position: relative;
 }
 
 .inputGroup input {
-  font-size: 100%;
-  padding: 0.8em;
-  outline: none;
-  border: 2px solid rgb(200, 200, 200);
-  background-color: transparent;
-  border-radius: 1rem;
   width: 100%;
+  padding: 0.8em;
+  font-size: 100%;
+  background-color: transparent;
+  border: 2px solid rgb(200 200 200);
+  border-radius: 1rem;
+  outline: none;
 }
 
 .inputGroup label {
-  font-size: 100%;
   position: absolute;
   left: 0;
   padding: 0.8em;
   margin-left: 0.5em;
+  font-size: 100%;
+  color: rgb(100 100 100);
   pointer-events: none;
   transition: all 0.3s ease;
-  color: rgb(100, 100, 100);
 }
 
 .inputGroup :is(input:focus, input:valid) ~ label {
   @apply dark:bg-[#000000];
-  transform: translateY(-50%) scale(0.9);
-  margin: 0 0 0 1.3em;
+
   padding: 0.4em;
+  margin: 0 0 0 1.3em;
   background-color: #f0f2f3;
+  transform: translateY(-50%) scale(0.9);
 }
 
 .inputGroup :is(input:focus, input:valid) {
@@ -808,14 +808,14 @@ const toPlayList = id => {
 
 .slide-fade-enter-from,
 .slide-fade-leave-to {
-  transform: translateX(20px);
   opacity: 0;
+  transform: translateX(20px);
 }
 
 .demo-pagination-block {
-  margin: 2rem;
   display: flex;
   justify-content: center;
+  margin: 2rem;
 }
 
 :deep(.el-table__row td) {
@@ -829,15 +829,15 @@ const toPlayList = id => {
 
 .operation-panel {
   position: absolute;
-  display: flex;
-  z-index: 200;
   bottom: 0;
-  justify-content: center;
+  z-index: 200;
+  display: flex;
   align-items: center;
+  justify-content: center;
   height: 3.2rem;
-  background: var(--el-bg-color);
-  border-radius: 1rem;
-  border: 1px solid rgba(142, 142, 142, 0.2);
   margin-bottom: 20px;
+  background: var(--el-bg-color);
+  border: 1px solid rgb(142 142 142 / 20%);
+  border-radius: 1rem;
 }
 </style>

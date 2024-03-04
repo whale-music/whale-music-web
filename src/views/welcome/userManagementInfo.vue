@@ -129,11 +129,11 @@ const saveOrUpdateUserButton = async () => {
         ]"
         prop="password"
       >
-        <el-input show-password v-model="state.userInfo.password" />
+        <el-input v-model="state.userInfo.password" show-password />
       </el-form-item>
       <el-form-item label="用户头像">
         <div class="w-full flex">
-          <el-input :disabled="true" v-model="state.userInfo.avatarUrl" />
+          <el-input v-model="state.userInfo.avatarUrl" :disabled="true" />
           <el-image-viewer
             v-if="state.show.userAvatarPreviewPic"
             :url-list="[state.userInfo.avatarUrl]"
@@ -149,8 +149,8 @@ const saveOrUpdateUserButton = async () => {
             预览
           </el-button>
           <el-upload
-            class="flex justify-center items-center"
             ref="avatarPicUpload"
+            class="flex justify-center items-center"
             :action="state.uploadPicAction"
             :limit="1"
             :show-file-list="false"
@@ -167,8 +167,8 @@ const saveOrUpdateUserButton = async () => {
       <el-form-item label="用户背景">
         <div class="w-full flex">
           <el-input
-            :disabled="true"
             v-model="state.userInfo.backgroundPicUrl"
+            :disabled="true"
           />
           <!--
           state.previewPic + state.userInfo.backgroundTempFile
@@ -188,8 +188,8 @@ const saveOrUpdateUserButton = async () => {
             预览
           </el-button>
           <el-upload
-            class="flex justify-center items-center"
             ref="backgroundPicUpload"
+            class="flex justify-center items-center"
             :action="state.uploadPicAction"
             :limit="1"
             :show-file-list="false"
@@ -214,5 +214,3 @@ const saveOrUpdateUserButton = async () => {
     </el-form>
   </div>
 </template>
-
-<style lang="scss" scoped></style>

@@ -1,4 +1,4 @@
-import { R } from "@/api/model/common";
+import type { R } from "@/api/model/common";
 import { http } from "@/utils/http";
 
 /** 获取所有插件 */

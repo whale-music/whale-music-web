@@ -1,12 +1,11 @@
 import type { IconifyIcon } from "@iconify/vue";
 const { VITE_HIDE_HOME } = import.meta.env;
-
+// todo icon
 export const routerArrays: Array<RouteConfigs> =
   VITE_HIDE_HOME === "false"
     ? [
         {
           path: "/welcome",
-          parentPath: "/",
           meta: {
             title: "menus.hshome",
             icon: "homeFilled"
@@ -25,7 +24,6 @@ export type routeMetaType = {
 
 export type RouteConfigs = {
   path?: string;
-  parentPath?: string;
   query?: object;
   params?: object;
   meta?: routeMetaType;
@@ -64,6 +62,7 @@ export interface setType {
 
 export type menuType = {
   id?: number;
+  name?: string;
   path?: string;
   noShowingChildren?: boolean;
   children?: menuType[];

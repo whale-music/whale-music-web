@@ -4,12 +4,12 @@ import { defineComponent } from "vue";
 import Artplayer from "@/components/artplayer/Artplayer.vue";
 export default defineComponent({
   name: "VideoPlayer",
+  components: {
+    Artplayer
+  },
   props: {
     mvUrl: String,
     previewPicUrl: String
-  },
-  components: {
-    Artplayer
   },
   data() {
     return {
@@ -47,19 +47,17 @@ export default defineComponent({
       }
     }
   },
-  methods: {},
   watch: {
     mvUrl(newVal) {
       this.option.url = newVal;
     }
   },
   mounted() {},
-  beforeUnmount() {}
+  beforeUnmount() {},
+  methods: {}
 });
 </script>
 
 <template>
-  <Artplayer @get-instance="getInstance" :option="option" :style="style" />
+  <Artplayer :option="option" :style="style" @get-instance="getInstance" />
 </template>
-
-<style></style>

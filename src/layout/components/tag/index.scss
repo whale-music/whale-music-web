@@ -1,165 +1,94 @@
-@keyframes scheduleInWidth {
-  0% {
-    left: 50%;
+@keyframes schedule-in-width {
+  from {
     width: 0;
   }
 
-  50% {
-    left: 40%;
-    width: 20%;
-  }
-
-  100% {
-    left: 35%;
-    width: 30%;
+  to {
+    width: 100%;
   }
 }
 
-@keyframes scheduleOutWidth {
-  0% {
-    left: 35%;
-    width: 30%;
+@keyframes schedule-out-width {
+  from {
+    width: 100%;
   }
 
-  50% {
-    left: 40%;
-    width: 20%;
-  }
-
-  100% {
-    left: 50%;
+  to {
     width: 0;
   }
 }
 
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes close {
-  from {
-    transform: translate(-50%, -50%);
-  }
-
-  to {
-    transform: translate(0, -50%);
-  }
-}
-
-$bg: $menuBg;
-$active-bg: #ffffff;
-$break-up: #cdd0d6;
-
+// todo theme
 .tags-view {
-  margin-left: 1rem;
-  width: 100%;
-  font-size: 14px;
+  position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
+  font-size: 14px;
   color: var(--el-text-color-primary);
-  background: $bg;
-  position: relative;
-  //box-shadow: 0 0 1px #888;
+  background: #fff;
+  box-shadow: 0 0 1px #888;
 
   .scroll-item {
-    z-index: 111;
-    min-width: 8rem;
-    height: 40px;
-    border-radius: 3px 3px 0 0;
-    padding: 0 6px;
-    //box-shadow: 0 0 1px #888;
     position: relative;
-    //margin-right: 4px;
     display: inline-block;
-    line-height: 40px;
-    //transition: all 0.4s;
+    height: 34px;
+    padding-left: 6px;
+    line-height: 34px;
     cursor: pointer;
+    transition: all 0.4s;
 
-    .el-icon-close {
-      font-size: 10px;
-      color: var(--el-text-color-placeholder);
-      cursor: pointer;
-      position: absolute;
-      top: 50%;
-      right: 6px;
-      transform: translate(-50%, -50%);
-      transition: font-size, color 0.2s;
-      width: 1rem;
-      height: 1rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: nowrap;
-
-      &:hover {
-        border-radius: 50%;
-        color: #fff;
-        background: var(--el-color-info-light-7);
-      }
+    &:not(:first-child) {
+      padding-right: 24px;
     }
 
-    &.is-closable:not(:first-child) {
-      &:hover {
-        //padding-right: 18px;
+    .el-icon-close {
+      position: absolute;
+      top: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      color: var(--el-color-primary);
+      cursor: pointer;
+      border-radius: 4px;
+      transition:
+        background-color 0.12s,
+        color 0.12s;
+      transform: translate(0, -50%);
 
-        &:not(.is-active) {
-          .el-icon-close {
-            //animation: close 200ms ease-in forwards;
-          }
-        }
+      &:hover {
+        color: rgb(0 0 0 / 88%) !important;
+        background-color: rgb(0 0 0 / 6%);
       }
     }
   }
 
-  a {
-    text-decoration: none;
-    color: var(--el-text-color-primary);
+  .tag-title {
     padding: 0 4px;
-    width: 8rem;
-    display: block;
-
-    -webkit-mask-image: linear-gradient(
-      to right,
-      #000 calc(100% - 100px),
-      transparent
-    );
-    mask-image: linear-gradient(to right, #000 calc(100% - 100px), transparent);
+    color: var(--el-text-color-primary);
+    text-decoration: none;
   }
 
   .scroll-container {
+    position: relative;
     flex: 1;
     overflow: hidden;
-    //padding: 5px 0;
     white-space: nowrap;
-    position: relative;
-    background: $bg;
 
     .tab {
       position: relative;
       float: left;
-      list-style: none;
       overflow: visible;
       white-space: nowrap;
-      transition: transform 0.5s ease-in-out;
-      padding-top: 4px;
+      list-style: none;
 
       .scroll-item {
-        //transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
-
-        .tab-dividers:hover {
-          &:before {
-            background-color: transparent;
-          }
-        }
+        transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
 
         &:nth-child(1) {
-          margin-left: 10px;
+          padding: 0 12px;
         }
       }
     }
@@ -167,26 +96,26 @@ $break-up: #cdd0d6;
 
   /* 右键菜单 */
   .contextmenu {
-    margin: 0;
-    background: #fff;
     position: absolute;
-    list-style-type: none;
     padding: 5px 0;
-    border-radius: 4px;
-    color: var(--el-text-color-primary);
-    font-weight: normal;
+    margin: 0;
     font-size: 13px;
+    font-weight: normal;
+    color: var(--el-text-color-primary);
     white-space: nowrap;
+    list-style-type: none;
+    background: #fff;
+    border-radius: 4px;
     outline: 0;
     box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
 
     li {
-      width: 100%;
-      margin: 0;
-      padding: 7px 12px;
-      cursor: pointer;
       display: flex;
       align-items: center;
+      width: 100%;
+      padding: 7px 12px;
+      margin: 0;
+      cursor: pointer;
 
       &:hover {
         color: var(--el-color-primary);
@@ -202,11 +131,11 @@ $break-up: #cdd0d6;
 
 .el-dropdown-menu {
   li {
+    display: flex;
+    align-items: center;
     width: 100%;
     margin: 0;
     cursor: pointer;
-    display: flex;
-    align-items: center;
 
     svg {
       display: block;
@@ -227,6 +156,7 @@ $break-up: #cdd0d6;
 :deep(.el-dropdown-menu__item--divided) {
   margin: 1px 0;
 }
+
 .el-dropdown-menu__item--divided::before {
   margin: 0;
 }
@@ -237,18 +167,10 @@ $break-up: #cdd0d6;
 
 .scroll-item.is-active {
   position: relative;
-  background: $active-bg;
-  border-radius: 12px 12px 0 0;
+  color: #fff;
+  box-shadow: 0 0 0.7px #888;
 
-  &:not(:first-child) {
-    //padding-right: 18px;
-  }
-
-  .el-icon-close {
-    //transform: translate(0, -50%);
-  }
-
-  a {
+  .tag-title {
     color: var(--el-color-primary) !important;
   }
 }
@@ -256,21 +178,17 @@ $break-up: #cdd0d6;
 .arrow-left,
 .arrow-right,
 .arrow-down {
-  width: 40px;
-  height: 38px;
-  color: var(--el-text-color-primary);
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 34px;
+  color: var(--el-text-color-primary);
 
   svg {
     width: 20px;
     height: 20px;
-    position: absolute;
-    left: 50%;
-    transform: translate(-50%, 50%);
-
-    background: var(--el-bg-color);
-    box-shadow: 0 0 12px rgba(0, 0, 0, 0.12);
-    border-radius: 4px;
   }
 }
 
@@ -283,8 +201,8 @@ $break-up: #cdd0d6;
 }
 
 .arrow-right {
-  box-shadow: -5px 0 5px -6px #ccc;
   border-right: 0.5px solid #ccc;
+  box-shadow: -5px 0 5px -6px #ccc;
 
   &:hover {
     cursor: e-resize;
@@ -295,133 +213,49 @@ $break-up: #cdd0d6;
 .card-in {
   color: var(--el-color-primary);
 
-  a {
+  .tag-title {
     color: var(--el-color-primary);
   }
 }
 
 /* 卡片模式下鼠标移出隐藏蓝色边框 */
 .card-out {
-  border: none;
   color: #666;
+  border: none;
 
-  a {
+  .tag-title {
     color: #666;
   }
 }
 
 /* 灵动模式 */
 .schedule-active {
-  //width: 100%;
-  //height: 2px;
   position: absolute;
-  left: 0;
   bottom: 0;
-  //background: var(--el-color-primary);
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--el-color-primary);
 }
 
 /* 灵动模式下鼠标移入显示蓝色进度条 */
 .schedule-in {
-  width: 30%;
-  height: 2px;
   position: absolute;
-  left: 35%;
   bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
   background: var(--el-color-primary);
-  z-index: 1001;
-  animation: scheduleInWidth 200ms ease-in;
+  animation: schedule-in-width 200ms ease-in;
 }
 
 /* 灵动模式下鼠标移出隐藏蓝色进度条 */
 .schedule-out {
+  position: absolute;
+  bottom: 0;
+  left: 0;
   width: 0;
   height: 2px;
-  position: absolute;
-  left: 50%;
-  bottom: 0;
   background: var(--el-color-primary);
-  animation: scheduleOutWidth 200ms ease-in;
-}
-
-// 分割线
-.tab-dividers {
-  position: absolute;
-  z-index: 0;
-  height: 14px;
-  top: 50%;
-  left: 0;
-  right: 0;
-  margin-top: -7px;
-
-  &:before {
-    content: "";
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 1px;
-    bottom: 0;
-    width: 1px;
-    opacity: 1;
-    background-color: $break-up;
-    transition: opacity 0.2s ease, background-color 0.3s;
-  }
-}
-
-// 活动时取消不显示分割线
-.is-active > div.tab-dividers,
-.is-active + div > .tab-dividers {
-  position: absolute;
-  z-index: 0;
-  height: 14px;
-  top: 50%;
-  left: 0;
-  right: 0;
-  margin-top: -7px;
-
-  &:before {
-    content: "";
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 1px;
-    bottom: 0;
-    width: 1px;
-    opacity: 1;
-    background-color: transparent;
-    transition: opacity 0.2s ease, background-color 0.3s;
-  }
-}
-
-// 活动圆角
-.is-active > div.tab-bg {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 100%;
-  height: 100%;
-  // tab 圆角
-  opacity: 1;
-  // 新装置
-  box-shadow: 12px 12px 0 0 $active-bg, -12px 12px 0 0 $active-bg;
-
-  &::before {
-    content: "";
-    position: absolute;
-    left: -12px;
-    bottom: 0;
-    width: 12px;
-    height: 100%;
-    background: $bg;
-    border-radius: 0 0 12px 0;
-  }
-  &::after {
-    content: "";
-    position: absolute;
-    right: -12px;
-    bottom: 0;
-    width: 12px;
-    height: 100%;
-    background: $bg;
-    border-radius: 0 0 0 12px;
-  }
+  animation: schedule-out-width 200ms ease-in;
 }

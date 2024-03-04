@@ -143,5 +143,3 @@ const cellStyle = ({ columnIndex }): CellStyle<any> => {
     </el-table-column>
   </RePageTable>
 </template>
-
-<style scoped lang="scss"></style>

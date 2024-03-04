@@ -1,33 +1,36 @@
 import "@/utils/sso";
-
-import { isAllEmpty, isUrl, openLink, storageSession } from "@pureadmin/utils";
-import {
-  createRouter,
-  RouteComponent,
-  Router,
-  RouteRecordRaw
-} from "vue-router";
-
+import Cookies from "js-cookie";
 import { getConfig } from "@/config";
+import NProgress from "@/utils/progress";
 import { transformI18n } from "@/plugins/i18n";
+import { buildHierarchyTree } from "@/utils/tree";
+import remainingRouter from "./modules/remaining";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
 import { usePermissionStoreHook } from "@/store/modules/permission";
-import { type DataInfo, sessionKey } from "@/utils/auth";
-import NProgress from "@/utils/progress";
-import { buildHierarchyTree } from "@/utils/tree";
-
-import remainingRouter from "./modules/remaining";
+import { isUrl, openLink, storageLocal, isAllEmpty } from "@pureadmin/utils";
 import {
   ascending,
-  findRouteByPath,
-  formatFlatteningRoutes,
-  formatTwoStageRoutes,
-  getHistoryMode,
   getTopMenu,
-  handleAliveRoute,
   initRouter,
-  isOneOfArray
+  isOneOfArray,
+  getHistoryMode,
+  findRouteByPath,
+  handleAliveRoute,
+  formatTwoStageRoutes,
+  formatFlatteningRoutes
 } from "./utils";
+import {
+  type Router,
+  createRouter,
+  type RouteRecordRaw,
+  type RouteComponent
+} from "vue-router";
+import {
+  type DataInfo,
+  userKey,
+  removeToken,
+  multipleTabsKey
+} from "@/utils/auth";
 
 /** 自动导入全部静态路由，无需再手动引入！匹配 src/router/modules 目录（任何嵌套级别）中具有 .ts 扩展名的所有文件，除了 remaining.ts 文件
  * 如何匹配所有文件请看：https://github.com/mrmlnc/fast-glob#basic-syntax
@@ -103,7 +106,7 @@ const whiteList = ["/login"];
 
 const { VITE_HIDE_HOME } = import.meta.env;
 
-router.beforeEach((to: toRouteType, _from, next) => {
+router.beforeEach((to: ToRouteType, _from, next) => {
   if (to.meta?.keepAlive) {
     handleAliveRoute(to, "add");
     // 页面整体刷新和点击标签页刷新
@@ -111,7 +114,7 @@ router.beforeEach((to: toRouteType, _from, next) => {
       handleAliveRoute(to);
     }
   }
-  const userInfo = storageSession().getItem<DataInfo>(sessionKey);
+  const userInfo = storageLocal().getItem<DataInfo<number>>(userKey);
   NProgress.start();
   const externalLink = isUrl(to?.name as string);
   if (!externalLink) {
@@ -127,7 +130,7 @@ router.beforeEach((to: toRouteType, _from, next) => {
   function toCorrectRoute() {
     whiteList.includes(to.fullPath) ? next(_from.fullPath) : next();
   }
-  if (userInfo) {
+  if (Cookies.get(multipleTabsKey) && userInfo) {
     // 无权限跳转403页面
     if (to.meta?.roles && !isOneOfArray(to.meta?.roles, userInfo?.roles)) {
       next({ path: "/error/403" });
@@ -178,7 +181,8 @@ router.beforeEach((to: toRouteType, _from, next) => {
               }
             }
           }
-          router.push(to.fullPath);
+          // 确保动态路由完全加入路由列表并且不影响静态路由（注意：动态路由刷新时router.beforeEach可能会触发两次，第一次触发动态路由还未完全添加，第二次动态路由才完全添加到路由列表，如果需要在router.beforeEach做一些判断可以在to.name存在的条件下去判断，这样就只会触发一次）
+          if (isAllEmpty(to.name)) router.push(to.fullPath);
         });
       }
       toCorrectRoute();
@@ -188,6 +192,7 @@ router.beforeEach((to: toRouteType, _from, next) => {
       if (whiteList.indexOf(to.path) !== -1) {
         next();
       } else {
+        removeToken();
         next({ path: "/login" });
       }
     } else {

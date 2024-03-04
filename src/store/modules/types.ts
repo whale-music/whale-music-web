@@ -1,4 +1,4 @@
-import { RouteRecordName } from "vue-router";
+import type { RouteRecordName } from "vue-router";
 
 export type cacheType = {
   mode: string;
@@ -24,7 +24,6 @@ export type appType = {
 
 export type multiType = {
   path: string;
-  parentPath: string;
   name: string;
   meta: any;
   query?: object;

@@ -1,5 +1,5 @@
 export const getFileTypeColor = (val: "audio" | "video" | "image"): string => {
-  const causality = "--typeColor: ";
+  const causality = "--type-color: ";
   switch (val) {
     case "audio":
       return causality + "var(--el-color-primary)";

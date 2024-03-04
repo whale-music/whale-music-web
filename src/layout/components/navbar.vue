@@ -1,20 +1,16 @@
 <script setup lang="ts">
-import Check from "@iconify-icons/ep/check";
+import Search from "./search/index.vue";
+import Notice from "./notice/index.vue";
+import mixNav from "./sidebar/mixNav.vue";
+import { useNav } from "@/layout/hooks/useNav";
+import Breadcrumb from "./sidebar/breadCrumb.vue";
+import topCollapse from "./sidebar/topCollapse.vue";
+import { useTranslationLang } from "../hooks/useTranslationLang";
+import globalization from "@/assets/svg/globalization.svg?component";
 import LogoutCircleRLine from "@iconify-icons/ri/logout-circle-r-line";
 import Setting from "@iconify-icons/ri/settings-3-line";
-import ShieldUserLine from "@iconify-icons/ri/shield-user-line";
-
-import globalization from "@/assets/svg/globalization.svg?component";
-import user from "@/assets/svg/user.svg?component";
+import Check from "@iconify-icons/ep/check";
 import PlayMusic from "@/layout/components/sidebar/playMusic.vue";
-import { useNav } from "@/layout/hooks/useNav";
-
-import { useTranslationLang } from "../hooks/useTranslationLang";
-import Notice from "./notice/index.vue";
-import Search from "./search/index.vue";
-import Breadcrumb from "./sidebar/breadCrumb.vue";
-import mixNav from "./sidebar/mixNav.vue";
-import topCollapse from "./sidebar/topCollapse.vue";
 
 const {
   layout,
@@ -23,6 +19,7 @@ const {
   onPanel,
   pureApp,
   username,
+  userAvatar,
   avatarsStyle,
   toggleSideBar,
   getDropdownItemStyle,
@@ -33,7 +30,8 @@ const { t, locale, translationCh, translationEn } = useTranslationLang();
 </script>
 
 <template>
-  <div class="navbar dark:shadow-[#0d0d0d]">
+  <!-- todo theme-->
+  <div class="navbar bg-[#fff] shadow-sm shadow-[rgba(0,21,41,0.08)]">
     <topCollapse
       v-if="device === 'mobile'"
       class="hamburger-container"
@@ -52,7 +50,7 @@ const { t, locale, translationCh, translationEn } = useTranslationLang();
       <!-- 菜单搜索 -->
       <Search />
       <!--音乐播放-->
-      <play-music />
+      <PlayMusic />
       <!-- 通知 -->
       <Notice id="header-notice" />
       <!-- 国际化 -->
@@ -68,8 +66,8 @@ const { t, locale, translationCh, translationEn } = useTranslationLang();
               @click="translationCh"
             >
               <IconifyIconOffline
-                class="check-zh"
                 v-show="locale === 'zh'"
+                class="check-zh"
                 :icon="Check"
               />
               简体中文
@@ -79,7 +77,7 @@ const { t, locale, translationCh, translationEn } = useTranslationLang();
               :class="['dark:!text-white', getDropdownItemClass(locale, 'en')]"
               @click="translationEn"
             >
-              <span class="check-en" v-show="locale === 'en'">
+              <span v-show="locale === 'en'" class="check-en">
                 <IconifyIconOffline :icon="Check" />
               </span>
               English
@@ -89,12 +87,13 @@ const { t, locale, translationCh, translationEn } = useTranslationLang();
       </el-dropdown>
       <!-- 退出登录 -->
       <el-dropdown trigger="click">
-        <span class="select-none el-dropdown-link navbar-bg-hover">
-          <user :style="avatarsStyle" />
+        <span class="el-dropdown-link navbar-bg-hover select-none">
+          <img :src="userAvatar" :style="avatarsStyle" />
           <p v-if="username" class="dark:text-white">{{ username }}</p>
         </span>
         <template #dropdown>
           <el-dropdown-menu class="logout">
+            <!-- todo router -->
             <router-link to="/userInfo">
               <el-dropdown-item>
                 <IconifyIconOffline
@@ -128,34 +127,32 @@ const { t, locale, translationCh, translationEn } = useTranslationLang();
 <style lang="scss" scoped>
 .navbar {
   width: 100%;
-  height: 100%;
+  height: 48px;
   overflow: hidden;
-  background: $menuBg;
 
   .hamburger-container {
-    line-height: 48px;
-    height: 100%;
     float: left;
+    height: 100%;
+    line-height: 48px;
     cursor: pointer;
   }
 
   .vertical-header-right {
     display: flex;
+    align-items: center;
+    justify-content: flex-end;
     min-width: 280px;
     height: 48px;
-    align-items: center;
     color: #000000d9;
-    justify-content: flex-end;
-    gap: 0.8rem;
 
     .el-dropdown-link {
-      height: 48px;
-      padding: 10px;
       display: flex;
       align-items: center;
       justify-content: space-around;
-      cursor: pointer;
+      height: 48px;
+      padding: 10px;
       color: #000000d9;
+      cursor: pointer;
 
       p {
         font-size: 14px;
@@ -195,9 +192,9 @@ const { t, locale, translationCh, translationEn } = useTranslationLang();
   max-width: 120px;
 
   ::v-deep(.el-dropdown-menu__item) {
-    min-width: 100%;
     display: inline-flex;
     flex-wrap: wrap;
+    min-width: 100%;
   }
 }
 </style>

@@ -1,6 +1,6 @@
-import { LocationQuery } from "vue-router";
+import type { LocationQuery } from "vue-router";
 
-import { MusicTabsPageReq } from "@/api/music";
+import type { MusicTabsPageReq } from "@/api/music";
 
 export const nameKey = "name";
 export const musicKey = "music";

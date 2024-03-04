@@ -1,37 +1,33 @@
 import {
-  cloneDeep,
-  intersection,
-  isAllEmpty,
-  isIncludeAllChildren,
-  isString,
-  storageSession
-} from "@pureadmin/utils";
-import { useTimeoutFn } from "@vueuse/core";
-import { isProxy, toRaw } from "vue";
-import {
-  createWebHashHistory,
+  type RouterHistory,
+  type RouteRecordRaw,
+  type RouteComponent,
   createWebHistory,
-  RouteComponent,
-  RouteRecordRaw,
-  RouterHistory
+  createWebHashHistory
 } from "vue-router";
-
+import { router } from "./index";
+import { isProxy, toRaw } from "vue";
+import { useTimeoutFn } from "@vueuse/core";
+import {
+  isString,
+  cloneDeep,
+  isAllEmpty,
+  intersection,
+  storageLocal,
+  isIncludeAllChildren
+} from "@pureadmin/utils";
 import { getConfig } from "@/config";
-import { RouteConfigs } from "@/layout/types";
-import { menuType } from "@/layout/types";
+import type { menuType } from "@/layout/types";
+import { buildHierarchyTree } from "@/utils/tree";
+import { userKey, type DataInfo } from "@/utils/auth";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
 import { usePermissionStoreHook } from "@/store/modules/permission";
-import { type DataInfo, sessionKey } from "@/utils/auth";
-import { buildHierarchyTree } from "@/utils/tree";
-
-import { router } from "./index";
 const IFrame = () => import("@/layout/frameView.vue");
 // https://cn.vitejs.dev/guide/features.html#glob-import
 const modulesRoutes = import.meta.glob("/src/views/**/*.{vue,tsx}");
 
 // 动态路由
 import { getAsyncRoutes } from "@/api/routes";
-import { useUserStoreHook } from "@/store/modules/user";
 
 function handRank(routeInfo: any) {
   const { name, path, parentId, meta } = routeInfo;
@@ -85,10 +81,10 @@ function isOneOfArray(a: Array<string>, b: Array<string>) {
     : true;
 }
 
-/** 从sessionStorage里取出当前登陆用户的角色roles，过滤无权限的菜单 */
+/** 从localStorage里取出当前登陆用户的角色roles，过滤无权限的菜单 */
 function filterNoPermissionTree(data: RouteComponent[]) {
   const currentRoles =
-    storageSession().getItem<DataInfo>(sessionKey)?.roles ?? [];
+    storageLocal().getItem<DataInfo<number>>(userKey)?.roles ?? [];
   const newTree = cloneDeep(data).filter((v: any) =>
     isOneOfArray(v.meta?.roles, currentRoles)
   );
@@ -98,17 +94,7 @@ function filterNoPermissionTree(data: RouteComponent[]) {
   return filterChildrenTree(newTree);
 }
 
-/** 批量删除缓存路由(keepalive) */
-function delAliveRoutes(delAliveRouteList: Array<RouteConfigs>) {
-  delAliveRouteList.forEach(route => {
-    usePermissionStoreHook().cacheOperate({
-      mode: "delete",
-      name: route?.name
-    });
-  });
-}
-
-/** 通过path获取父级路径 */
+/** 通过指定 `key` 获取父级路径集合，默认 `key` 为 `path` */
 function getParentPaths(value: string, routes: RouteRecordRaw[], key = "path") {
   // 深度遍历查找
   function dfs(routes: RouteRecordRaw[], value: string, parents: string[]) {
@@ -201,9 +187,9 @@ function handleAsyncRoutes(routeList) {
 /** 初始化路由（`new Promise` 写法防止在异步请求中造成无限循环）*/
 function initRouter() {
   if (getConfig()?.CachingAsyncRoutes) {
-    // 开启动态路由缓存本地sessionStorage
+    // 开启动态路由缓存本地localStorage
     const key = "async-routes";
-    const asyncRouteList = storageSession().getItem(key) as any;
+    const asyncRouteList = storageLocal().getItem(key) as any;
     if (asyncRouteList && asyncRouteList?.length > 0) {
       return new Promise(resolve => {
         handleAsyncRoutes(asyncRouteList);
@@ -213,7 +199,7 @@ function initRouter() {
       return new Promise(resolve => {
         getAsyncRoutes().then(({ data }) => {
           handleAsyncRoutes(cloneDeep(data));
-          storageSession().setItem(key, data);
+          storageLocal().setItem(key, data);
           resolve(router);
         });
       });
@@ -276,7 +262,7 @@ function formatTwoStageRoutes(routesList: RouteRecordRaw[]) {
 }
 
 /** 处理缓存路由（添加、删除、刷新） */
-function handleAliveRoute({ name }: toRouteType, mode?: string) {
+function handleAliveRoute({ name }: ToRouteType, mode?: string) {
   switch (mode) {
     case "add":
       usePermissionStoreHook().cacheOperate({
@@ -387,21 +373,20 @@ function getTopMenu(tag = false): menuType {
 }
 
 export {
-  addAsyncRoutes,
-  addPathMatch,
-  ascending,
-  delAliveRoutes,
-  filterNoPermissionTree,
-  filterTree,
-  findRouteByPath,
-  formatFlatteningRoutes,
-  formatTwoStageRoutes,
-  getAuths,
-  getHistoryMode,
-  getParentPaths,
-  getTopMenu,
-  handleAliveRoute,
   hasAuth,
+  getAuths,
+  ascending,
+  filterTree,
   initRouter,
-  isOneOfArray
+  getTopMenu,
+  addPathMatch,
+  isOneOfArray,
+  getHistoryMode,
+  addAsyncRoutes,
+  getParentPaths,
+  findRouteByPath,
+  handleAliveRoute,
+  formatTwoStageRoutes,
+  formatFlatteningRoutes,
+  filterNoPermissionTree
 };

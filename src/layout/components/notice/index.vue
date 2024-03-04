@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import Bell from "@iconify-icons/ep/bell";
 import { ref } from "vue";
-
 import { noticesData } from "./data";
 import NoticeList from "./noticeList.vue";
+import Bell from "@iconify-icons/ep/bell";
 
 const noticesNum = ref(0);
 const notices = ref(noticesData);
@@ -23,19 +22,31 @@ notices.value.map(v => (noticesNum.value += v.list.length));
     </span>
     <template #dropdown>
       <el-dropdown-menu>
-        <el-tabs :stretch="true" v-model="activeKey" class="dropdown-tabs">
-          <template v-for="item in notices" :key="item.key">
-            <el-tab-pane
-              :label="`${item.name}(${item.list.length})`"
-              :name="`${item.key}`"
-            >
-              <el-scrollbar max-height="330px">
-                <div class="noticeList-container">
-                  <NoticeList :list="item.list" />
-                </div>
-              </el-scrollbar>
-            </el-tab-pane>
-          </template>
+        <el-tabs
+          v-model="activeKey"
+          :stretch="true"
+          class="dropdown-tabs"
+          :style="{ width: notices.length === 0 ? '200px' : '330px' }"
+        >
+          <el-empty
+            v-if="notices.length === 0"
+            description="暂无消息"
+            :image-size="60"
+          />
+          <span v-else>
+            <template v-for="item in notices" :key="item.key">
+              <el-tab-pane
+                :label="`${item.name}(${item.list.length})`"
+                :name="`${item.key}`"
+              >
+                <el-scrollbar max-height="330px">
+                  <div class="noticeList-container">
+                    <NoticeList :list="item.list" />
+                  </div>
+                </el-scrollbar>
+              </el-tab-pane>
+            </template>
+          </span>
         </el-tabs>
       </el-dropdown-menu>
     </template>
@@ -47,8 +58,9 @@ notices.value.map(v => (noticesNum.value += v.list.length));
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 40px;
   height: 48px;
-  width: 55px;
+  margin-right: 10px;
   cursor: pointer;
 
   .header-notice-icon {
@@ -57,8 +69,6 @@ notices.value.map(v => (noticesNum.value += v.list.length));
 }
 
 .dropdown-tabs {
-  width: 330px;
-
   .noticeList-container {
     padding: 15px 24px 0;
   }

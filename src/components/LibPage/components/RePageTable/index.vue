@@ -69,13 +69,13 @@ const handleSelectionChange = (val: []) => {
     <ElTable
       v-bind="$attrs"
       ref="tableRef"
+      v-loading="loading"
       class="table-container"
       :data="props.page.content"
-      v-loading="loading"
       @row-click="handleClickChange"
       @selection-change="handleSelectionChange"
     >
-      <template #[slotName]="slotProps" v-for="(slot, slotName) in $slots">
+      <template v-for="(slot, slotName) in $slots" #[slotName]="slotProps">
         <slot :name="slotName" v-bind="slotProps" />
       </template>
     </ElTable>
@@ -90,9 +90,9 @@ const handleSelectionChange = (val: []) => {
         :page-size="props.page.size"
         :total="props.page.total"
         :page-sizes="selectPageSize"
+        layout="total, sizes, prev, pager, next, jumper"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
-        layout="total, sizes, prev, pager, next, jumper"
       />
     </div>
   </div>

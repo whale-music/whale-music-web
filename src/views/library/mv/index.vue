@@ -55,10 +55,6 @@ export default {
       }
     };
   },
-  mounted() {
-    this.init();
-  },
-  watch: {},
   computed: {
     selectCount() {
       return this.checkList.filter(Boolean).length;
@@ -66,6 +62,10 @@ export default {
     isShowFloatOperaPanel() {
       return !(this.selectCount === 0);
     }
+  },
+  watch: {},
+  mounted() {
+    this.init();
   },
   methods: {
     async init() {
@@ -153,82 +153,78 @@ export default {
     <div>
       <!--搜索框-->
       <name-search
-        v-model="this.search.name"
-        v-model:dropdownValue="this.search.type"
-        :loading="this.search.loadFlag"
-        :dropdown="this.search.typeData"
-        :buttonName="this.t('buttons.search')"
+        v-model="search.name"
+        v-model:dropdownValue="search.type"
+        :loading="search.loadFlag"
+        :dropdown="search.typeData"
+        :buttonName="t('buttons.search')"
         @onSearch="
           () => {
-            this.mvSearchReq.pageIndex = 0;
+            mvSearchReq.pageIndex = 0;
             onSubmit();
           }
         "
         @onClean="
           () => {
-            this.search.name = '';
-            this.mvSearchReq.pageIndex = 0;
+            search.name = '';
+            mvSearchReq.pageIndex = 0;
             onSubmit();
           }
         "
       />
     </div>
     <Options
-      :multiple="this.isMultiple"
-      @update-multiple="this.handelUpdateMultiple"
-      :sortConfig="this.filter.order"
-      @sort-config="this.handelUpdateSortConfig"
-      @update-order-config="this.handelUpdateOrderConfig"
-      @change="this.init"
+      :multiple="isMultiple"
+      :sortConfig="filter.order"
+      @update-multiple="handelUpdateMultiple"
+      @sort-config="handelUpdateSortConfig"
+      @update-order-config="handelUpdateOrderConfig"
+      @change="init"
     />
     <transition name="el-fade-in">
-      <ShowLoading :loading="this.search.loadFlag" />
+      <ShowLoading :loading="search.loadFlag" />
     </transition>
-    <div ref="mvContainerRef" v-if="!this.search.loadFlag">
-      <div class="mv-layout" v-if="this.isMultiple">
-        <div
-          v-for="item in this.mvDataRes.records"
-          :key="item.id"
-          class="mv-item"
-        >
+    <div v-if="!search.loadFlag" ref="mvContainerRef">
+      <div v-if="isMultiple" class="mv-layout">
+        <div v-for="item in mvDataRes.records" :key="item.id" class="mv-item">
           <video-card
             :id="item.id"
             :cover-img="item.picUrl"
             :name="item.title"
             :author="item.artists"
-            :scroll-container-ref="this.$refs.scrollContainer"
+            :scroll-container-ref="$refs.scrollContainer"
           />
         </div>
       </div>
       <div v-else class="mv-layout">
         <div
-          v-for="(item, index) in this.mvDataRes.records"
+          v-for="(item, index) in mvDataRes.records"
           :key="item.id"
           class="mv-item"
         >
           <select-video-card
+            :id="item.id"
             :is-check="checkList[index]"
             :index="index"
-            @update-check="updateCheckList"
-            :id="item.id"
             :cover-img="item.picUrl"
             :name="item.title"
             :author="item.artists"
-            :scroll-container-ref="this.$refs.scrollContainer"
+            :scroll-container-ref="$refs.scrollContainer"
+            @update-check="updateCheckList"
           />
         </div>
       </div>
       <div class="flex-c mt-4">
         <el-pagination
           background
-          :hide-on-single-page="this.mvDataRes.total === 0"
-          :default-current-page="this.mvDataRes.current"
-          :default-page-size="this.mvDataRes.size"
-          :current-page="this.mvDataRes.current"
-          :page-size="this.mvDataRes.size"
+          :hide-on-single-page="mvDataRes.total === 0"
+          :default-current-page="mvDataRes.current"
+          :default-page-size="mvDataRes.size"
+          :current-page="mvDataRes.current"
+          :page-size="mvDataRes.size"
           :page-sizes="[5, 10, 100, 200, 500, 1000]"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="this.mvDataRes.total"
+          :total="mvDataRes.total"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
         />
@@ -240,21 +236,21 @@ export default {
 <style lang="scss" scoped>
 .mv-layout {
   display: flex;
-  justify-content: flex-start;
   flex-wrap: wrap;
-  margin-top: 1rem;
   gap: 2rem;
+  justify-content: flex-start;
+  margin-top: 1rem;
 }
 
 .mv-item-error {
   display: flex;
+  align-items: center;
+  justify-content: center;
   width: 16rem;
   height: 10rem;
-  justify-content: center;
-  align-items: center;
   font-size: 14px;
-  background: var(--el-fill-color-light);
   color: var(--el-text-color-placeholder);
   vertical-align: middle;
+  background: var(--el-fill-color-light);
 }
 </style>

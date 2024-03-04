@@ -1,6 +1,5 @@
-import { Directive, type DirectiveBinding } from "vue";
-
 import { hasAuth } from "@/router/utils";
+import type { Directive, DirectiveBinding } from "vue";
 
 export const auth: Directive = {
   mounted(el: HTMLElement, binding: DirectiveBinding) {
@@ -8,7 +7,9 @@ export const auth: Directive = {
     if (value) {
       !hasAuth(value) && el.parentNode?.removeChild(el);
     } else {
-      throw new Error("need auths! Like v-auth=\"['btn.add','btn.edit']\"");
+      throw new Error(
+        "[Directive: auth]: need auths! Like v-auth=\"['btn.add','btn.edit']\""
+      );
     }
   }
 };

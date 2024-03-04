@@ -2,17 +2,17 @@
 import Artplayer from "artplayer";
 
 export default {
-  data() {
-    return {
-      instance: null
-    };
-  },
   props: {
     option: {
       type: Object,
       required: true
     },
     url: String
+  },
+  data() {
+    return {
+      instance: null
+    };
   },
   mounted() {
     this.instance = new Artplayer({

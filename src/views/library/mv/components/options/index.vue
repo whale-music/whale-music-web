@@ -119,7 +119,7 @@ const createMvMethod = () => {
 </script>
 <template>
   <div>
-    <DrawerMv v-model="state.flag.addMvFlag" @change="this.emits('change')" />
+    <DrawerMv v-model="state.flag.addMvFlag" @change="emits('change')" />
     <div class="option">
       <div class="flex items-center">
         <MenuButton @click="state.menuFlag = !state.menuFlag">
@@ -181,11 +181,10 @@ const createMvMethod = () => {
 
 <style lang="scss" scoped>
 .option {
-  margin: 0 auto;
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  flex-wrap: nowrap;
+  flex-flow: row nowrap;
   align-items: center;
+  justify-content: space-between;
+  margin: 0 auto;
 }
 </style>

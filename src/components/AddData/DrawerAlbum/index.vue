@@ -147,8 +147,8 @@ const handleClose = (done: () => void) => {
       <el-form-item label="封面">
         <div class="flex w-full gap-4">
           <el-input
-            :disabled="true"
             v-model="state.form.uploadAlbum.tempFile"
+            :disabled="true"
           />
           <el-image-viewer
             v-if="state.show.albumPreviewPic"
@@ -165,8 +165,8 @@ const handleClose = (done: () => void) => {
             预览
           </el-button>
           <el-upload
-            class="flex items-center justify-center"
             ref="picUpload"
+            class="flex items-center justify-center"
             :data="{ type: 'album' }"
             :action="uploadPicAction"
             :limit="1"
@@ -185,15 +185,15 @@ const handleClose = (done: () => void) => {
         <el-tag
           v-for="(item, index) in state.form.uploadAlbum.link"
           :key="item.link"
-          @close="albumArtistHandleClose(index)"
           effect="dark"
           closable
           round
+          @close="albumArtistHandleClose(index)"
           >{{ item.value }}
         </el-tag>
         <el-autocomplete
-          class="w-full mt-1"
           v-model="state.autocomplete.albumArtistInputValue"
+          class="w-full mt-1"
           :fetch-suggestions="albumArtistQuerySearchAsync"
           placeholder="请输入歌手名"
           @select="albumArtistHandleSelect"
@@ -216,8 +216,8 @@ const handleClose = (done: () => void) => {
       </el-form-item>
       <el-form-item label="描述">
         <el-input
-          type="textarea"
           v-model="state.form.uploadAlbum.description"
+          type="textarea"
         />
       </el-form-item>
       <el-form-item>
@@ -228,5 +228,3 @@ const handleClose = (done: () => void) => {
     </el-form>
   </el-drawer>
 </template>
-
-<style scoped lang="scss"></style>

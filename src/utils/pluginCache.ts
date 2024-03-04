@@ -1,6 +1,6 @@
 import { storageLocal } from "@pureadmin/utils";
 
-import { Params } from "@/api/plugin";
+import type { Params } from "@/api/plugin";
 import { useUserStore } from "@/store/modules/user";
 
 /**

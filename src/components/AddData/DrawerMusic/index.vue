@@ -197,10 +197,10 @@ const handleExceed = (files: File[]) => {
   >
     <h1>上传音乐信息</h1>
     <el-upload
+      ref="musicFileUpload"
       class="upload-demo"
       drag
       multiple
-      ref="musicFileUpload"
       :action="uploadAction"
       :on-success="uploadMusicOnSuccess"
       :limit="1"
@@ -229,21 +229,21 @@ const handleExceed = (files: File[]) => {
     >
       <el-form-item label="音乐名">
         <el-input
-          placeholder="输入歌曲名"
           v-model="state.form.uploadMusicInfo.musicName"
+          placeholder="输入歌曲名"
         />
       </el-form-item>
       <el-form-item label="别名">
         <el-input
-          placeholder="输入歌曲名别名"
           v-model="state.form.uploadMusicInfo.aliasName"
+          placeholder="输入歌曲名别名"
         />
       </el-form-item>
       <el-form-item label="封面">
         <div class="flex w-full gap-4">
           <el-input
-            :disabled="true"
             v-model="state.form.uploadMusicInfo.tempPicFile"
+            :disabled="true"
           />
           <el-image-viewer
             v-if="state.show.musicPreviewPic"
@@ -259,8 +259,8 @@ const handleExceed = (files: File[]) => {
             >预览
           </el-button>
           <el-upload
-            class="flex items-center justify-center"
             ref="musicPicUpload"
+            class="flex items-center justify-center"
             :action="uploadPicAction"
             :on-exceed="handleExceed"
             :on-success="musicHandleSuccess"
@@ -278,17 +278,17 @@ const handleExceed = (files: File[]) => {
           <el-tag
             v-for="(item, index) in state.select.musicSelectArtist"
             :key="item.id"
-            @close="musicArtistHandleClose(index)"
             effect="dark"
             closable
             round
+            @close="musicArtistHandleClose(index)"
           >
             {{ item.artistName }}
           </el-tag>
         </div>
         <el-autocomplete
-          style="width: 100%"
           v-model="state.autocomplete.musicArtistInputValue"
+          style="width: 100%"
           :fetch-suggestions="musicArtistQuerySearchAsync"
           placeholder="输入歌手名"
           @select="musicArtistHandleSelect"
@@ -298,18 +298,18 @@ const handleExceed = (files: File[]) => {
         <div class="flex gap-4">
           <el-tag
             v-for="item in state.select.musicSelectAlbum.artists"
+            :key="item.id"
             type="success"
             effect="dark"
             :round="true"
             :underline="false"
-            :key="item.id"
           >
             {{ item.artistName }}
           </el-tag>
         </div>
         <el-autocomplete
-          class="w-full mt-1"
           v-model="state.autocomplete.albumSearch"
+          class="w-full mt-1"
           :fetch-suggestions="albumQuerySearchAsync"
           placeholder="请输入专辑名"
           @change="musicAlbumChange"
@@ -320,8 +320,8 @@ const handleExceed = (files: File[]) => {
           </template>
           <template #suffix>
             <IconifyIconOffline
-              :icon="CircleClose"
               v-if="state.autocomplete.albumSearch !== ''"
+              :icon="CircleClose"
               @click="cleanMusicAlbumAutocompleteInput"
             />
           </template>
@@ -374,5 +374,3 @@ const handleExceed = (files: File[]) => {
     </el-collapse-transition>
   </el-drawer>
 </template>
-
-<style scoped lang="scss"></style>

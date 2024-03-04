@@ -1,6 +1,6 @@
-import { ArtistConvert } from "@/api/model/Artist";
-import { LinkItem, Page, PicUrl } from "@/api/model/common";
-import { MusicConvert } from "@/api/model/Music";
+import type { ArtistConvert } from "@/api/model/Artist";
+import type { LinkItem, Page, PicUrl } from "@/api/model/common";
+import type { MusicConvert } from "@/api/model/Music";
 
 export interface Album {
   id: number;

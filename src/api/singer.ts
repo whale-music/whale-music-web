@@ -1,5 +1,5 @@
-import { Artist, SelectArtist } from "@/api/model/Artist";
-import {
+import type { Artist, SelectArtist } from "@/api/model/Artist";
+import type {
   Data,
   Page,
   PageReqCommon,
@@ -7,7 +7,7 @@ import {
   PicUrl,
   R
 } from "@/api/model/common";
-import { MV, SimpleArtist } from "@/api/mv";
+import type { MV, SimpleArtist } from "@/api/mv";
 import { http } from "@/utils/http";
 
 export interface SingerReq {

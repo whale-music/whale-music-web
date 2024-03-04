@@ -1,4 +1,4 @@
-import { Data, R } from "@/api/model/common";
+import type { Data, R } from "@/api/model/common";
 import { http } from "@/utils/http";
 
 export interface MV {

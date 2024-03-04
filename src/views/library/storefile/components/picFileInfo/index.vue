@@ -74,6 +74,20 @@ export default defineComponent({
       ]
     };
   },
+  computed: {
+    isShowFlag: {
+      get() {
+        return this.modelValue;
+      },
+      set(val) {
+        this.$emit("update:modelValue", val);
+      }
+    },
+    isDataUpdate() {
+      return isEqualObject(this.oldData, this.data);
+    }
+  },
+  watch: {},
   mounted() {
     this.init();
   },
@@ -184,59 +198,45 @@ export default defineComponent({
       }
       this.search.name = "";
     }
-  },
-  watch: {},
-  computed: {
-    isShowFlag: {
-      get() {
-        return this.modelValue;
-      },
-      set(val) {
-        this.$emit("update:modelValue", val);
-      }
-    },
-    isDataUpdate() {
-      return isEqualObject(this.oldData, this.data);
-    }
   }
 });
 </script>
 
 <template>
   <div>
-    <el-dialog v-model="this.previews.infoFlag">
+    <el-dialog v-model="previews.infoFlag">
       <template #header>
         <h3 class="dialog-title">图片信息(DB)</h3>
       </template>
       <el-descriptions title="">
         <el-descriptions-item label="ID">
-          <b>{{ this.data.picResource?.id }}</b>
+          <b>{{ data.picResource?.id }}</b>
         </el-descriptions-item>
         <el-descriptions-item label="MD5">
-          {{ this.data.picResource?.md5 }}
+          {{ data.picResource?.md5 }}
         </el-descriptions-item>
         <el-descriptions-item label="关联数">
           <el-tag type="success">
-            {{ this.data.picResource?.count }}
+            {{ data.picResource?.count }}
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="路径">
           <el-link :underline="false" type="primary">
-            {{ this.data.picResource?.path }}
+            {{ data.picResource?.path }}
           </el-link>
         </el-descriptions-item>
         <el-descriptions-item label="更新时间">
-          {{ this.data.picResource?.updateTime }}
+          {{ data.picResource?.updateTime }}
         </el-descriptions-item>
         <el-descriptions-item label="创建时间">
-          {{ this.data.picResource?.createTime }}
+          {{ data.picResource?.createTime }}
         </el-descriptions-item>
       </el-descriptions>
     </el-dialog>
     <el-drawer
-      v-model="this.isShowFlag"
+      v-model="isShowFlag"
       :show-close="false"
-      :style="this.getFileTypeColor('image')"
+      :style="getFileTypeColor('image')"
       :destroy-on-close="true"
     >
       <el-descriptions
@@ -248,8 +248,8 @@ export default defineComponent({
         <template #extra>
           <el-button
             type="primary"
-            @click="this.previews.infoFlag = true"
-            :disabled="this.data.picResource == null"
+            :disabled="data.picResource == null"
+            @click="previews.infoFlag = true"
           >
             信息
           </el-button>
@@ -258,53 +258,49 @@ export default defineComponent({
           </el-button>
           <el-button
             type="danger"
+            :disabled="data.picResource == null"
             @click="cleanPicResource(null, null, true)"
-            :disabled="this.data.picResource == null"
           >
             删除信息
           </el-button>
         </template>
         <el-descriptions-item label="文件名">
-          {{ this.data.name }}
+          {{ data.name }}
         </el-descriptions-item>
         <el-descriptions-item label="路径">
-          {{ this.data.path }}
+          {{ data.path }}
         </el-descriptions-item>
         <el-descriptions-item label="地址">
           <el-link
             :underline="false"
             type="primary"
-            @click="() => useCopy(this.data.url)"
+            @click="() => useCopy(data.url)"
           >
             点击复制
           </el-link>
         </el-descriptions-item>
         <el-descriptions-item label="类型">image</el-descriptions-item>
         <el-descriptions-item label="文件格式">
-          {{ this.data.fileExtension }}
+          {{ data.fileExtension }}
         </el-descriptions-item>
         <el-descriptions-item label="创建时间">
-          {{ this.data.creationTime }}
+          {{ data.creationTime }}
         </el-descriptions-item>
         <el-descriptions-item label="更新时间">
-          {{ this.data.modificationTime }}
+          {{ data.modificationTime }}
         </el-descriptions-item>
       </el-descriptions>
       <div class="flex items-center justify-between mt-4 mb-4">
         <div class="flex items-center gap-2">
           <h3>关联数据</h3>
           <el-text size="large">
-            {{
-              this.data.linkData?.length == undefined
-                ? 0
-                : this.data.linkData.length
-            }}
+            {{ data.linkData?.length == undefined ? 0 : data.linkData.length }}
           </el-text>
         </div>
         <el-button
           type="primary"
           :disabled="isDataUpdate"
-          @click="this.updateLinkPic()"
+          @click="updateLinkPic()"
         >
           保存
         </el-button>
@@ -313,7 +309,7 @@ export default defineComponent({
         <div>
           <div class="flex-c">
             <el-select
-              v-model="this.currentLikeType"
+              v-model="currentLikeType"
               class="m-2"
               placeholder="Select"
             >
@@ -325,7 +321,7 @@ export default defineComponent({
               />
             </el-select>
             <el-autocomplete
-              v-model="this.search.name"
+              v-model="search.name"
               class="w-full"
               :fetch-suggestions="
                 (queryString, cb) =>
@@ -348,17 +344,17 @@ export default defineComponent({
             </el-autocomplete>
           </div>
           <div class="m-2">
-            <el-form-item v-for="item in this.data.linkData" :key="item.id">
+            <el-form-item v-for="item in data.linkData" :key="item.id">
               <template #label>
                 <h2>{{ item.type }}</h2>
                 <div class="flex items-center justify-between">
                   <div class="flex gap-4">
                     <el-tag
+                      v-if="item.id"
                       :disable-transitions="true"
                       effect="dark"
                       round
                       class="text-[var(--el-color-primary)]"
-                      v-if="item.id"
                     >
                       {{ item.id }}
                     </el-tag>
@@ -375,8 +371,8 @@ export default defineComponent({
                   </div>
                   <el-button
                     type="danger"
-                    @click="cleanPicResource(item.id, item.type, false)"
                     plain
+                    @click="cleanPicResource(item.id, item.type, false)"
                   >
                     删除
                   </el-button>
@@ -392,8 +388,8 @@ export default defineComponent({
 
 <style scoped lang="scss">
 :deep(.el-drawer__header) {
-  border-top: 0.5rem solid var(--typeColor);
   margin-bottom: 0;
+  border-top: 0.5rem solid var(--type-color);
 }
 
 :deep(.el-dialog__header) {
@@ -402,8 +398,8 @@ export default defineComponent({
 }
 
 .dialog-title {
-  border-left: 0.3rem solid var(--el-color-primary);
   padding-left: 0.5rem;
+  border-left: 0.3rem solid var(--el-color-primary);
 }
 
 :deep(.el-descriptions__label) {

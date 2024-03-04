@@ -1,6 +1,7 @@
 import type { Emitter } from "mitt";
 import mitt from "mitt";
 
+/** 全局公共事件需要在此处添加类型 */
 type Events = {
   resize: {
     detail: {
@@ -14,16 +15,20 @@ type Events = {
       size?: number;
     };
   };
+  openPlayMusic: string;
+  closePlayMusic: string;
   openPanel: string;
   tagViewsChange: string;
   tagViewsShowModel: string;
   logoChange: boolean;
-  changLayoutRoute: {
-    indexPath: string;
-    parentPath: string;
+  changLayoutRoute: string;
+  imageInfo: {
+    img: HTMLImageElement;
+    height: number;
+    width: number;
+    x: number;
+    y: number;
   };
-  openPlayMusic: string;
-  closePlayMusic: string;
 };
 
 export const emitter: Emitter<Events> = mitt<Events>();

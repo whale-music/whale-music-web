@@ -149,10 +149,10 @@ const toArtist = id => {
           </el-form-item>
           <el-form-item label="封面">
             <div class="flex items-center justify-center w-full gap-4">
-              <el-input disabled v-model="state.modifyAlbumInfo.picUrl" />
+              <el-input v-model="state.modifyAlbumInfo.picUrl" disabled />
               <el-upload
-                class="flex justify-center items-center"
                 ref="picUpload"
+                class="flex justify-center items-center"
                 :data="{ id: state.modifyAlbumInfo.id, type: 'album' }"
                 :action="uploadPicAction"
                 :limit="1"
@@ -173,15 +173,15 @@ const toArtist = id => {
           <el-tag
             v-for="(item, index) in state.modifyAlbumInfo.artistList"
             :key="item"
-            @close="albumArtistHandleClose(index)"
             effect="dark"
             closable
             round
+            @close="albumArtistHandleClose(index)"
             >{{ item.artistName }}</el-tag
           >
           <el-autocomplete
-            class="w-full mt-1"
             v-model="state.input.musicArtistSearch"
+            class="w-full mt-1"
             :fetch-suggestions="albumArtistQuerySearchAsync"
             placeholder="请输入歌手名"
             @select="albumArtistHandleSelect"
@@ -214,7 +214,7 @@ const toArtist = id => {
       </el-scrollbar>
       <template #footer>
         <el-button @click="editAlbumInfoFlag = false">取消</el-button>
-        <el-button @click="saveOrUpdate" type="primary">更新</el-button>
+        <el-button type="primary" @click="saveOrUpdate">更新</el-button>
       </template>
     </el-dialog>
     <!--专辑信息-->
@@ -228,20 +228,20 @@ const toArtist = id => {
           <div class="flex flex-col gap-2">
             <el-skeleton-item
               variant="h1"
-              style="height: 3rem; width: 30rem; border-radius: 1rem"
+              style="width: 30rem; height: 3rem; border-radius: 1rem"
             />
             <div class="flex flex-col gap-1">
               <el-skeleton-item
                 variant="p"
-                style="height: 1.3rem; width: 10rem"
+                style="width: 10rem; height: 1.3rem"
               />
               <el-skeleton-item
                 variant="p"
-                style="height: 1.3rem; width: 7rem"
+                style="width: 7rem; height: 1.3rem"
               />
               <el-skeleton-item
                 variant="p"
-                style="height: 1.3rem; width: 9rem"
+                style="width: 9rem; height: 1.3rem"
               />
               <el-skeleton />
               <el-skeleton-item
@@ -268,10 +268,10 @@ const toArtist = id => {
               <div class="flex items-center">
                 <span>艺术家:&#32;</span>
                 <el-link
-                  :underline="false"
-                  @click="toArtist(item.id)"
                   v-for="(item, index) in state.albumInfo.artistList"
                   :key="index"
+                  :underline="false"
+                  @click="toArtist(item.id)"
                   ><span
                     class="font-semibold"
                     v-html="item.artistName + '\u00a0'"
@@ -314,17 +314,17 @@ const toArtist = id => {
 
                 <!--显示专辑详细信息-->
                 <el-dialog
-                  class="showDialog"
                   v-model="centerDialogVisible"
+                  class="showDialog"
                   width="45%"
                   :show-close="false"
                 >
                   <template #header>
                     <h2>{{ state.albumInfo.albumName }}</h2>
                     <span
-                      class="text-sm text-neutral-400"
                       v-for="(item, index) in state.albumInfo.artistList"
                       :key="index"
+                      class="text-sm text-neutral-400"
                       >{{ item.artistName }}</span
                     >
                     <span class="text-sm text-neutral-400">&#32;·&#32;</span>
@@ -343,7 +343,7 @@ const toArtist = id => {
               </div>
             </div>
             <div class="mt-2">
-              <el-button @click="editAlbumInfoFlag = true" type="primary" round
+              <el-button type="primary" round @click="editAlbumInfoFlag = true"
                 >编辑专辑</el-button
               >
             </div>
@@ -357,9 +357,9 @@ const toArtist = id => {
         <el-skeleton-item
           variant="h1"
           style="
-            margin-top: 1rem;
             width: 100%;
             height: 3.6rem;
+            margin-top: 1rem;
             border-radius: 1rem;
           "
         />
@@ -367,6 +367,8 @@ const toArtist = id => {
       <template #default>
         <div class="item">
           <div
+            v-for="(item, index) in state.albumInfo.musicList"
+            :key="index"
             :class="{
               'music-item1': index % 2 !== 1,
               'music-item2': index % 2 !== 0
@@ -379,12 +381,10 @@ const toArtist = id => {
               'border-bottom-right-radius':
                 index === state.albumInfo.musicList.length - 1 ? '1rem' : '0'
             }"
-            v-for="(item, index) in state.albumInfo.musicList"
-            :key="index"
           >
             <div
-              @click="toMusicInfo(item.id)"
               class="h-full flex items-center cursor-pointer"
+              @click="toMusicInfo(item.id)"
             >
               <span class="music index">{{ index + 1 }}</span>
               <span class="music">
@@ -432,7 +432,7 @@ const toArtist = id => {
   flex-direction: row;
   gap: 3rem;
 
-  @media screen and (max-width: 1024px) {
+  @media screen and (width <= 1024px) {
     flex-direction: column;
   }
 }
@@ -455,11 +455,11 @@ const toArtist = id => {
 }
 
 .content {
+  position: relative;
   max-width: 40rem;
   max-height: 6rem;
-  color: var(--el-color-info-light-3);
-  position: relative;
   overflow: hidden;
+  color: var(--el-color-info-light-3);
   text-overflow: ellipsis;
   white-space: pre-line;
 }
@@ -480,54 +480,50 @@ const toArtist = id => {
 
 .music-item1 {
   @apply dark:bg-[#232323];
+
+  display: flex;
+  flex-flow: row nowrap;
+  place-content: center space-between;
+  align-items: center;
   width: 100%;
   height: 3.6rem;
-  background-color: #ffffff;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-content: center;
-  align-items: center;
-  justify-content: space-between;
+  background-color: #fff;
 }
 
 .music-item1:hover {
   @apply dark:bg-[#2c2c2c];
+
+  display: flex;
+  flex-flow: row nowrap;
+  place-content: center space-between;
+  align-items: center;
   width: 100%;
   height: 3.6rem;
-  background-color: #eeeeee;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-content: center;
-  align-items: center;
-  justify-content: space-between;
+  background-color: #eee;
 }
 
 .music-item2 {
   @apply dark:bg-[#1f1f1f];
+
+  display: flex;
+  flex-flow: row nowrap;
+  place-content: center space-between;
+  align-items: center;
   width: 100%;
   height: 3.6rem;
   background-color: #f6f6f6;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-content: center;
-  align-items: center;
-  justify-content: space-between;
 }
 
 .music-item2:hover {
   @apply dark:bg-[#2c2c2c];
+
+  display: flex;
+  flex-flow: row nowrap;
+  place-content: center space-between;
+  align-items: center;
   width: 100%;
   height: 3.6rem;
-  background-color: #eeeeee;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-content: center;
-  align-items: center;
-  justify-content: space-between;
+  background-color: #eee;
 }
 
 .music {

@@ -1,20 +1,18 @@
 <script setup lang="ts">
-import Check from "@iconify-icons/ep/check";
+import Search from "../search/index.vue";
+import Notice from "../notice/index.vue";
+import SidebarItem from "./sidebarItem.vue";
+import { isAllEmpty } from "@pureadmin/utils";
+import { ref, nextTick, computed } from "vue";
+import { useNav } from "@/layout/hooks/useNav";
+import { useTranslationLang } from "../../hooks/useTranslationLang";
+import { usePermissionStoreHook } from "@/store/modules/permission";
+import globalization from "@/assets/svg/globalization.svg?component";
 import LogoutCircleRLine from "@iconify-icons/ri/logout-circle-r-line";
 import Setting from "@iconify-icons/ri/settings-3-line";
 import ShieldUserLine from "@iconify-icons/ri/shield-user-line";
-import { nextTick, ref, watch } from "vue";
-
-import globalization from "@/assets/svg/globalization.svg?component";
-import user from "@/assets/svg/user.svg?component";
 import PlayMusic from "@/layout/components/sidebar/playMusic.vue";
-import { useNav } from "@/layout/hooks/useNav";
-import { usePermissionStoreHook } from "@/store/modules/permission";
-
-import { useTranslationLang } from "../../hooks/useTranslationLang";
-import Notice from "../notice/index.vue";
-import Search from "../search/index.vue";
-import SidebarItem from "./sidebarItem.vue";
+import Check from "@iconify-icons/ep/check";
 
 const menuRef = ref();
 
@@ -22,27 +20,24 @@ const { t, route, locale, translationCh, translationEn } =
   useTranslationLang(menuRef);
 const {
   title,
-  routers,
   logout,
   backTopMenu,
   onPanel,
-  menuSelect,
+  getLogo,
   username,
+  userAvatar,
   avatarsStyle,
   getDropdownItemStyle,
   getDropdownItemClass
 } = useNav();
 
+const defaultActive = computed(() =>
+  !isAllEmpty(route.meta?.activePath) ? route.meta.activePath : route.path
+);
+
 nextTick(() => {
   menuRef.value?.handleResize();
 });
-
-watch(
-  () => route.path,
-  () => {
-    menuSelect(route.path, routers);
-  }
-);
 </script>
 
 <template>
@@ -51,16 +46,16 @@ watch(
     class="horizontal-header"
   >
     <div class="horizontal-header-left" @click="backTopMenu">
-      <img src="/logo.svg" alt="logo" />
+      <img :src="getLogo()" alt="logo" />
       <span>{{ title }}</span>
     </div>
     <el-menu
-      router
       ref="menuRef"
+      router
       mode="horizontal"
+      popper-class="pure-scrollbar"
       class="horizontal-header-menu"
-      :default-active="route.path"
-      @select="indexPath => menuSelect(indexPath, routers)"
+      :default-active="defaultActive"
     >
       <sidebar-item
         v-for="route in usePermissionStoreHook().wholeMenus"
@@ -71,9 +66,9 @@ watch(
     </el-menu>
     <div class="horizontal-header-right">
       <!-- 菜单搜索 -->
-      <Search />
+      <Search id="header-search" />
       <!--音乐播放-->
-      <play-music />
+      <PlayMusic />
       <!-- 通知 -->
       <Notice id="header-notice" />
       <!-- 国际化 -->
@@ -88,7 +83,7 @@ watch(
               :class="['dark:!text-white', getDropdownItemClass(locale, 'zh')]"
               @click="translationCh"
             >
-              <span class="check-zh" v-show="locale === 'zh'">
+              <span v-show="locale === 'zh'" class="check-zh">
                 <IconifyIconOffline :icon="Check" />
               </span>
               简体中文
@@ -98,7 +93,7 @@ watch(
               :class="['dark:!text-white', getDropdownItemClass(locale, 'en')]"
               @click="translationEn"
             >
-              <span class="check-en" v-show="locale === 'en'">
+              <span v-show="locale === 'en'" class="check-en">
                 <IconifyIconOffline :icon="Check" />
               </span>
               English
@@ -109,11 +104,12 @@ watch(
       <!-- 退出登录 -->
       <el-dropdown trigger="click">
         <span class="el-dropdown-link navbar-bg-hover">
-          <user :style="avatarsStyle" />
+          <img :src="userAvatar" :style="avatarsStyle" />
           <p v-if="username" class="dark:text-white">{{ username }}</p>
         </span>
         <template #dropdown>
           <el-dropdown-menu class="logout">
+            <!--todo 重构 -->
             <router-link to="/userInfo">
               <el-dropdown-item>
                 <IconifyIconOffline

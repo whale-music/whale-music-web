@@ -147,7 +147,7 @@ const handleClose = (done: () => void) => {
       </el-form-item>
       <el-form-item label="封面">
         <div class="flex w-full gap-4">
-          <el-input disabled v-model="state.form.uploadArtist.tempFile" />
+          <el-input v-model="state.form.uploadArtist.tempFile" disabled />
           <el-image-viewer
             v-if="state.show.artistPreviewPic"
             :url-list="[previewPic + state.form.uploadArtist.tempFile]"
@@ -163,8 +163,8 @@ const handleClose = (done: () => void) => {
             预览
           </el-button>
           <el-upload
-            class="flex items-center justify-center"
             ref="picUpload"
+            class="flex items-center justify-center"
             :action="uploadPicAction"
             :limit="1"
             :show-file-list="false"
@@ -195,8 +195,8 @@ const handleClose = (done: () => void) => {
       </el-form-item>
       <el-form-item label="描述">
         <el-input
-          type="textarea"
           v-model="state.form.uploadArtist.introduction"
+          type="textarea"
         />
       </el-form-item>
       <el-form-item>
@@ -207,5 +207,3 @@ const handleClose = (done: () => void) => {
     </el-form>
   </el-drawer>
 </template>
-
-<style scoped lang="scss"></style>

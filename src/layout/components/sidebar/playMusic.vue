@@ -48,8 +48,10 @@ emitter.on("closePlayMusic", () => {
       </div>
     </div>
     <el-drawer
-      style="--el-drawer-padding-primary: 0"
       v-model="state.showPlayMusic"
+      style="
+
+--el-drawer-padding-primary: 0"
       direction="btt"
       modal-class="drawer-music-play"
       :with-header="false"
@@ -60,4 +62,3 @@ emitter.on("closePlayMusic", () => {
     </el-drawer>
   </div>
 </template>
-<style lang="scss" scoped></style>

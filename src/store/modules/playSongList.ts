@@ -1,12 +1,12 @@
 import { defineStore } from "pinia";
 
-import { Resource } from "@/api/model/Music";
+import type { Resource } from "@/api/model/Music";
 import {
   getAllMusicList,
   getMusicLyric,
   getMusicUrl,
-  Lyric,
-  MusicSearchRes
+  type Lyric,
+  type MusicSearchRes
 } from "@/api/music";
 import { store } from "@/store";
 

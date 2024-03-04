@@ -34,8 +34,8 @@ watch(disabled, value => {
 
 <template>
   <HighlightableInput
-    class="w-full highlight-input"
     v-model="value"
+    class="w-full highlight-input"
     theme="chakra"
     :highlight="tweet"
     :multiline="multiline"
@@ -59,17 +59,15 @@ highlightable-input[aria-disabled] mark {
 
 highlightable-input {
   --album-color-rgb: 98, 0, 234;
-
   --artist-color-rgb: 255, 109, 0;
 
   .album {
-    background-color: rgba(var(--album-color-rgb), 0.2);
-    border-radius: 10px;
     padding: 4px;
-
-    color: rgb(var(--album-color-rgb));
     font-weight: 400;
+    color: rgb(var(--album-color-rgb));
     cursor: pointer;
+    background-color: rgb(var(--album-color-rgb) 0.2);
+    border-radius: 10px;
   }
 
   .album:hover {
@@ -81,13 +79,12 @@ highlightable-input {
   }
 
   .artist {
-    background-color: rgba(var(--artist-color-rgb), 0.2);
-    border-radius: 10px;
     padding: 4px;
-
-    color: rgb(var(--artist-color-rgb));
     font-weight: 400;
+    color: rgb(var(--artist-color-rgb));
     cursor: pointer;
+    background-color: rgb(var(--artist-color-rgb) 0.2);
+    border-radius: 10px;
   }
 
   .artist:hover {
@@ -101,9 +98,9 @@ highlightable-input {
 
 highlightable-input .variable {
   margin: 1px;
-  background-color: var(--el-color-primary-dark-2);
   font-weight: 500;
   color: var(--el-color-primary-light-3);
+  background-color: var(--el-color-primary-dark-2);
   border-radius: var(--el-border-radius-base);
 }
 

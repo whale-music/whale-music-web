@@ -1,4 +1,4 @@
-import { Ref } from "vue";
+import type { Ref } from "vue";
 
 export function useSwitchTransitColor(bgColor: Ref) {
   const gradualTransitionColor = (fromColor, toColor, divRef, direction) => {

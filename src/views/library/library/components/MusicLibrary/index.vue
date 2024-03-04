@@ -114,12 +114,12 @@ const cellStyle = ({ row, columnIndex }): CellStyle<any> => {
     <el-table-column width="40" :show-overflow-tooltip="true">
       <template #default="scope">
         <IconifyIconOnline
-          @click="like(scope.row.id, !scope.row.isLike)"
           class="cursor-pointer"
           :style="{ color: scope.row.isLike === true ? 'red' : 'grey' }"
           icon="solar:heart-bold"
           width="1.3rem"
           height="1.3rem"
+          @click="like(scope.row.id, !scope.row.isLike)"
         />
       </template>
     </el-table-column>
@@ -167,11 +167,11 @@ const cellStyle = ({ row, columnIndex }): CellStyle<any> => {
     <el-table-column label="歌手" :show-overflow-tooltip="true">
       <template #default="scope">
         <el-link
+          v-for="(item, index) in scope.row.artistNames"
+          :key="index"
           class="mr-1"
           :underline="false"
           disable-transitions
-          v-for="(item, index) in scope.row.artistNames"
-          :key="index"
         >
           <router-link
             :to="{
@@ -232,5 +232,3 @@ const cellStyle = ({ row, columnIndex }): CellStyle<any> => {
     </el-table-column>
   </RePageTable>
 </template>
-
-<style scoped lang="scss"></style>

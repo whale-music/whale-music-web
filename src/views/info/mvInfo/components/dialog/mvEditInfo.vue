@@ -1,12 +1,12 @@
 <script lang="ts">
-import { storageSession } from "@pureadmin/utils";
+import { storageLocal } from "@pureadmin/utils";
 import { AutocompleteFetchSuggestionsCallback } from "element-plus";
 import { defineComponent } from "vue";
 
 import { SelectArtist } from "@/api/model/Artist";
 import { updateMvInfo } from "@/api/mv";
 import { getSelectSingerList } from "@/api/singer";
-import { DataInfo, sessionKey } from "@/utils/auth";
+import { DataInfo, userKey } from "@/utils/auth";
 import { message } from "@/utils/message";
 const { VITE_PROXY_HOST } = import.meta.env;
 export default defineComponent({
@@ -15,7 +15,13 @@ export default defineComponent({
     value: Boolean,
     mvInfo: Object
   },
-  mounted() {},
+  data() {
+    return {
+      uploadAction: `${VITE_PROXY_HOST ?? ""}/admin/pic/temp/upload`,
+      artistName: "",
+      userId: storageLocal().getItem<DataInfo>(userKey)
+    };
+  },
   computed: {
     isShow: {
       get() {
@@ -34,13 +40,7 @@ export default defineComponent({
       }
     }
   },
-  data() {
-    return {
-      uploadAction: `${VITE_PROXY_HOST ?? ""}/admin/pic/temp/upload`,
-      artistName: "",
-      userId: storageSession().getItem<DataInfo>(sessionKey)
-    };
-  },
+  mounted() {},
   methods: {
     handleClose(index) {
       this.editInfo.artists.splice(index, 1);
@@ -78,48 +78,46 @@ export default defineComponent({
 </script>
 
 <template>
-  <el-dialog v-model="this.isShow">
+  <el-dialog v-model="isShow">
     <template #header>
       <h1>编辑MV信息</h1>
     </template>
     <el-form label-position="top">
       <el-form-item label="标题">
-        <el-input v-model="this.editInfo.title" />
+        <el-input v-model="editInfo.title" />
       </el-form-item>
       <el-form-item label="艺术家">
         <el-tag
-          v-for="(item, index) in this.editInfo.artists"
+          v-for="(item, index) in editInfo.artists"
           :key="item.id"
-          @close="handleClose(index)"
           closable
           round
+          @close="handleClose(index)"
         >
           {{ item.name }}
         </el-tag>
         <el-autocomplete
+          v-model="artistName"
           class="w-full mt-1"
-          v-model="this.artistName"
           :fetch-suggestions="artistQuerySearchAsync"
           placeholder="请输入歌手名"
           @select="artistHandleSelect"
         />
       </el-form-item>
       <el-form-item label="描述">
-        <el-input type="textarea" v-model="this.editInfo.description" />
+        <el-input v-model="editInfo.description" type="textarea" />
       </el-form-item>
       <el-form-item label="发布时间">
-        <el-date-picker v-model="this.editInfo.publishTime" />
+        <el-date-picker v-model="editInfo.publishTime" />
       </el-form-item>
       <el-form-item label="视频播放时间(单位秒)">
-        <el-input-number v-model="this.editInfo.duration" :min="1" />
+        <el-input-number v-model="editInfo.duration" :min="1" />
       </el-form-item>
       <el-form-item>
         <div class="flex flex-row-reverse w-full">
-          <el-button type="primary" @click="this.updateMvInfo">保存</el-button>
+          <el-button type="primary" @click="updateMvInfo">保存</el-button>
         </div>
       </el-form-item>
     </el-form>
   </el-dialog>
 </template>
-
-<style scoped lang="scss"></style>

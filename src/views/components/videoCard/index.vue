@@ -7,18 +7,18 @@ import IconifyIconOffline from "@/components/ReIcon/src/iconifyIconOffline";
 
 export default defineComponent({
   name: "VideoCard",
-  setup() {
-    return {
-      IconifyIconOffline,
-      UserRoundedLineDuotone
-    };
-  },
   props: {
     id: Number,
     name: [String, Number],
     author: [Array<SimpleArtist>, undefined],
     coverImg: String,
     scrollContainerRef: HTMLElement
+  },
+  setup() {
+    return {
+      IconifyIconOffline,
+      UserRoundedLineDuotone
+    };
   }
 });
 </script>
@@ -42,9 +42,9 @@ export default defineComponent({
         >
           <template #placeholder>
             <div
+              v-loading="true"
               element-loading-background="rgba(234, 236, 237, 0.8)"
               class="w-64 h-40"
-              v-loading="true"
             />
           </template>
           <template #error>
@@ -72,16 +72,16 @@ export default defineComponent({
         height="1rem"
       />
       <span
-        class="font-semibold text-[var(--el-text-color-placeholder)]"
         v-if="!Array.isArray(author) || author.length == 0"
+        class="font-semibold text-[var(--el-text-color-placeholder)]"
       >
         无歌手
       </span>
       <div v-else>
         <el-link
-          :underline="false"
           v-for="(item, index) in author"
           :key="item.id"
+          :underline="false"
         >
           <router-link
             :to="{
@@ -122,16 +122,16 @@ export default defineComponent({
     }
 
     &::after {
-      content: "";
       position: absolute;
-      left: 0;
       top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.2);
+      pointer-events: none;
+      content: "";
+      background: rgb(0 0 0 / 20%);
       opacity: 0;
       transition: opacity 400ms ease;
-      pointer-events: none;
     }
 
     &:hover::after {

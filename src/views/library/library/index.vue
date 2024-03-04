@@ -92,9 +92,9 @@ const drawerClick = () => {
     >
       <el-tab-pane
         v-for="item in tabs"
+        :key="item.name"
         :label="item.label"
         :name="item.name"
-        :key="item.name"
         :lazy="true"
       >
         <component :is="item.comp" v-model:selectCount="selectCount" />
@@ -102,5 +102,3 @@ const drawerClick = () => {
     </LibPage>
   </div>
 </template>
-
-<style scoped></style>

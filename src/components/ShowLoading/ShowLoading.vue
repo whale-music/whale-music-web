@@ -32,12 +32,11 @@ const props = defineProps({
 </template>
 <style lang="scss" scoped>
 .show-loading-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background-color: var(--el-bg-color);
   border-radius: 1rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
   animation: animate__slideInUp; /* referring directly to the animation's @keyframe declaration */
   animation-duration: 2s; /* don't forget to set a duration! */
 }

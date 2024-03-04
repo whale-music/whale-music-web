@@ -1,4 +1,4 @@
-import { LinkItem, PicUrl } from "@/api/model/common";
+import type { LinkItem, PicUrl } from "@/api/model/common";
 
 export interface Artist {
   id: number;

@@ -4,7 +4,6 @@ import GalleryMinimalisticBold from "@iconify-icons/solar/gallery-minimalistic-b
 import SoundwaveCircleBold from "@iconify-icons/solar/soundwave-circle-bold";
 import VideoFramePlayVerticalBold from "@iconify-icons/solar/video-frame-play-vertical-bold";
 import { ElLoading } from "element-plus";
-import Mock from "mockjs";
 import { defineComponent, shallowRef } from "vue";
 
 import {
@@ -91,10 +90,11 @@ export default defineComponent({
       list: [] as ResourcePageRes[]
     };
   },
+  computed: {},
+  watch: {},
   mounted() {
     this.init();
   },
-  watch: {},
   methods: {
     async init() {
       const loading = ElLoading.service({
@@ -122,34 +122,34 @@ export default defineComponent({
       this.search.filter = filterRes.data.map(value => value.name);
       this.search.filterType = val === "type";
     },
-    _init() {
-      // Define the mock data template
-      const dataTemplate = {
-        "url|1": "@url",
-        "name|1": "@title",
-        "creationTime|1": "@datetime",
-        "modificationTime|1": "@datetime",
-        "path|1": "@url",
-        "size|1": "@integer(1024, 11120480)",
-        "type|1": "@pick(['audio', 'image', 'video'])"
-      };
-
-      // Generate an array of 100 mock data using the template
-      this.list = Mock.mock({
-        "list|10": [dataTemplate]
-      }).list;
-
-      // 生成分类假数据
-      const classifyTemplate = {
-        name: "@cname",
-        "count|1-1000": 100,
-        "value|1": [true, false]
-      };
-
-      this.classify = Mock.mock({
-        "classify|3-10": [classifyTemplate]
-      }).classify;
-    },
+    // _init() {
+    //   // Define the mock data template
+    //   const dataTemplate = {
+    //     "url|1": "@url",
+    //     "name|1": "@title",
+    //     "creationTime|1": "@datetime",
+    //     "modificationTime|1": "@datetime",
+    //     "path|1": "@url",
+    //     "size|1": "@integer(1024, 11120480)",
+    //     "type|1": "@pick(['audio', 'image', 'video'])"
+    //   };
+    //
+    //   // Generate an array of 100 mock data using the template
+    //   this.list = Mock.mock({
+    //     "list|10": [dataTemplate]
+    //   }).list;
+    //
+    //   // 生成分类假数据
+    //   const classifyTemplate = {
+    //     name: "@cname",
+    //     "count|1-1000": 100,
+    //     "value|1": [true, false]
+    //   };
+    //
+    //   this.classify = Mock.mock({
+    //     "classify|3-10": [classifyTemplate]
+    //   }).classify;
+    // },
     drawerClose() {},
     fileTypeTag(type: string) {
       switch (type) {
@@ -205,19 +205,18 @@ export default defineComponent({
     handelCheckbox(): void {
       this.initStoreFileList();
     }
-  },
-  computed: {}
+  }
 });
 </script>
 
 <template>
   <div>
     <component
-      :is="this.previewData.fileInfoComponent"
-      v-model="this.previewData.isShow"
-      :key="this.previewData.name"
-      :name="this.previewData.name"
-      @handleClose="this.drawerClose"
+      :is="previewData.fileInfoComponent"
+      :key="previewData.name"
+      v-model="previewData.isShow"
+      :name="previewData.name"
+      @handleClose="drawerClose"
       @updatePage="initStoreFileList"
     />
     <div class="table-container">
@@ -225,19 +224,19 @@ export default defineComponent({
         <div class="ml-4 mr-4 m-4">
           <h3>搜索</h3>
           <div class="flex mt-2 gap-4">
-            <el-input v-model="this.search.name" size="large" clearable />
+            <el-input v-model="search.name" size="large" clearable />
             <el-button type="primary" size="large"> 查询 </el-button>
           </div>
           <h3 class="mt-2 mb-2">排序</h3>
           <el-select
-            v-model="this.search.order"
-            @change="this.initStoreFileList()"
+            v-model="search.order"
             class="w-full"
             placeholder="Select"
             size="large"
+            @change="initStoreFileList()"
           >
             <el-option
-              v-for="item in this.order.options"
+              v-for="item in order.options"
               :key="item.value"
               :label="item.label"
               :value="item.value"
@@ -245,14 +244,14 @@ export default defineComponent({
           </el-select>
           <h3 class="mt-2 mb-2">排序字段</h3>
           <el-select
-            v-model="this.search.orderBy"
-            @change="this.initStoreFileList()"
+            v-model="search.orderBy"
             class="w-full"
             placeholder="Select"
             size="large"
+            @change="initStoreFileList()"
           >
             <el-option
-              v-for="item in this.orderBy.options"
+              v-for="item in orderBy.options"
               :key="item.value"
               :label="item.label"
               :value="item.value"
@@ -263,30 +262,30 @@ export default defineComponent({
         <div class="flex justify-between pl-2 pr-2">
           <h3>过滤</h3>
           <w-segmented
-            v-model="this.filter.value"
-            :options="this.filter.chooses"
-            @updateSelection="this.handelSegment"
+            v-model="filter.value"
+            :options="filter.chooses"
+            @updateSelection="handelSegment"
           />
         </div>
         <div class="flex flex-col">
           <div class="flex flex-col pr-8 pl-8">
             <filter-checkout
-              v-model="this.search.filter"
-              :cities="this.classify"
-              @update-checkout="this.handelCheckbox"
+              v-model="search.filter"
+              :cities="classify"
+              @update-checkout="handelCheckbox"
             />
           </div>
         </div>
       </div>
-      <div class="grow" style="height: 85vh" v-if="this.list.length !== 0">
+      <div v-if="list.length !== 0" class="grow" style="height: 85vh">
         <el-scrollbar height="100%">
           <div class="flex flex-col gap-2">
             <a
-              v-for="item in this.list"
+              v-for="item in list"
               :key="item"
               class="a-item h-50"
               :class="item.status ? '' : 'grayscale'"
-              @click="this.openFileInfoDrawer(item.path, item.type)"
+              @click="openFileInfoDrawer(item.path, item.type)"
             >
               <div class="flex">
                 <IconifyIconOffline
@@ -334,35 +333,35 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .table-container {
+  position: relative;
   display: flex;
   gap: 1em;
-  position: relative;
-  border-radius: var(--el-border-radius-base);
   padding: 0.6rem;
+  border-radius: var(--el-border-radius-base);
 }
 
 .a-item {
+  padding: 0.5rem;
+  border-radius: 0.4rem;
   box-shadow: 0 0 0 1px var(--el-input-border-color, var(--el-border-color))
     inset;
   transition: transform ease 200ms;
-  padding: 0.5rem;
-  border-radius: 0.4rem;
 }
 
 .a-item:hover {
-  border-radius: 0.4rem;
   background-color: var(--el-color-primary-light-9);
+  border-radius: 0.4rem;
 }
 
 .panel {
   width: 25%;
   height: 85vh;
-  border-style: solid;
+  margin-right: 0;
+  margin-left: 0;
+  overflow-y: auto;
   border-color: var(--el-border-color);
+  border-style: solid;
   border-width: 1px;
   border-radius: 0.4rem;
-  margin-left: 0;
-  margin-right: 0;
-  overflow-y: auto;
 }
 </style>

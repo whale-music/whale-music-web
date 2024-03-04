@@ -1,4 +1,4 @@
-import { R } from "@/api/model/common";
+import type { R } from "@/api/model/common";
 import { http } from "@/utils/http";
 
 export const deleteSourceMusic = (file: string) => {

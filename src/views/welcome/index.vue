@@ -448,16 +448,16 @@ const toPluginTaskInfo = id => {
                     <div class="flex justify-center w-1/2">
                       <el-skeleton-item
                         variant="circle"
-                        style="height: 8rem; width: 8rem"
+                        style="width: 8rem; height: 8rem"
                       />
                     </div>
                     <div
                       class="flex flex-col justify-between w-1/2 gap-2 overflow-y-clip"
                     >
                       <div
-                        class="flex flex-col gap-1"
                         v-for="item in 4"
                         :key="item"
+                        class="flex flex-col gap-1"
                       >
                         <el-skeleton-item
                           variant="p"
@@ -519,10 +519,10 @@ const toPluginTaskInfo = id => {
                       <el-skeleton-item
                         variant="h1"
                         style="
+                          width: 10rem;
+                          height: 2rem;
                           margin-top: 1rem;
                           margin-left: 1rem;
-                          height: 2rem;
-                          width: 10rem;
                         "
                       />
                       <div class="flex flex-col gap-2 mt-4">
@@ -530,21 +530,21 @@ const toPluginTaskInfo = id => {
                           <div class="flex justify-around gap-1">
                             <el-skeleton-item
                               variant="circle"
-                              style="height: 3rem; width: 3rem"
+                              style="width: 3rem; height: 3rem"
                             />
                             <div class="flex flex-col gap-1">
                               <el-skeleton-item
                                 variant="h1"
-                                style="height: 2rem; width: 10rem"
+                                style="width: 10rem; height: 2rem"
                               />
                               <el-skeleton-item
                                 variant="text"
-                                style="height: 1rem; width: 3rem"
+                                style="width: 3rem; height: 1rem"
                               />
                             </div>
                             <el-skeleton-item
                               variant="h1"
-                              style="height: 2rem; width: 3rem"
+                              style="width: 3rem; height: 2rem"
                             />
                           </div>
                         </div>
@@ -644,8 +644,8 @@ const toPluginTaskInfo = id => {
 .music-count {
   display: flex;
   height: 30vh;
-  border-radius: 1rem;
   background: var(--el-bg-color);
+  border-radius: 1rem;
 }
 
 // 插件运行历史记录
@@ -676,9 +676,9 @@ const toPluginTaskInfo = id => {
 
 .artist-item {
   margin: 1rem;
-  will-change: filter;
-  transition: filter 300ms;
   cursor: pointer;
+  transition: filter 300ms;
+  will-change: filter;
 }
 
 .artist-item:hover {
@@ -686,18 +686,19 @@ const toPluginTaskInfo = id => {
 }
 
 .album-item {
-  cursor: pointer;
   margin: 1rem;
+  cursor: pointer;
 }
 
 .album-item:hover {
-  will-change: filter;
-  transition: filter 300ms;
   filter: drop-shadow(0 0 0.8em var(--el-color-primary));
+  transition: filter 300ms;
+  will-change: filter;
 }
 
 .count-font {
   @apply text-3xl font-bold mr-2 ml-2;
+
   color: var(--el-text-color-primary);
 }
 </style>

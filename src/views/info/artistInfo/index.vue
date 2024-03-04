@@ -142,10 +142,10 @@ const toAlbum = res => {
             </el-form-item>
             <el-form-item label="封面">
               <div class="flex items-center justify-center w-full gap-4">
-                <el-input disabled v-model="modifyArtistInfo.picUrl" />
+                <el-input v-model="modifyArtistInfo.picUrl" disabled />
                 <el-upload
-                  class="flex justify-center items-center"
                   ref="picUpload"
+                  class="flex justify-center items-center"
                   :data="{ id: modifyArtistInfo.id, type: 'artist' }"
                   :action="uploadPicAction"
                   :limit="1"
@@ -182,7 +182,7 @@ const toAlbum = res => {
       </div>
       <template #footer>
         <el-button @click="editArtistInfoFlag = false">取消</el-button>
-        <el-button @click="editArtistInfo" type="primary">更新</el-button>
+        <el-button type="primary" @click="editArtistInfo">更新</el-button>
       </template>
     </el-dialog>
     <el-skeleton :loading="skeletonLoadingFlag" animated>
@@ -221,28 +221,28 @@ const toAlbum = res => {
           <div class="info">
             <div class="flex flex-nowrap items-center justify-between">
               <p class="title">{{ artistInfo.artistName }}</p>
-              <el-button @click="editArtistInfoFlag = true" type="primary" round
+              <el-button type="primary" round @click="editArtistInfoFlag = true"
                 >编辑信息
               </el-button>
             </div>
             <div class="flex flex-nowrap gap-2">
               <el-link
-                :underline="false"
                 v-for="(item, index) in artistInfo.artistNames"
                 :key="index"
+                :underline="false"
                 ><span class="align-middle font-semibold">{{
                   item
                 }}</span></el-link
               >
             </div>
             <span
-              class="show-font"
               v-show="artistInfo.birth !== '' && artistInfo.birth !== null"
+              class="show-font"
               >出生年月:<span>{{ artistInfo.birth }}</span>
             </span>
             <p
-              class="show-font"
               v-show="artistInfo.sex !== null && artistInfo.sex !== ''"
+              class="show-font"
             >
               性别: {{ artistInfo.sex }}
             </p>
@@ -256,47 +256,47 @@ const toAlbum = res => {
                 </span>
               </p>
               <el-link
-                class="tail"
-                :underline="false"
                 v-if="
                   artistInfo.introduction != null &&
                   artistInfo.introduction !== ''
                 "
+                class="tail"
+                :underline="false"
                 @click="centerDialogVisible = !centerDialogVisible"
                 >[详情]
               </el-link>
 
               <!--显示专辑详细信息-->
               <el-dialog
-                class="showDialog"
                 v-model="centerDialogVisible"
+                class="showDialog"
                 width="30%"
                 :show-close="false"
               >
                 <template #header>
                   <h2>{{ artistInfo.artistName }}</h2>
                   <span
-                    class="text-sm text-neutral-400"
                     v-for="(item, index) in artistInfo.artistNames"
                     :key="index"
+                    class="text-sm text-neutral-400"
                     >{{ item }}&#32;</span
                   >
                   <span
-                    class="text-sm text-neutral-400"
                     v-if="
                       artistInfo.birth !== '' &&
                       artistInfo.birth !== null &&
                       artistInfo.birth !== undefined
                     "
+                    class="text-sm text-neutral-400"
                     >&#32;·&#32;</span
                   >
                   <span
-                    class="text-sm text-neutral-400"
                     v-if="
                       artistInfo.birth !== '' &&
                       artistInfo.birth !== null &&
                       artistInfo.birth !== undefined
                     "
+                    class="text-sm text-neutral-400"
                   >
                     {{ dateFormater("YYYY-MM-dd", artistInfo.birth) }}</span
                   >
@@ -313,21 +313,21 @@ const toAlbum = res => {
     <div class="flex gap-4 mb-2">
       <el-link
         :underline="false"
-        @click="tableFlag = true"
         :type="getTableFlag(tableFlag)"
+        @click="tableFlag = true"
       >
         <p class="album-title">专辑</p>
       </el-link>
       <el-link
         :underline="false"
-        @click="tableFlag = false"
         :type="getTableFlag(!tableFlag)"
+        @click="tableFlag = false"
       >
         <p class="album-title">MV</p>
       </el-link>
     </div>
     <!--专辑-->
-    <el-skeleton :loading="skeletonLoadingFlag" animated v-if="tableFlag">
+    <el-skeleton v-if="tableFlag" :loading="skeletonLoadingFlag" animated>
       <template #default>
         <div class="show-album">
           <div v-for="(item, index) in artistInfo.albumList" :key="index">
@@ -355,9 +355,9 @@ const toAlbum = res => {
       </template>
     </el-skeleton>
     <!--MV-->
-    <el-skeleton :loading="skeletonLoadingFlag" animated v-else>
+    <el-skeleton v-else :loading="skeletonLoadingFlag" animated>
       <template #default>
-        <div class="mv-layout" ref="mvListRef">
+        <div ref="mvListRef" class="mv-layout">
           <div v-for="(item, index) in mvList" :key="index">
             <video-card
               :id="item.id"
@@ -391,7 +391,7 @@ const toAlbum = res => {
   flex-wrap: wrap;
   gap: 2rem;
 
-  @media screen and (max-width: 1024px) {
+  @media screen and (width <= 1024px) {
     flex-direction: column;
   }
 }
@@ -410,23 +410,25 @@ const toAlbum = res => {
 }
 
 .content {
+  position: relative;
   max-width: 40rem;
   max-height: 6rem;
-  color: var(--el-color-info-light-3);
-  position: relative;
   overflow: hidden;
+  color: var(--el-color-info-light-3);
   text-overflow: ellipsis;
   white-space: pre-line;
 }
 
 .show-album {
   display: grid;
+
   /*  声明列的宽度  */
   grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+
   /*  声明行间距和列间距  */
   grid-gap: 25px;
 
-  @media screen and (max-width: 720px) {
+  @media screen and (width <= 720px) {
     grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
   }
 }
@@ -446,27 +448,29 @@ const toAlbum = res => {
 .album-info {
   width: 10rem;
   height: 14rem;
-  border-radius: 1rem;
   margin: 0;
+  border-radius: 1rem;
 }
 
 .album-name {
   @apply truncate;
   @apply font-bold;
+
   color: var(--el-text-color-regular);
 }
 
 .album-publish {
   @apply font-bold;
+
   font-size: 0.7rem;
   color: var(--el-color-info);
 }
 
 .mv-layout {
   display: flex;
-  justify-content: flex-start;
   flex-wrap: wrap;
-  margin-top: 1rem;
   gap: 2rem;
+  justify-content: flex-start;
+  margin-top: 1rem;
 }
 </style>

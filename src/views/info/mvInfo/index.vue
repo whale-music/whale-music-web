@@ -11,9 +11,6 @@ import VideoPlayer from "@/views/info/mvInfo/components/videoPlayer/index.vue";
 export default defineComponent({
   name: "index",
   components: { MvFileInfo, MvEditInfo, ShowLoading, VideoPlayer },
-  mounted() {
-    this.init(this.$route.query.id);
-  },
   data() {
     return {
       dialog: {
@@ -26,6 +23,9 @@ export default defineComponent({
         picUrl: ""
       } as MvInfo
     };
+  },
+  mounted() {
+    this.init(this.$route.query.id);
   },
   methods: {
     dateFormater,
@@ -60,21 +60,21 @@ export default defineComponent({
 <template>
   <div>
     <mv-edit-info
-      v-model="this.dialog.isShowEditInfo"
-      :mv-info="this.data"
-      @update-change="this.init(this.$route.query.id)"
+      v-model="dialog.isShowEditInfo"
+      :mv-info="data"
+      @update-change="init($route.query.id)"
     />
     <mv-file-info
-      v-model="this.dialog.isShowFileInfo"
-      :mv-info="this.data"
-      @update-change="this.init(this.$route.query.id)"
+      v-model="dialog.isShowFileInfo"
+      :mv-info="data"
+      @update-change="init($route.query.id)"
     />
-    <show-loading :loading="true" v-if="this.isLoading" />
-    <div class="flex justify-between gap-4" v-else>
+    <show-loading v-if="isLoading" :loading="true" />
+    <div v-else class="flex justify-between gap-4">
       <video-player
-        v-if="this.data.mvUrl"
-        :mv-url="this.data.mvUrl"
-        :preview-pic-url="this.data.picUrl"
+        v-if="data.mvUrl"
+        :mv-url="data.mvUrl"
+        :preview-pic-url="data.picUrl"
       />
       <el-empty
         v-else
@@ -85,31 +85,25 @@ export default defineComponent({
         <div class="flex justify-between">
           <h1>简介:</h1>
           <div>
-            <el-button
-              type="primary"
-              @click="this.dialog.isShowFileInfo = true"
-            >
+            <el-button type="primary" @click="dialog.isShowFileInfo = true">
               文件
             </el-button>
-            <el-button
-              type="primary"
-              @click="this.dialog.isShowEditInfo = true"
-            >
+            <el-button type="primary" @click="dialog.isShowEditInfo = true">
               编辑
             </el-button>
           </div>
         </div>
         <span class="break-words whitespace-pre-wrap whitespace-break-spaces">
-          {{ this.data.description }}
+          {{ data.description }}
         </span>
       </div>
     </div>
     <div class="mv-info mt-2">
       <div class="flex justify-between">
-        <h1 class="truncate w-100">{{ this.data.title }}</h1>
+        <h1 class="truncate w-100">{{ data.title }}</h1>
       </div>
       <div
-        v-for="(item, index) in this.data.artists"
+        v-for="(item, index) in data.artists"
         :key="item.id"
         class="flex gap-3"
       >
@@ -123,7 +117,7 @@ export default defineComponent({
           >
             <h4>
               {{
-                (index === this.data.artists.length - 1 && item.name) ||
+                (index === data.artists.length - 1 && item.name) ||
                 item.name + "·"
               }}
             </h4>
@@ -132,11 +126,11 @@ export default defineComponent({
       </div>
       <div class="flex items-center gap-2">
         <h3>发布时间:</h3>
-        <span>{{ dateFormater("YYYY-MM-dd", this.data.publishTime) }}</span>
+        <span>{{ dateFormater("YYYY-MM-dd", data.publishTime) }}</span>
       </div>
       <div class="flex items-center gap-2">
         <h3>视频播放时间:</h3>
-        <span>{{ this.secondsToHMS(this.data.duration) }}</span>
+        <span>{{ secondsToHMS(data.duration) }}</span>
       </div>
     </div>
   </div>

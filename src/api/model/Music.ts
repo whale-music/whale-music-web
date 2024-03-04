@@ -1,4 +1,4 @@
-import { PicUrl } from "@/api/model/common";
+import type { PicUrl } from "@/api/model/common";
 
 export interface Music {
   id: number;

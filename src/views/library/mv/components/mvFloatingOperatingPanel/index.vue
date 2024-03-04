@@ -8,14 +8,14 @@ import FloatingOperatingPanel from "@/views/components/floatingOperatingPanel/in
 export default defineComponent({
   name: "MvFloatingOperatingPanel",
   components: { FloatingOperatingPanel },
+  props: {
+    selectCount: Number
+  },
   setup() {
     return {
       CloseCircleOutline,
       TrashBin_2Outline
     };
-  },
-  props: {
-    selectCount: Number
   },
   computed: {
     getSelectCount() {
@@ -43,12 +43,12 @@ export default defineComponent({
         {{ getSelectCount }}
       </span>
       <IconifyIconOffline
-        @click="cancelButton"
         class="cursor-pointer select-icon"
         style="color: #636e72"
         :icon="CloseCircleOutline"
         width="2rem"
         height="2rem"
+        @click="cancelButton"
       />
     </div>
     <div class="flex items-center rounded">
@@ -56,11 +56,11 @@ export default defineComponent({
     </div>
     <div class="flex items-center rounded">
       <IconifyIconOffline
-        @click="removeMvButton"
         class="cursor-pointer select-icon"
         :icon="TrashBin_2Outline"
         width="2rem"
         height="2rem"
+        @click="removeMvButton"
       />
     </div>
   </floating-operating-panel>

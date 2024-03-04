@@ -1,5 +1,17 @@
+import App from "./App.vue";
+import router from "./router";
+import { setupStore } from "@/store";
+import { useI18n } from "@/plugins/i18n";
+import { getPlatformConfig } from "./config";
+import { MotionPlugin } from "@vueuse/motion";
+import { useEcharts } from "@/plugins/echarts";
+import { createApp, type Directive } from "vue";
+import { useElementPlus } from "@/plugins/elementPlus";
+import { injectResponsiveStorage } from "@/utils/responsive";
+
 // import Table from "@pureadmin/table";
 // import PureDescriptions from "@pureadmin/descriptions";
+
 // 引入重置样式
 import "./style/reset.scss";
 // 导入公共样式
@@ -13,19 +25,6 @@ import "./assets/iconfont/iconfont.css";
 // 自定义element 样式
 import "./style/element/index.scss";
 
-import { MotionPlugin } from "@vueuse/motion";
-import ElementPlus from "element-plus";
-import { createApp, Directive } from "vue";
-
-import { useEcharts } from "@/plugins/echarts";
-import { useI18n } from "@/plugins/i18n";
-import { setupStore } from "@/store";
-import { injectResponsiveStorage } from "@/utils/responsive";
-
-import App from "./App.vue";
-import { getServerConfig } from "./config";
-import router from "./router";
-
 const app = createApp(App);
 
 // 自定义指令
@@ -34,11 +33,11 @@ Object.keys(directives).forEach(key => {
   app.directive(key, (directives as { [key: string]: Directive })[key]);
 });
 
-// 全局注册`@iconify/vue`图标库
+// 全局注册@iconify/vue图标库
 import {
-  FontIcon,
   IconifyIconOffline,
-  IconifyIconOnline
+  IconifyIconOnline,
+  FontIcon
 } from "./components/ReIcon";
 app.component("IconifyIconOffline", IconifyIconOffline);
 app.component("IconifyIconOnline", IconifyIconOnline);
@@ -48,21 +47,28 @@ app.component("FontIcon", FontIcon);
 import { Auth } from "@/components/ReAuth";
 app.component("Auth", Auth);
 
+// 全局右键
 import "@imengyu/vue3-context-menu/lib/vue3-context-menu.css";
-
 import ContextMenu from "@imengyu/vue3-context-menu";
 
-getServerConfig(app).then(async config => {
-  injectResponsiveStorage(app, config);
+// 全局注册vue-tippy
+import "tippy.js/dist/tippy.css";
+import "tippy.js/themes/light.css";
+import VueTippy from "vue-tippy";
+app.use(VueTippy);
+
+getPlatformConfig(app).then(async config => {
   setupStore(app);
-  app.use(MotionPlugin);
-  app.use(useI18n);
-  app.use(ContextMenu);
-  app.use(useEcharts);
-  // .use(Table);
-  // .use(PureDescriptions);
-  app.use(ElementPlus);
   app.use(router);
   await router.isReady();
+  injectResponsiveStorage(app, config);
+  app
+    .use(MotionPlugin)
+    .use(useI18n)
+    .use(useElementPlus)
+    .use(ContextMenu)
+    // .use(Table)
+    // .use(PureDescriptions)
+    .use(useEcharts);
   app.mount("#app");
 });

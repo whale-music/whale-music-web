@@ -402,8 +402,8 @@ const throttle = ref(0);
   <div ref="divRef">
     <!--歌单操作面板-->
     <div
-      class="operation-panel-bg"
       v-show="multipleSelection.length > 0 && !emptyFlag"
+      class="operation-panel-bg"
     >
       <div class="operation-panel">
         <div class="flex items-center rounded">
@@ -414,42 +414,42 @@ const throttle = ref(0);
             {{ multipleSelection.length }}
           </span>
           <IconifyIconOnline
-            @click="multipleTableRef.clearSelection()"
             class="cursor-pointer"
             style="color: #636e72"
             icon="solar:close-circle-bold-duotone"
             width="2rem"
             height="2rem"
+            @click="multipleTableRef.clearSelection()"
           />
         </div>
         <div class="flex items-center rounded">
           <IconifyIconOnline
-            @click="toMusicPlay"
             class="cursor-pointer"
             style="color: #636e72"
             icon="solar:play-circle-bold-duotone"
             width="2rem"
             height="2rem"
+            @click="toMusicPlay"
           />
         </div>
         <div class="flex items-center rounded">
           <IconifyIconOnline
-            @click="addPlaySongList"
             class="cursor-pointer"
             style="color: #636e72"
             icon="solar:turntable-music-note-bold-duotone"
             width="2rem"
             height="2rem"
+            @click="addPlaySongList"
           />
         </div>
         <div class="flex items-center rounded">
           <IconifyIconOnline
-            @click="deletePlayListMusicMethod"
             class="cursor-pointer"
             style="color: #d63031"
             icon="solar:trash-bin-minimalistic-2-bold-duotone"
             width="2rem"
             height="2rem"
+            @click="deletePlayListMusicMethod"
           />
         </div>
       </div>
@@ -498,7 +498,7 @@ const throttle = ref(0);
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="editPlayInfoFlag = false">取消</el-button>
-          <el-button @click="updatePlayInfo" type="primary"> 更新 </el-button>
+          <el-button type="primary" @click="updatePlayInfo"> 更新 </el-button>
         </span>
       </template>
     </el-dialog>
@@ -556,19 +556,19 @@ const throttle = ref(0);
                 <div class="flex gap-4">
                   <el-skeleton-item
                     variant="button"
-                    style="height: 3rem; width: 8rem; border-radius: 1rem"
+                    style="width: 8rem; height: 3rem; border-radius: 1rem"
                   />
                   <el-skeleton-item
                     variant="button"
-                    style="height: 3rem; width: 8rem; border-radius: 1rem"
+                    style="width: 8rem; height: 3rem; border-radius: 1rem"
                   />
                   <el-skeleton-item
                     variant="button"
-                    style="height: 3rem; width: 8rem; border-radius: 1rem"
+                    style="width: 8rem; height: 3rem; border-radius: 1rem"
                   />
                   <el-skeleton-item
                     variant="button"
-                    style="height: 3rem; width: 8rem; border-radius: 1rem"
+                    style="width: 8rem; height: 3rem; border-radius: 1rem"
                   />
                 </div>
                 <br />
@@ -620,27 +620,27 @@ const throttle = ref(0);
               <div class="operate-button">
                 <el-button
                   class="button"
-                  @click="playListMusic"
                   type="primary"
                   round
+                  @click="playListMusic"
                 >
                   播放歌单
                 </el-button>
                 <el-button
                   class="button"
-                  @click="editPlayInfoFlag = true"
                   round
+                  @click="editPlayInfoFlag = true"
                 >
                   编辑歌单
                 </el-button>
-                <el-button class="button" @click="aboutFlag = true" round>
+                <el-button class="button" round @click="aboutFlag = true">
                   关于歌单
                 </el-button>
                 <el-button
                   class="button"
-                  @click="deleteDialogVisible = true"
                   type="danger"
                   round
+                  @click="deleteDialogVisible = true"
                   >删除歌单</el-button
                 >
                 <el-dialog
@@ -690,8 +690,8 @@ const throttle = ref(0);
 
                 <!--显示专辑详细信息-->
                 <el-dialog
-                  class="showDialog"
                   v-model="centerDialogVisible"
+                  class="showDialog"
                   width="30%"
                   :show-close="false"
                 >
@@ -737,11 +737,11 @@ const throttle = ref(0);
           </div>
         </div>
       </div>
-      <div class="mt-6" v-show="!emptyFlag">
+      <div v-show="!emptyFlag" class="mt-6">
         <el-skeleton
+          v-if="state.table.optionSwitchValue === 'multiple'"
           animated
           :loading="playListInfoFlag"
-          v-if="state.table.optionSwitchValue === 'multiple'"
           :throttle="throttle"
         >
           <template #template>
@@ -760,9 +760,9 @@ const throttle = ref(0);
               class="table-data"
               :data="tableData"
               highlight-current-row
-              @selection-change="handleSelectionChange"
               :cell-style="cellStyle"
               :header-cell-style="tableHeaderCellStyle"
+              @selection-change="handleSelectionChange"
               @row-dblclick="rowDoubleClick"
             >
               <el-table-column type="selection" width="55" />
@@ -790,9 +790,9 @@ const throttle = ref(0);
               <el-table-column label="歌手" :show-overflow-tooltip="true">
                 <template #default="scope">
                   <el-tag
-                    disable-transitions
                     v-for="item in scope.row.artists"
                     :key="item.id"
+                    disable-transitions
                     >{{ item.artistName }}</el-tag
                   >
                 </template>
@@ -874,7 +874,7 @@ const throttle = ref(0);
           </template>
         </el-skeleton>
       </div>
-      <div class="option" id="toPage">
+      <div id="toPage" class="option">
         <el-pagination
           background
           :hide-on-single-page="state.search.req.page.total === 0"
@@ -890,8 +890,8 @@ const throttle = ref(0);
       </div>
     </div>
     <el-empty
-      description="这里没有歌曲，请在歌单界面添加歌曲到歌单"
       v-if="emptyFlag"
+      description="这里没有歌曲，请在歌单界面添加歌曲到歌单"
     />
   </div>
 </template>
@@ -900,11 +900,10 @@ const throttle = ref(0);
 
 .layout-container {
   display: flex;
-  flex-wrap: nowrap;
+  flex-flow: row nowrap;
   gap: 2rem;
-  flex-direction: row;
 
-  @media screen and (max-width: 1024px) {
+  @media screen and (width <= 1024px) {
     flex-direction: column;
   }
 }
@@ -918,19 +917,21 @@ const throttle = ref(0);
 }
 
 :deep(.el-input__wrapper) {
-  box-shadow: 0 0 0 !important;
   border: 1px solid var(--el-color-primary-light-8);
   border-radius: 5px;
+  box-shadow: 0 0 0 !important;
 }
 
 .list-grid {
   display: grid;
+
   /*  声明列的宽度  */
   grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+
   /*  声明行间距和列间距  */
   grid-gap: 25px;
 
-  @media screen and (max-width: 720px) {
+  @media screen and (width <= 720px) {
     grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
   }
 }
@@ -942,10 +943,12 @@ const throttle = ref(0);
   margin-right: 8rem;
   margin-bottom: 2rem;
 
-  @media screen and (max-width: 720px) {
+  @media screen and (width <= 720px) {
     display: grid;
+
     /*  声明列的宽度  */
     grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+
     /*  声明行间距和列间距  */
     grid-gap: 25px;
   }
@@ -954,18 +957,20 @@ const throttle = ref(0);
 .operate-button {
   @apply mt-1 mb-3;
 
-  @media screen and (max-width: 720px) {
-    margin: 2rem 0 0;
+  @media screen and (width <= 720px) {
     display: grid;
+
     /*  声明列的宽度  */
     grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
+
     /*  声明行间距和列间距  */
     grid-gap: 25px;
+    margin: 2rem 0 0;
   }
 }
 
 .button {
-  @media screen and (max-width: 720px) {
+  @media screen and (width <= 720px) {
     margin: 0;
   }
 }
@@ -975,9 +980,9 @@ const throttle = ref(0);
 }
 
 .title-name {
-  width: 100%;
   display: flex;
   justify-content: space-between;
+  width: 100%;
 }
 
 .playlist-item-name {
@@ -985,11 +990,11 @@ const throttle = ref(0);
 }
 
 .content {
+  position: relative;
   max-width: 40rem;
   max-height: 6rem;
-  color: var(--el-color-info-light-3);
-  position: relative;
   overflow: hidden;
+  color: var(--el-color-info-light-3);
   text-overflow: ellipsis;
   white-space: pre-line;
 }
@@ -1005,14 +1010,14 @@ const throttle = ref(0);
 
 .desc {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
 }
 
 .playlist-title {
   @apply flex-auto;
 
-  @media screen and (max-width: 1024px) {
+  @media screen and (width <= 1024px) {
     margin-top: 1rem;
   }
 }
@@ -1023,19 +1028,19 @@ const throttle = ref(0);
 }
 
 .operation-panel {
-  padding-left: 1rem;
-  padding-right: 1rem;
   position: absolute;
-  display: flex;
-  z-index: 200;
   bottom: 0;
-  justify-content: center;
-  align-items: center;
-  height: 3.2rem;
-  background: var(--el-bg-color);
-  border-radius: 1rem;
-  border: 1px solid rgba(142, 142, 142, 0.2);
-  margin-bottom: 20px;
+  z-index: 200;
+  display: flex;
   gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  height: 3.2rem;
+  padding-right: 1rem;
+  padding-left: 1rem;
+  margin-bottom: 20px;
+  background: var(--el-bg-color);
+  border: 1px solid rgb(142 142 142 / 20%);
+  border-radius: 1rem;
 }
 </style>

@@ -2,7 +2,7 @@
   <div>
     <div class="flex items-center">
       <h1>{{ pluginInfo.pluginName }}</h1>
-      <span class="ml-2" v-show="!loadFlag">
+      <span v-show="!loadFlag" class="ml-2">
         <IconifyIconOffline
           icon="loading3Fill"
           class="animate-spin"
@@ -15,12 +15,12 @@
     <div class="inputs">
       <el-collapse-transition>
         <div v-show="loadFlag">
-          <div class="m-1" v-for="(i, index) in inputs.params" :key="index">
+          <div v-for="(i, index) in inputs.params" :key="index" class="m-1">
             <span>{{ i.label }}</span>
             <el-input
-              @change="saveOrUpdateCache(pluginId, inputs.params)"
               v-model="i.value"
               placeholder="请输入"
+              @change="saveOrUpdateCache(pluginId, inputs.params)"
             />
           </div>
         </div>
@@ -35,7 +35,7 @@
     <div v-show="pluginInfo.type === 'interactive-plugin'">
       <div class="flex items-center flex-nowrap">
         <h1>搜索</h1>
-        <span class="ml-2" v-show="itemHtmlFlag">
+        <span v-show="itemHtmlFlag" class="ml-2">
           <IconifyIconOffline
             icon="loading3Fill"
             class="animate-spin"
@@ -57,8 +57,8 @@
       <div v-for="(item, index) in itemHtml" :key="index">
         <div
           class="m-1 p-2 rounded-xl hover:bg-black/30"
-          v-html="item.label"
           @click="checkSearchValue(item)"
+          v-html="item.label"
         />
       </div>
       <el-dialog v-model="showInteractiveSuccessFlag">

@@ -62,7 +62,7 @@ import {
   ElTree,
   ElTreeV2
 } from "element-plus";
-import { App, Component } from "vue";
+import type { App, Component } from "vue";
 
 // Directives
 const plugins = [ElLoading, ElInfiniteScroll];

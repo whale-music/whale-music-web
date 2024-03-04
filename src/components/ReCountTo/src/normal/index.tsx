@@ -1,14 +1,13 @@
-import { isNumber } from "@pureadmin/utils";
 import {
-  computed,
   defineComponent,
-  onMounted,
   reactive,
-  unref,
-  watch
+  computed,
+  watch,
+  onMounted,
+  unref
 } from "vue";
-
 import { countToProps } from "./props";
+import { isNumber } from "@pureadmin/utils";
 
 export default defineComponent({
   name: "ReNormalCountTo",

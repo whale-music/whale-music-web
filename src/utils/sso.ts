@@ -1,6 +1,5 @@
-import { getQueryMap, subBefore } from "@pureadmin/utils";
-
-import { type DataInfo, removeToken, setToken } from "./auth";
+import { removeToken, setToken, type DataInfo } from "./auth";
+import { subBefore, getQueryMap } from "@pureadmin/utils";
 
 /**
  * 简版前端单点登录，根据实际业务自行编写，平台启动后本地可以跳后面这个链接进行测试 http://localhost:8848/#/permission/page/index?username=sso&roles=admin&accessToken=eyJhbGciOiJIUzUxMiJ9.admin
@@ -13,7 +12,7 @@ import { type DataInfo, removeToken, setToken } from "./auth";
  */
 (function () {
   // 获取 url 中的参数
-  const params = getQueryMap(location.href) as DataInfo;
+  const params = getQueryMap(location.href) as DataInfo<Date>;
   const must = ["username", "roles", "accessToken"];
   const mustLength = must.length;
   if (Object.keys(params).length !== mustLength) return;
@@ -41,8 +40,8 @@ import { type DataInfo, removeToken, setToken } from "./auth";
     setToken(params);
 
     // 删除不需要显示在 url 的参数
-    delete params["roles"];
-    delete params["accessToken"];
+    delete params.roles;
+    delete params.accessToken;
 
     const newUrl = `${location.origin}${location.pathname}${subBefore(
       location.hash,

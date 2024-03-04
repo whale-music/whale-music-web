@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { isEqual } from "@pureadmin/utils";
-import { onMounted, ref, toRaw, watch } from "vue";
-import { RouteLocationMatched, useRoute, useRouter } from "vue-router";
-
 import { transformI18n } from "@/plugins/i18n";
-import { findRouteByPath, getParentPaths } from "@/router/utils";
+import { useRoute, useRouter } from "vue-router";
+import { ref, watch, onMounted, toRaw } from "vue";
+import { getParentPaths, findRouteByPath } from "@/router/utils";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
 
 const route = useRoute();
@@ -65,12 +64,28 @@ const getBreadcrumb = (): void => {
   );
 };
 
-const handleLink = (item: RouteLocationMatched): void => {
-  const { redirect, path } = item;
+const handleLink = item => {
+  const { redirect, name, path } = item;
   if (redirect) {
     router.push(redirect as any);
   } else {
-    router.push(path);
+    if (name) {
+      if (item.query) {
+        router.push({
+          name,
+          query: item.query
+        });
+      } else if (item.params) {
+        router.push({
+          name,
+          params: item.params
+        });
+      } else {
+        router.push({ name });
+      }
+    } else {
+      router.push({ path });
+    }
   }
 };
 
@@ -93,19 +108,14 @@ watch(
   <el-breadcrumb class="!leading-[50px] select-none" separator="/">
     <transition-group name="breadcrumb">
       <el-breadcrumb-item
-        class="!inline !items-stretch"
         v-for="item in levelList"
         :key="item.path"
+        class="!inline !items-stretch"
       >
-        <a @click.prevent="handleLink(item)" class="breadcrumb-text">
+        <a @click.prevent="handleLink(item)">
           {{ transformI18n(item.meta.title) }}
         </a>
       </el-breadcrumb-item>
     </transition-group>
   </el-breadcrumb>
 </template>
-<style lang="scss" scoped>
-.breadcrumb-text {
-  color: $menuText;
-}
-</style>

@@ -4,7 +4,7 @@ import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
 import {
   clone,
   downloadByData,
-  storageSession,
+  storageLocal,
   useCopyToClipboard
 } from "@pureadmin/utils";
 import axios from "axios";
@@ -41,7 +41,7 @@ import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { useNav } from "@/layout/hooks/useNav";
 import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
-import { DataInfo, sessionKey } from "@/utils/auth";
+import { DataInfo, userKey } from "@/utils/auth";
 import { dateFormater } from "@/utils/dateUtil";
 import { message } from "@/utils/message";
 import { emitter } from "@/utils/mitt";
@@ -268,7 +268,7 @@ const deleteSource = async (id: number, index: number) => {
 const playItemDialogVisible = ref(false);
 const addMusicId = ref<number>();
 const userPlayItem = ref<UserPlayListRes[]>();
-const userInfo = storageSession().getItem<DataInfo>(sessionKey);
+const userInfo = storageLocal().getItem<DataInfo>(userKey);
 const getUserPlayInfo = (id: number) => {
   addMusicId.value = id;
   getUserPlayList(userInfo.id).then(res => {
@@ -655,9 +655,9 @@ const toMusicPlay = async res => {
           >
             <el-option
               v-for="item in musicUrl"
+              :key="item.id"
               :label="item.level"
               :value="item.id"
-              :key="item.id"
             />
           </el-select>
 
@@ -729,8 +729,8 @@ const toMusicPlay = async res => {
                   <el-button
                     type="primary"
                     class="w-1/2"
-                    @click="state.metaUpload.imageViewerFlag = true"
                     :disabled="picBase64Flag"
+                    @click="state.metaUpload.imageViewerFlag = true"
                   >
                     预览
                   </el-button>
@@ -781,16 +781,16 @@ const toMusicPlay = async res => {
     </el-dialog>
     <!--选择音源MD5-->
     <el-dialog
-      title="选择音源"
       v-model="state.visible.musicSelectResourcePath"
+      title="选择音源"
       width="60%"
     >
       <el-input v-model="state.input.selectMd5" @input="selectMd5Search" />
       <el-table
+        v-loading="state.loading.selectMd5"
         height="10rem"
         :data="state.listResource.data"
         style="width: 100%"
-        v-loading="state.loading.selectMd5"
       >
         <el-table-column
           min-width="30"
@@ -845,8 +845,8 @@ const toMusicPlay = async res => {
     </el-dialog>
     <!--编辑音源-->
     <el-dialog
-      :width="state.dialog.width"
       v-model="editSourceFlag"
+      :width="state.dialog.width"
       title="编辑音源"
       :show-close="false"
     >
@@ -879,8 +879,8 @@ const toMusicPlay = async res => {
     </el-dialog>
     <!--添加音源提示框-->
     <el-dialog
-      :width="state.dialog.width"
       v-model="addSoundSourceFlag"
+      :width="state.dialog.width"
       :show-close="false"
     >
       <template #header="{ titleId, titleClass }">
@@ -941,9 +941,9 @@ const toMusicPlay = async res => {
         <div class="flex flex-row-reverse mt-4">
           <el-button
             type="primary"
-            @click="addSoundSource"
             :loading="addSourceLoadingBottomFlag"
             :loading-icon="useRenderIcon(Loading3Fill)"
+            @click="addSoundSource"
             >添加</el-button
           >
           <el-button class="mr-4" @click="addSoundSourceFlag = false"
@@ -978,41 +978,41 @@ const toMusicPlay = async res => {
       </div>
     </el-dialog>
     <!--编辑普通歌曲框-->
-    <el-dialog :width="state.dialog.width" v-model="lyricValueFlag">
+    <el-dialog v-model="lyricValueFlag" :width="state.dialog.width">
       <template #header> <h1>普通歌词</h1> </template>
       <el-input v-model="lyricValue" :rows="10" type="textarea" />
       <template #footer>
         <el-button @click="lyricValueFlag = false">取消</el-button>
         <el-button
+          type="primary"
           @click="
             lyricValueFlag = false;
             updateLyric(lyricType, lyricValue);
           "
-          type="primary"
           >更新</el-button
         >
       </template>
     </el-dialog>
     <!--编辑逐字歌曲框-->
-    <el-dialog :width="state.dialog.width" v-model="kLyricValueFlag">
+    <el-dialog v-model="kLyricValueFlag" :width="state.dialog.width">
       <template #header> <h1>逐字歌词</h1> </template>
       <el-input v-model="kLyricValue" type="textarea" :rows="10" />
       <template #footer>
         <el-button @click="kLyricValueFlag = false">取消</el-button>
         <el-button
+          type="primary"
           @click="
             lyricValueFlag = false;
             updateLyric(klyricType, kLyricValue);
           "
-          type="primary"
           >更新</el-button
         >
       </template>
     </el-dialog>
     <!--编辑音乐信息框-->
     <el-dialog
-      :width="state.dialog.width"
       v-model="editMusicInfoFlag"
+      :width="state.dialog.width"
       :show-close="false"
     >
       <el-scrollbar height="20rem">
@@ -1029,10 +1029,10 @@ const toMusicPlay = async res => {
         <el-input v-model="state.modifyMusicInfo.musicTag" />
         <h1>封面</h1>
         <div class="flex-c gap-4 items-center">
-          <el-input :disabled="true" v-model="state.modifyMusicInfo.picUrl" />
+          <el-input v-model="state.modifyMusicInfo.picUrl" :disabled="true" />
           <el-upload
-            class="flex justify-center items-center"
             ref="picUpload"
+            class="flex justify-center items-center"
             :data="{ id: state.modifyMusicInfo.id, type: 'music' }"
             :action="uploadPicAction"
             :limit="1"
@@ -1052,16 +1052,16 @@ const toMusicPlay = async res => {
           <el-tag
             v-for="(item, index) in state.selectPreview.artist"
             :key="item.id"
-            @close="musicArtistHandleClose(index)"
             effect="dark"
             closable
             round
+            @close="musicArtistHandleClose(index)"
             >{{ item.artistName }}</el-tag
           >
         </div>
         <el-autocomplete
-          class="w-full mt-1"
           v-model="musicArtistSearch"
+          class="w-full mt-1"
           :fetch-suggestions="musicArtistQuerySearchAsync"
           placeholder="请输入歌手名"
           @select="musicArtistHandleSelect"
@@ -1075,18 +1075,18 @@ const toMusicPlay = async res => {
         <div class="flex gap-2">
           <el-link
             v-for="item in state.selectPreview.album.artists"
+            :key="item.id"
             class="font-bold"
             type="primary"
-            @click="copyData(item.artistName)"
             :underline="false"
-            :key="item.id"
+            @click="copyData(item.artistName)"
           >
             <span class="font-bold">#{{ item.artistName }}#</span>
           </el-link>
         </div>
         <el-autocomplete
-          class="w-full mt-1"
           v-model="state.selectPreview.albumName"
+          class="w-full mt-1"
           :fetch-suggestions="albumQuerySearchAsync"
           placeholder="请输入专辑名"
           @select="albumHandleSelect"
@@ -1102,10 +1102,10 @@ const toMusicPlay = async res => {
               >普通歌词</el-tag
             >
             <el-button
-              @click="lyricValueFlag = true"
               class="ml-2"
               type="primary"
               round
+              @click="lyricValueFlag = true"
               >修改</el-button
             >
           </div>
@@ -1114,10 +1114,10 @@ const toMusicPlay = async res => {
               >逐字歌词</el-tag
             >
             <el-button
-              @click="kLyricValueFlag = true"
               class="ml-2"
               type="primary"
               round
+              @click="kLyricValueFlag = true"
               >修改</el-button
             >
           </div>
@@ -1135,9 +1135,9 @@ const toMusicPlay = async res => {
                 dateFormater("mm:ss", state.modifyMusicInfo.timeLength)
               }}</span>
               <el-input-number
+                v-model="state.modifyMusicInfo.timeLength"
                 class="ml-4"
                 :step="1000"
-                v-model="state.modifyMusicInfo.timeLength"
               />
             </div>
           </div>
@@ -1145,7 +1145,7 @@ const toMusicPlay = async res => {
       </el-scrollbar>
       <template #footer>
         <el-button @click="editMusicInfoFlag = false">取消</el-button>
-        <el-button @click="updateMusicButton" type="primary">更新</el-button>
+        <el-button type="primary" @click="updateMusicButton">更新</el-button>
       </template>
     </el-dialog>
 
@@ -1160,38 +1160,38 @@ const toMusicPlay = async res => {
             <div class="flex flex-col gap-3">
               <el-skeleton-item
                 variant="h1"
-                style="height: 3rem; width: 20rem"
+                style="width: 20rem; height: 3rem"
               />
               <div class="flex flex-col gap-1">
                 <el-skeleton-item
                   variant="text"
-                  style="height: 1rem; width: 10rem"
+                  style="width: 10rem; height: 1rem"
                 />
                 <el-skeleton-item
                   variant="text"
-                  style="height: 1rem; width: 8rem"
+                  style="width: 8rem; height: 1rem"
                 />
                 <el-skeleton-item
                   variant="text"
-                  style="height: 1rem; width: 9rem"
+                  style="width: 9rem; height: 1rem"
                 />
               </div>
               <div class="flex flex-nowrap gap-4">
                 <el-skeleton-item
                   variant="button"
-                  style="height: 2.25rem; width: 6rem; border-radius: 1rem"
+                  style="width: 6rem; height: 2.25rem; border-radius: 1rem"
                 />
                 <el-skeleton-item
                   variant="button"
-                  style="height: 2.25rem; width: 6rem; border-radius: 1rem"
+                  style="width: 6rem; height: 2.25rem; border-radius: 1rem"
                 />
                 <el-skeleton-item
                   variant="button"
-                  style="height: 2.25rem; width: 6rem; border-radius: 1rem"
+                  style="width: 6rem; height: 2.25rem; border-radius: 1rem"
                 />
                 <el-skeleton-item
                   variant="button"
-                  style="height: 2.25rem; width: 6rem; border-radius: 1rem"
+                  style="width: 6rem; height: 2.25rem; border-radius: 1rem"
                 />
               </div>
             </div>
@@ -1217,9 +1217,9 @@ const toMusicPlay = async res => {
                 <div>
                   <span class="show-font">Tag: </span>
                   <el-link
-                    :underline="false"
                     v-for="item in state.musicInfo.musicTag"
                     :key="item"
+                    :underline="false"
                   >
                     <span class="font-semibold">
                       {{ item + "\u00a0" }}
@@ -1238,12 +1238,12 @@ const toMusicPlay = async res => {
                 <br />
                 <span class="show-font">艺术家: </span>
                 <el-link
-                  :underline="false"
                   v-for="(item, index) in state.musicInfo.musicArtist"
                   :key="index"
+                  :underline="false"
                   ><span
-                    @click="toArtist(item.id)"
                     class="cursor-pointer font-semibold"
+                    @click="toArtist(item.id)"
                     v-html="item.artistName + '\u00a0'"
                 /></el-link>
                 <br />
@@ -1291,9 +1291,9 @@ const toMusicPlay = async res => {
                 <el-button
                   v-show="!state.operateButton"
                   class="edit-music-button"
-                  @click="addPlaySongList"
                   plain
                   round
+                  @click="addPlaySongList"
                   ><IconifyIconOnline
                     color="#868686"
                     icon="solar:turntable-music-note-bold-duotone"
@@ -1304,11 +1304,11 @@ const toMusicPlay = async res => {
                 <el-button
                   v-show="!state.operateButton"
                   class="edit-music-button"
+                  round
                   @click="
                     getLyricList();
                     editMusicInfoFlag = true;
                   "
-                  round
                 >
                   <IconifyIconOnline
                     color="#868686"
@@ -1321,8 +1321,8 @@ const toMusicPlay = async res => {
                 <el-button
                   v-show="!state.operateButton"
                   class="edit-music-button"
-                  @click="addSoundSourceFlag = true"
                   round
+                  @click="addSoundSourceFlag = true"
                 >
                   <IconifyIconOnline
                     color="#868686"
@@ -1334,8 +1334,8 @@ const toMusicPlay = async res => {
                 <el-button
                   v-show="!state.operateButton"
                   class="edit-music-button"
-                  @click="syncMusicMetaDataFlag = true"
                   round
+                  @click="syncMusicMetaDataFlag = true"
                 >
                   <IconifyIconOnline
                     color="#868686"
@@ -1398,7 +1398,7 @@ const toMusicPlay = async res => {
         <div class="mt-4">
           <el-skeleton-item
             variant="rect"
-            style="height: 3.6rem; width: 100%; border-radius: 1rem"
+            style="width: 100%; height: 3.6rem; border-radius: 1rem"
           />
         </div>
       </template>
@@ -1493,7 +1493,7 @@ const toMusicPlay = async res => {
   flex-wrap: wrap;
   gap: 3rem;
 
-  @media screen and (max-width: 1024px) {
+  @media screen and (width <= 1024px) {
     flex-direction: column;
   }
 }
@@ -1509,8 +1509,9 @@ const toMusicPlay = async res => {
 .name {
   font-size: 3rem;
 
-  @media screen and (max-width: 720px) {
+  @media screen and (width <= 720px) {
     @apply truncate;
+
     width: 20rem;
   }
 }
@@ -1528,8 +1529,8 @@ const toMusicPlay = async res => {
 .data {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   gap: 1rem;
+  justify-content: space-between;
 }
 
 .item-list {
@@ -1537,25 +1538,23 @@ const toMusicPlay = async res => {
 }
 
 .show-item {
+  display: flex;
+  flex-flow: row nowrap;
+  place-content: center space-between;
+  align-items: center;
   width: 100%;
   height: 3.6rem;
   background-color: var(--el-bg-color);
   border-radius: 1rem;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-content: center;
-  align-items: center;
-  justify-content: space-between;
 }
 
 .operate-info {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   margin-right: 2rem;
 
-  @media screen and (max-width: 720px) {
+  @media screen and (width <= 720px) {
     margin-right: 10px;
   }
 }
@@ -1570,8 +1569,10 @@ const toMusicPlay = async res => {
 
 .music-name {
   @apply ml-4 font-bold;
-  @media screen and (max-width: 720px) {
+
+  @media screen and (width <= 720px) {
     @apply truncate;
+
     width: 3rem;
   }
 }
@@ -1580,16 +1581,16 @@ const toMusicPlay = async res => {
   margin-left: 3rem;
   color: var(--el-color-info-light-3);
 
-  @media screen and (max-width: 720px) {
+  @media screen and (width <= 720px) {
     display: none;
   }
 }
 
 .edit-music {
   display: flex;
-  justify-content: flex-start;
-  align-items: center;
   gap: 1rem;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .edit-music-button {
@@ -1601,7 +1602,7 @@ const toMusicPlay = async res => {
   flex-direction: row;
   gap: 3rem;
 
-  @media screen and (max-width: 1024px) {
+  @media screen and (width <= 1024px) {
     flex-direction: column;
   }
 }

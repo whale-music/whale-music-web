@@ -364,12 +364,12 @@ export default defineComponent({
             <div class="flex justify-center w-full">
               <div class="w-96">
                 <el-input
+                  v-model="pluginInfo.description"
                   rows="12"
                   resize="none"
-                  v-model="pluginInfo.description"
                   placeholder="输入描述"
-                  @keyup.enter="editDescribeFlag = false"
                   type="textarea"
+                  @keyup.enter="editDescribeFlag = false"
                 />
               </div>
             </div>
@@ -397,12 +397,12 @@ export default defineComponent({
       >
         <div>
           <h1>普通插件</h1>
-          <el-row :gutter="20" v-for="(i, index) in inputs.params" :key="index">
+          <el-row v-for="(i, index) in inputs.params" :key="index" :gutter="20">
             <span>{{ i.label }}</span>
             <el-input
               v-model="i.value"
-              @change="saveOrUpdateCache(id, inputs.params)"
               placeholder="请输入"
+              @change="saveOrUpdateCache(id, inputs.params)"
             />
           </el-row>
         </div>
@@ -428,18 +428,18 @@ export default defineComponent({
       >
         <div>
           <h1>聚合插件</h1>
-          <el-row :gutter="20" v-for="(i, index) in inputs.params" :key="index">
+          <el-row v-for="(i, index) in inputs.params" :key="index" :gutter="20">
             <span>{{ i.label }}</span>
             <el-input
               v-model="i.value"
-              @change="saveOrUpdateCache(pluginInfo.id, inputs.params)"
               placeholder="请输入"
+              @change="saveOrUpdateCache(pluginInfo.id, inputs.params)"
             />
           </el-row>
           <br />
           <div class="flex flex-nowrap items-center">
             <h1>搜索</h1>
-            <span class="ml-2" v-show="itemHtmlFlag">
+            <span v-show="itemHtmlFlag" class="ml-2">
               <IconifyIconOffline
                 icon="loading3Fill"
                 class="animate-spin"
@@ -482,8 +482,8 @@ export default defineComponent({
         <div v-for="(item, index) in itemHtml" :key="index">
           <div
             class="m-1 p-2 rounded-xl hover:bg-black/30"
-            v-html="item.label"
             @click="checkSearchValue(item)"
+            v-html="item.label"
           />
         </div>
         <el-input
@@ -519,8 +519,8 @@ export default defineComponent({
 }
 
 .scrollbar-error-content {
-  height: 20rem;
   width: 20rem;
+  height: 20rem;
   text-align: left;
 }
 </style>

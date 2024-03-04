@@ -1,5 +1,6 @@
 // 模拟后端动态生成路由
-import { MockMethod } from "vite-plugin-mock";
+import { defineFakeRoute } from "vite-plugin-fake-server/client";
+import { system, permission, frame, tabs } from "@/router/enums";
 
 /**
  * roles：页面级别权限，这里模拟二种 "admin"、"common"
@@ -7,12 +8,59 @@ import { MockMethod } from "vite-plugin-mock";
  * common：普通角色
  */
 
+const systemRouter = {
+  path: "/system",
+  meta: {
+    icon: "ri:settings-3-line",
+    title: "menus.hssysManagement",
+    rank: system
+  },
+  children: [
+    {
+      path: "/system/user/index",
+      name: "SystemUser",
+      meta: {
+        icon: "ri:admin-line",
+        title: "menus.hsUser",
+        roles: ["admin"]
+      }
+    },
+    {
+      path: "/system/role/index",
+      name: "SystemRole",
+      meta: {
+        icon: "ri:admin-fill",
+        title: "menus.hsRole",
+        roles: ["admin"]
+      }
+    },
+    {
+      path: "/system/menu/index",
+      name: "SystemMenu",
+      meta: {
+        icon: "ep:menu",
+        title: "menus.hsSystemMenu",
+        roles: ["admin"]
+      }
+    },
+    {
+      path: "/system/dept/index",
+      name: "SystemDept",
+      meta: {
+        icon: "ri:git-branch-line",
+        title: "menus.hsDept",
+        roles: ["admin"]
+      }
+    }
+  ]
+};
+
 const permissionRouter = {
   path: "/permission",
   meta: {
     title: "menus.permission",
-    icon: "lollipop",
-    rank: 10
+    icon: "ep:lollipop",
+    rank: permission
   },
   children: [
     {
@@ -29,21 +77,170 @@ const permissionRouter = {
       meta: {
         title: "menus.permissionButton",
         roles: ["admin", "common"],
-        auths: ["btn_add", "btn_edit", "btn_delete"]
+        auths: [
+          "permission:btn:add",
+          "permission:btn:edit",
+          "permission:btn:delete"
+        ]
       }
     }
   ]
 };
 
-export default [
+const frameRouter = {
+  path: "/iframe",
+  meta: {
+    icon: "ep:monitor",
+    title: "menus.hsExternalPage",
+    rank: frame
+  },
+  children: [
+    {
+      path: "/iframe/external",
+      meta: {
+        title: "menus.hsExternalDoc"
+      },
+      children: [
+        {
+          path: "/external",
+          name: "https://yiming_chang.gitee.io/pure-admin-doc",
+          meta: {
+            title: "menus.externalLink",
+            roles: ["admin", "common"]
+          }
+        },
+        {
+          path: "/pureutilsLink",
+          name: "https://pure-admin-utils.netlify.app/",
+          meta: {
+            title: "menus.pureutilsLink",
+            roles: ["admin", "common"]
+          }
+        }
+      ]
+    },
+    {
+      path: "/iframe/embedded",
+      meta: {
+        title: "menus.hsEmbeddedDoc"
+      },
+      children: [
+        {
+          path: "/iframe/ep",
+          name: "FrameEp",
+          meta: {
+            title: "menus.hsEpDocument",
+            frameSrc: "https://element-plus.org/zh-CN/",
+            keepAlive: true,
+            roles: ["admin", "common"]
+          }
+        },
+        {
+          path: "/iframe/tailwindcss",
+          name: "FrameTailwindcss",
+          meta: {
+            title: "menus.hsTailwindcssDocument",
+            frameSrc: "https://tailwindcss.com/docs/installation",
+            keepAlive: true,
+            roles: ["admin", "common"]
+          }
+        },
+        {
+          path: "/iframe/vue3",
+          name: "FrameVue",
+          meta: {
+            title: "menus.hsVueDocument",
+            frameSrc: "https://cn.vuejs.org/",
+            keepAlive: true,
+            roles: ["admin", "common"]
+          }
+        },
+        {
+          path: "/iframe/vite",
+          name: "FrameVite",
+          meta: {
+            title: "menus.hsViteDocument",
+            frameSrc: "https://cn.vitejs.dev/",
+            keepAlive: true,
+            roles: ["admin", "common"]
+          }
+        },
+        {
+          path: "/iframe/pinia",
+          name: "FramePinia",
+          meta: {
+            title: "menus.hsPiniaDocument",
+            frameSrc: "https://pinia.vuejs.org/zh/index.html",
+            keepAlive: true,
+            roles: ["admin", "common"]
+          }
+        },
+        {
+          path: "/iframe/vue-router",
+          name: "FrameRouter",
+          meta: {
+            title: "menus.hsRouterDocument",
+            frameSrc: "https://router.vuejs.org/zh/",
+            keepAlive: true,
+            roles: ["admin", "common"]
+          }
+        }
+      ]
+    }
+  ]
+};
+
+const tabsRouter = {
+  path: "/tabs",
+  meta: {
+    icon: "ri:bookmark-2-line",
+    title: "menus.hstabs",
+    rank: tabs
+  },
+  children: [
+    {
+      path: "/tabs/index",
+      name: "Tabs",
+      meta: {
+        title: "menus.hstabs",
+        roles: ["admin", "common"]
+      }
+    },
+    // query 传参模式
+    {
+      path: "/tabs/query-detail",
+      name: "TabQueryDetail",
+      meta: {
+        // 不在menu菜单中显示
+        showLink: false,
+        activePath: "/tabs/index",
+        roles: ["admin", "common"]
+      }
+    },
+    // params 传参模式
+    {
+      path: "/tabs/params-detail/:id",
+      component: "params-detail",
+      name: "TabParamsDetail",
+      meta: {
+        // 不在menu菜单中显示
+        showLink: false,
+        activePath: "/tabs/index",
+        roles: ["admin", "common"]
+      }
+    }
+  ]
+};
+
+export default defineFakeRoute([
   {
-    url: "/getAsyncRoutes",
+    url: "/get-async-routes",
     method: "get",
     response: () => {
       return {
         success: true,
-        data: [permissionRouter]
+        data: [systemRouter, permissionRouter, frameRouter, tabsRouter]
       };
     }
   }
-] as MockMethod[];
+]);

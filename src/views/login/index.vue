@@ -138,8 +138,8 @@ onBeforeUnmount(() => {
               @click="translationCh"
             >
               <IconifyIconOffline
-                class="check-zh"
                 v-show="locale === 'zh'"
+                class="check-zh"
                 :icon="Check"
               />
               简体中文
@@ -149,7 +149,7 @@ onBeforeUnmount(() => {
               :class="['dark:!text-white', getDropdownItemClass(locale, 'en')]"
               @click="translationEn"
             >
-              <span class="check-en" v-show="locale === 'en'">
+              <span v-show="locale === 'en'" class="check-en">
                 <IconifyIconOffline :icon="Check" />
               </span>
               English
@@ -178,8 +178,8 @@ onBeforeUnmount(() => {
             <Motion :delay="100">
               <el-form-item :rules="rules" prop="username">
                 <el-input
-                  clearable
                   v-model="ruleForm.username"
+                  clearable
                   :placeholder="t('login.username')"
                   :prefix-icon="useRenderIcon(User)"
                 />
@@ -189,9 +189,9 @@ onBeforeUnmount(() => {
             <Motion :delay="150">
               <el-form-item prop="password">
                 <el-input
+                  v-model="ruleForm.password"
                   clearable
                   show-password
-                  v-model="ruleForm.password"
                   :placeholder="t('login.password')"
                   :prefix-icon="useRenderIcon(Lock)"
                 />

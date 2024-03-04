@@ -10,13 +10,18 @@ const include = [
   "dayjs",
   "axios",
   "pinia",
-  "echarts",
+  "qrcode",
   "vue-i18n",
+  "vue-types",
   "js-cookie",
+  "vue-tippy",
+  "sortablejs",
+  "pinyin-pro",
   "@vueuse/core",
+  "v-contextmenu",
   "@pureadmin/utils",
-  "responsive-storage",
-  "element-resize-detector"
+  "vue-virtual-scroller",
+  "responsive-storage"
 ];
 
 /**
@@ -31,4 +36,4 @@ const exclude = [
   "@pureadmin/theme/dist/browser-utils"
 ];
 
-export { exclude, include };
+export { include, exclude };

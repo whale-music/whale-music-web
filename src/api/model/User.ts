@@ -1,4 +1,4 @@
-import { Page } from "@/api/model/common";
+import type { Page } from "@/api/model/common";
 
 export interface User {
   id: number;

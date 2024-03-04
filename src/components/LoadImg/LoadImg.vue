@@ -37,9 +37,9 @@ const props = defineProps({
   >
     <template #placeholder>
       <div
+        v-loading="true"
         element-loading-background="rgba(234, 236, 237, 0.8)"
         class="w-full h-full"
-        v-loading="true"
       />
     </template>
     <template #error>
@@ -56,6 +56,7 @@ const props = defineProps({
 <style lang="scss" scoped>
 .img-shadow {
   @apply shadow-xl;
+
   border-radius: 2rem;
 }
 

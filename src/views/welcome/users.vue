@@ -64,7 +64,7 @@ const deleteUserButton = async (id: number) => {
         <el-button type="primary"> 添加用户 </el-button>
       </router-link>
     </div>
-    <el-table :data="state.pageRes.records" :key="state.pageRes.records">
+    <el-table :key="state.pageRes.records" :data="state.pageRes.records">
       <el-table-column prop="username" label="用户名" />
       <el-table-column prop="nickname" label="用户昵称" />
       <el-table-column prop="roleName" label="角色">
@@ -112,5 +112,3 @@ const deleteUserButton = async (id: number) => {
     </el-table>
   </div>
 </template>
-
-<style lang="scss" scoped></style>

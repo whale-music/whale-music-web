@@ -1,5 +1,5 @@
-import { isArray } from "@pureadmin/utils";
 import type { Plugin } from "vite";
+import { isArray } from "@pureadmin/utils";
 import compressPlugin from "vite-plugin-compression";
 
 export const configCompressPlugin = (

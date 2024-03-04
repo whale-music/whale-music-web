@@ -1,20 +1,18 @@
-import { useGlobal } from "@pureadmin/utils";
 import { storeToRefs } from "pinia";
-import { computed, type CSSProperties } from "vue";
-import { useRouter } from "vue-router";
-
-import userAvatar from "@/assets/user.png";
 import { getConfig } from "@/config";
-import { transformI18n } from "@/plugins/i18n";
-import { remainingPaths, router } from "@/router";
+import { useRouter } from "vue-router";
+import { emitter } from "@/utils/mitt";
+import userAvatar from "@/assets/user.png";
 import { getTopMenu } from "@/router/utils";
+import { useGlobal } from "@pureadmin/utils";
+import type { routeMetaType } from "../types";
+import { transformI18n } from "@/plugins/i18n";
+import { router, remainingPaths } from "@/router";
+import { computed, type CSSProperties } from "vue";
 import { useAppStoreHook } from "@/store/modules/app";
+import { useUserStoreHook } from "@/store/modules/user";
 import { useEpThemeStoreHook } from "@/store/modules/epTheme";
 import { usePermissionStoreHook } from "@/store/modules/permission";
-import { useUserStoreHook } from "@/store/modules/user";
-import { emitter } from "@/utils/mitt";
-
-import { routeMetaType } from "../types";
 
 const errorInfo = "当前路由配置不正确，请检查配置";
 
@@ -90,7 +88,7 @@ export function useNav() {
   }
 
   function backTopMenu() {
-    router.push(getTopMenu().path);
+    router.push(getTopMenu()?.path);
   }
 
   function onPanel() {
@@ -126,39 +124,19 @@ export function useNav() {
     }
   }
 
-  function menuSelect(indexPath: string, routers): void {
-    if (wholeMenus.value.length === 0) return;
-    if (isRemaining(indexPath)) return;
-    let parentPath = "";
-    const parentPathIndex = indexPath.lastIndexOf("/");
-    if (parentPathIndex > 0) {
-      parentPath = indexPath.slice(0, parentPathIndex);
-    }
-    /** 找到当前路由的信息 */
-    function findCurrentRoute(indexPath: string, routes) {
-      if (!routes) return console.error(errorInfo);
-      return routes.map(item => {
-        if (item.path === indexPath) {
-          if (item.redirect) {
-            findCurrentRoute(item.redirect, item.children);
-          } else {
-            /** 切换左侧菜单 通知标签页 */
-            emitter.emit("changLayoutRoute", {
-              indexPath,
-              parentPath
-            });
-          }
-        } else {
-          if (item.children) findCurrentRoute(indexPath, item.children);
-        }
-      });
-    }
-    findCurrentRoute(indexPath, routers);
+  function menuSelect(indexPath: string) {
+    if (wholeMenus.value.length === 0 || isRemaining(indexPath)) return;
+    emitter.emit("changLayoutRoute", indexPath);
   }
 
   /** 判断路径是否参与菜单 */
   function isRemaining(path: string): boolean {
     return remainingPaths.includes(path);
+  }
+
+  /** 获取`logo` */
+  function getLogo() {
+    return new URL("/logo.svg", import.meta.url).href;
   }
 
   return {
@@ -170,14 +148,15 @@ export function useNav() {
     $storage,
     backTopMenu,
     onPanel,
-    onPlayMusic,
-    closePlayMusic,
     getDivStyle,
     changeTitle,
     toggleSideBar,
     menuSelect,
     handleResize,
     resolvePath,
+    getLogo,
+    onPlayMusic,
+    closePlayMusic,
     isCollapse,
     pureApp,
     username,

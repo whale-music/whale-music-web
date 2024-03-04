@@ -295,19 +295,22 @@ const showStatusText = (status: number) => {
 
 .task-grid {
   display: grid;
+
   /*  声明列的宽度  */
   grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+
   /*  声明行间距和列间距  */
   grid-gap: 25px;
 }
 
 .task {
   @apply rounded-md border border-black/20;
-  height: 10rem;
-  border-radius: 1rem;
+
   display: flex;
   flex-direction: column;
   justify-content: space-around;
+  height: 10rem;
+  border-radius: 1rem;
 }
 
 .title {
@@ -321,8 +324,8 @@ const showStatusText = (status: number) => {
   height: fit-content;
   padding-right: 1rem;
   padding-left: 1rem;
-  text-align: center;
   line-height: 2rem;
+  text-align: center;
   border-radius: 8px;
 }
 </style>

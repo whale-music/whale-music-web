@@ -29,7 +29,7 @@ import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import NameSearch from "@/components/nameSearch/index.vue";
 import Segmented, { type OptionsType } from "@/components/ReSegmented";
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
-import { DataInfo, sessionKey } from "@/utils/auth";
+import { DataInfo, userKey } from "@/utils/auth";
 import { FriendlyTime } from "@/utils/DateFormat";
 import { dateFormater } from "@/utils/dateUtil";
 import { message } from "@/utils/message";
@@ -189,7 +189,7 @@ const state = reactive<{
     deleteCompelMusicFlag: false
   },
   addMusicId: undefined,
-  userInfo: storageSession().getItem<DataInfo>(sessionKey),
+  userInfo: storageLocal().getItem<DataInfo>(userKey),
   isForceDeleteFlag: false
 });
 
@@ -594,7 +594,7 @@ const toMusicInfo = id => {
       :width="state.dialog.width"
       @closeDialog="() => (state.dialog.playItemDialogVisible = false)"
     />
-    <div class="operation-panel-bg" v-show="selectFlag">
+    <div v-show="selectFlag" class="operation-panel-bg">
       <div class="operation-panel">
         <el-dialog
           v-model="state.dialog.deleteCompelMusicFlag"
@@ -646,46 +646,46 @@ const toMusicInfo = id => {
               {{ state.table.selectTableList.length }}
             </span>
             <IconifyIconOnline
-              @click="cancelButton"
               class="cursor-pointer"
               style="color: #636e72"
               icon="solar:close-circle-bold-duotone"
               width="2rem"
               height="2rem"
+              @click="cancelButton"
             />
           </div>
           <div class="flex items-center rounded">
             <IconifyIconOnline
-              @click="state.dialog.deleteCompelMusicFlag = true"
               class="cursor-pointer"
               style="color: #d63031"
               icon="solar:trash-bin-minimalistic-2-bold-duotone"
               width="2rem"
               height="2rem"
+              @click="state.dialog.deleteCompelMusicFlag = true"
             />
           </div>
           <div class="flex items-center rounded">
             <IconifyIconOnline
-              @click="
-                getUserPlayInfo(
-                  state.table.selectTableList.map(value => value.id)
-                )
-              "
               class="cursor-pointer"
               style="color: var(--el-color-primary-light-3)"
               icon="solar:playlist-2-bold-duotone"
               width="2rem"
               height="2rem"
+              @click="
+                getUserPlayInfo(
+                  state.table.selectTableList.map(value => value.id)
+                )
+              "
             />
           </div>
           <div class="flex items-center rounded">
             <IconifyIconOnline
-              @click="downloads"
               class="cursor-pointer"
               style="color: var(--el-color-primary-light-3)"
               icon="solar:download-square-bold"
               width="2rem"
               height="2rem"
+              @click="downloads"
             />
           </div>
         </div>
@@ -770,15 +770,15 @@ const toMusicInfo = id => {
                 </div>
                 <div class="dropdown-item">
                   <el-checkbox
-                    :disabled="state.table.show.layout === 'grid'"
                     v-model="state.table.show.duration"
+                    :disabled="state.table.show.layout === 'grid'"
                     label="歌曲时长"
                   />
                 </div>
                 <div class="dropdown-item">
                   <el-checkbox
-                    :disabled="state.table.show.layout === 'grid'"
                     v-model="state.table.show.uploadTime"
+                    :disabled="state.table.show.layout === 'grid'"
                     label="上传时间"
                   />
                 </div>
@@ -868,10 +868,10 @@ const toMusicInfo = id => {
                   placement="top-start"
                 >
                   <el-button
-                    @click="onSubmit(true)"
                     type="primary"
                     :icon="RefreshIcon"
                     round
+                    @click="onSubmit(true)"
                     >刷新
                   </el-button>
                 </el-tooltip>
@@ -895,19 +895,19 @@ const toMusicInfo = id => {
       <div>
         <div v-if="state.table.show.layout === 'grid'">
           <ul
-            class="table-grid"
             v-infinite-scroll="gridLoad"
+            class="table-grid"
             infinite-scroll-delay="1000"
             infinite-scroll-distance="-10"
           >
             <li v-for="item in state.table.storeData" :key="item.id">
               <LoadImg
-                @click="toMusicInfo(item.id)"
                 :src="item.pic"
                 height="10rem"
                 width="10rem"
                 class="cursor-pointer"
                 :class="{ grayscale: !item.isExist }"
+                @click="toMusicInfo(item.id)"
               />
               <!--音乐名-->
               <span
@@ -977,45 +977,45 @@ const toMusicInfo = id => {
         </div>
         <el-table
           v-else
-          class="rounded-2xl"
-          v-loading="state.table.loading"
-          ref="multipleTableRef"
-          :data="state.table.storeData"
-          @selection-change="handleSelectionChange"
-          :cell-style="cellStyle"
-          :header-cell-style="tableHeaderCellStyle"
           v-show="
             !state.initLoading &&
             state.table.storeData != null &&
             state.table.storeData.length !== 0
           "
+          ref="multipleTableRef"
           :key="state.table.show.layout"
+          v-loading="state.table.loading"
+          class="rounded-2xl"
+          :data="state.table.storeData"
+          :cell-style="cellStyle"
+          :header-cell-style="tableHeaderCellStyle"
+          @selection-change="handleSelectionChange"
           @row-click="rowClick"
         >
           <el-table-column
+            v-if="state.table.show.layout === 'multiple'"
             type="selection"
             width="55"
-            v-if="state.table.show.layout === 'multiple'"
           />
           <el-table-column type="index" width="50" />
 
           <el-table-column width="50" :show-overflow-tooltip="true">
             <template #default="scope">
               <IconifyIconOnline
-                @click="like(scope.row.id, !scope.row.isLike)"
                 class="cursor-pointer"
                 :style="{ color: scope.row.isLike === true ? 'red' : 'grey' }"
                 icon="solar:heart-bold"
                 width="1.3rem"
                 height="1.3rem"
+                @click="like(scope.row.id, !scope.row.isLike)"
               />
             </template>
           </el-table-column>
 
           <el-table-column
+            v-if="state.table.show.download"
             width="50"
             :show-overflow-tooltip="true"
-            v-if="state.table.show.download"
           >
             <template #default="scope">
               <DownloadIcon :muiscId="scope.row.id" />
@@ -1052,11 +1052,11 @@ const toMusicInfo = id => {
           >
             <template #default="scope">
               <el-link
+                v-for="(item, index) in scope.row.artistNames"
+                :key="index"
                 class="mr-1"
                 :underline="false"
                 disable-transitions
-                v-for="(item, index) in scope.row.artistNames"
-                :key="index"
               >
                 <router-link
                   :to="{
@@ -1116,11 +1116,11 @@ const toMusicInfo = id => {
         </el-table>
       </div>
       <div
-        class="demo-pagination-block"
         v-if="state.table.show.layout !== 'grid' || state.table.show.autoRoll"
+        class="demo-pagination-block"
       >
         <el-scrollbar>
-          <div class="flex" v-show="!state.initLoading">
+          <div v-show="!state.initLoading" class="flex">
             <el-pagination
               background
               :hide-on-single-page="state.req.page.total === 0"
@@ -1177,16 +1177,16 @@ const toMusicInfo = id => {
 
 .operation-panel {
   position: absolute;
-  display: flex;
-  z-index: 200;
   bottom: 0;
-  justify-content: center;
+  z-index: 200;
+  display: flex;
   align-items: center;
+  justify-content: center;
   height: 3.2rem;
-  background: var(--el-bg-color);
-  border-radius: 1rem;
-  border: 1px solid rgba(142, 142, 142, 0.2);
   margin-bottom: 20px;
+  background: var(--el-bg-color);
+  border: 1px solid rgb(142 142 142 / 20%);
+  border-radius: 1rem;
 }
 
 :deep(.el-dialog) {
@@ -1196,29 +1196,33 @@ const toMusicInfo = id => {
 .absolute-container {
   display: flex;
   flex-direction: column;
-  /*主轴上的对齐方式为居中*/
+
+  /* 主轴上的对齐方式为居中 */
   justify-content: center;
-  margin-left: 10px;
   margin-right: 10px;
+  margin-left: 10px;
 }
 
 .table-grid {
   display: grid;
+
   /*  声明列的宽度  */
   grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+
   /*  声明行间距和列间距  */
   grid-gap: 25px;
 
-  @media screen and (max-width: 720px) {
+  @media screen and (width <= 720px) {
     grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
   }
 }
 
 :deep(.hover-row) {
-  transform: scale(1.01);
   transition: all 0.3s ease 0s;
+  transform: scale(1.01);
 }
-/*表格鼠标悬停的样式（背景颜色）*/
+
+/* 表格鼠标悬停的样式（背景颜色） */
 :deep(.el-table tbody tr:hover > td) {
   background-color: var(--el-border-color);
 }
@@ -1229,9 +1233,9 @@ const toMusicInfo = id => {
 
 // 底部分页条
 .demo-pagination-block {
-  margin-top: 0.6rem;
   display: flex;
   justify-content: center;
+  margin-top: 0.6rem;
 }
 
 //折叠菜单
@@ -1241,10 +1245,9 @@ const toMusicInfo = id => {
 
 .option {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  flex-wrap: nowrap;
+  flex-flow: row nowrap;
   align-items: center;
+  justify-content: space-between;
 }
 
 .search-button {
@@ -1256,31 +1259,31 @@ const toMusicInfo = id => {
 
 .menu-button {
   display: inline-block;
+  width: 6rem;
+  height: 2.5rem;
+  margin: 5px;
+  font-size: 17px;
+  color: #fff;
+  text-align: center;
+  cursor: pointer;
   background-color: var(--el-color-primary);
   border-radius: 0.8rem;
-  color: #ffffff;
-  text-align: center;
-  font-size: 17px;
-  height: 2.5rem;
-  width: 6rem;
   transition: all 0.5s;
-  cursor: pointer;
-  margin: 5px;
 }
 
 .menu-button span {
-  cursor: pointer;
-  display: inline-block;
   position: relative;
+  display: inline-block;
+  cursor: pointer;
   transition: 0.5s;
 }
 
-.menu-button span:after {
-  content: "↓";
+.menu-button span::after {
   position: absolute;
-  opacity: 0;
   top: 0;
   right: -15px;
+  content: "↓";
+  opacity: 0;
   transition: 0.5s;
 }
 
@@ -1288,9 +1291,9 @@ const toMusicInfo = id => {
   padding-right: 15px;
 }
 
-.menu-button:hover span:after {
-  opacity: 1;
+.menu-button:hover span::after {
   right: 0;
+  opacity: 1;
 }
 
 .slide-fade-enter-active {
@@ -1303,20 +1306,19 @@ const toMusicInfo = id => {
 
 .slide-fade-enter-from,
 .slide-fade-leave-to {
-  transform: translateX(20px);
   opacity: 0;
+  transform: translateX(20px);
 }
 
 .show-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 20rem;
   padding: 2rem;
-  border-radius: 2rem;
   background-color: var(--el-bg-color);
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  border-radius: 2rem;
 }
 
 // 选择框样式，没有生效

@@ -1,11 +1,11 @@
-import {
+import type {
   AlbumInfo,
   AlbumListPageReq,
   AlbumListPageRes,
   SaveOrUpdateAlbum,
   SelectAlbum
 } from "@/api/model/Album";
-import { Data, PageReqCommon, PageResCommon, R } from "@/api/model/common";
+import type { Data, PageReqCommon, PageResCommon, R } from "@/api/model/common";
 import { http } from "@/utils/http";
 
 export const getAlbumListPage = (data?: AlbumListPageReq) => {

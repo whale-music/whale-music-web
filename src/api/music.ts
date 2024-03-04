@@ -1,5 +1,5 @@
-import { Artist } from "@/api/model/Artist";
-import {
+import type { Artist } from "@/api/model/Artist";
+import type {
   Data,
   MusicSearchReq,
   Page,
@@ -7,7 +7,7 @@ import {
   PicUrl,
   R
 } from "@/api/model/common";
-import { Resource, SaveOrUpdateMusic } from "@/api/model/Music";
+import type { Resource, SaveOrUpdateMusic } from "@/api/model/Music";
 import { http } from "@/utils/http";
 
 // 音乐搜索返回

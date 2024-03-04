@@ -1,6 +1,7 @@
 .wave {
   position: fixed;
   height: 100%;
+  width: 80%;
   left: 0;
   bottom: 0;
   z-index: -1;
@@ -43,8 +44,8 @@
   display: flex;
   align-items: center;
   text-align: center;
-  /*border: 1px solid var(--el-border-color);*/
-  border-radius: 1rem;
+  border: 1px solid var(--el-border-color);
+  border-radius: 0.6rem;
   padding: 6rem 2rem;
   background: var(--el-bg-color);
   @apply shadow-2xl backdrop-blur-xl;
@@ -63,7 +64,10 @@
   text-transform: uppercase;
   margin: 15px 0;
   color: #999;
-  font: bold 200% Consolas, Monaco, monospace;
+  font:
+    bold 200% Consolas,
+    Monaco,
+    monospace;
 }
 
 @media screen and (max-width: 1180px) {

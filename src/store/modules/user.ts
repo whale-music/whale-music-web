@@ -1,38 +1,32 @@
-import { storageLocal } from "@pureadmin/utils";
 import { defineStore } from "pinia";
-
-import {
-  getLogin,
-  refreshTokenApi,
-  RefreshTokenResult,
-  UserResult
-} from "@/api/user";
-import { routerArrays } from "@/layout/types";
-import { resetRouter, router } from "@/router";
 import { store } from "@/store";
+import type { userType } from "./types";
+import { routerArrays } from "@/layout/types";
+import { router, resetRouter } from "@/router";
+import { storageLocal } from "@pureadmin/utils";
+import { getLogin, refreshTokenApi } from "@/api/user";
+import type { UserResult, RefreshTokenResult } from "@/api/user";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
-import { type DataInfo, removeToken, sessionKey, setToken } from "@/utils/auth";
-
-import { userType } from "./types";
+import { type DataInfo, setToken, removeToken, userKey } from "@/utils/auth";
 
 export const useUserStore = defineStore({
   id: "pure-user",
   state: (): userType => ({
     // 用户名
-    username: storageLocal().getItem<DataInfo>(sessionKey)?.username ?? "",
+    username: storageLocal().getItem<DataInfo<number>>(userKey)?.username ?? "",
     // 页面级别权限
-    roles: storageLocal().getItem<DataInfo>(sessionKey)?.roles ?? []
+    roles: storageLocal().getItem<DataInfo<number>>(userKey)?.roles ?? []
   }),
   actions: {
     /** 存储用户名 */
     SET_USERNAME(username: string) {
       this.username = username;
-      storageLocal().setItem<DataInfo>(sessionKey, this);
+      storageLocal().setItem<DataInfo<number>>(userKey, this);
     },
     /** 存储角色 */
     SET_ROLES(roles: Array<string>) {
       this.roles = roles;
-      storageLocal().setItem<DataInfo>(sessionKey, this);
+      storageLocal().setItem<DataInfo<number>>(userKey, this);
     },
     /** 登入 */
     async loginByUsername(data) {
@@ -41,10 +35,8 @@ export const useUserStore = defineStore({
           .then(res => {
             if (res.code === "200") {
               setToken(res.data);
-              resolve(res);
-            } else {
-              resolve(res);
             }
+            resolve(res);
           })
           .catch(error => {
             reject(error);

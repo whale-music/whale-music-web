@@ -143,38 +143,38 @@ export default defineComponent({
 
 <template>
   <div>
-    <el-dialog v-model="this.previews.infoFlag">
+    <el-dialog v-model="previews.infoFlag">
       <template #header>
         <h3 class="dialog-title">图片信息(DB)</h3>
       </template>
       <el-descriptions title="">
         <el-descriptions-item label="ID">
-          <b>{{ this.data.mvResource?.id }}</b>
+          <b>{{ data.mvResource?.id }}</b>
         </el-descriptions-item>
         <el-descriptions-item label="MD5">
-          {{ this.data.mvResource?.md5 }}
+          {{ data.mvResource?.md5 }}
         </el-descriptions-item>
         <el-descriptions-item label="关联数">
           <el-tag type="success"> 1 </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="路径">
           <el-link :underline="false" type="primary">
-            {{ this.data.mvResource?.path }}
+            {{ data.mvResource?.path }}
           </el-link>
         </el-descriptions-item>
         <el-descriptions-item label="更新时间">
-          {{ this.data.mvResource?.updateTime }}
+          {{ data.mvResource?.updateTime }}
         </el-descriptions-item>
         <el-descriptions-item label="创建时间">
-          {{ this.data.mvResource?.createTime }}
+          {{ data.mvResource?.createTime }}
         </el-descriptions-item>
       </el-descriptions>
     </el-dialog>
 
     <el-drawer
-      v-model="this.isShow"
+      v-model="isShow"
       :show-close="false"
-      :style="this.getFileTypeColor('video')"
+      :style="getFileTypeColor('video')"
       :destroy-on-close="true"
     >
       <template #header>
@@ -190,8 +190,8 @@ export default defineComponent({
           <template #extra>
             <el-button
               type="primary"
-              @click="this.previews.infoFlag = true"
-              :disabled="this.data.mvResource == null"
+              :disabled="data.mvResource == null"
+              @click="previews.infoFlag = true"
             >
               信息
             </el-button>
@@ -200,44 +200,42 @@ export default defineComponent({
             </el-button>
             <el-button
               type="danger"
+              :disabled="data.mvResource == null"
               @click="cleanVideoResource"
-              :disabled="this.data.mvResource == null"
             >
               删除信息
             </el-button>
           </template>
           <el-descriptions-item label="文件名">
-            {{ this.data.name }}
+            {{ data.name }}
           </el-descriptions-item>
           <el-descriptions-item label="路径">
-            {{ this.data.path }}
+            {{ data.path }}
           </el-descriptions-item>
           <el-descriptions-item label="地址">
             <el-link
               :underline="false"
               type="primary"
-              @click="() => useCopy(this.data.url)"
+              @click="() => useCopy(data.url)"
             >
               点击复制
             </el-link>
           </el-descriptions-item>
           <el-descriptions-item label="类型">Video</el-descriptions-item>
           <el-descriptions-item label="文件格式">
-            {{ this.data?.fileExtension }}
+            {{ data?.fileExtension }}
           </el-descriptions-item>
           <el-descriptions-item label="创建时间">
-            {{ this.data.creationTime }}
+            {{ data.creationTime }}
           </el-descriptions-item>
           <el-descriptions-item label="更新时间">
-            {{ this.data.modificationTime }}
+            {{ data.modificationTime }}
           </el-descriptions-item>
         </el-descriptions>
       </div>
       <div class="mt-4 flex justify-between">
         <h2>关联数据</h2>
-        <el-button type="primary" @click="this.updateLinkVideo()">
-          保存
-        </el-button>
+        <el-button type="primary" @click="updateLinkVideo()"> 保存 </el-button>
       </div>
       <el-form label-position="top">
         <el-form-item>
@@ -246,32 +244,32 @@ export default defineComponent({
             <div class="flex items-center justify-between">
               <div class="flex gap-4">
                 <el-tag
+                  v-if="data?.linkData?.id"
                   effect="dark"
                   round
                   class="text-[var(--el-color-primary)]"
-                  v-if="this.data?.linkData?.id"
                 >
-                  {{ this.data.linkData.id }}
+                  {{ data.linkData.id }}
                 </el-tag>
                 <el-tooltip
+                  v-if="data?.linkData?.name"
                   class="box-item"
                   effect="dark"
-                  :content="this.data.linkData.name"
+                  :content="data.linkData.name"
                   placement="top-start"
-                  v-if="this.data?.linkData?.name"
                 >
                   <p class="w-40 truncate text-[var(--el-color-primary)]">
-                    {{ this.data.linkData.name }}
+                    {{ data.linkData.name }}
                   </p>
                 </el-tooltip>
               </div>
-              <el-button type="danger" @click="this.removeLinkVideo()" plain>
+              <el-button type="danger" plain @click="removeLinkVideo()">
                 删除
               </el-button>
             </div>
           </template>
           <el-autocomplete
-            v-model="this.search.name"
+            v-model="search.name"
             class="w-full"
             :fetch-suggestions="querySearch"
             :trigger-on-focus="true"
@@ -297,8 +295,8 @@ export default defineComponent({
 
 <style scoped lang="scss">
 :deep(.el-drawer__header) {
-  border-top: 0.5rem solid var(--typeColor);
   margin-bottom: 0;
+  border-top: 0.5rem solid var(--type-color);
 }
 
 :deep(.el-descriptions__label) {

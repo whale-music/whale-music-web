@@ -1,10 +1,9 @@
 <script setup lang="ts">
+import { getTopMenu } from "@/router/utils";
 import LeftOutline from "@iconify-icons/solar/alt-arrow-left-bold";
 import RightOutline from "@iconify-icons/solar/alt-arrow-right-bold";
 import { useRouter } from "vue-router";
-
 import { useNav } from "@/layout/hooks/useNav";
-import { getTopMenu } from "@/router/utils";
 
 const router = useRouter();
 const props = defineProps({
@@ -32,7 +31,8 @@ const toNext = () => {
         class="sidebar-logo-link"
         :to="getTopMenu()?.path ?? '/'"
       >
-        <img src="/logo.svg" alt="logo" />
+        <!-- todo logo.svg -->
+        <img src="/logo.svg" alt="logo" class="ml-4" />
         <span class="sidebar-title">{{ title }}</span>
       </router-link>
       <router-link
@@ -42,7 +42,7 @@ const toNext = () => {
         class="sidebar-logo-link"
         :to="getTopMenu()?.path ?? '/'"
       >
-        <img src="/logo.svg" alt="logo" />
+        <img src="/logo.svg" alt="logo" class="ml-4" />
         <span class="sidebar-title">{{ title }}</span>
       </router-link>
     </transition>
@@ -53,15 +53,15 @@ const toNext = () => {
             <div class="router-bg">
               <IconifyIconOffline
                 class="router"
-                @click="toLast"
                 :icon="LeftOutline"
+                @click="toLast"
               />
             </div>
             <div class="router-bg">
               <IconifyIconOffline
                 class="router"
-                @click="toNext"
                 :icon="RightOutline"
+                @click="toNext"
               />
             </div>
           </div>
@@ -73,64 +73,66 @@ const toNext = () => {
 
 <style lang="scss" scoped>
 .sidebar-logo-container {
+  position: relative;
+  display: flex;
   width: 100%;
   height: 48px;
   overflow: hidden;
-  position: relative;
-  display: flex;
 
   .sidebar-logo-link {
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
+    justify-content: flex-start;
     width: 100%;
     height: 100%;
-    justify-content: flex-start;
 
     img {
-      height: 32px;
       display: inline-block;
+      height: 32px;
     }
 
     .sidebar-title {
-      height: 32px;
-      line-height: 32px;
-      margin: 2px 0 0 12px;
-      color: $subMenuActiveText;
       display: inline-block;
+      height: 32px;
+      margin: 2px 0 0 12px;
       overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
       font-size: 18px;
       font-weight: 600;
+      line-height: 32px;
+      color: $subMenuActiveText;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .router {
-      color: $subMenuActiveText;
       display: inline-block;
       overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
       font-size: 14px;
       font-weight: 600;
+      color: $subMenuActiveText;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .router-bg {
       @apply dark:bg-black;
-      width: 2rem;
-      height: 2rem;
+
       display: flex;
       flex-wrap: nowrap;
       align-items: center;
       justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      background: $menuBg;
+      border: 1px solid $menuHover;
       border-radius: var(--el-border-radius-base);
-      border: 1px solid var(--el-bg-color-overlay);
-      background: var(--el-bg-color-page);
     }
 
     .router-bg:hover {
       @apply dark:bg-gray-800;
-      background: var(--el-bg-color-overlay);
+
+      background: $menuHover;
     }
   }
 }

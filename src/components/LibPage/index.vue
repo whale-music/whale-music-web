@@ -182,14 +182,16 @@ const showFilterText = () => {
       </div>
     </div>
     <div class="tabs-container">
-      <el-tabs class="page-tabs" v-model="activeName" @tabClick="handleClick">
+      <el-tabs v-model="activeName" class="page-tabs" @tabClick="handleClick">
         <slot />
       </el-tabs>
       <div class="mt-2 absolute top-0 right-0 flex gap-2 items-center">
         <div
-          class="flex flex-row items-center animate__animated animate__fadeInUp"
-          style="--animate-duration: 400ms"
           v-show="selectCount.length !== 0"
+          class="flex flex-row items-center animate__animated animate__fadeInUp"
+          style="
+
+--animate-duration: 400ms"
         >
           <span class="text-[var(--el-text-color-regular)] mr-4">
             选中 {{ selectCount.length }} 项
@@ -198,10 +200,10 @@ const showFilterText = () => {
             删除
           </ElButton>
           <ElButton
+            v-if="activeName === 'music'"
             type="primary"
             size="large"
             @click="addMusicDialogFlag = !addMusicDialogFlag"
-            v-if="activeName === 'music'"
           >
             添加到歌单
           </ElButton>
@@ -225,6 +227,7 @@ const showFilterText = () => {
 .page-tabs {
   --el-bg-color-overlay: var(--el-bg-color);
   --el-border-color-light: transparent;
+
   border-radius: 1rem;
 }
 

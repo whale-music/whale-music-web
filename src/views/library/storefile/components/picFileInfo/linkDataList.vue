@@ -18,8 +18,8 @@ export default defineComponent({
       data: this.linkData
     };
   },
-  mounted() {},
   watch: {},
+  mounted() {},
   methods: {
     addLinkData(type: string) {
       const items = { type: type };
@@ -34,38 +34,34 @@ export default defineComponent({
     <div class="flex items-center justify-between mt-4 mb-4">
       <div class="flex items-center gap-2">
         <h3>关联数据</h3>
-        <el-text size="large">{{ this.linkData.length }}</el-text>
+        <el-text size="large">{{ linkData.length }}</el-text>
       </div>
       <el-popover trigger="click" placement="left" :width="160">
         <div class="flex flex-col gap-1">
           <b class="mb-2">添加关联数据</b>
-          <el-button type="primary" @click="this.addLinkData('music')" plain>
+          <el-button type="primary" plain @click="addLinkData('music')">
             Music
           </el-button>
-          <el-button type="primary" @click="this.addLinkData('playlist')" plain>
+          <el-button type="primary" plain @click="addLinkData('playlist')">
             PlayList
           </el-button>
-          <el-button type="primary" @click="this.addLinkData('album')" plain>
+          <el-button type="primary" plain @click="addLinkData('album')">
             Album
           </el-button>
           <el-button
             type="primary"
-            @click="this.addLinkData('UserBackground')"
             plain
+            @click="addLinkData('UserBackground')"
           >
             UserBackground
           </el-button>
-          <el-button
-            type="primary"
-            @click="this.addLinkData('UserAvatar')"
-            plain
-          >
+          <el-button type="primary" plain @click="addLinkData('UserAvatar')">
             UserAvatar
           </el-button>
-          <el-button type="primary" @click="this.addLinkData('artist')" plain>
+          <el-button type="primary" plain @click="addLinkData('artist')">
             Artist
           </el-button>
-          <el-button type="primary" @click="this.addLinkData('mv')" plain>
+          <el-button type="primary" plain @click="addLinkData('mv')">
             MV
           </el-button>
         </div>
@@ -79,16 +75,16 @@ export default defineComponent({
     </div>
     <el-form label-position="top">
       <div>
-        <el-form-item v-for="(item, index) in this.data" :key="item">
+        <el-form-item v-for="(item, index) in data" :key="item">
           <template #label>
             <h2>{{ item.type }}</h2>
             <div class="flex items-center justify-between">
               <div class="flex gap-4">
                 <el-tag
+                  v-if="item.id"
                   effect="dark"
                   round
                   class="text-[var(--el-color-primary)]"
-                  v-if="item.id"
                 >
                   {{ item.id }}
                 </el-tag>
@@ -103,11 +99,7 @@ export default defineComponent({
                   </p>
                 </el-tooltip>
               </div>
-              <el-button
-                type="danger"
-                @click="this.data.splice(index, 1)"
-                plain
-              >
+              <el-button type="danger" plain @click="data.splice(index, 1)">
                 删除
               </el-button>
             </div>
@@ -116,16 +108,16 @@ export default defineComponent({
         </el-form-item>
       </div>
       <div>
-        <el-form-item v-for="(item, index) in this.data" :key="item">
+        <el-form-item v-for="(item, index) in data" :key="item">
           <template #label>
             <h2>{{ item.type }}</h2>
             <div class="flex items-center justify-between">
               <div class="flex gap-4">
                 <el-tag
+                  v-if="item.id"
                   effect="dark"
                   round
                   class="text-[var(--el-color-primary)]"
-                  v-if="item.id"
                 >
                   {{ item.id }}
                 </el-tag>
@@ -140,11 +132,7 @@ export default defineComponent({
                   </p>
                 </el-tooltip>
               </div>
-              <el-button
-                type="danger"
-                @click="this.data.splice(index, 1)"
-                plain
-              >
+              <el-button type="danger" plain @click="data.splice(index, 1)">
                 删除
               </el-button>
             </div>

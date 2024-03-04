@@ -42,15 +42,15 @@ export default defineComponent({
     <div
       class="segmented-control"
       :style="{
-        '--indicator-width': `${100 / this.segments.length}%`
+        '--indicator-width': `${100 / segments.length}%`
       }"
     >
       <div
         v-for="(item, index) in segments"
         :key="index"
-        @click="selectSegment(index)"
-        :class="{ selected: selectedIndex === index }"
         ref="selectSegmentRef"
+        :class="{ selected: selectedIndex === index }"
+        @click="selectSegment(index)"
       >
         {{ item.label }}
       </div>
@@ -64,39 +64,39 @@ export default defineComponent({
   position: relative;
   display: flex;
   justify-content: space-between;
+  overflow: hidden;
   border: 1px solid var(--el-border-color);
   border-radius: var(--el-border-radius-base);
-  overflow: hidden;
 }
 
 .segmented-control div {
   flex: 1;
   min-height: 28px;
-  line-height: 28px;
   padding: 0 11px;
   overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  line-height: 28px;
   text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   cursor: pointer;
   user-select: none;
   border-radius: var(--el-border-radius-base);
 }
 
 .segmented-control div.selected {
-  background-color: transparent;
-  color: white;
   z-index: 1;
+  color: white;
+  background-color: transparent;
   transition: color 0.3s;
 }
 
 .indicator {
   position: absolute;
   bottom: 0;
-  height: 2px;
+  z-index: 0;
   width: var(--indicator-width);
+  height: 2px;
   background-color: var(--el-color-primary);
   transition: left 0.3s;
-  z-index: 0;
 }
 </style>

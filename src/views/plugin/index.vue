@@ -17,13 +17,27 @@ import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
 import { message } from "@/utils/message";
 
 export default defineComponent({
-  setup() {
-    return {};
-  },
   components: {
     ShowLoading,
     Icon,
     Wbutton
+  },
+  setup() {
+    return {};
+  },
+  data() {
+    return {
+      router: useRouter(),
+      pluginSearch: "",
+      isPluginListShow: false,
+      pluginListLoadingFlag: false,
+      pluginList: [] as PropType<(PluginList | number)[]>,
+      deletePlugin: false,
+      tempDeletePlugin: null,
+      tempDeleteIndex: null,
+      showDialogFlag: false,
+      pluginInfo: {} as PropType<PluginList | number>
+    };
   },
   mounted() {
     this.isEnabledPlugin();
@@ -145,20 +159,6 @@ export default defineComponent({
           return "warning";
       }
     }
-  },
-  data() {
-    return {
-      router: useRouter(),
-      pluginSearch: "",
-      isPluginListShow: false,
-      pluginListLoadingFlag: false,
-      pluginList: [] as PropType<(PluginList | number)[]>,
-      deletePlugin: false,
-      tempDeletePlugin: null,
-      tempDeleteIndex: null,
-      showDialogFlag: false,
-      pluginInfo: {} as PropType<PluginList | number>
-    };
   }
 });
 </script>
@@ -169,32 +169,32 @@ export default defineComponent({
       <div class="search-line">
         <div class="input-box">
           <el-input
-            size="large"
             v-model="pluginSearch"
+            size="large"
             placeholder="输入搜索插件名"
             class="plugin-input-with-select"
-            @keydown.enter="this.initPluginList(this.pluginSearch)"
+            @keydown.enter="initPluginList(pluginSearch)"
           >
             <template #suffix>
               <IconifyIconOnline
-                v-show="this.pluginSearch != null && this.pluginSearch !== ''"
-                @click="
-                  () => {
-                    this.initPluginList();
-                    this.pluginSearch = '';
-                  }
-                "
+                v-show="pluginSearch != null && pluginSearch !== ''"
                 class="cursor-pointer"
                 icon="solar:close-circle-outline"
                 width="1rem"
                 height="1rem"
+                @click="
+                  () => {
+                    initPluginList();
+                    pluginSearch = '';
+                  }
+                "
               />
             </template>
           </el-input>
           <el-button
-            @click="this.initPluginList(this.pluginSearch)"
             type="primary"
             size="large"
+            @click="initPluginList(pluginSearch)"
             >搜索</el-button
           >
         </div>
@@ -202,30 +202,27 @@ export default defineComponent({
           type="primary"
           size="large"
           class="mr-4"
-          @click="this.showDialogFlag = true"
+          @click="showDialogFlag = true"
           >新建</el-button
         >
-        <el-dialog v-model="this.showDialogFlag" width="30%" center>
+        <el-dialog v-model="showDialogFlag" width="30%" center>
           <el-form
             label-position="top"
             label-width="100px"
-            :model="this.pluginInfo"
+            :model="pluginInfo"
             style="max-width: 460px"
           >
             <el-form-item label="插件名">
-              <el-input v-model="this.pluginInfo.pluginName" />
+              <el-input v-model="pluginInfo.pluginName" />
             </el-form-item>
             <el-form-item label="作者">
-              <el-input v-model="this.pluginInfo.createName" />
+              <el-input v-model="pluginInfo.createName" />
             </el-form-item>
             <el-form-item label="插件描述">
-              <el-input v-model="this.pluginInfo.description" />
+              <el-input v-model="pluginInfo.description" />
             </el-form-item>
             <el-form-item label="插件类型">
-              <el-select
-                v-model="this.pluginInfo.type"
-                placeholder="选择插件类型"
-              >
+              <el-select v-model="pluginInfo.type" placeholder="选择插件类型">
                 <el-option label="普通插件" value="common-plugin" />
                 <el-option label="聚合插件" value="interactive-plugin" />
               </el-select>
@@ -246,8 +243,8 @@ export default defineComponent({
             type="primary"
             @click="
               () => {
-                this.deletePlugin = false;
-                this.deletePluginMethod();
+                deletePlugin = false;
+                deletePluginMethod();
               }
             "
           >
@@ -256,15 +253,12 @@ export default defineComponent({
         </span>
       </template>
     </el-dialog>
-    <ShowLoading :loading="this.pluginListLoadingFlag" />
-    <div
-      class="plugin-grid"
-      v-if="this.isPluginListShow && !this.pluginListLoadingFlag"
-    >
+    <ShowLoading :loading="pluginListLoadingFlag" />
+    <div v-if="isPluginListShow && !pluginListLoadingFlag" class="plugin-grid">
       <div
-        class="plugin-show"
         v-for="(i, index) in pluginList"
         :key="i.id"
+        class="plugin-show"
         @contextmenu="onContextMenu($event, i.id, index)"
       >
         <div class="flex justify-between mb-4">
@@ -276,8 +270,8 @@ export default defineComponent({
               width="3rem"
               height="3rem"
             />
-            <el-tag :type="this.showPluginTypeColor(i.type)" round>
-              {{ this.showPluginTypeText(i.type) }}
+            <el-tag :type="showPluginTypeColor(i.type)" round>
+              {{ showPluginTypeText(i.type) }}
             </el-tag>
           </div>
           <div class="flex items-center">
@@ -303,7 +297,7 @@ export default defineComponent({
         </p>
       </div>
     </div>
-    <div v-show="!this.isPluginListShow && !this.pluginListLoadingFlag">
+    <div v-show="!isPluginListShow && !pluginListLoadingFlag">
       <el-empty>
         <el-button type="primary">新建</el-button>
       </el-empty>
@@ -311,20 +305,20 @@ export default defineComponent({
   </div>
 </template>
 <style lang="scss" scoped>
-@import "@/style/element/input.scss";
+@import url("@/style/element/input.scss");
 
 .input-box {
   display: flex;
-  margin-right: 0;
   align-items: center;
   min-width: 10rem;
+  margin-right: 0;
 }
 
 .search-line {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
   gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .plugin-input-with-select {
@@ -340,11 +334,11 @@ export default defineComponent({
 
 .plugin-show {
   height: 10rem;
-  border-radius: 1rem;
-  border: 1px solid var(--el-border);
   padding: 1rem;
   margin: 1rem;
   background-color: var(--el-color-info-light-9);
+  border: 1px solid var(--el-border);
+  border-radius: 1rem;
 }
 
 /* 选择框样式，没有生效 */

@@ -1,28 +1,29 @@
 .line-card {
+  background: var(--el-bg-color);
+  background-image: linear-gradient(
+    rgb(255 255 255 / 0%) 0%,
+    rgb(255 255 255 / 5%) 100%
+  );
+  border-color: rgb(255 255 255 / 8%);
   border-width: 1px;
   border-radius: 1rem;
-  background: var(--el-bg-color);
-  border-color: rgba(255, 255, 255, 0.08);
-  background-image: linear-gradient(
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.05) 100%
-  );
 }
 
 .text-gradient {
   background: linear-gradient(
     to right bottom,
-    rgb(255, 255, 255) 30%,
-    rgba(255, 255, 255, 0.38)
+    rgb(255 255 255) 30%,
+    rgb(255 255 255 / 38%)
   );
   background-clip: text;
-  //color: transparent;
+
+  // color: transparent;
 }
 
 .mask-keyboard {
   mask-image: linear-gradient(
     transparent 0%,
-    rgba(0, 0, 0, 0.57) 33.98%,
+    rgb(0 0 0 / 57%) 33.98%,
     black 100%
   );
 }

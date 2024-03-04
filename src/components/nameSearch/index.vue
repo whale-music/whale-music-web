@@ -100,17 +100,17 @@ state.dropdownMap = map;
         </el-dropdown>
       </div>
       <input
+        v-model="state.musicSearchName"
         placeholder="搜索音乐专辑歌手名"
         type="text"
         class="input"
         @keyup.enter="emits('on-search')"
-        v-model="state.musicSearchName"
       />
       <transition name="el-fade-in-linear">
         <i
-          @click="emits('on-clean')"
-          class="m-1"
           v-show="state.musicSearchName !== ''"
+          class="m-1"
+          @click="emits('on-clean')"
         >
           <IconifyIconOnline icon="solar:close-circle-outline" />
         </i>
@@ -121,8 +121,8 @@ state.dropdownMap = map;
           class="search-button"
           type="primary"
           size="large"
-          @click="emits('on-search')"
           round
+          @click="emits('on-search')"
         >
           {{ props.buttonName }}
         </el-button>
@@ -136,21 +136,20 @@ state.dropdownMap = map;
 }
 
 .group {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  line-height: 28px;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
   position: relative;
-
+  display: -webkit-box;
+  display: flexbox;
+  display: flex;
+  align-items: center;
   width: 70%;
   height: 3.2rem;
-  border-radius: 1rem;
+  line-height: 28px;
   background-color: var(--el-color-info-light-9);
+  border-radius: 1rem;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
 
-  @media screen and (max-width: 720px) {
+  @media screen and (width <= 720px) {
     width: 100%;
   }
 }
@@ -161,32 +160,31 @@ state.dropdownMap = map;
 
 .group:focus,
 .group:hover {
-  outline: none;
-  border-color: rgba(var(--el-color-primary-rgb), 0.4);
   background-color: var(--el-color-info-light-9);
+  border-color: rgb(var(--el-color-primary-rgb) 0.4);
+  outline: none;
   box-shadow: 0 0 0 4px var(--el-color-primary-light-8);
 }
 
 .dropdown {
-  width: 6rem;
-  margin-left: 1rem;
-  height: 3.2rem;
-  background: transparent;
-  border-radius: 1rem;
   display: flex;
   flex-wrap: nowrap;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  width: 6rem;
+  height: 3.2rem;
+  margin-left: 1rem;
+  background: transparent;
+  border-radius: 1rem;
 }
 
 .input {
   width: 100%;
   line-height: 28px;
+  color: var(--el-text-color-primary);
+  background-color: var(--el-color-info-light-9);
   border: 2px solid transparent;
   outline: none;
-  background-color: var(--el-color-info-light-9);
-  color: var(--el-text-color-primary);
-  -webkit-transition: 0.3s ease;
   transition: 0.3s ease;
 }
 
@@ -197,7 +195,7 @@ state.dropdownMap = map;
 .icon {
   position: absolute;
   left: 1rem;
-  fill: #9e9ea7;
   height: 1rem;
+  fill: #9e9ea7;
 }
 </style>

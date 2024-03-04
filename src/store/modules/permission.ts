@@ -1,13 +1,10 @@
-import { getKeyList } from "@pureadmin/utils";
 import { defineStore } from "pinia";
-import { RouteRecordName } from "vue-router";
-
-import router, { constantMenus } from "@/router";
-import { ascending, filterNoPermissionTree, filterTree } from "@/router/utils";
 import { store } from "@/store";
-
+import type { cacheType } from "./types";
+import { constantMenus } from "@/router";
 import { useMultiTagsStoreHook } from "./multiTags";
-import { cacheType } from "./types";
+import { debounce, getKeyList } from "@pureadmin/utils";
+import { ascending, filterTree, filterNoPermissionTree } from "@/router/utils";
 
 export const usePermissionStore = defineStore({
   id: "pure-permission",
@@ -26,19 +23,6 @@ export const usePermissionStore = defineStore({
         filterTree(ascending(this.constantMenus.concat(routes)))
       );
     },
-    removeMenusRouter(name: RouteRecordName) {
-      router.removeRoute(name.toString());
-      const wholeMenus = usePermissionStoreHook().wholeMenus;
-      for (let i = 0; i < wholeMenus.length; i++) {
-        const menu = wholeMenus[i];
-        for (let j = 0; j < menu.children.length; j++) {
-          const element = menu.children[j];
-          if (element.name === name.toString()) {
-            wholeMenus[i].children.splice(j, 1);
-          }
-        }
-      }
-    },
     cacheOperate({ mode, name }: cacheType) {
       const delIndex = this.cachePageList.findIndex(v => v === name);
       switch (mode) {
@@ -53,7 +37,7 @@ export const usePermissionStore = defineStore({
           break;
       }
       /** 监听缓存页面是否存在于标签页，不存在则删除 */
-      (() => {
+      debounce(() => {
         let cacheLength = this.cachePageList.length;
         const nameList = getKeyList(useMultiTagsStoreHook().multiTags, "name");
         while (cacheLength > 0) {

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { storageSession } from "@pureadmin/utils";
+import { storageLocal } from "@pureadmin/utils";
 import { useVModel } from "@vueuse/core";
 import { onMounted, reactive, ref, watch } from "vue";
 
@@ -9,7 +9,7 @@ import {
   UserPlayListRes
 } from "@/api/playlist";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
-import { DataInfo, sessionKey } from "@/utils/auth";
+import { DataInfo, userKey } from "@/utils/auth";
 import { message } from "@/utils/message";
 
 const props = defineProps<{
@@ -17,7 +17,7 @@ const props = defineProps<{
   musicId: number | number[] | undefined;
 }>();
 
-const userInfo = reactive(storageSession().getItem<DataInfo>(sessionKey));
+const userInfo = reactive(storageLocal().getItem<DataInfo>(userKey));
 const playItem = ref<UserPlayListRes[]>([]);
 
 const emit = defineEmits(["closeDialog", "update:modelValue"]);

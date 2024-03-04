@@ -1,12 +1,12 @@
 highlightable-input {
   box-sizing: border-box;
   display: inline-block;
-  overflow: hidden;
   width: 320px;
-  white-space: pre;
+  overflow: hidden;
+  font-size: 14px;
   text-overflow: ellipsis;
   word-wrap: break-word;
-  font-size: 14px;
+  white-space: pre;
   cursor: text;
 }
 
@@ -15,17 +15,17 @@ highlightable-input[contenteditable] {
 }
 
 highlightable-input[aria-multiline="true"] {
-  overflow: auto;
   height: auto;
+  overflow: auto;
   white-space: pre-wrap;
   resize: both;
 }
 
 highlightable-input[aria-placeholder]::before {
-  content: attr(aria-placeholder);
   position: absolute;
   color: transparent;
   pointer-events: none;
+  content: attr(aria-placeholder);
 }
 
 highlightable-input:empty::after {

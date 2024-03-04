@@ -1,6 +1,6 @@
+import type { VNode } from "vue";
 import { isFunction } from "@pureadmin/utils";
-import { ElMessage, type MessageHandler } from "element-plus";
-import { type VNode } from "vue";
+import { type MessageHandler, ElMessage } from "element-plus";
 
 type messageStyle = "el" | "antd";
 type messageTypes = "info" | "success" | "warning" | "error";
@@ -82,4 +82,4 @@ const message = (
  */
 const closeAllMessage = (): void => ElMessage.closeAll();
 
-export { closeAllMessage, message };
+export { message, closeAllMessage };

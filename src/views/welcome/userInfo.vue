@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { storageSession } from "@pureadmin/utils";
+import { storageLocal } from "@pureadmin/utils";
 import {
   genFileId,
   UploadInstance,
@@ -10,7 +10,7 @@ import { defineComponent, onMounted, reactive, ref } from "vue";
 
 import { SaveOrUpdateUserRes } from "@/api/model/User";
 import { getUserInfo, updateUserPassword } from "@/api/user";
-import { DataInfo, sessionKey } from "@/utils/auth";
+import { DataInfo, userKey } from "@/utils/auth";
 import { message } from "@/utils/message";
 
 defineComponent({
@@ -35,7 +35,7 @@ onMounted(() => {
 });
 
 const initInfo = async () => {
-  const item = storageSession().getItem<DataInfo>(sessionKey);
+  const item = storageLocal().getItem<DataInfo>(userKey);
   const userInfo = await getUserInfo(Number(item.id));
   if (userInfo.code === "200") {
     state.userInfo = userInfo.data;
@@ -104,8 +104,8 @@ const handleSuccess = (response: any) => {
             >预览</el-button
           >
           <el-upload
-            class="flex justify-center items-center"
             ref="picUpload"
+            class="flex justify-center items-center"
             :data="{ id: state.userInfo.id, type: 'userAvatar' }"
             :action="state.uploadPicAction"
             :limit="1"
@@ -134,8 +134,8 @@ const handleSuccess = (response: any) => {
             >预览</el-button
           >
           <el-upload
-            class="flex justify-center items-center"
             ref="picUpload"
+            class="flex justify-center items-center"
             :data="{ id: state.userInfo.id, type: 'userBackground' }"
             :action="state.uploadPicAction"
             :limit="1"
@@ -151,7 +151,7 @@ const handleSuccess = (response: any) => {
         </div>
       </el-form-item>
       <el-form-item label="密码">
-        <el-input show-password v-model="state.userInfo.password" />
+        <el-input v-model="state.userInfo.password" show-password />
       </el-form-item>
       <br />
       <div class="flex gap-4">
@@ -179,8 +179,8 @@ const handleSuccess = (response: any) => {
           </el-form-item>
           <el-form-item label="密码" required>
             <el-input
-              show-password
               v-model="item['password']"
+              show-password
               clearable
               style="width: 200px"
               placeholder="请输入密码"
@@ -202,5 +202,3 @@ const handleSuccess = (response: any) => {
     </el-form>
   </div>
 </template>
-
-<style lang="scss" scoped></style>

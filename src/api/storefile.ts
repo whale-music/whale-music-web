@@ -1,5 +1,5 @@
-import { R } from "@/api/model/common";
-import { AutoCompleteCommon } from "@/api/model/StoreFile";
+import type { R } from "@/api/model/common";
+import type { AutoCompleteCommon } from "@/api/model/StoreFile";
 import { http } from "@/utils/http";
 
 export interface Resource {

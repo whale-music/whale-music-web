@@ -1,4 +1,4 @@
-import { Data, MusicSearchReq, Page, PicUrl, R } from "@/api/model/common";
+import type { Data, MusicSearchReq, Page, PicUrl, R } from "@/api/model/common";
 import { http } from "@/utils/http";
 
 export interface Album {

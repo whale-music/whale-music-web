@@ -7,6 +7,11 @@ import { emitter } from "@/utils/mitt";
 import { useBoolean } from "../../hooks/useBoolean";
 import { SearchModal } from "./components";
 
+defineOptions({
+  name: "Search",
+  inheritAttrs: false
+});
+
 const { bool: show, toggle } = useBoolean();
 function handleSearch() {
   toggle();
@@ -18,6 +23,7 @@ function reDrawLayout(width: number) {
   showSearchHurdleFlag.value = width >= 720;
 }
 
+// todo use useResizeObserver
 // 监听容器
 emitter.on("resize", ({ detail }) => {
   const { width } = detail;
@@ -35,7 +41,7 @@ onMounted(() => {
 
 <template>
   <div class="search-container" @click="handleSearch">
-    <div class="search" v-if="showSearchHurdleFlag">
+    <div v-if="showSearchHurdleFlag" class="search">
       <IconifyIconOffline
         :icon="Search"
         style="color: var(--el-color-primary)"
@@ -56,19 +62,19 @@ onMounted(() => {
 </template>
 <style lang="scss" scoped>
 .search {
-  // height: 48
   @apply h-[40px] cursor-pointer navbar-bg-hover dark:bg-black dark:shadow-black dark:border dark:border-black;
+
+  display: flex;
+  align-items: center;
   width: 15rem;
   padding-right: 1rem;
   padding-left: 1rem;
   margin-top: 4px;
   margin-bottom: 4px;
-  display: flex;
-  align-items: center;
-  border-radius: var(--el-border-radius-base);
   color: $menuText;
-  border: 2px solid var(--el-bg-color-page);
   background: var(--el-bg-color);
+  border: 2px solid var(--el-bg-color-page);
+  border-radius: var(--el-border-radius-base);
   box-shadow: inset 0 1px 0 0 $menuText;
 }
 </style>

@@ -1,36 +1,33 @@
-import Close from "@iconify-icons/ep/close";
-import RefreshRight from "@iconify-icons/ep/refresh-right";
-import Fullscreen from "@iconify-icons/ri/fullscreen-fill";
-import CloseAllTags from "@iconify-icons/ri/subtract-line";
-import CloseRightTags from "@iconify-icons/ri/text-direction-l";
-import CloseLeftTags from "@iconify-icons/ri/text-direction-r";
-import CloseOtherTags from "@iconify-icons/ri/text-spacing";
 import {
-  hasClass,
-  isBoolean,
-  isEqual,
-  storageLocal,
-  toggleClass
-} from "@pureadmin/utils";
-import { useEventListener } from "@vueuse/core";
-import {
-  computed,
-  CSSProperties,
-  getCurrentInstance,
-  onMounted,
-  reactive,
   ref,
   unref,
-  watch
+  computed,
+  reactive,
+  onMounted,
+  type CSSProperties,
+  getCurrentInstance
 } from "vue";
+import type { tagsViewsType } from "../types";
 import { useRoute, useRouter } from "vue-router";
-
+import { transformI18n, $t } from "@/plugins/i18n";
 import { responsiveStorageNameSpace } from "@/config";
-import { $t, transformI18n } from "@/plugins/i18n";
-import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
 import { useSettingStoreHook } from "@/store/modules/settings";
+import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
+import {
+  isEqual,
+  isBoolean,
+  storageLocal,
+  toggleClass,
+  hasClass
+} from "@pureadmin/utils";
 
-import { tagsViewsType } from "../types";
+import Fullscreen from "@iconify-icons/ri/fullscreen-fill";
+import CloseAllTags from "@iconify-icons/ri/subtract-line";
+import CloseOtherTags from "@iconify-icons/ri/text-spacing";
+import CloseRightTags from "@iconify-icons/ri/text-direction-l";
+import CloseLeftTags from "@iconify-icons/ri/text-direction-r";
+import RefreshRight from "@iconify-icons/ep/refresh-right";
+import Close from "@iconify-icons/ep/close";
 
 export function useTags() {
   const route = useRoute();
@@ -45,6 +42,7 @@ export function useTags() {
   const activeIndex = ref(-1);
   // 当前右键选中的路由信息
   const currentSelect = ref({});
+  const isScrolling = ref(false);
 
   /** 显示模式，默认灵动模式 */
   const showModel = ref(
@@ -155,7 +153,8 @@ export function useTags() {
 
   const getTabStyle = computed((): CSSProperties => {
     return {
-      transform: `translateX(${translateX.value}px)`
+      transform: `translateX(${translateX.value}px)`,
+      transition: isScrolling.value ? "none" : "transform 0.5s ease-in-out"
     };
   });
 
@@ -176,7 +175,7 @@ export function useTags() {
       toggleClass(true, "schedule-in", instance.refs["schedule" + index][0]);
       toggleClass(false, "schedule-out", instance.refs["schedule" + index][0]);
     } else {
-      if (hasClass(instance.refs["dynamic" + index][0], "card-active")) return;
+      if (hasClass(instance.refs["dynamic" + index][0], "is-active")) return;
       toggleClass(true, "card-in", instance.refs["dynamic" + index][0]);
       toggleClass(false, "card-out", instance.refs["dynamic" + index][0]);
     }
@@ -191,7 +190,7 @@ export function useTags() {
       toggleClass(false, "schedule-in", instance.refs["schedule" + index][0]);
       toggleClass(true, "schedule-out", instance.refs["schedule" + index][0]);
     } else {
-      if (hasClass(instance.refs["dynamic" + index][0], "card-active")) return;
+      if (hasClass(instance.refs["dynamic" + index][0], "is-active")) return;
       toggleClass(false, "card-in", instance.refs["dynamic" + index][0]);
       toggleClass(true, "card-out", instance.refs["dynamic" + index][0]);
     }
@@ -216,14 +215,8 @@ export function useTags() {
     }
   });
 
-  watch(
-    () => visible.value,
-    () => {
-      useEventListener(document, "click", closeMenu);
-    }
-  );
-
   return {
+    Close,
     route,
     router,
     visible,
@@ -238,6 +231,7 @@ export function useTags() {
     pureSetting,
     activeIndex,
     getTabStyle,
+    isScrolling,
     iconIsActive,
     linkIsActive,
     currentSelect,

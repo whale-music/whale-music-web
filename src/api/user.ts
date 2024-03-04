@@ -1,16 +1,16 @@
-import { Data, R } from "@/api/model/common";
-import { Config } from "@/api/model/User";
-import {
+import type { Data, R } from "@/api/model/common";
+import type { Config } from "@/api/model/User";
+import type {
   PageUserReq,
   PageUserRes,
   SaveOrUpdateUserReq,
   SaveOrUpdateUserRes,
   UserConverter
 } from "@/api/model/User";
-import { DataInfo } from "@/utils/auth";
+import type { DataInfo } from "@/utils/auth";
 import { http } from "@/utils/http";
 
-export type UserResult = R<DataInfo>;
+export type UserResult = R<DataInfo<Date>>;
 
 export type RefreshTokenResult = R<{
   /** `token` */

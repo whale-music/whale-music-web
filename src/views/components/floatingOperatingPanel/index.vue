@@ -26,15 +26,15 @@ export default defineComponent({
 
 .operation-panel {
   position: absolute;
-  display: flex;
-  z-index: 200;
   bottom: 0;
-  justify-content: center;
+  z-index: 200;
+  display: flex;
   align-items: center;
+  justify-content: center;
   height: 3.2rem;
-  background: var(--el-bg-color);
-  border-radius: 1rem;
-  border: 1px solid rgba(142, 142, 142, 0.2);
   margin-bottom: 20px;
+  background: var(--el-bg-color);
+  border: 1px solid rgb(142 142 142 / 20%);
+  border-radius: 1rem;
 }
 </style>

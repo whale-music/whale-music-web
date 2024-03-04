@@ -144,7 +144,7 @@ export default defineComponent({
 </script>
 <template>
   <el-drawer
-    v-model="this.getVisible"
+    v-model="getVisible"
     :before-close="beforeClose"
     title="上传MV"
     @open="handleOpen"
@@ -152,9 +152,9 @@ export default defineComponent({
   >
     <div>
       <el-upload
+        ref="musicFileUpload"
         class="upload-demo"
         drag
-        ref="musicFileUpload"
         :show-file-list="true"
         :action="uploadAction"
         :on-change="uploadChange"
@@ -174,51 +174,46 @@ export default defineComponent({
       </el-upload>
       <div class="flex flex-row-reverse">
         <preview-video
-          v-model="this.show.videoPreviewVideo"
-          :preview-video-url="this.upload.previewVideoUrl"
+          v-model="show.videoPreviewVideo"
+          :preview-video-url="upload.previewVideoUrl"
         />
         <el-button
           type="primary"
           :disabled="isUploadFile"
-          @click="this.show.videoPreviewVideo = true"
+          @click="show.videoPreviewVideo = true"
         >
           预览
         </el-button>
       </div>
       <el-form label-position="top">
         <el-form-item label="标题">
-          <el-input
-            placeholder="请输入MV标题"
-            v-model="this.mvSaveData.title"
-          />
+          <el-input v-model="mvSaveData.title" placeholder="请输入MV标题" />
         </el-form-item>
         <el-form-item label="封面">
           <div class="flex w-full gap-4">
             <el-input
+              v-model="mvSaveData.picTempPath"
               placeholder="封面地址"
               disabled
-              v-model="this.mvSaveData.picTempPath"
             />
-            <video-frame-dialog v-model="this.show.videoFrameDialog" />
+            <video-frame-dialog v-model="show.videoFrameDialog" />
             <el-image-viewer
-              v-if="this.show.picPreviewImage"
-              :url-list="[
-                `${this.uploadAccessAddress}${this.mvSaveData.picTempPath}`
-              ]"
-              @close="this.show.picPreviewImage = false"
+              v-if="show.picPreviewImage"
+              :url-list="[`${uploadAccessAddress}${mvSaveData.picTempPath}`]"
+              @close="show.picPreviewImage = false"
             />
             <el-button
-              v-if="this.mvSaveData.picTempPath"
+              v-if="mvSaveData.picTempPath"
               type="success"
-              @click="this.show.picPreviewImage = true"
+              @click="show.picPreviewImage = true"
             >
               预览
             </el-button>
             <el-button
               v-else
               type="success"
-              @click="this.show.videoFrameDialog = !this.show.videoFrameDialog"
               :disabled="isUploadFile"
+              @click="show.videoFrameDialog = !show.videoFrameDialog"
             >
               设置视频封面
             </el-button>
@@ -226,7 +221,7 @@ export default defineComponent({
               ref="picUpload"
               :limit="1"
               :action="uploadAction"
-              :on-success="this.picUploadHandleSuccessfully"
+              :on-success="picUploadHandleSuccessfully"
               :on-exceed="uploadPicHandleExceed"
               :show-file-list="false"
               :auto-upload="true"
@@ -239,17 +234,17 @@ export default defineComponent({
         </el-form-item>
         <el-form-item label="歌手">
           <el-tag
-            v-for="(item, index) in this.selectPreview.artist"
+            v-for="(item, index) in selectPreview.artist"
             :key="item.id"
-            @close="musicArtistHandleClose(index)"
             effect="dark"
             closable
             round
+            @close="musicArtistHandleClose(index)"
             >{{ item.artistName }}</el-tag
           >
           <el-autocomplete
+            v-model="artistName"
             class="w-full mt-1"
-            v-model="this.artistName"
             :fetch-suggestions="musicArtistQuerySearchAsync"
             placeholder="请输入歌手名"
             @select="musicArtistHandleSelect"
@@ -257,23 +252,25 @@ export default defineComponent({
         </el-form-item>
         <el-form-item label="介绍">
           <el-input
+            v-model="mvSaveData.description"
             placeholder="请输入MV介绍"
             type="textarea"
-            v-model="this.mvSaveData.description"
           />
         </el-form-item>
         <el-form-item label="发布日期">
           <!-- --el-date-editor-width长度占满 -->
           <el-date-picker
-            style="--el-date-editor-width: 100%"
-            v-model="this.mvSaveData.publishTime"
+            v-model="mvSaveData.publishTime"
+            style="
+
+--el-date-editor-width: 100%"
             type="date"
             value-format="YYYY-MM-DDTHH:mm:ss"
             placeholder="选择发布日期"
           />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="this.saveOrUpdateMvBtn">
+          <el-button type="primary" @click="saveOrUpdateMvBtn">
             保存
           </el-button>
         </el-form-item>

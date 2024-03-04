@@ -469,8 +469,8 @@ const toLyrics = (timestamp, index) => {
             :width="state.size.cover.width"
           />
           <div
-            :style="{ width: state.size.controller.width }"
             ref="musicTitleRef"
+            :style="{ width: state.size.controller.width }"
           >
             <div class="flex overflow-hidden">
               <div v-for="item in state.audio.musicTitleWidth" :key="item">
@@ -487,29 +487,29 @@ const toLyrics = (timestamp, index) => {
               state.audio.musicInfo.albumName
             }}</span>
             <span
-              class="album-font"
               v-show="
                 state.audio.musicInfo.artistNames != null &&
                 state.audio.musicInfo.artistNames.length !== 0
               "
+              class="album-font"
               >&nbsp;-&nbsp;</span
             >
             <span
-              class="artist-font"
               v-for="(item, index) in state.audio.musicInfo.artistNames"
               :key="index"
+              class="artist-font"
               >{{ item }}</span
             >
           </div>
           <div :style="{ width: state.size.controller.width }" class="progress">
             <el-slider
+              v-model="state.audio.timeProgressBar"
               :style="{
                 '--slider-progress': `${state.audio.audioBufferProgress}%`
               }"
               :min="0"
               :max="state.audio.musicInfo.timeLength / 1000"
               :step="1"
-              v-model="state.audio.timeProgressBar"
               :show-tooltip="false"
               @mousedown="state.scroll.isChange = true"
               @mouseup="changeMusicDuration"
@@ -527,19 +527,19 @@ const toLyrics = (timestamp, index) => {
                 <div class="icon-bg">
                   <IconifyIconOffline
                     class="icon-scale"
-                    @click="musicLoopType"
                     :icon="state.icon.loopTypeIcon"
                     width="2rem"
                     height="2rem"
+                    @click="musicLoopType"
                   />
                 </div>
                 <div class="icon-bg">
                   <IconifyIconOnline
-                    @click="lastMusic"
                     class="cursor-pointer icon-scale"
                     icon="solar:rewind-back-bold-duotone"
                     width="2.8rem"
                     height="2.8rem"
+                    @click="lastMusic"
                   />
                 </div>
                 <div>
@@ -547,22 +547,22 @@ const toLyrics = (timestamp, index) => {
                     <div v-if="state.audio.playing">
                       <div class="icon-bg">
                         <IconifyIconOnline
-                          @click="onPause"
                           class="cursor-pointer icon-scale"
                           icon="solar:pause-circle-bold"
                           width="3.25rem"
                           height="3.25rem"
+                          @click="onPause"
                         />
                       </div>
                     </div>
                     <div v-else>
                       <div class="icon-bg">
                         <IconifyIconOnline
-                          @click="onPlay"
                           class="cursor-pointer icon-scale"
                           icon="solar:play-bold"
                           width="3.25rem"
                           height="3.25rem"
+                          @click="onPlay"
                         />
                       </div>
                     </div>
@@ -577,11 +577,11 @@ const toLyrics = (timestamp, index) => {
                 </div>
                 <div class="icon-bg">
                   <IconifyIconOnline
-                    @click="nextMusic"
                     class="cursor-pointer icon-scale"
                     icon="solar:rewind-forward-bold-duotone"
                     width="2.8rem"
                     height="2.8rem"
+                    @click="nextMusic"
                   />
                 </div>
                 <div>
@@ -619,11 +619,11 @@ const toLyrics = (timestamp, index) => {
                   </el-dialog>
                   <div class="icon-bg">
                     <IconifyIconOnline
-                      @click="state.dialog.playList = true"
                       class="cursor-pointer icon-scale"
                       icon="solar:playlist-2-bold"
                       width="2rem"
                       height="2rem"
+                      @click="state.dialog.playList = true"
                     />
                   </div>
                 </div>
@@ -631,7 +631,9 @@ const toLyrics = (timestamp, index) => {
             </div>
           </div>
           <audio
+            ref="audioRef"
             :src="state.audio.currentMusicUrl.rawUrl"
+            autofocus
             @timeupdate="onTimeupdate"
             @play="onPlay"
             @pause="onPause"
@@ -639,8 +641,6 @@ const toLyrics = (timestamp, index) => {
             @canplay="canplay"
             @loop="audioRef.isLoop"
             @loadeddata="onLoadStart"
-            autofocus
-            ref="audioRef"
           >
             您的浏览器不支持 audio 元素。
           </audio>
@@ -666,8 +666,8 @@ const toLyrics = (timestamp, index) => {
                   <div
                     v-for="(item, index) in state.audio.lyricsArr"
                     :key="index"
-                    class="bscroll-container"
                     ref="lyricContentRef"
+                    class="bscroll-container"
                   >
                     <div
                       v-if="item.content === ''"
@@ -742,21 +742,22 @@ $lyricPadding: 0.8rem;
 
 @keyframes scroll-animate {
   80%,
-  to {
+  100% {
     transform: translate3d(calc((100% + var(--gap)) / -2), 0, 0);
   }
 }
 
 * {
   @apply select-none;
+
   transition: all ease 0.8s;
 }
 
 .toBack {
-  z-index: 1;
   position: absolute;
   top: 1rem;
   right: 2rem;
+  z-index: 1;
 }
 
 .toBack:hover {
@@ -765,101 +766,110 @@ $lyricPadding: 0.8rem;
 }
 
 .main-box {
-  color: #ffffff;
-  /* 背景图垂直、水平均居中 */
-  background-position: center center;
-  /* 背景图不平铺 */
-  background-repeat: no-repeat;
-  /* 当内容高度大于图片高度时，背景图像的位置相对于viewport固定 */
-  background-attachment: fixed;
-  /* 让背景图基于容器大小伸缩 */
-  background-size: cover;
-  /* 设置背景颜色，背景图加载过程中会显示背景色 */
-  background-color: #464646;
-  transition: all 2s;
   width: 100%;
   height: 100%;
+  color: #fff;
+
+  /* 设置背景颜色，背景图加载过程中会显示背景色 */
+  background-color: #464646;
+
+  /* 背景图不平铺 */
+  background-repeat: no-repeat;
+
+  /* 当内容高度大于图片高度时，背景图像的位置相对于viewport固定 */
+  background-attachment: fixed;
+
+  /* 背景图垂直、水平均居中 */
+  background-position: center center;
+
+  /* 让背景图基于容器大小伸缩 */
+  background-size: cover;
+  transition: all 2s;
 }
 
 .shadowMask {
   height: 100%;
-  background-color: rgba(118, 118, 122, 0.47);
+  background-color: rgb(118 118 122 / 47%);
   backdrop-filter: blur(50px);
 }
 
 .container-box {
   display: flex;
-  justify-content: flex-start;
   align-items: center;
+  justify-content: flex-start;
   height: 100%;
-  background-color: rgba(50, 50, 50, 0.2);
+  background-color: rgb(50 50 50 / 20%);
   backdrop-filter: blur(50px);
 
   // 小屏幕操作面板居中
-  @media screen and (max-width: 720px) {
+  @media screen and (width <= 720px) {
     justify-content: center;
   }
 }
 
 .controller {
-  margin-left: 2rem;
-  margin-right: 2rem;
-  width: 24rem;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  width: 24rem;
+  margin-right: 2rem;
+  margin-left: 2rem;
 }
 
 .lyric {
-  height: 100%;
-  width: 55rem;
-  margin-left: 2rem;
-
   display: flex;
   flex-direction: column;
   justify-content: center;
+  width: 55rem;
+  height: 100%;
+  margin-left: 2rem;
 
   // 小屏幕不显示歌词
-  @media screen and (max-width: 720px) {
+  @media screen and (width <= 720px) {
     display: none;
   }
 }
 
 .music-font {
   --gap: 1.5625em;
+
   @apply w-max will-change-transform;
+
+  display: flex;
+  gap: 0 var(--gap);
   width: max-content;
   font-size: 2rem;
   animation: animate 12s linear 3s infinite;
-  display: flex;
-  gap: 0 var(--gap);
 }
 
 .album-font {
   @apply font-bold select-none;
+
   font-size: 0.8rem;
 }
 
 .artist-font {
   @apply font-bold select-none;
+
   font-size: 0.8rem;
 }
 
 .progress {
+  width: 22rem;
   margin-top: 1rem;
   margin-bottom: 1rem;
-  width: 22rem;
 }
 
 :deep(.el-progress-bar__outer) {
   @apply cursor-pointer;
+
   background-color: #ebeef554;
 }
 
 :deep(.el-slider) {
-  --el-slider-main-bg-color: #ffffff;
-  --el-slider-runway-bg-color: rgba(255, 255, 255, 0.1);
+  --el-slider-main-bg-color: #fff;
+  --el-slider-runway-bg-color: rgb(255 255 255 / 10%);
   --el-slider-stop-bg-color: var(--el-color-white);
   --el-slider-disabled-color: var(--el-text-color-placeholder);
   --el-slider-border-radius: 3px;
@@ -867,25 +877,26 @@ $lyricPadding: 0.8rem;
   --el-slider-button-size: 20px;
   --el-slider-button-wrapper-size: 36px;
   --el-slider-button-wrapper-offset: -15px;
-  background-color: transparent;
+
   height: var(--el-slider-height);
+  background-color: transparent;
 }
 
 :deep(.el-slider__runway) {
-  width: 100%;
-  background-color: rgba(255, 255, 255, 0.1);
   flex: none;
+  width: 100%;
+  background-color: rgb(255 255 255 / 10%);
 }
 
 :deep(.el-slider__runway::before) {
-  content: "";
-  transition: width ease-in 0.5s;
+  display: block;
+  flex: none;
   width: var(--slider-progress);
   height: var(--el-slider-height);
+  content: "";
+  background-color: rgb(255 255 255 / 40%);
   border-radius: var(--el-slider-border-radius);
-  background-color: rgba(255, 255, 255, 0.4);
-  flex: none;
-  display: block;
+  transition: width ease-in 0.5s;
 }
 
 :deep(.el-slider__bar) {
@@ -893,90 +904,83 @@ $lyricPadding: 0.8rem;
 }
 
 .lyric-item:hover {
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 1rem;
   padding: $lyricPadding;
+  background-color: rgb(0 0 0 / 20%);
+  border-radius: 1rem;
 }
 
 .lyric-item {
   @apply block mt-5 mb-5 cursor-pointer hover:text-[#f0f0f0] font-bold;
-  font-size: 2.5rem;
-  color: rgba(200, 200, 200, 0.5);
+
   padding: $lyricPadding;
+  font-size: 2.5rem;
+  color: rgb(200 200 200 / 50%);
   transition: font-size 1s;
 }
 
 .currently-playing {
   @apply mt-12 mb-12;
-  font-size: 3.5rem;
+
   padding: $lyricPadding;
-  color: #ffffff;
+  font-size: 3.5rem;
+  color: #fff;
   transition: color 1.5s;
 }
 
 .scrollbar {
   height: 90vh;
-  -webkit-mask: linear-gradient(
-    180deg,
-    hsla(0, 0%, 100%, 0),
-    hsla(0, 0%, 100%, 0.6) 15%,
-    #fff 25%,
-    #fff 75%,
-    hsla(0, 0%, 100%, 0.6) 85%,
-    hsla(0, 0%, 100%, 0)
-  );
   mask: linear-gradient(
     180deg,
-    hsla(0, 0%, 100%, 0),
-    hsla(0, 0%, 100%, 0.6) 15%,
+    hsl(0deg 0% 100% / 0%),
+    hsl(0deg 0% 100% / 60%) 15%,
     #fff 25%,
     #fff 75%,
-    hsla(0, 0%, 100%, 0.6) 85%,
-    hsla(0, 0%, 100%, 0)
+    hsl(0deg 0% 100% / 60%) 85%,
+    hsl(0deg 0% 100% / 0%)
   );
 }
 
 .bscroll {
+  position: relative;
   height: 90vh;
   overflow: hidden;
-  position: relative;
 }
 
 :deep(.el-dialog) {
-  border-radius: 1rem;
   height: 30rem;
-  backdrop-filter: blur(20px);
   background-color: var(--el-bg-color);
+  backdrop-filter: blur(20px);
+  border-radius: 1rem;
 }
 
 .dialog-play-song-list {
+  z-index: 100;
   display: flex;
   align-items: center;
   padding: 0.8rem;
   border-radius: 1rem;
-  z-index: 100;
 }
 
 .dialog-play-song-list:hover {
-  background: rgba(98, 97, 97, 0.37);
+  background: rgb(98 97 97 / 37%);
 }
 
 .play-operation-panel {
   @apply flex justify-between items-center;
 
   // 小屏幕操作面板居中
-  @media screen and (max-width: 720px) {
+  @media screen and (width <= 720px) {
     justify-content: center;
   }
 }
 
 .icon-bg {
-  height: 4rem;
-  width: 4rem;
   display: inline-flex;
-  justify-content: center;
-  align-items: center;
   flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
   border-radius: 1rem;
   transition: all ease-in-out 0.2s;
 }
@@ -1001,34 +1005,35 @@ $lyricPadding: 0.8rem;
 
 // 背景渐变动画
 .seekbar.loading .buffer[data-v-1a35f519] {
-  animation: progress-1a35f519 1s linear infinite;
-  background-color: rgba(193, 200, 209, 0.6);
+  background-color: rgb(193 200 209 / 60%);
   background-image: linear-gradient(
     -45deg,
-    rgba(58, 66, 78, 0.6) 25%,
+    rgb(58 66 78 / 60%) 25%,
     transparent 0,
     transparent 50%,
-    rgba(58, 66, 78, 0.6) 0,
-    rgba(58, 66, 78, 0.6) 75%,
+    rgb(58 66 78 / 60%) 0,
+    rgb(58 66 78 / 60%) 75%,
     transparent 0,
     transparent
   );
   background-repeat: repeat-x;
   background-size: 25px 25px;
+  animation: progress-1a35f519 1s linear infinite;
 }
 
 .animate {
   --gap: 1.5625em;
-  animation: scroll-animate 12s linear 3s infinite;
+
   display: flex;
   gap: 0 var(--gap);
+  animation: scroll-animate 12s linear 3s infinite;
 }
 
 .load-container {
-  @keyframes loader_901 {
+  @keyframes loader-901 {
     0% {
+      background: rgb(200 200 200 / 50%);
       transform: scale(1);
-      background: rgba(200, 200, 200, 0.5);
     }
 
     50% {
@@ -1036,30 +1041,31 @@ $lyricPadding: 0.8rem;
     }
 
     100% {
+      background: #fff;
       transform: scale(1);
-      background: #ffffff;
     }
   }
+
   display: flex;
-  margin-left: 1rem;
+  gap: 14px;
   // justify-content: start;
   align-items: center;
   height: 100%;
-  gap: 14px;
+  margin-left: 1rem;
 
   .ball {
-    background: rgba(200, 200, 200, 0.5);
+    background: rgb(200 200 200 / 50%);
   }
 
   .loader__circle {
     width: 14px;
     height: 14px;
+    background: rgb(200 200 200 / 50%);
     border-radius: 50%;
-    background: rgba(200, 200, 200, 0.5);
   }
 
   .loading-anima {
-    animation: loader_901 var(--lyric-loading) ease-in-out infinite;
+    animation: loader-901 var(--lyric-loading) ease-in-out infinite;
   }
 }
 </style>

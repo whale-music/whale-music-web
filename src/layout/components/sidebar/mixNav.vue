@@ -1,23 +1,21 @@
 <script setup lang="ts">
-import Check from "@iconify-icons/ep/check";
-import LogoutCircleRLine from "@iconify-icons/ri/logout-circle-r-line";
-import Setting from "@iconify-icons/ri/settings-3-line";
+import extraIcon from "./extraIcon.vue";
+import Search from "../search/index.vue";
+import Notice from "../notice/index.vue";
+import { isAllEmpty } from "@pureadmin/utils";
 import ShieldUserLine from "@iconify-icons/ri/shield-user-line";
-import { nextTick, onMounted, ref, toRaw, watch } from "vue";
-
-import globalization from "@/assets/svg/globalization.svg?component";
-import user from "@/assets/svg/user.svg?component";
-import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import PlayMusic from "@/layout/components/sidebar/playMusic.vue";
 import { useNav } from "@/layout/hooks/useNav";
 import { transformI18n } from "@/plugins/i18n";
-import { findRouteByPath, getParentPaths } from "@/router/utils";
-import { usePermissionStoreHook } from "@/store/modules/permission";
-
+import { ref, toRaw, watch, onMounted, nextTick } from "vue";
+import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import { getParentPaths, findRouteByPath } from "@/router/utils";
 import { useTranslationLang } from "../../hooks/useTranslationLang";
-import Notice from "../notice/index.vue";
-import Search from "../search/index.vue";
-import extraIcon from "./extraIcon.vue";
+import { usePermissionStoreHook } from "@/store/modules/permission";
+import globalization from "@/assets/svg/globalization.svg?component";
+import LogoutCircleRLine from "@iconify-icons/ri/logout-circle-r-line";
+import Setting from "@iconify-icons/ri/settings-3-line";
+import Check from "@iconify-icons/ep/check";
 
 const menuRef = ref();
 const defaultActive = ref(null);
@@ -26,12 +24,11 @@ const { t, route, locale, translationCh, translationEn } =
   useTranslationLang(menuRef);
 const {
   device,
-  routers,
   logout,
   onPanel,
-  menuSelect,
   resolvePath,
   username,
+  userAvatar,
   getDivStyle,
   avatarsStyle,
   getDropdownItemStyle,
@@ -42,10 +39,9 @@ function getDefaultActive(routePath) {
   const wholeMenus = usePermissionStoreHook().wholeMenus;
   /** 当前路由的父级路径 */
   const parentRoutes = getParentPaths(routePath, wholeMenus)[0];
-  defaultActive.value = findRouteByPath(
-    parentRoutes,
-    wholeMenus
-  )?.children[0]?.path;
+  defaultActive.value = !isAllEmpty(route.meta?.activePath)
+    ? route.meta.activePath
+    : findRouteByPath(parentRoutes, wholeMenus)?.children[0]?.path;
 }
 
 onMounted(() => {
@@ -67,16 +63,16 @@ watch(
 <template>
   <div
     v-if="device !== 'mobile'"
-    class="horizontal-header"
     v-loading="usePermissionStoreHook().wholeMenus.length === 0"
+    class="horizontal-header"
   >
     <el-menu
-      router
       ref="menuRef"
+      router
       mode="horizontal"
+      popper-class="pure-scrollbar"
       class="horizontal-header-menu"
       :default-active="defaultActive"
-      @select="indexPath => menuSelect(indexPath, routers)"
     >
       <el-menu-item
         v-for="route in usePermissionStoreHook().wholeMenus"
@@ -103,15 +99,15 @@ watch(
     </el-menu>
     <div class="horizontal-header-right">
       <!-- 菜单搜索 -->
-      <Search />
+      <Search id="header-search" />
       <!--音乐播放-->
-      <play-music />
+      <PlayMusic />
       <!-- 通知 -->
       <Notice id="header-notice" />
       <!-- 国际化 -->
       <el-dropdown id="header-translation" trigger="click">
         <globalization
-          class="navbar-bg-hover w-[55px] h-[48px] p-[11px] cursor-pointer outline-none"
+          class="navbar-bg-hover w-[40px] h-[48px] p-[11px] cursor-pointer outline-none"
         />
         <template #dropdown>
           <el-dropdown-menu class="translation">
@@ -120,7 +116,7 @@ watch(
               :class="['dark:!text-white', getDropdownItemClass(locale, 'zh')]"
               @click="translationCh"
             >
-              <span class="check-zh" v-show="locale === 'zh'">
+              <span v-show="locale === 'zh'" class="check-zh">
                 <IconifyIconOffline :icon="Check" />
               </span>
               简体中文
@@ -130,7 +126,7 @@ watch(
               :class="['dark:!text-white', getDropdownItemClass(locale, 'en')]"
               @click="translationEn"
             >
-              <span class="check-en" v-show="locale === 'en'">
+              <span v-show="locale === 'en'" class="check-en">
                 <IconifyIconOffline :icon="Check" />
               </span>
               English
@@ -140,12 +136,13 @@ watch(
       </el-dropdown>
       <!-- 退出登录 -->
       <el-dropdown trigger="click">
-        <span class="select-none el-dropdown-link navbar-bg-hover">
-          <user :style="avatarsStyle" />
+        <span class="el-dropdown-link navbar-bg-hover select-none">
+          <img :src="userAvatar" :style="avatarsStyle" />
           <p v-if="username" class="dark:text-white">{{ username }}</p>
         </span>
         <template #dropdown>
           <el-dropdown-menu class="logout">
+            <!-- todo router -->
             <router-link to="/userInfo">
               <el-dropdown-item>
                 <IconifyIconOffline

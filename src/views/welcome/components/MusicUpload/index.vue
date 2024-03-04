@@ -71,8 +71,8 @@ onMounted(() => {
 <style scoped lang="scss">
 .view-all {
   position: absolute;
-  right: 24px;
   top: 14px;
+  right: 24px;
   z-index: 10;
 }
 

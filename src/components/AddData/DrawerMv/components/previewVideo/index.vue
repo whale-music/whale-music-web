@@ -4,12 +4,12 @@ import { defineComponent } from "vue";
 import Artplayer from "@/components/artplayer/Artplayer.vue";
 export default defineComponent({
   name: "PreviewVideo",
+  components: {
+    Artplayer
+  },
   props: {
     value: Boolean,
     previewVideoUrl: String
-  },
-  components: {
-    Artplayer
   },
   data() {
     return {
@@ -50,18 +50,18 @@ export default defineComponent({
       }
     }
   },
-  methods: {
-    getInstance(art) {
-      this.artController = art;
-    }
-  },
   watch: {
     previewVideoUrl(newVal) {
       this.option.url = newVal;
     }
   },
   mounted() {},
-  beforeUnmount() {}
+  beforeUnmount() {},
+  methods: {
+    getInstance(art) {
+      this.artController = art;
+    }
+  }
 });
 </script>
 
@@ -70,8 +70,6 @@ export default defineComponent({
     <template #header>
       <h1>预览</h1>
     </template>
-    <Artplayer @get-instance="getInstance" :option="option" :style="style" />
+    <Artplayer :option="option" :style="style" @get-instance="getInstance" />
   </el-dialog>
 </template>
-
-<style></style>

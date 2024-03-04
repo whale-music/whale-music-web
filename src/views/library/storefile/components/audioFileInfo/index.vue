@@ -33,6 +33,19 @@ export default defineComponent({
       musicQuery: ""
     };
   },
+  computed: {
+    isShow: {
+      get() {
+        return this.modelValue;
+      },
+      set(val) {
+        this.$emit("update:modelValue", val);
+      }
+    },
+    isDataUpdate() {
+      return isEqualObject(this.oldData, this.data);
+    }
+  },
   mounted() {
     this.init();
   },
@@ -113,57 +126,44 @@ export default defineComponent({
         await this.init();
       }
     }
-  },
-  computed: {
-    isShow: {
-      get() {
-        return this.modelValue;
-      },
-      set(val) {
-        this.$emit("update:modelValue", val);
-      }
-    },
-    isDataUpdate() {
-      return isEqualObject(this.oldData, this.data);
-    }
   }
 });
 </script>
 
 <template>
   <div>
-    <el-dialog v-model="this.previews.infoFlag">
+    <el-dialog v-model="previews.infoFlag">
       <template #header>
         <h3 class="dialog-title">图片信息(DB)</h3>
       </template>
       <el-descriptions title="">
         <el-descriptions-item label="ID">
-          <b>{{ this.data.dbResource?.id }}</b>
+          <b>{{ data.dbResource?.id }}</b>
         </el-descriptions-item>
         <el-descriptions-item label="MD5">
-          {{ this.data.dbResource?.md5 }}
+          {{ data.dbResource?.md5 }}
         </el-descriptions-item>
         <el-descriptions-item label="关联数">
           <el-tag type="success"> 1 </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="路径">
           <el-link :underline="false" type="primary">
-            {{ this.data.dbResource?.path }}
+            {{ data.dbResource?.path }}
           </el-link>
         </el-descriptions-item>
         <el-descriptions-item label="更新时间">
-          {{ this.data.dbResource?.updateTime }}
+          {{ data.dbResource?.updateTime }}
         </el-descriptions-item>
         <el-descriptions-item label="创建时间">
-          {{ this.data.dbResource?.createTime }}
+          {{ data.dbResource?.createTime }}
         </el-descriptions-item>
       </el-descriptions>
     </el-dialog>
 
     <el-drawer
-      v-model="this.isShow"
+      v-model="isShow"
       :show-close="false"
-      :style="this.getFileTypeColor('audio')"
+      :style="getFileTypeColor('audio')"
       :destroy-on-close="true"
     >
       <el-descriptions
@@ -175,8 +175,8 @@ export default defineComponent({
         <template #extra>
           <el-button
             type="primary"
-            @click="this.previews.infoFlag = true"
-            :disabled="this.data.dbResource == null"
+            :disabled="data.dbResource == null"
+            @click="previews.infoFlag = true"
           >
             信息
           </el-button>
@@ -185,44 +185,44 @@ export default defineComponent({
           </el-button>
           <el-button
             type="danger"
+            :disabled="data.dbResource == null"
             @click="cleanAudioResource(true)"
-            :disabled="this.data.dbResource == null"
           >
             删除信息
           </el-button>
         </template>
         <el-descriptions-item label="文件名">
-          {{ this.data.name }}
+          {{ data.name }}
         </el-descriptions-item>
         <el-descriptions-item label="路径">
-          {{ this.data.path }}
+          {{ data.path }}
         </el-descriptions-item>
         <el-descriptions-item label="地址">
           <el-link
             :underline="false"
             type="primary"
-            @click="() => useCopy(this.data.url)"
+            @click="() => useCopy(data.url)"
           >
             点击复制
           </el-link>
         </el-descriptions-item>
         <el-descriptions-item label="类型">Audio</el-descriptions-item>
         <el-descriptions-item label="文件格式">
-          {{ this.data?.fileExtension }}
+          {{ data?.fileExtension }}
         </el-descriptions-item>
         <el-descriptions-item label="创建时间">
-          {{ this.data.creationTime }}
+          {{ data.creationTime }}
         </el-descriptions-item>
         <el-descriptions-item label="更新时间">
-          {{ this.data.modificationTime }}
+          {{ data.modificationTime }}
         </el-descriptions-item>
       </el-descriptions>
       <div class="flex justify-between mt-4">
         <h2>关联数据</h2>
         <el-button
           type="primary"
-          :disabled="this.isDataUpdate"
-          @click="this.updateLinkAudio()"
+          :disabled="isDataUpdate"
+          @click="updateLinkAudio()"
         >
           保存
         </el-button>
@@ -234,36 +234,36 @@ export default defineComponent({
             <div class="flex items-center justify-between">
               <div class="flex gap-4">
                 <el-tag
+                  v-if="data.linkData.id"
                   effect="dark"
                   round
                   class="text-[var(--el-color-primary)]"
-                  v-if="this.data.linkData.id"
                 >
-                  {{ this.data.linkData.id }}
+                  {{ data.linkData.id }}
                 </el-tag>
                 <el-tooltip
                   class="box-item"
                   effect="dark"
-                  :content="this.data.linkData.name"
+                  :content="data.linkData.name"
                   placement="top-start"
                 >
                   <p class="w-40 truncate text-[var(--el-color-primary)]">
-                    {{ this.data.linkData.name }}
+                    {{ data.linkData.name }}
                   </p>
                 </el-tooltip>
               </div>
               <el-button
                 type="danger"
-                @click="cleanAudioResource(false)"
-                :disabled="this.data.linkData.id == null"
+                :disabled="data.linkData.id == null"
                 plain
+                @click="cleanAudioResource(false)"
               >
                 清除
               </el-button>
             </div>
           </template>
           <el-autocomplete
-            v-model="this.musicQuery"
+            v-model="musicQuery"
             class="w-full"
             :fetch-suggestions="querySearch"
             :trigger-on-focus="true"
@@ -289,13 +289,13 @@ export default defineComponent({
 
 <style scoped lang="scss">
 :deep(.el-drawer__header) {
-  border-top: 0.5rem solid var(--typeColor);
   margin-bottom: 0;
+  border-top: 0.5rem solid var(--type-color);
 }
 
 .singe-line {
-  text-overflow: ellipsis;
   overflow: hidden;
+  text-overflow: ellipsis;
   word-break: break-all;
   white-space: nowrap;
 }

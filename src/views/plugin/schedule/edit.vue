@@ -204,7 +204,7 @@ const switchIsRun = val => {
     <div class="flex items-center justify-between">
       <div class="flex">
         <h1>{{ state.pluginInfo?.pluginName }}</h1>
-        <span class="ml-2" v-show="state.loadingFlag">
+        <span v-show="state.loadingFlag" class="ml-2">
           <IconifyIconOffline
             icon="loading3Fill"
             class="animate-spin"
@@ -214,7 +214,7 @@ const switchIsRun = val => {
           />
         </span>
       </div>
-      <el-button @click="throttleClickSaveScheduler" type="primary">
+      <el-button type="primary" @click="throttleClickSaveScheduler">
         保存
       </el-button>
     </div>
@@ -252,8 +252,8 @@ const switchIsRun = val => {
               <span
                 style="
                   float: right;
-                  color: var(--el-text-color-secondary);
                   font-size: 13px;
+                  color: var(--el-text-color-secondary);
                 "
               >
                 {{ item.value }}
@@ -270,9 +270,9 @@ const switchIsRun = val => {
     <el-collapse-transition>
       <div v-show="!state.loadingFlag">
         <div
-          class="m-1"
           v-for="(i, index) in state.paramsInput?.params"
           :key="index"
+          class="m-1"
         >
           <span>{{ i.label }}</span>
           <el-input v-model="i.value" placeholder="请输入" />
