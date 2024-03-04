@@ -29,7 +29,7 @@ import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import NameSearch from "@/components/nameSearch/index.vue";
 import Segmented, { type OptionsType } from "@/components/ReSegmented";
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
-import { DataInfo, userKey } from "@/utils/auth";
+import { DataInfo, getUserData } from "@/utils/auth";
 import { FriendlyTime } from "@/utils/DateFormat";
 import { dateFormater } from "@/utils/dateUtil";
 import { message } from "@/utils/message";
@@ -150,7 +150,7 @@ const state = reactive<{
     deleteCompelMusicFlag: boolean;
   };
   addMusicId: number | number[];
-  userInfo: DataInfo;
+  userInfo: DataInfo<number>;
   isForceDeleteFlag: boolean;
 }>({
   req: undefined,
@@ -189,7 +189,7 @@ const state = reactive<{
     deleteCompelMusicFlag: false
   },
   addMusicId: undefined,
-  userInfo: storageLocal().getItem<DataInfo<number>>(userKey),
+  userInfo: getUserData(),
   isForceDeleteFlag: false
 });
 

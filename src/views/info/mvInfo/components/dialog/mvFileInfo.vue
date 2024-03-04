@@ -1,9 +1,9 @@
 <script lang="ts">
-import { storageLocal } from "@pureadmin/utils";
 import { defineComponent } from "vue";
 
-import { DataInfo, userKey } from "@/utils/auth";
+import { getUserData } from "@/utils/auth";
 import { message } from "@/utils/message";
+
 const { VITE_PROXY_HOST } = import.meta.env;
 
 export default defineComponent({
@@ -23,7 +23,7 @@ export default defineComponent({
       dialog: {
         picPreviewFlag: false
       },
-      userId: storageLocal().getItem<DataInfo<number>>(userKey)
+      userId: getUserData()
     };
   },
   computed: {

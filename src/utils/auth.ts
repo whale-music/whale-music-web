@@ -21,6 +21,17 @@ export interface DataInfo<T> {
 
 export const userKey = "user-info";
 export const TokenKey = "authorized-token";
+
+export const getUserData = (): DataInfo<number> => {
+  return storageLocal().getItem<DataInfo<number>>(userKey);
+};
+export const setUserData = (val: DataInfo<number>) => {
+  storageLocal().setItem<DataInfo<number>>(userKey, val);
+};
+
+export const clearUserData = () => {
+  storageLocal().removeItem(userKey);
+};
 /**
  * 通过`multiple-tabs`是否在`cookie`中，判断用户是否已经登录系统，
  * 从而支持多标签页打开已经登录的系统后无需再登录。
@@ -34,7 +45,7 @@ export function getToken(): DataInfo<number> {
   // 此处与`TokenKey`相同，此写法解决初始化时`Cookies`中不存在`TokenKey`报错
   return Cookies.get(TokenKey)
     ? JSON.parse(Cookies.get(TokenKey))
-    : storageLocal().getItem(userKey);
+    : getUserData();
 }
 
 /**
@@ -69,7 +80,7 @@ export function setToken(data: DataInfo<Date>) {
   function setUserKey(username: string, roles: Array<string>) {
     useUserStoreHook().SET_USERNAME(username);
     useUserStoreHook().SET_ROLES(roles);
-    storageLocal().setItem<DataInfo<number>>(userKey, {
+    setUserData({
       id,
       accessToken,
       refreshToken,
@@ -83,10 +94,8 @@ export function setToken(data: DataInfo<Date>) {
     const { username, roles } = data;
     setUserKey(username, roles);
   } else {
-    const username =
-      storageLocal().getItem<DataInfo<number>>(userKey)?.username ?? "";
-    const roles =
-      storageLocal().getItem<DataInfo<number>>(userKey)?.roles ?? [];
+    const username = getUserData()?.username ?? "";
+    const roles = getUserData()?.roles ?? [];
     setUserKey(username, roles);
   }
 }
@@ -95,7 +104,7 @@ export function setToken(data: DataInfo<Date>) {
 export async function removeToken() {
   Cookies.remove(TokenKey);
   Cookies.remove(multipleTabsKey);
-  storageLocal().removeItem(userKey);
+  clearUserData();
   await userLogout();
 }
 

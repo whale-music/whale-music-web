@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { storageLocal } from "@pureadmin/utils";
 import {
   genFileId,
   UploadInstance,
@@ -10,7 +9,7 @@ import { defineComponent, onMounted, reactive, ref } from "vue";
 
 import { SaveOrUpdateUserRes } from "@/api/model/User";
 import { getUserInfo, updateUserPassword } from "@/api/user";
-import { DataInfo, userKey } from "@/utils/auth";
+import { getUserData } from "@/utils/auth";
 import { message } from "@/utils/message";
 
 defineComponent({
@@ -26,7 +25,7 @@ const state = reactive({
     viewerFlagBackgroundPic: false
   },
   userInfo: {} as SaveOrUpdateUserRes,
-  subAccount: Array<Map<string, string>>,
+  subAccount: Array<Map<string, string>>([]),
   uploadPicAction: `${proxyHost}/admin/pic/upload`
 });
 
@@ -35,7 +34,7 @@ onMounted(() => {
 });
 
 const initInfo = async () => {
-  const item = storageLocal().getItem<DataInfo<number>>(userKey);
+  const item = getUserData();
   const userInfo = await getUserInfo(Number(item.id));
   if (userInfo.code === "200") {
     state.userInfo = userInfo.data;

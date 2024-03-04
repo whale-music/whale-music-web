@@ -1,12 +1,7 @@
 <script lang="ts" setup>
 import { Icon } from "@iconify/vue";
 import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
-import {
-  clone,
-  downloadByData,
-  storageLocal,
-  useCopyToClipboard
-} from "@pureadmin/utils";
+import { clone, downloadByData, useCopyToClipboard } from "@pureadmin/utils";
 import axios from "axios";
 import type { UploadInstance, UploadProps, UploadRawFile } from "element-plus";
 import { ElLoading, ElMessage, ElMessageBox, genFileId } from "element-plus";
@@ -41,10 +36,11 @@ import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { useNav } from "@/layout/hooks/useNav";
 import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
-import { DataInfo, userKey } from "@/utils/auth";
+import { getUserData } from "@/utils/auth";
 import { dateFormater } from "@/utils/dateUtil";
 import { message } from "@/utils/message";
 import { emitter } from "@/utils/mitt";
+
 const { VITE_PROXY_HOST } = import.meta.env;
 
 const { onPlayMusic } = useNav();
@@ -268,7 +264,7 @@ const deleteSource = async (id: number, index: number) => {
 const playItemDialogVisible = ref(false);
 const addMusicId = ref<number>();
 const userPlayItem = ref<UserPlayListRes[]>();
-const userInfo = storageLocal().getItem<DataInfo<number>>(userKey);
+const userInfo = getUserData();
 const getUserPlayInfo = (id: number) => {
   addMusicId.value = id;
   getUserPlayList(userInfo.id).then(res => {

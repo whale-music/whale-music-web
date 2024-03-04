@@ -1,13 +1,13 @@
 <script lang="ts">
-import { storageLocal } from "@pureadmin/utils";
 import { AutocompleteFetchSuggestionsCallback } from "element-plus";
 import { defineComponent } from "vue";
 
 import { SelectArtist } from "@/api/model/Artist";
 import { updateMvInfo } from "@/api/mv";
 import { getSelectSingerList } from "@/api/singer";
-import { DataInfo, userKey } from "@/utils/auth";
+import { getUserData } from "@/utils/auth";
 import { message } from "@/utils/message";
+
 const { VITE_PROXY_HOST } = import.meta.env;
 export default defineComponent({
   name: "mvEditInfo",
@@ -19,7 +19,7 @@ export default defineComponent({
     return {
       uploadAction: `${VITE_PROXY_HOST ?? ""}/admin/pic/temp/upload`,
       artistName: "",
-      userId: storageLocal().getItem<DataInfo<number>>(userKey)
+      userId: getUserData()
     };
   },
   computed: {
