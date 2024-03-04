@@ -1,7 +1,7 @@
 @import "base";
 
 highlightable-input[data-theme="chakra"] {
-  $length: var(--chakra-sizes-10, 2.5rem) - var(
+  --chakra-length: var(--chakra-sizes-10, 2.5rem) - var(
       --chakra-line-heights-short,
       1.375
     ) * 1em;
@@ -9,7 +9,7 @@ highlightable-input[data-theme="chakra"] {
   width: 100%;
   min-width: 0;
   height: var(--chakra-sizes-10, 2.5rem);
-  padding-block: calc(($length - 2px) / 2);
+  padding-block: calc((var(--chakra-length) - 2px) / 2);
   padding-inline: var(--chakra-space-4, 1rem);
   font-size: var(--chakra-font-sizes-md, 1rem);
   line-height: var(--chakra-line-heights-short, 1.375);
