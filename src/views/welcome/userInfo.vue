@@ -35,7 +35,7 @@ onMounted(() => {
 });
 
 const initInfo = async () => {
-  const item = storageLocal().getItem<DataInfo>(userKey);
+  const item = storageLocal().getItem<DataInfo<number>>(userKey);
   const userInfo = await getUserInfo(Number(item.id));
   if (userInfo.code === "200") {
     state.userInfo = userInfo.data;

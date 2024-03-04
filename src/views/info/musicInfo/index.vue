@@ -268,7 +268,7 @@ const deleteSource = async (id: number, index: number) => {
 const playItemDialogVisible = ref(false);
 const addMusicId = ref<number>();
 const userPlayItem = ref<UserPlayListRes[]>();
-const userInfo = storageLocal().getItem<DataInfo>(userKey);
+const userInfo = storageLocal().getItem<DataInfo<number>>(userKey);
 const getUserPlayInfo = (id: number) => {
   addMusicId.value = id;
   getUserPlayList(userInfo.id).then(res => {

@@ -17,7 +17,7 @@ const props = defineProps<{
   musicId: number | number[] | undefined;
 }>();
 
-const userInfo = reactive(storageLocal().getItem<DataInfo>(userKey));
+const userInfo = reactive(storageLocal().getItem<DataInfo<number>>(userKey));
 const playItem = ref<UserPlayListRes[]>([]);
 
 const emit = defineEmits(["closeDialog", "update:modelValue"]);

@@ -19,7 +19,7 @@ export default defineComponent({
     return {
       uploadAction: `${VITE_PROXY_HOST ?? ""}/admin/pic/temp/upload`,
       artistName: "",
-      userId: storageLocal().getItem<DataInfo>(userKey)
+      userId: storageLocal().getItem<DataInfo<number>>(userKey)
     };
   },
   computed: {

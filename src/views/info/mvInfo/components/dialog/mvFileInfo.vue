@@ -23,7 +23,7 @@ export default defineComponent({
       dialog: {
         picPreviewFlag: false
       },
-      userId: storageLocal().getItem<DataInfo>(userKey)
+      userId: storageLocal().getItem<DataInfo<number>>(userKey)
     };
   },
   computed: {

@@ -189,7 +189,7 @@ const state = reactive<{
     deleteCompelMusicFlag: false
   },
   addMusicId: undefined,
-  userInfo: storageLocal().getItem<DataInfo>(userKey),
+  userInfo: storageLocal().getItem<DataInfo<number>>(userKey),
   isForceDeleteFlag: false
 });
 
