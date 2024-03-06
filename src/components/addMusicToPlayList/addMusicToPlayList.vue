@@ -10,6 +10,7 @@ import {
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { getUserData } from "@/utils/auth";
 import { message } from "@/utils/message";
+import { isArray } from "@pureadmin/utils";
 
 const props = defineProps<{
   modelValue: boolean;
@@ -48,13 +49,13 @@ function reDrawLayout(width: number) {
 
 const addMusicToPlayList = (pid: string) => {
   if (props.musicId) {
-    const numbers: number[] =
-      props.musicId instanceof Array ? props.musicId : [props.musicId];
+    const numbers: number[] = isArray(props.musicId)
+      ? props.musicId
+      : [props.musicId];
     tracksMusicToPlayList(pid, numbers, true).then(res => {
       if (res.code === "200") {
         message("添加成功", { type: "success" });
-        playItemDialogVisible.value = false;
-        emit("closeDialog", false);
+        closeDialog();
       } else {
         message(`添加失败: ${res.message}`, { type: "error" });
       }
@@ -64,7 +65,6 @@ const addMusicToPlayList = (pid: string) => {
 
 const closeDialog = () => {
   playItemDialogVisible.value = false;
-  emit("closeDialog", false);
 };
 </script>
 
