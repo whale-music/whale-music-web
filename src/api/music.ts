@@ -64,20 +64,46 @@ export const getAllMusicList = (data?: MusicSearchReq) => {
   );
 };
 
+export type MusicLyrics = Map<
+  string,
+  {
+    id: number;
+    musicId: number;
+    type: string;
+    lyric: string;
+  }
+>;
+
 export interface MusicDetailInfo extends PicUrl {
   id: number;
   musicName: string;
   aliasName: string;
   musicTag: string[];
   musicGenre: string[];
-  musicArtist: Artist[];
-  albumArtist: Artist[];
-  albumId: number;
-  albumName: string;
-  order: boolean;
+  picUrl: string;
+  artists: MusicDetailInfoArtist[];
+  album: MusicDetailInfoAlbum;
+  sources: MusicSources[];
+  lyrics: MusicLyrics;
   timeLength: number;
   publishTime: string;
   createTime: string;
+}
+
+export interface MusicSources extends Resource {
+  url: string;
+}
+
+export interface MusicDetailInfoArtist {
+  id: number;
+  artistName: string;
+  aliasName: string;
+}
+
+export interface MusicDetailInfoAlbum {
+  albumId: number;
+  albumName: string;
+  artist: Artist[];
 }
 /** 获取歌曲信息 */
 export const getMusicInfo = (id: number) => {

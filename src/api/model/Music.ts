@@ -28,13 +28,18 @@ export interface Resource {
 
 export interface MusicConvert extends Music, PicUrl {}
 
-export interface SaveOrUpdateMusic extends MusicConvert {
-  musicTag: string;
-  musicGenre: string;
+export interface SaveOrUpdateMusic {
+  id: number;
+  musicName: string;
+  aliasName: string;
+  albumId: number;
+  timeLength: number;
+  musicTag?: string[];
+  musicGenre: string[];
   artistIds: number[];
-  resource: Resource;
-  tempPicFile: string;
-  tempMusicFile: string;
+  resource?: Resource;
+  tempPicFile?: string;
+  tempMusicFile?: string;
 }
 
 export interface AudioInfoRes extends Resource {
