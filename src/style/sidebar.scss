@@ -490,7 +490,7 @@
       /* 设置 */
       .set-icon {
         &:hover {
-          background: $menuHover;
+          background: $menuBg;
         }
       }
 
@@ -672,7 +672,7 @@ body[layout="vertical"] {
   /* 设置 */
   .set-icon {
     &:hover {
-      background: #f6f6f6;
+      background: $menuBg;
     }
   }
 }
