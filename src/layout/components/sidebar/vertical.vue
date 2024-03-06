@@ -35,9 +35,17 @@ const menuData = computed(() => {
     : usePermissionStoreHook().wholeMenus;
 });
 
-const loading = computed(() =>
-  pureApp.layout === "mix" ? false : menuData.value.length === 0
-);
+// 缓存侧栏router
+const menuStoreKey = "menuStore";
+const menuStore = computed(() => storageLocal().getItem<[]>(menuStoreKey));
+const loading = computed(() => {
+  const b = pureApp.layout === "mix" ? false : menuData.value.length === 0;
+  // 存储上一个侧栏路由信息，如果为空则跳过
+  if (!b && !isAllEmpty(menuData.value)) {
+    storageLocal().setItem(menuStoreKey, menuData.value);
+  }
+  return b;
+});
 
 const defaultActive = computed(() =>
   !isAllEmpty(route.meta?.activePath) ? route.meta.activePath : route.path
@@ -106,7 +114,7 @@ onBeforeUnmount(() => {
         :default-active="defaultActive"
       >
         <sidebar-item
-          v-for="routes in menuData"
+          v-for="routes in menuData.length === 0 ? menuStore : menuData"
           :key="routes.path"
           :item="routes"
           :base-path="routes.path"
