@@ -9,6 +9,7 @@ import {
   type MusicSearchRes
 } from "@/api/music";
 import { store } from "@/store";
+import { isAllEmpty, isArray, isEmpty } from "@pureadmin/utils";
 
 const playSongList = "Play-Song-List";
 export const userPlaySongList = defineStore({
@@ -57,11 +58,12 @@ export const userPlaySongList = defineStore({
     },
     // 添加歌曲到下一个播放
     async addMusicToNextPlaySongList(musicId: number | number[]) {
-      const b = this.playListMusicArr == null;
-      this.playListMusicArr = b ? [] : this.playListMusicArr;
+      if (isAllEmpty(musicId)) return;
+      const _ids = isArray(musicId) ? musicId : [musicId];
+      const ids = _ids.filter(v => isEmpty(v));
+      if (isAllEmpty(ids)) return;
 
       const withoutIds = [];
-      const ids = musicId instanceof Array ? musicId : [musicId];
       ids.forEach(id => {
         const musicIndex = this.playListMusicArr.findIndex(
           value => value.id === id
