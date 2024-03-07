@@ -54,3 +54,51 @@ export interface AudioInfoRes extends Resource {
   isExist: boolean;
   musicFileTemp: string;
 }
+
+export interface MusicPlayArtist {
+  id: number;
+  artistName: string;
+  aliasName: string;
+}
+export interface MusicPlayAlbum {
+  id: number;
+  albumName: string;
+}
+
+export interface PlayLyrics {
+  id: number;
+  musicId: number;
+  type: string;
+  lyric: string;
+}
+
+export interface MusicPlayLyrics {
+  lyrics: PlayLyrics;
+  kLyrics: PlayLyrics;
+}
+
+export interface MusicPlaySources {
+  id: number;
+  musicId: number;
+  rate: number;
+  level: string;
+  path: string;
+  md5: string;
+  encodeType: string;
+  size: number;
+  userId: number;
+  url: string;
+}
+export interface MusicPlayInfo {
+  id: number;
+  musicName: string;
+  aliasName: string;
+  picUrl: string;
+  timeLength: number;
+  userId: number;
+  publishTime: Date;
+  artists: MusicPlayArtist[];
+  album: MusicPlayAlbum;
+  lyrics: MusicPlayLyrics;
+  sources: MusicPlaySources[];
+}

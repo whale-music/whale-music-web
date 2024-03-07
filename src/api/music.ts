@@ -9,6 +9,7 @@ import type {
 } from "@/api/model/common";
 import type { Resource, SaveOrUpdateMusic } from "@/api/model/Music";
 import { http } from "@/utils/http";
+import type { MusicPlayInfo } from "@/api/model/Music";
 
 // 音乐搜索返回
 export interface MusicSearchRes {
@@ -64,15 +65,18 @@ export const getAllMusicList = (data?: MusicSearchReq) => {
   );
 };
 
-export type MusicLyrics = Map<
-  string,
-  {
-    id: number;
-    musicId: number;
-    type: string;
-    lyric: string;
-  }
->;
+export type LyricContent = {
+  id: number;
+  musicId: number;
+  type: string;
+  lyric: string;
+};
+
+export interface MusicLyrics {
+  lyric: LyricContent;
+  klyric: LyricContent;
+  tlyric: LyricContent;
+}
 
 export interface MusicDetailInfo extends PicUrl {
   id: number;
@@ -367,4 +371,10 @@ export const getMusicTabsPage = (data: MusicTabsPageReq) => {
       data
     }
   );
+};
+
+export const getMusicPlayInfo = (ids: number[]) => {
+  return http.request<R<MusicPlayInfo[]>>("post", `/admin/music/play/info`, {
+    data: { ids }
+  });
 };
