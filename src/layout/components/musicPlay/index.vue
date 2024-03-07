@@ -2,16 +2,19 @@
 import BScroll from "@better-scroll/core";
 import MouseWheel from "@better-scroll/mouse-wheel";
 import ArrowRightFill from "@iconify-icons/mingcute/arrow-right-fill";
+import Playlist2Bold from "@iconify-icons/solar/playlist-2-bold";
+import RewindForwardBoldDuotone from "@iconify-icons/solar/rewind-forward-bold-duotone";
+import PauseCircleBold from "@iconify-icons/solar/pause-circle-bold";
+import RewindBackBoldDuotone from "@iconify-icons/solar/rewind-back-bold-duotone";
+import PlayBold from "@iconify-icons/solar/play-bold";
 import DownFill from "@iconify-icons/mingcute/down-fill";
 import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
 import RepeatBold from "@iconify-icons/solar/repeat-bold";
 import RepeatOneBold from "@iconify-icons/solar/repeat-one-bold";
 import ShuffleLinear from "@iconify-icons/solar/shuffle-linear";
-import { darken } from "@pureadmin/utils";
+import { darken, isAllEmpty } from "@pureadmin/utils";
 import { Lrc } from "lrc-kit";
-import { onMounted, reactive, ref, watch } from "vue";
-
-import { Lyric, MusicSearchRes, MusicUrlInfo } from "@/api/music";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import IconifyIconOffline from "@/components/ReIcon/src/iconifyIconOffline";
 import { useDialog } from "@/layout/hooks/useDialog";
@@ -21,6 +24,7 @@ import { prominent } from "@/utils/color/color";
 import { dateFormater } from "@/utils/dateUtil";
 import { emitter } from "@/utils/mitt";
 import { getActualWidthOfChars } from "@/utils/textWidthUtil";
+import { type MusicPlayInfo } from "@/api/model/Music";
 
 const { widthRef } = useDialog();
 const { closePlayMusic } = useNav();
@@ -94,18 +98,12 @@ const state = reactive({
     // 背景动态渐变色
     bgColor: {}
   },
-  music: {},
   audio: {
     audioRef: audioRef,
     musicTitleWidth: 1,
     loading: false,
-    musicInfo: {} as MusicSearchRes,
-    musicUrlList: [] as MusicUrlInfo[],
-    musicLyricList: [] as Lyric[],
+    musicInfo: {} as MusicPlayInfo,
     lyricsArr: [],
-    currentMusicIndex: 0,
-    currentMusicUrl: {} as MusicUrlInfo,
-    currentMusicLyric: {} as Lyric,
     timeProgressBar: 0,
     // 当前歌曲进度浮标
     lyricIndex: 0,
@@ -137,6 +135,17 @@ onMounted(async () => {
   reDrawLayout(width);
 });
 
+const musicInfo = computed(() => {
+  return storeHook.getCurrentMusic;
+});
+
+const currentLyric = computed(() => {
+  return musicInfo.value?.lyrics?.lyrics?.lyric;
+});
+
+const currentSources = computed(() => {
+  return musicInfo.value?.sources[0];
+});
 watch(
   () => state.audio.lyricIndex,
   newValue => {
@@ -164,42 +173,12 @@ watch(
 
 async function initAudio() {
   await initPlaySong();
-  await initScroll();
+  initScroll();
 }
 
-async function initMusicInfo(musicInfoRes: MusicSearchRes) {
-  // 获取当前歌单播放音乐
-  const playSongListStore = usePlaySongListStoreHook();
-  state.audio.musicInfo = musicInfoRes;
-  state.audio.currentMusicIndex = playSongListStore.currentIndex;
-  state.audio.musicUrlList = await playSongListStore.getAllMusicUrl(
-    state.audio.musicInfo.id
-  );
-  state.audio.musicLyricList = await playSongListStore.getLyric(
-    state.audio.musicInfo.id
-  );
-  const musicLyricIndex = state.audio.musicLyricList.findIndex(
-    value => value.type === "lyric"
-  );
-  if (musicLyricIndex === -1 || state.audio.musicLyricList.length === 0) {
-    state.audio.currentMusicLyric = {
-      createTime: "",
-      id: 0,
-      lyric: null,
-      musicId: 0,
-      type: "",
-      updateTime: ""
-    };
-  } else {
-    state.audio.currentMusicLyric = state.audio.musicLyricList[musicLyricIndex];
-  }
-
-  state.audio.currentMusicUrl = state.audio.musicUrlList[0];
-}
-
-async function initScroll() {
+function initScroll() {
   if (scrollRef.value != null) {
-    state.scroll.scrollBS = await new BScroll(scrollRef.value, {
+    state.scroll.scrollBS = new BScroll(scrollRef.value, {
       probeType: 3,
       click: true,
       mouseWheel: true,
@@ -213,34 +192,30 @@ async function initScroll() {
 }
 
 async function initPlaySong() {
-  const storeHook = usePlaySongListStoreHook();
-  const musicInfoRes = storeHook.getCurrentMusic;
-  if (musicInfoRes.id !== state.audio.musicInfo.id) {
-    // 不是当前的音乐时重新初始化歌词下标
-    state.audio.lyricIndex = 0;
-  }
-  await initMusicInfo(musicInfoRes);
-  const titleWidth = getActualWidthOfChars(state.audio.musicInfo.musicName);
+  const titleWidth = getActualWidthOfChars(musicInfo.value?.musicName);
   state.audio.musicTitleWidth =
     musicTitleRef.value.offsetWidth > titleWidth ? 1 : 2;
   state.audio.lyricsArr = [];
-  if (
-    state.audio.currentMusicLyric != null &&
-    state.audio.currentMusicLyric.lyric != null &&
-    state.audio.currentMusicLyric.lyric !== ""
-  ) {
-    const lrc = Lrc.parse(state.audio.currentMusicLyric.lyric);
+  if (!isAllEmpty(currentLyric.value)) {
+    const lrc = Lrc.parse(currentLyric.value);
     state.audio.lyricsArr = lrc.lyrics;
     state.audio.lyricsArr.sort((a, b) => a.timestamp - b.timestamp);
   }
-  // 背景渐变色
-  getBGColor();
   // 修改Title
-  document.title = `${state.audio.musicInfo.musicName} - ${state.audio.musicInfo.artistNames}`;
+  document.title = `${musicInfo.value?.musicName} - ${musicInfo.value?.album?.albumName}`;
 }
 
-const getBGColor = async () => {
-  const colors = await prominent(state.audio.musicInfo.pic, {
+watch(
+  () => musicInfo.value?.picUrl,
+  value => {
+    if (!isAllEmpty(value)) {
+      // 背景渐变色
+      getBGColor(value);
+    }
+  }
+);
+const getBGColor = async picUrl => {
+  const colors = await prominent(picUrl, {
     format: "hex",
     group: 30
   });
@@ -252,7 +227,8 @@ const getBGColor = async () => {
   // imgColorStyle.value = {
   //   background: `linear-gradient(312deg, ${colors[0]} 0%, ${colors[1]} 50%, ${colors[2]} 100%)`
   // };
-  const color = darken(colors[1], 1 / 5);
+  const color1 = colors[1] as string;
+  const color = darken(color1, 1 / 5);
   state.style.bgColor = {
     backgroundColor: `${color}`
   };
@@ -337,8 +313,11 @@ const onPause = () => {
   audioRef.value.pause();
 };
 
+const playingNowList = computed(() => {
+  return storeHook.getPlayListMusic;
+});
+
 const onEnded = async () => {
-  const storeHook = usePlaySongListStoreHook();
   onPause();
   // 切换歌曲时重新初始化歌词数组
   state.audio.lyricIndex = 0;
@@ -369,9 +348,9 @@ const onEnded = async () => {
       // eslint-disable-next-line no-constant-condition
       while (true) {
         const randomNum = parseInt(
-          Math.random() * storeHook.getPlayListMusic.length - 1
+          Math.random() * playingNowList.value.length - 1
         );
-        if (randomNum !== state.audio.currentMusicIndex) {
+        if (randomNum !== storeHook.getCurrentIndex) {
           storeHook.currentIndex = randomNum;
           break;
         }
@@ -413,13 +392,13 @@ const nextMusic = async () => {
 };
 
 const canplay = () => {
-  if (state.audio.musicInfo.timeLength == null) {
-    state.audio.musicInfo.timeLength = audioRef.value.duration * 1000;
+  if (musicInfo.value.timeLength == null) {
+    musicInfo.value.timeLength = audioRef.value.duration * 1000;
     return;
   }
   // 不相等时取音频文件的时长
-  if (state.audio.musicInfo.timeLength !== audioRef.value.duration * 100) {
-    state.audio.musicInfo.timeLength = audioRef.value.duration * 1000;
+  if (musicInfo.value.timeLength !== audioRef.value.duration * 100) {
+    musicInfo.value.timeLength = audioRef.value.duration * 1000;
   }
 };
 
@@ -429,7 +408,7 @@ const onLoadStart = () => {
 };
 
 const editPlaySongList = (index: number) => {
-  usePlaySongListStoreHook().currentIndex = index;
+  storeHook.seekMusicByIndex(index);
   initAudio();
   state.dialog.playList = false;
 };
@@ -464,7 +443,7 @@ const toLyrics = (timestamp, index) => {
       <div class="container-box">
         <div :style="{ width: state.size.controller.width }" class="controller">
           <LoadImg
-            :src="state.audio.musicInfo.pic"
+            :src="musicInfo?.picUrl"
             :height="state.size.cover.height"
             :width="state.size.cover.width"
           />
@@ -477,29 +456,23 @@ const toLyrics = (timestamp, index) => {
                 <span
                   class="music-font"
                   :class="{ animate: state.audio.musicTitleWidth === 2 }"
-                  >{{ state.audio.musicInfo.musicName }}</span
+                  >{{ musicInfo?.musicName }}</span
                 >
               </div>
             </div>
           </div>
           <div class="flex w-full">
-            <span class="album-font">{{
-              state.audio.musicInfo.albumName
-            }}</span>
-            <span
-              v-show="
-                state.audio.musicInfo.artistNames != null &&
-                state.audio.musicInfo.artistNames.length !== 0
-              "
-              class="album-font"
+            <span class="album-font">{{ musicInfo?.album?.albumName }}</span>
+            <span v-show="isAllEmpty(musicInfo?.artists)" class="album-font"
               >&nbsp;-&nbsp;</span
             >
             <span
-              v-for="(item, index) in state.audio.musicInfo.artistNames"
+              v-for="(item, index) in musicInfo?.artists"
               :key="index"
               class="artist-font"
-              >{{ item }}</span
             >
+              {{ item.aliasName }}
+            </span>
           </div>
           <div :style="{ width: state.size.controller.width }" class="progress">
             <el-slider
@@ -508,7 +481,7 @@ const toLyrics = (timestamp, index) => {
                 '--slider-progress': `${state.audio.audioBufferProgress}%`
               }"
               :min="0"
-              :max="state.audio.musicInfo.timeLength / 1000"
+              :max="musicInfo?.timeLength / 1000"
               :step="1"
               :show-tooltip="false"
               @mousedown="state.scroll.isChange = true"
@@ -519,7 +492,7 @@ const toLyrics = (timestamp, index) => {
                 dateFormater("mm:ss", state.audio.timeProgressBar * 1000)
               }}</span>
               <span class="select-none">
-                {{ dateFormater("mm:ss", state.audio.musicInfo.timeLength) }}
+                {{ dateFormater("mm:ss", musicInfo?.timeLength) }}
               </span>
             </div>
             <div class="play-operation-panel">
@@ -534,9 +507,9 @@ const toLyrics = (timestamp, index) => {
                   />
                 </div>
                 <div class="icon-bg">
-                  <IconifyIconOnline
+                  <IconifyIconOffline
                     class="cursor-pointer icon-scale"
-                    icon="solar:rewind-back-bold-duotone"
+                    :icon="RewindBackBoldDuotone"
                     width="2.8rem"
                     height="2.8rem"
                     @click="lastMusic"
@@ -546,9 +519,9 @@ const toLyrics = (timestamp, index) => {
                   <div v-if="state.audio.loading">
                     <div v-if="state.audio.playing">
                       <div class="icon-bg">
-                        <IconifyIconOnline
+                        <IconifyIconOffline
                           class="cursor-pointer icon-scale"
-                          icon="solar:pause-circle-bold"
+                          :icon="PauseCircleBold"
                           width="3.25rem"
                           height="3.25rem"
                           @click="onPause"
@@ -557,9 +530,9 @@ const toLyrics = (timestamp, index) => {
                     </div>
                     <div v-else>
                       <div class="icon-bg">
-                        <IconifyIconOnline
+                        <IconifyIconOffline
                           class="cursor-pointer icon-scale"
-                          icon="solar:play-bold"
+                          :icon="PlayBold"
                           width="3.25rem"
                           height="3.25rem"
                           @click="onPlay"
@@ -576,9 +549,9 @@ const toLyrics = (timestamp, index) => {
                   />
                 </div>
                 <div class="icon-bg">
-                  <IconifyIconOnline
+                  <IconifyIconOffline
                     class="cursor-pointer icon-scale"
-                    icon="solar:rewind-forward-bold-duotone"
+                    :icon="RewindForwardBoldDuotone"
                     width="2.8rem"
                     height="2.8rem"
                     @click="nextMusic"
@@ -592,11 +565,10 @@ const toLyrics = (timestamp, index) => {
                     :modal="false"
                   >
                     <div>
-                      <h1 class="text-black">当前播放</h1>
+                      <h1>当前播放</h1>
                       <el-scrollbar height="20rem">
                         <div
-                          v-for="(item, index) in usePlaySongListStoreHook()
-                            .getPlayListMusic"
+                          v-for="(item, index) in playingNowList"
                           :key="item.id"
                           class="dialog-play-song-list"
                           @click="editPlaySongList(index)"
@@ -605,22 +577,22 @@ const toLyrics = (timestamp, index) => {
                             height="3rem"
                             width="3rem"
                             radius="10px"
-                            :src="item.pic"
+                            :src="item.picUrl"
                           />
                           <div>
                             <span class="ml-4 font-bold">{{
                               item.musicName
                             }}</span>
-                            <span>{{ item.aliaName }}</span>
+                            <span>{{ item.aliasName }}</span>
                           </div>
                         </div>
                       </el-scrollbar>
                     </div>
                   </el-dialog>
                   <div class="icon-bg">
-                    <IconifyIconOnline
+                    <IconifyIconOffline
                       class="cursor-pointer icon-scale"
-                      icon="solar:playlist-2-bold"
+                      :icon="Playlist2Bold"
                       width="2rem"
                       height="2rem"
                       @click="state.dialog.playList = true"
@@ -632,7 +604,7 @@ const toLyrics = (timestamp, index) => {
           </div>
           <audio
             ref="audioRef"
-            :src="state.audio.currentMusicUrl.rawUrl"
+            :src="currentSources?.url"
             autofocus
             @timeupdate="onTimeupdate"
             @play="onPlay"
@@ -652,12 +624,11 @@ const toLyrics = (timestamp, index) => {
                 state.audio.lyricsArr.length === 0 ||
                 state.audio.lyricsArr[0].content === '' ||
                 state.audio.lyricsArr[0].timestamp == null ||
-                state.audio.currentMusicLyric.lyric == null ||
-                state.audio.currentMusicLyric.lyric === ''
+                isAllEmpty(currentLyric)
               "
             >
               <div class="mt-[36vh]" />
-              <span class="currently-playing">纯音乐， 请欣赏</span>
+              <span class="currently-playing">暂无歌词，请添加</span>
               <div class="mb-24" />
             </div>
             <div v-else>
@@ -743,14 +714,14 @@ $lyricPadding: 0.8rem;
 @keyframes scroll-animate {
   80%,
   100% {
-    transform: translate3d(calc((100% + var(--gap)) / -2), 0, 0);
+    // todo animate
+    transform: translate3d(calc((100vh + var(--gap)) / -2), 0, 0);
   }
 }
 
 * {
   @apply select-none;
-
-  transition: all ease 0.8s;
+  //transition: all ease 0.8s;
 }
 
 .toBack {
@@ -946,13 +917,6 @@ $lyricPadding: 0.8rem;
   overflow: hidden;
 }
 
-:deep(.el-dialog) {
-  height: 30rem;
-  background-color: var(--el-bg-color);
-  backdrop-filter: blur(20px);
-  border-radius: 1rem;
-}
-
 .dialog-play-song-list {
   z-index: 100;
   display: flex;
@@ -982,7 +946,7 @@ $lyricPadding: 0.8rem;
   width: 4rem;
   height: 4rem;
   border-radius: 1rem;
-  transition: all ease-in-out 0.2s;
+  //transition: transform ease-in-out 0.2s;
 }
 
 .icon-bg:hover {
