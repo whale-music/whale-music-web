@@ -1,4 +1,4 @@
-<script setup lang="tsx">
+<script setup lang="ts">
 import { dateFormater } from "@/utils/dateUtil";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { MusicDetailInfo } from "@/api/music";
@@ -14,7 +14,7 @@ import AddMusicToPlayList from "@/components/addMusicToPlayList/addMusicToPlayLi
 import { getUserData } from "@/utils/auth";
 import DisPlayDefault from "@/views/info/musicInfo/components/DescriptionMusic/components/DisPlayDefault/index.vue";
 import SyncMusic from "@/views/info/musicInfo/components/Dialog/DialogEditMusicInfo/components/SyncMusic/index.vue";
-import EditMusicInfo from "@/views/info/musicInfo/components/Dialog/DialogEditMusicInfo/index.vue";
+import DialogEditMusicInfo from "@/views/info/musicInfo/components/Dialog/DialogEditMusicInfo/index.vue";
 import DialogUploadMusic from "@/views/info/musicInfo/components/Dialog/DialogUploadMusic/index.vue";
 
 defineOptions({
@@ -105,7 +105,7 @@ const { playMusic } = PlayMusic();
 <template>
   <SyncMusic v-model="syncMusicMetaDataFlag" v-model:music-info="musicDetail" />
   <!--编辑音乐信息框-->
-  <EditMusicInfo
+  <DialogEditMusicInfo
     v-model="editMusicInfoFlag"
     v-model:music-info="musicDetail"
     @onSubmit="onSubmit"
