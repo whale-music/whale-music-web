@@ -99,7 +99,6 @@ const state = reactive({
     bgColor: {}
   },
   audio: {
-    audioRef: audioRef,
     musicTitleWidth: 1,
     loading: false,
     musicInfo: {} as MusicPlayInfo,
@@ -112,11 +111,9 @@ const state = reactive({
     playing: false
   },
   scroll: {
-    scroll: scrollRef,
     //判断是否被拖动
     isChange: false,
-    lyricContentRef: lyricContentRef,
-    scrollBS: {} as any,
+    scrollBS: {} as BScroll,
     isScrollRolling: true
   },
   icon: {
@@ -347,7 +344,6 @@ const onEnded = async () => {
       break;
     // 随机当前歌单音乐
     case 3:
-      // eslint-disable-next-line no-constant-condition
       while (true) {
         const randomNum = parseInt(
           Math.random() * playingNowList.value.length - 1
