@@ -194,6 +194,8 @@ async function initPlaySong() {
   const titleWidth = getActualWidthOfChars(musicInfo.value?.musicName);
   state.audio.musicTitleWidth =
     musicTitleRef.value.offsetWidth > titleWidth ? 1 : 2;
+  // 初始歌曲时重新初始化歌词数组
+  state.audio.lyricIndex = 0;
   state.audio.lyricsArr = [];
   if (!isAllEmpty(currentLyric.value)) {
     const lrc = Lrc.parse(currentLyric.value);
@@ -326,7 +328,6 @@ const onEnded = async () => {
     case 0:
       if (storeHook.isNextMusic) {
         storeHook.nextMusic();
-        await initAudio();
       }
       break;
     // 循环播放歌单音乐
@@ -336,7 +337,6 @@ const onEnded = async () => {
       } else {
         storeHook.currentIndex = 0;
       }
-      await initAudio();
       break;
     // 循环播放当前音乐
     case 2:
@@ -353,9 +353,9 @@ const onEnded = async () => {
           break;
         }
       }
-      await initAudio();
       break;
   }
+  await initAudio();
   onPlay();
 };
 
@@ -363,7 +363,7 @@ const lastMusic = async () => {
   // 如果歌单列表中只有一首音乐则不切换
   if (storeHook.playListMusicArr.length === 1) return;
   // 切换歌曲时重新初始化歌词数组
-  state.audio.lyricIndex = 0;
+
   // onPause();
   if (storeHook.isLastMusic) {
     storeHook.lastMusic();
@@ -377,9 +377,6 @@ const lastMusic = async () => {
 const nextMusic = async () => {
   // 如果歌单列表中只有一首音乐则不切换
   if (storeHook.playListMusicArr.length === 1) return;
-  // 切换歌曲时重新初始化歌词数组
-  state.audio.lyricIndex = 0;
-  // onPause();
   if (storeHook.isNextMusic) {
     storeHook.nextMusic();
   } else {
@@ -419,7 +416,6 @@ const changeMusicDuration = () => {
 
 // 播放到歌词点击的时间点
 const toLyrics = (timestamp, index) => {
-  console.log(index, "index");
   state.audio.lyricIndex = index;
   audioRef.value.currentTime = timestamp;
   state.scroll.isChange = false;
