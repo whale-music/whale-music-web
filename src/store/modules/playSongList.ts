@@ -11,7 +11,7 @@ import { isAllEmpty, isArray } from "@pureadmin/utils";
 import { message } from "@/utils/message";
 import { toArray } from "@/utils/array";
 
-const playSongList = "Play-Song-List";
+const playSongList = "play-music-list";
 export const userPlaySongList = defineStore({
   id: playSongList,
   state: () => ({
@@ -35,7 +35,8 @@ export const userPlaySongList = defineStore({
       return state.currentIndex + 1 >= state.playListMusicArr.length;
     },
     // 歌单是否为空
-    isEmpty: state => isAllEmpty(state.playListMusicArr)
+    isEmpty: state => isAllEmpty(state.playListMusicArr),
+    isNotEmpty: state => !isAllEmpty(state.playListMusicArr)
   },
   actions: {
     clearPlaySong() {

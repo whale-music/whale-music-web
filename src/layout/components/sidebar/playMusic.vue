@@ -1,46 +1,56 @@
 <script lang="ts" setup="">
 import AlbumLine from "@iconify-icons/mingcute/album-line";
 import { storageLocal } from "@pureadmin/utils";
-import { defineComponent, reactive, watch } from "vue";
+import { computed, defineComponent, ref } from "vue";
 
 import MusicPlay from "@/layout/components/musicPlay/index.vue";
 import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
 import { emitter } from "@/utils/mitt";
+import { message } from "@/utils/message";
 
 defineComponent({
-  name: "playMusic"
+  name: "PlayMusic"
 });
 
-const state = reactive<{
-  showPlayMusic: boolean;
-}>({
-  showPlayMusic: storageLocal().getItem<boolean>("showPlayMusic")
-});
-
+const k = "showPlayMusic";
 const storeHook = usePlaySongListStoreHook();
 
-watch(
-  () => state.showPlayMusic,
-  value => {
-    storageLocal().setItem<boolean>("showPlayMusic", value);
+const isShow = ref<boolean>(storageLocal().getItem<boolean>(k));
+const isShowPlayMusic = computed<boolean>({
+  get: () => storeHook.isNotEmpty && isShow.value,
+  set: val => {
+    isShow.value = val;
+    storageLocal().setItem<boolean>(k, val);
   }
-);
+});
 
 emitter.on("openPlayMusic", () => {
-  state.showPlayMusic = true;
+  isShowPlayMusic.value = true;
 });
 
 emitter.on("closePlayMusic", () => {
-  state.showPlayMusic = false;
+  isShowPlayMusic.value = false;
 });
+
+const showPlayMusic = () => {
+  if (storeHook.isEmpty) {
+    message("播放列表中无音乐");
+    return;
+  }
+  isShowPlayMusic.value = true;
+};
 </script>
 
 <template>
   <div>
-    <div class="cursor-pointer" @click="state.showPlayMusic = true">
+    <div class="cursor-pointer" @click="showPlayMusic">
       <div :class="{ 'animate-spin': storeHook.isPlay }">
         <IconifyIconOffline
-          style="color: var(--el-color-primary)"
+          :style="{
+            color: storeHook.isEmpty
+              ? 'var(--el-color-info)'
+              : 'var(--el-color-primary)'
+          }"
           width="1.8rem"
           height="1.8rem"
           :icon="AlbumLine"
@@ -48,7 +58,7 @@ emitter.on("closePlayMusic", () => {
       </div>
     </div>
     <el-drawer
-      v-model="state.showPlayMusic"
+      v-model="isShowPlayMusic"
       style="
 
 --el-drawer-padding-primary: 0"
