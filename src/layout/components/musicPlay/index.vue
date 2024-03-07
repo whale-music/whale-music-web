@@ -24,7 +24,7 @@ import { prominent } from "@/utils/color/color";
 import { dateFormater } from "@/utils/dateUtil";
 import { emitter } from "@/utils/mitt";
 import { getActualWidthOfChars } from "@/utils/textWidthUtil";
-import { type MusicPlayInfo } from "@/api/model/Music";
+import { type MusicPlayInfo, MusicPlaySources } from "@/api/model/Music";
 
 const { widthRef } = useDialog();
 const { closePlayMusic } = useNav();
@@ -136,7 +136,7 @@ onMounted(async () => {
 });
 
 const musicInfo = computed(() => {
-  return storeHook.getCurrentMusic;
+  return storeHook.isEmpty ? ({} as MusicPlayInfo) : storeHook.getCurrentMusic;
 });
 
 const currentLyric = computed(() => {
@@ -144,7 +144,9 @@ const currentLyric = computed(() => {
 });
 
 const currentSources = computed(() => {
-  return musicInfo.value?.sources[0];
+  return isAllEmpty(musicInfo.value.sources)
+    ? ({} as MusicPlaySources)
+    : musicInfo.value?.sources[0];
 });
 watch(
   () => state.audio.lyricIndex,
