@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { MusicLyrics } from "@/api/music";
+import { computed } from "vue";
+import { LyricContent, MusicLyrics } from "@/api/music";
 import { message } from "@/utils/message";
 import { updateLyric } from "@/views/info/musicInfo/components/Dialog/DialogEditMusicInfo/components/lyrics/index";
 
@@ -9,11 +9,24 @@ const props = defineProps({
 });
 const emits = defineEmits(["onSubmit"]);
 const value = defineModel<boolean>({ required: true });
-const type = defineModel<string>("type", { required: true });
+const type = defineModel<"lyric" | "klyric" | "tlyric" | "">("type", {
+  required: true
+});
 const lyrics = defineModel<MusicLyrics | undefined>("lyrics", {
   required: true
 });
-const lyricsText = ref(lyrics?.value?.get(type.value)?.lyric);
+// const lyricsText = ref(lyrics?.value?[type.value]?.lyric);
+const toMap = val => {
+  return new Map<string, LyricContent>(Object.entries(val));
+};
+const lyricsText = computed({
+  get: () => {
+    return lyrics.value[type.value].lyric;
+  },
+  set: val => {
+    lyrics.value[type.value].lyric = val;
+  }
+});
 
 const onSubmit = () => {
   value.value = false;
