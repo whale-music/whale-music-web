@@ -18,7 +18,7 @@ import {
 } from "@/api/plugin";
 import WButton from "@/components/button/index.vue";
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
-import { FriendlyTime } from "@/utils/DateFormat.ts";
+import { FriendlyTime } from "@/utils/DateFormat";
 import { dateFormater } from "@/utils/dateUtil";
 import { message } from "@/utils/message";
 
