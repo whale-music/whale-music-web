@@ -24,7 +24,7 @@ import { prominent } from "@/utils/color/color";
 import { dateFormater } from "@/utils/dateUtil";
 import { emitter } from "@/utils/mitt";
 import { getActualWidthOfChars } from "@/utils/textWidthUtil";
-import { type MusicPlayInfo, MusicPlaySources } from "@/api/model/Music";
+import { type MusicPlayInfo } from "@/api/model/Music";
 import AudioPlay from "@/layout/components/musicPlay/components/AudioPlay/index.vue";
 
 const { widthRef } = useDialog();
@@ -64,22 +64,7 @@ const scrollRef = ref();
 const lyricContentRef = ref([]);
 // 音乐标题长度
 const musicTitleRef = ref<HTMLDivElement | null>();
-const audioRef = ref({
-  // 该字段是音频是否处于播放状态的属性
-  paused: false,
-  // 音频当前播放时长
-  currentTime: 0,
-  duration: 0,
-  // 音频最大播放时长
-  maxTime: 0,
-  minTime: 0,
-  step: 0.1,
-  buffered: null,
-  isLoop: false,
-  pause: () => {},
-  play: () => {},
-  load: () => {}
-});
+const audioRef = ref<HTMLAudioElement>();
 
 const state = reactive({
   size: {
@@ -108,8 +93,7 @@ const state = reactive({
     // 当前歌曲进度浮标
     lyricIndex: 0,
     audioBufferProgress: 0,
-    loopType: 0,
-    playing: false
+    loopType: 0
   },
   scroll: {
     //判断是否被拖动
@@ -161,13 +145,6 @@ watch(
 );
 
 const storeHook = usePlaySongListStoreHook();
-// 监听播放
-watch(
-  () => state.audio.playing,
-  value => {
-    storeHook.isPlay = value;
-  }
-);
 
 async function initAudio() {
   await initPlaySong();
@@ -216,7 +193,7 @@ watch(
     }
   }
 );
-const getBGColor = async picUrl => {
+const getBGColor = async (picUrl: string) => {
   const colors = await prominent(picUrl, {
     format: "hex",
     group: 30
@@ -273,12 +250,10 @@ const musicLoopType = () => {
 
 // 开始播放
 const onPlay = () => {
-  state.audio.playing = true;
   audioRef.value.play();
 };
 // 暂停播放
 const onPause = () => {
-  state.audio.playing = false;
   audioRef.value.pause();
 };
 
@@ -286,56 +261,12 @@ const playingNowList = computed(() => {
   return storeHook.getPlayListMusic;
 });
 
-const onEnded = async () => {
-  onPause();
-  // 切换歌曲时重新初始化歌词数组
-  state.audio.lyricIndex = 0;
-  // 根据当前选项选择下一首音乐
-  switch (state.audio.loopType) {
-    // 自动完播放音乐，关闭
-    case 0:
-      if (storeHook.isNextMusic) {
-        storeHook.nextMusic();
-      }
-      break;
-    // 循环播放歌单音乐
-    case 1:
-      if (storeHook.isNextMusic) {
-        storeHook.nextMusic();
-      } else {
-        storeHook.currentIndex = 0;
-      }
-      break;
-    // 循环播放当前音乐
-    case 2:
-      audioRef.value.isLoop = true;
-      break;
-    // 随机当前歌单音乐
-    case 3:
-      while (true) {
-        const randomNum = parseInt(
-          Math.random() * playingNowList.value.length - 1
-        );
-        if (randomNum !== storeHook.getCurrentIndex) {
-          storeHook.currentIndex = randomNum;
-          break;
-        }
-      }
-      break;
-  }
-  await initAudio();
-  onPlay();
-};
-
 const lastMusic = async () => {
-  // 如果歌单列表中只有一首音乐则不切换
-  if (storeHook.playListMusicArr.length === 1) return;
   // 切换歌曲时重新初始化歌词数组
-
-  // onPause();
   if (storeHook.isLastMusic) {
     storeHook.lastMusic();
   } else {
+    // 跳转到播放列表最后一个
     storeHook.currentIndex = storeHook.playListMusicArr.length - 1;
   }
   await initAudio();
@@ -348,24 +279,15 @@ const nextMusic = async () => {
   if (storeHook.isNextMusic) {
     storeHook.nextMusic();
   } else {
+    // 跳转到播放列表第一个
     storeHook.currentIndex = 0;
   }
   await initAudio();
   onPlay();
 };
 
-const canplay = () => {
-  if (musicInfo.value.timeLength == null) {
-    musicInfo.value.timeLength = audioRef.value.duration * 1000;
-    return;
-  }
-  // 不相等时取音频文件的时长
-  if (musicInfo.value.timeLength !== audioRef.value.duration * 100) {
-    musicInfo.value.timeLength = audioRef.value.duration * 1000;
-  }
-};
-
-const editPlaySongList = (index: number) => {
+// 跳转到选择歌曲
+const jumpMusic = (index: number) => {
   storeHook.seekMusicByIndex(index);
   initAudio();
   state.dialog.playList = false;
@@ -373,14 +295,12 @@ const editPlaySongList = (index: number) => {
 
 //鼠标拖拽松开时
 const changeMusicDuration = () => {
-  audioRef.value.currentTime = state.audio.timeProgressBar;
   state.scroll.isChange = false;
 };
 
 // 播放到歌词点击的时间点
-const toLyrics = (timestamp, index) => {
+const toLyrics = (index: number) => {
   state.audio.lyricIndex = index;
-  audioRef.value.currentTime = timestamp;
   state.scroll.isChange = false;
 };
 </script>
@@ -474,7 +394,7 @@ const toLyrics = (timestamp, index) => {
                 </div>
                 <div>
                   <div v-if="state.audio.loading">
-                    <div v-if="state.audio.playing">
+                    <div v-if="storeHook.isPlay">
                       <div class="icon-bg">
                         <IconifyIconOffline
                           class="cursor-pointer icon-scale"
@@ -528,7 +448,7 @@ const toLyrics = (timestamp, index) => {
                           v-for="(item, index) in playingNowList"
                           :key="item.id"
                           class="dialog-play-song-list"
-                          @click="editPlaySongList(index)"
+                          @click="jumpMusic(index)"
                         >
                           <LoadImg
                             height="3rem"
@@ -564,8 +484,8 @@ const toLyrics = (timestamp, index) => {
             v-model:lyrics-index="state.audio.lyricIndex"
             v-model:lyrics-list="state.audio.lyricsArr"
             v-model:is-move="state.scroll.isChange"
-            v-model:is-playing="state.audio.playing"
             v-model:buffer-progress="state.audio.audioBufferProgress"
+            v-model:loop-type="state.audio.loopType"
             v-model:current-progress="state.audio.timeProgressBar"
             v-model:loading="state.audio.loading"
             :src="currentSources.url"
@@ -642,7 +562,7 @@ const toLyrics = (timestamp, index) => {
                       }"
                       class="select-none"
                       @mousedown="state.scroll.isChange = true"
-                      @mouseup="toLyrics(item.timestamp, index)"
+                      @mouseup="toLyrics(index)"
                     >
                       {{ item.content }}
                     </p>
