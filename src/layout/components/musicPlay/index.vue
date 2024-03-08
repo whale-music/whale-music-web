@@ -26,6 +26,7 @@ import { emitter } from "@/utils/mitt";
 import { getActualWidthOfChars } from "@/utils/textWidthUtil";
 import { type MusicPlayInfo } from "@/api/model/Music";
 import AudioPlay from "@/layout/components/musicPlay/components/AudioPlay/index.vue";
+import Lyrics from "@/layout/components/musicPlay/components/lyrics/index.vue";
 
 const { widthRef } = useDialog();
 const { closePlayMusic } = useNav();
@@ -213,15 +214,6 @@ const getBGColor = async (picUrl: string) => {
   };
 };
 
-// 设置空歌词显示动画
-const loadingTime = (item, index, arr) => {
-  if (arr != null && arr.length > 0 && index !== arr.length - 1) {
-    return arr[index + 1].timestamp - item.timestamp;
-  } else {
-    return 2;
-  }
-};
-
 // 当前音乐循环图标
 const musicLoopType = () => {
   if (state.audio.loopType == 3) {
@@ -295,12 +287,6 @@ const jumpMusic = (index: number) => {
 
 //鼠标拖拽松开时
 const changeMusicDuration = () => {
-  state.scroll.isChange = false;
-};
-
-// 播放到歌词点击的时间点
-const toLyrics = (index: number) => {
-  state.audio.lyricIndex = index;
   state.scroll.isChange = false;
 };
 </script>
@@ -492,86 +478,12 @@ const toLyrics = (index: number) => {
             @onSubmit="initAudio"
           />
         </div>
-        <div class="lyric">
-          <div class="scrollbar">
-            <div
-              v-if="
-                state.audio.lyricsArr.length === 0 ||
-                state.audio.lyricsArr[0].content === '' ||
-                state.audio.lyricsArr[0].timestamp == null ||
-                isAllEmpty(currentLyric)
-              "
-            >
-              <div class="mt-[36vh]" />
-              <span class="currently-playing">暂无歌词，请添加</span>
-              <div class="mb-24" />
-            </div>
-            <div v-else>
-              <div ref="scrollRef" class="bscroll">
-                <div class="scroll-content">
-                  <div
-                    v-for="(item, index) in state.audio.lyricsArr"
-                    :key="index"
-                    ref="lyricContentRef"
-                    class="bscroll-container"
-                  >
-                    <div
-                      v-if="item.content === ''"
-                      :style="{
-                        '--lyric-loading': `${loadingTime(
-                          item,
-                          index,
-                          state.audio.lyricsArr
-                        )}s`
-                      }"
-                    >
-                      <!--歌词播放纯音乐时小圆点占位-->
-                      <div class="load-container">
-                        <div
-                          class="loader__circle"
-                          :class="{
-                            'loading-anima': state.audio.lyricIndex === index
-                          }"
-                        />
-                        <div
-                          class="loader__circle"
-                          :class="{
-                            'loading-anima': state.audio.lyricIndex === index
-                          }"
-                        />
-                        <div
-                          class="loader__circle"
-                          :class="{
-                            'loading-anima': state.audio.lyricIndex === index
-                          }"
-                        />
-                        <div
-                          class="loader__circle"
-                          :class="{
-                            'loading-anima': state.audio.lyricIndex === index
-                          }"
-                        />
-                      </div>
-                      <br />
-                    </div>
-                    <p
-                      v-else
-                      :class="{
-                        'lyric-item': true,
-                        'currently-playing': state.audio.lyricIndex === index
-                      }"
-                      class="select-none"
-                      @mousedown="state.scroll.isChange = true"
-                      @mouseup="toLyrics(index)"
-                    >
-                      {{ item.content }}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Lyrics
+          v-model:lyrics-list="state.audio.lyricsArr"
+          v-model:current-lyrics-index="state.audio.lyricIndex"
+          v-model:audio-ref="audioRef"
+          v-model:is-change="state.scroll.isChange"
+        />
       </div>
     </div>
   </div>
@@ -663,20 +575,6 @@ $lyricPadding: 0.8rem;
   margin-left: 2rem;
 }
 
-.lyric {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 55rem;
-  height: 100%;
-  margin-left: 2rem;
-
-  // 小屏幕不显示歌词
-  @media screen and (width <= 720px) {
-    display: none;
-  }
-}
-
 .music-font {
   --gap: 1.5625em;
 
@@ -747,49 +645,6 @@ $lyricPadding: 0.8rem;
 
 :deep(.el-slider__bar) {
   top: 0;
-}
-
-.lyric-item:hover {
-  padding: $lyricPadding;
-  background-color: rgb(0 0 0 / 20%);
-  border-radius: 1rem;
-}
-
-.lyric-item {
-  @apply block mt-5 mb-5 cursor-pointer hover:text-[#f0f0f0] font-bold;
-
-  padding: $lyricPadding;
-  font-size: 2.5rem;
-  color: rgb(200 200 200 / 50%);
-  transition: font-size 1s;
-}
-
-.currently-playing {
-  @apply mt-12 mb-12;
-
-  padding: $lyricPadding;
-  font-size: 3.5rem;
-  color: #fff;
-  transition: color 1.5s;
-}
-
-.scrollbar {
-  height: 90vh;
-  mask: linear-gradient(
-    180deg,
-    hsl(0deg 0% 100% / 0%),
-    hsl(0deg 0% 100% / 60%) 15%,
-    #fff 25%,
-    #fff 75%,
-    hsl(0deg 0% 100% / 60%) 85%,
-    hsl(0deg 0% 100% / 0%)
-  );
-}
-
-.bscroll {
-  position: relative;
-  height: 90vh;
-  overflow: hidden;
 }
 
 .dialog-play-song-list {
