@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { dateFormater } from "@/utils/dateUtil";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
-import { MusicDetailInfo } from "@/api/music";
+import { MusicDetailInfo, MusicSources } from "@/api/music";
 import { computed, ref } from "vue";
 import { message } from "@/utils/message";
 import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
@@ -58,7 +58,7 @@ function PlayMusic() {
     message("播放失败，无音源", { type: "error" });
   };
   const { onPlayMusic } = useNav();
-  const toMusicPlay = async res => {
+  const toMusicPlay = async (res: MusicSources) => {
     if (isAllEmpty(res.url)) {
       message(`该音源无效`, { type: "error" });
       return;
