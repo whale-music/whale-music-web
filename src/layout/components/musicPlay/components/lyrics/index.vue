@@ -212,4 +212,44 @@ $lyricPadding: 0.8rem;
   color: #fff;
   transition: color 1.5s;
 }
+
+.load-container {
+  @keyframes loader-901 {
+    0% {
+      background: rgb(200 200 200 / 50%);
+      transform: scale(1);
+    }
+
+    50% {
+      transform: scale(1.8);
+    }
+
+    100% {
+      background: #fff;
+      transform: scale(1);
+    }
+  }
+
+  display: flex;
+  gap: 14px;
+  // justify-content: start;
+  align-items: center;
+  height: 100%;
+  margin-left: 1rem;
+
+  .ball {
+    background: rgb(200 200 200 / 50%);
+  }
+
+  .loader__circle {
+    width: 14px;
+    height: 14px;
+    background: rgb(200 200 200 / 50%);
+    border-radius: 50%;
+  }
+
+  .loading-anima {
+    animation: loader-901 var(--lyric-loading) ease-in-out infinite;
+  }
+}
 </style>
