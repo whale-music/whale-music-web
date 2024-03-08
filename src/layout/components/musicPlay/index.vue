@@ -25,6 +25,7 @@ import { dateFormater } from "@/utils/dateUtil";
 import { emitter } from "@/utils/mitt";
 import { getActualWidthOfChars } from "@/utils/textWidthUtil";
 import { type MusicPlayInfo, MusicPlaySources } from "@/api/model/Music";
+import AudioPlay from "@/layout/components/musicPlay/components/AudioPlay/index.vue";
 
 const { widthRef } = useDialog();
 const { closePlayMusic } = useNav();
@@ -133,7 +134,7 @@ onMounted(async () => {
 });
 
 const musicInfo = computed(() => {
-  return storeHook.isEmpty ? ({} as MusicPlayInfo) : storeHook.getCurrentMusic;
+  return storeHook.getCurrentMusic;
 });
 
 const currentLyric = computed(() => {
@@ -141,9 +142,7 @@ const currentLyric = computed(() => {
 });
 
 const currentSources = computed(() => {
-  return isAllEmpty(musicInfo.value.sources)
-    ? ({} as MusicPlaySources)
-    : musicInfo.value?.sources[0];
+  return musicInfo.value?.sources[0];
 });
 watch(
   () => state.audio.lyricIndex,
@@ -194,6 +193,8 @@ async function initPlaySong() {
   const titleWidth = getActualWidthOfChars(musicInfo.value?.musicName);
   state.audio.musicTitleWidth =
     musicTitleRef.value.offsetWidth > titleWidth ? 1 : 2;
+  // 重新播放
+  audioRef.value.load();
   // 初始歌曲时重新初始化歌词数组
   state.audio.lyricIndex = 0;
   state.audio.lyricsArr = [];
@@ -233,39 +234,6 @@ const getBGColor = async picUrl => {
   state.style.bgColor = {
     backgroundColor: `${color}`
   };
-};
-
-// 进度条
-const onTimeupdate = event => {
-  // 获取缓冲进度
-  if (audioRef.value.buffered != null && audioRef.value.buffered.length > 0) {
-    const currentBuffer =
-      audioRef.value.buffered.end(audioRef.value.buffered.length - 1) * 100;
-    state.audio.audioBufferProgress = currentBuffer / audioRef.value.duration;
-  }
-
-  const currentTime = event.target.currentTime;
-  if (state.scroll.isChange == true) return;
-  state.audio.timeProgressBar = isNaN(currentTime) ? 0 : currentTime;
-
-  // 匹配歌词
-  for (let i = 0; i < state.audio.lyricsArr.length; i++) {
-    // 播放进度不断推进， 判断每个歌词节点, 如果大于当前播放的时间，则进入下一个节点
-    if (currentTime >= state.audio.lyricsArr[i].timestamp) {
-      if (i > state.audio.lyricIndex) {
-        state.audio.lyricIndex = i;
-      } else {
-        // 如果进度条回退， 当前值值绝对回比进度条到过的最大的值要小
-        const tempNum = parseInt(
-          state.audio.lyricsArr[state.audio.lyricIndex].timestamp
-        );
-        if (currentTime < tempNum) {
-          // 浮标重新赋值
-          state.audio.lyricIndex = i;
-        }
-      }
-    }
-  }
 };
 
 // 设置空歌词显示动画
@@ -376,7 +344,7 @@ const lastMusic = async () => {
 
 const nextMusic = async () => {
   // 如果歌单列表中只有一首音乐则不切换
-  if (storeHook.playListMusicArr.length === 1) return;
+  // if (storeHook.getPlayMusicLength === 1) return;
   if (storeHook.isNextMusic) {
     storeHook.nextMusic();
   } else {
@@ -395,11 +363,6 @@ const canplay = () => {
   if (musicInfo.value.timeLength !== audioRef.value.duration * 100) {
     musicInfo.value.timeLength = audioRef.value.duration * 1000;
   }
-};
-
-// 开始加载歌曲
-const onLoadStart = () => {
-  state.audio.loading = true;
 };
 
 const editPlaySongList = (index: number) => {
@@ -475,7 +438,7 @@ const toLyrics = (timestamp, index) => {
                 '--slider-progress': `${state.audio.audioBufferProgress}%`
               }"
               :min="0"
-              :max="musicInfo?.timeLength / 1000"
+              :max="musicInfo.timeLength / 1000"
               :step="1"
               :show-tooltip="false"
               @mousedown="state.scroll.isChange = true"
@@ -596,20 +559,18 @@ const toLyrics = (timestamp, index) => {
               </div>
             </div>
           </div>
-          <audio
-            ref="audioRef"
-            :src="currentSources?.url"
-            autofocus
-            @timeupdate="onTimeupdate"
-            @play="onPlay"
-            @pause="onPause"
-            @ended="onEnded"
-            @canplay="canplay"
-            @loop="audioRef.isLoop"
-            @loadeddata="onLoadStart"
-          >
-            您的浏览器不支持 audio 元素。
-          </audio>
+          <AudioPlay
+            v-model:audio-ref="audioRef"
+            v-model:lyrics-index="state.audio.lyricIndex"
+            v-model:lyrics-list="state.audio.lyricsArr"
+            v-model:is-move="state.scroll.isChange"
+            v-model:is-playing="state.audio.playing"
+            v-model:buffer-progress="state.audio.audioBufferProgress"
+            v-model:current-progress="state.audio.timeProgressBar"
+            v-model:loading="state.audio.loading"
+            :src="currentSources.url"
+            @onSubmit="initAudio"
+          />
         </div>
         <div class="lyric">
           <div class="scrollbar">
