@@ -4,7 +4,7 @@
       <h1>{{ pluginInfo.pluginName }}</h1>
       <span v-show="!loadFlag" class="ml-2">
         <IconifyIconOffline
-          icon="loading3Fill"
+          :icon="Loading3Fill"
           class="animate-spin"
           style="color: var(--el-color-primary)"
           width="2rem"
@@ -37,7 +37,7 @@
         <h1>搜索</h1>
         <span v-show="itemHtmlFlag" class="ml-2">
           <IconifyIconOffline
-            icon="loading3Fill"
+            :icon="Loading3Fill"
             class="animate-spin"
             style="color: var(--el-color-primary)"
             width="2rem"
@@ -89,6 +89,7 @@ import { ElNotification } from "element-plus";
 import { h, onMounted, ref } from "vue";
 import VueJsonPretty from "vue-json-pretty";
 import { useRouter } from "vue-router";
+import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
 
 import {
   execCommonPluginTask,

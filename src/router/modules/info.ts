@@ -4,7 +4,7 @@ export default {
   path: "/library",
   redirect: "/library/musicInfo",
   meta: {
-    icon: "informationLine",
+    icon: "ri:information-line",
     title: $t("menus.hsabnormal"),
     showLink: false,
     rank: 9

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import "vue-json-pretty/lib/styles.css";
+import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
 
 import dayjs from "dayjs";
 import { ElNotification } from "element-plus";
@@ -210,9 +211,8 @@ const showLogLevelText = (level: number) => {
       >
       <span v-show="timerFlag" class="ml-2 flex items-center">
         <IconifyIconOffline
-          icon="loading3Fill"
-          class="animate-spin"
-          style="color: var(--el-color-primary)"
+          :icon="Loading3Fill"
+          class="animate-spin text-primary"
           width="2rem"
           height="2rem"
         />

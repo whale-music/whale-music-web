@@ -16,7 +16,7 @@ export default [
     path: "/redirect",
     component: Layout,
     meta: {
-      icon: "homeFilled",
+      icon: "ep:home-filled",
       title: $t("menus.hshome"),
       showLink: false,
       rank: 102

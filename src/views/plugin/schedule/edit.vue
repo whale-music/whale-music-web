@@ -3,6 +3,7 @@ import { storageLocal, throttle } from "@pureadmin/utils";
 import { ElMessageBox } from "element-plus";
 import { onMounted, reactive } from "vue";
 import { useRouter } from "vue-router";
+import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
 
 import {
   getPluginList,
@@ -206,7 +207,7 @@ const switchIsRun = val => {
         <h1>{{ state.pluginInfo?.pluginName }}</h1>
         <span v-show="state.loadingFlag" class="ml-2">
           <IconifyIconOffline
-            icon="loading3Fill"
+            :icon="Loading3Fill"
             class="animate-spin"
             style="color: var(--el-color-primary)"
             width="2rem"

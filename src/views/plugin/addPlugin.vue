@@ -1,5 +1,6 @@
 <script lang="ts">
 import "vue-json-pretty/lib/styles.css";
+import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
 
 import { java } from "@codemirror/lang-java";
 import { oneDark } from "@codemirror/theme-one-dark";
@@ -260,6 +261,7 @@ export default defineComponent({
       save,
       extensions,
       handleReady,
+      Loading3Fill,
       log: console.log
     };
   }
@@ -402,7 +404,7 @@ export default defineComponent({
             <el-input
               v-model="i.value"
               placeholder="请输入"
-              @change="saveOrUpdateCache(id, inputs.params)"
+              @change="saveOrUpdateCache(pluginInfo.id, inputs.params)"
             />
           </el-row>
         </div>
@@ -441,7 +443,7 @@ export default defineComponent({
             <h1>搜索</h1>
             <span v-show="itemHtmlFlag" class="ml-2">
               <IconifyIconOffline
-                icon="loading3Fill"
+                :icon="Loading3Fill"
                 class="animate-spin"
                 style="color: var(--el-color-primary)"
                 width="2rem"

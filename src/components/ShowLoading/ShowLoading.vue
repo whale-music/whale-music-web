@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
+
 const props = defineProps({
   loading: Boolean,
   height: {
@@ -21,9 +23,8 @@ const props = defineProps({
       class="show-loading-box"
     >
       <IconifyIconOffline
-        icon="loading3Fill"
-        class="animate-spin"
-        style="color: blue"
+        :icon="Loading3Fill"
+        class="animate-spin text-primary"
         width="60px"
         height="60px"
       />
