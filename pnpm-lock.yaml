@@ -47,9 +47,6 @@ dependencies:
   animate.css:
     specifier: ^4.1.1
     version: 4.1.1
-  animejs:
-    specifier: ^3.2.1
-    version: 3.2.2
   artplayer:
     specifier: ^5.0.9
     version: 5.1.1
@@ -2354,10 +2351,6 @@ packages:
 
   /animate.css@4.1.1:
     resolution: {integrity: sha512-+mRmCTv6SbCmtYJCN4faJMNFVNN5EuCTTprDTAo7YzIGji2KADmakjVA3+8mVDkZ2Bf09vayB35lSQIex2+QaQ==}
-    dev: false
-
-  /animejs@3.2.2:
-    resolution: {integrity: sha512-Ao95qWLpDPXXM+WrmwcKbl6uNlC5tjnowlaRYtuVDHHoygjtIPfDUoK9NthrlZsQSKjZXlmji2TrBUAVbiH0LQ==}
     dev: false
 
   /ansi-align@3.0.1:
