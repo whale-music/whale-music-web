@@ -8,9 +8,10 @@ defineOptions({
   name: "AudioPlay"
 });
 const src = defineModel<string>("src");
-const audioPlayRef = defineModel("audioRef");
+const audioPlayRef = defineModel<HTMLAudioElement>("audioRef");
 const currentProgress = defineModel("currentProgress");
 const bufferProgress = defineModel("bufferProgress");
+const isLoad = defineModel("isLoad");
 const isPlaying = defineModel("isPlaying");
 const isMove = defineModel("isMove");
 const lyricsIndex = defineModel<number>("lyricsIndex");
@@ -33,12 +34,18 @@ watch(audioRef, v => {
   audioPlayRef.value = v;
 });
 
+watch(currentProgress, val => {
+  audioRef.value.currentTime = val;
+});
+
 const storeHook = usePlaySongListStoreHook();
 
 const onPlay = () => {
+  storeHook.isPlay = true;
   emits("onPlay");
 };
 const onPause = () => {
+  storeHook.isPlay = false;
   emits("onPause");
 };
 const onSubmit = () => {
@@ -46,17 +53,18 @@ const onSubmit = () => {
 };
 
 const canplay = () => {
+  isLoad.value = true;
   emits("canplay");
 };
 const onLoadStart = () => {
   emits("onLoadStart");
 };
 
-useEventListener(audioRef, "pause", () => {
+useEventListener(audioRef, "pause", val => {
   isPlaying.value = false;
   storeHook.isPlay = false;
 });
-useEventListener(audioRef, "playing", () => {
+useEventListener(audioRef, "playing", val => {
   isPlaying.value = true;
   storeHook.isPlay = true;
 });
@@ -67,7 +75,7 @@ useEventListener(audioRef, "loadedmetadata", val => {
 // 进度条
 // 获取缓冲进度
 const onTimeupdate = (event: any) => {
-  if (audioRef.value.buffered != null && audioRef.value.buffered.length > 0) {
+  if (audioRef.value?.buffered != null && audioRef.value.buffered.length > 0) {
     bufferProgress.value =
       (event.target.buffered.end(event.target.buffered.length - 1) * 100) /
       audioRef.value.duration;
@@ -98,6 +106,7 @@ const onTimeupdate = (event: any) => {
   }
 };
 
+// 歌曲循环状态
 const onEnded = async () => {
   onPause();
   // 切换歌曲时重新初始化歌词数组
