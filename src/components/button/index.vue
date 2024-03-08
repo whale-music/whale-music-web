@@ -1,15 +1,7 @@
 <script lang="ts" setup>
+import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
+
 const pros = defineProps({
-  type: {
-    type: String,
-    default: "primary",
-    required: false
-  },
-  loading: {
-    type: Boolean,
-    default: false,
-    required: false
-  },
   color: String,
   width: {
     type: String,
@@ -24,25 +16,18 @@ const pros = defineProps({
 });
 </script>
 <template>
-  <el-button
-    class="button"
-    :type="pros.type"
-    plain
-    :loading="pros.loading"
-    text
-    bg
-  >
+  <ElButton class="button" v-bind="$attrs" plain text bg>
     <template #loading>
       <IconifyIconOffline
-        icon="loading3Fill"
+        :icon="Loading3Fill"
         class="animate-spin"
-        :style="{ color: pros.color === undefined ? 'inherit' : pros.color }"
+        :style="{ color: pros.color ?? 'inherit' }"
         :width="pros.width"
         :height="pros.height"
       />
     </template>
     <slot />
-  </el-button>
+  </ElButton>
 </template>
 
 <style lang="scss" scoped>
