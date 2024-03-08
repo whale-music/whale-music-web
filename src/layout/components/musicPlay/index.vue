@@ -4,11 +4,8 @@ import MouseWheel from "@better-scroll/mouse-wheel";
 import ArrowRightFill from "@iconify-icons/mingcute/arrow-right-fill";
 import Playlist2Bold from "@iconify-icons/solar/playlist-2-bold";
 import RewindForwardBoldDuotone from "@iconify-icons/solar/rewind-forward-bold-duotone";
-import PauseCircleBold from "@iconify-icons/solar/pause-circle-bold";
 import RewindBackBoldDuotone from "@iconify-icons/solar/rewind-back-bold-duotone";
-import PlayBold from "@iconify-icons/solar/play-bold";
 import DownFill from "@iconify-icons/mingcute/down-fill";
-import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
 import RepeatBold from "@iconify-icons/solar/repeat-bold";
 import RepeatOneBold from "@iconify-icons/solar/repeat-one-bold";
 import ShuffleLinear from "@iconify-icons/solar/shuffle-linear";
@@ -16,8 +13,6 @@ import { darken, isAllEmpty } from "@pureadmin/utils";
 import { Lrc } from "lrc-kit";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
-import IconifyIconOffline from "@/components/ReIcon/src/iconifyIconOffline";
-import { useDialog } from "@/layout/hooks/useDialog";
 import { useNav } from "@/layout/hooks/useNav";
 import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
 import { prominent } from "@/utils/color/color";
@@ -28,8 +23,9 @@ import { type MusicPlayInfo } from "@/api/model/Music";
 import AudioPlay from "@/layout/components/musicPlay/components/AudioPlay/index.vue";
 import Lyrics from "@/layout/components/musicPlay/components/lyrics/index.vue";
 import IconButton from "@/layout/components/musicPlay/components/IconButton/index.vue";
+import IconPlayButton from "@/layout/components/musicPlay/components/MusicPlayerInterface/components/IconPlayButton/index.vue";
+import DialogPlayList from "@/layout/components/musicPlay/components/MusicPlayerInterface/components/DialogPlayList/index.vue";
 
-const { widthRef } = useDialog();
 const { closePlayMusic } = useNav();
 
 // 监听容器
@@ -250,10 +246,6 @@ const onPause = () => {
   audioRef.value.pause();
 };
 
-const playingNowList = computed(() => {
-  return storeHook.getPlayListMusic;
-});
-
 const lastMusic = async () => {
   // 切换歌曲时重新初始化歌词数组
   if (storeHook.isLastMusic) {
@@ -277,13 +269,6 @@ const nextMusic = async () => {
   }
   await initAudio();
   onPlay();
-};
-
-// 跳转到选择歌曲
-const jumpMusic = (index: number) => {
-  storeHook.seekMusicByIndex(index);
-  initAudio();
-  state.dialog.playList = false;
 };
 
 //鼠标拖拽松开时
@@ -373,33 +358,12 @@ const changeMusicDuration = () => {
                   height="2.8rem"
                   @click="lastMusic"
                 />
-                <div>
-                  <div v-if="state.audio.loading">
-                    <div v-if="storeHook.isPlay">
-                      <IconButton
-                        :icon="PauseCircleBold"
-                        width="3.25rem"
-                        height="3.25rem"
-                        @click="onPause"
-                      />
-                    </div>
-                    <div v-else>
-                      <IconButton
-                        :icon="PlayBold"
-                        width="3.25rem"
-                        height="3.25rem"
-                        @click="onPlay"
-                      />
-                    </div>
-                  </div>
-                  <IconifyIconOffline
-                    v-else
-                    :icon="Loading3Fill"
-                    class="animate-spin"
-                    width="3.25rem"
-                    height="3.25rem"
-                  />
-                </div>
+                <IconPlayButton
+                  :loading="state.audio.loading"
+                  :is-play="storeHook.isPlay"
+                  @onPause="onPause"
+                  @onPlay="onPlay"
+                />
                 <IconButton
                   :icon="RewindForwardBoldDuotone"
                   width="2.8rem"
@@ -407,37 +371,10 @@ const changeMusicDuration = () => {
                   @click="nextMusic"
                 />
                 <div>
-                  <el-dialog
+                  <DialogPlayList
                     v-model="state.dialog.playList"
-                    :width="widthRef"
-                    :show-close="false"
-                    :modal="false"
-                  >
-                    <div>
-                      <h1>当前播放</h1>
-                      <el-scrollbar height="20rem">
-                        <div
-                          v-for="(item, index) in playingNowList"
-                          :key="item.id"
-                          class="dialog-play-song-list"
-                          @click="jumpMusic(index)"
-                        >
-                          <LoadImg
-                            height="3rem"
-                            width="3rem"
-                            radius="10px"
-                            :src="item.picUrl"
-                          />
-                          <div>
-                            <span class="ml-4 font-bold">
-                              {{ item.musicName }}
-                            </span>
-                            <span>{{ item.aliasName }}</span>
-                          </div>
-                        </div>
-                      </el-scrollbar>
-                    </div>
-                  </el-dialog>
+                    @init="initAudio"
+                  />
                   <IconButton
                     :icon="Playlist2Bold"
                     width="2rem"
@@ -628,18 +565,6 @@ $lyricPadding: 0.8rem;
 
 :deep(.el-slider__bar) {
   top: 0;
-}
-
-.dialog-play-song-list {
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  padding: 0.8rem;
-  border-radius: 1rem;
-}
-
-.dialog-play-song-list:hover {
-  background: rgb(98 97 97 / 37%);
 }
 
 .play-operation-panel {
