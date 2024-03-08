@@ -32,7 +32,7 @@ export const userPlaySongList = defineStore({
     isLastMusic: state => state.currentIndex > 0,
     // 是否有下一首音乐
     isNextMusic: (state): boolean => {
-      return state.currentIndex + 1 >= state.playListMusicArr.length;
+      return state.currentIndex + 1 > state.playListMusicArr.length;
     },
     // 歌单是否为空
     isEmpty: state => isAllEmpty(state.playListMusicArr),
@@ -88,12 +88,14 @@ export const userPlaySongList = defineStore({
     // 添加歌曲到下一个播放
     async addMusicToNextPlaySongList(musicId: number | number[]) {
       if (isAllEmpty(musicId)) return;
-      const ids = isArray(musicId) ? musicId : [musicId];
+      const addIds: number[] = isArray(musicId) ? musicId : [musicId];
+      // 筛选重复数据
+      const ids = this.playListMusicArr.filter(v => !addIds.includes(v.id));
+      if (isAllEmpty(ids)) return;
       const r = await getMusicPlayInfo(ids);
       this.addMusicToPlayByMusicInfo(r.data);
     },
     async playSongList(musicId: number | number[], index?: number) {
-      this.clearPlaySong();
       this.setPlaySongListByMusicIds(musicId, index);
     },
     // todo remove this method
@@ -128,6 +130,11 @@ export const userPlaySongList = defineStore({
     getCurrentMusicLyric(): MusicPlayLyrics {
       const music = this.getCurrentMusic;
       return music?.lyrics;
+    },
+    randomMusic() {
+      // 生成一个随机索引
+      // 获取随机选择的元素
+      this.currentIndex = Math.floor(Math.random() * this.playListMusicArr);
     }
   },
   persist: {
