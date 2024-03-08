@@ -27,6 +27,7 @@ import { getActualWidthOfChars } from "@/utils/textWidthUtil";
 import { type MusicPlayInfo } from "@/api/model/Music";
 import AudioPlay from "@/layout/components/musicPlay/components/AudioPlay/index.vue";
 import Lyrics from "@/layout/components/musicPlay/components/lyrics/index.vue";
+import IconButton from "@/layout/components/musicPlay/components/IconButton/index.vue";
 
 const { widthRef } = useDialog();
 const { closePlayMusic } = useNav();
@@ -293,9 +294,8 @@ const changeMusicDuration = () => {
 
 <template>
   <div class="main-box" :style="state.style.bgColor">
-    <div class="toBack icon-bg">
-      <IconifyIconOffline
-        class="icon-scale"
+    <div class="toBack">
+      <IconButton
         :icon="DownFill"
         width="3rem"
         height="3rem"
@@ -319,8 +319,9 @@ const changeMusicDuration = () => {
                 <span
                   class="music-font"
                   :class="{ animate: state.audio.musicTitleWidth === 2 }"
-                  >{{ musicInfo?.musicName }}</span
                 >
+                  {{ musicInfo.musicName }}
+                </span>
               </div>
             </div>
           </div>
@@ -351,56 +352,44 @@ const changeMusicDuration = () => {
               @mouseup="changeMusicDuration"
             />
             <div class="flex justify-between mt-2">
-              <span class="select-none">{{
-                dateFormater("mm:ss", state.audio.timeProgressBar * 1000)
-              }}</span>
+              <span class="select-none">
+                {{ dateFormater("mm:ss", state.audio.timeProgressBar * 1000) }}
+              </span>
               <span class="select-none">
                 {{ dateFormater("mm:ss", musicInfo?.timeLength) }}
               </span>
             </div>
             <div class="play-operation-panel">
               <div class="flex items-center justify-between w-full">
-                <div class="icon-bg">
-                  <IconifyIconOffline
-                    class="icon-scale"
-                    :icon="state.icon.loopTypeIcon"
-                    width="2rem"
-                    height="2rem"
-                    @click="musicLoopType"
-                  />
-                </div>
-                <div class="icon-bg">
-                  <IconifyIconOffline
-                    class="cursor-pointer icon-scale"
-                    :icon="RewindBackBoldDuotone"
-                    width="2.8rem"
-                    height="2.8rem"
-                    @click="lastMusic"
-                  />
-                </div>
+                <IconButton
+                  :icon="state.icon.loopTypeIcon"
+                  width="2rem"
+                  height="2rem"
+                  @click="musicLoopType"
+                />
+                <IconButton
+                  :icon="RewindBackBoldDuotone"
+                  width="2.8rem"
+                  height="2.8rem"
+                  @click="lastMusic"
+                />
                 <div>
                   <div v-if="state.audio.loading">
                     <div v-if="storeHook.isPlay">
-                      <div class="icon-bg">
-                        <IconifyIconOffline
-                          class="cursor-pointer icon-scale"
-                          :icon="PauseCircleBold"
-                          width="3.25rem"
-                          height="3.25rem"
-                          @click="onPause"
-                        />
-                      </div>
+                      <IconButton
+                        :icon="PauseCircleBold"
+                        width="3.25rem"
+                        height="3.25rem"
+                        @click="onPause"
+                      />
                     </div>
                     <div v-else>
-                      <div class="icon-bg">
-                        <IconifyIconOffline
-                          class="cursor-pointer icon-scale"
-                          :icon="PlayBold"
-                          width="3.25rem"
-                          height="3.25rem"
-                          @click="onPlay"
-                        />
-                      </div>
+                      <IconButton
+                        :icon="PlayBold"
+                        width="3.25rem"
+                        height="3.25rem"
+                        @click="onPlay"
+                      />
                     </div>
                   </div>
                   <IconifyIconOffline
@@ -411,15 +400,12 @@ const changeMusicDuration = () => {
                     height="3.25rem"
                   />
                 </div>
-                <div class="icon-bg">
-                  <IconifyIconOffline
-                    class="cursor-pointer icon-scale"
-                    :icon="RewindForwardBoldDuotone"
-                    width="2.8rem"
-                    height="2.8rem"
-                    @click="nextMusic"
-                  />
-                </div>
+                <IconButton
+                  :icon="RewindForwardBoldDuotone"
+                  width="2.8rem"
+                  height="2.8rem"
+                  @click="nextMusic"
+                />
                 <div>
                   <el-dialog
                     v-model="state.dialog.playList"
@@ -443,24 +429,21 @@ const changeMusicDuration = () => {
                             :src="item.picUrl"
                           />
                           <div>
-                            <span class="ml-4 font-bold">{{
-                              item.musicName
-                            }}</span>
+                            <span class="ml-4 font-bold">
+                              {{ item.musicName }}
+                            </span>
                             <span>{{ item.aliasName }}</span>
                           </div>
                         </div>
                       </el-scrollbar>
                     </div>
                   </el-dialog>
-                  <div class="icon-bg">
-                    <IconifyIconOffline
-                      class="cursor-pointer icon-scale"
-                      :icon="Playlist2Bold"
-                      width="2rem"
-                      height="2rem"
-                      @click="state.dialog.playList = true"
-                    />
-                  </div>
+                  <IconButton
+                    :icon="Playlist2Bold"
+                    width="2rem"
+                    height="2rem"
+                    @click="state.dialog.playList = true"
+                  />
                 </div>
               </div>
             </div>
@@ -666,35 +649,6 @@ $lyricPadding: 0.8rem;
   @media screen and (width <= 720px) {
     justify-content: center;
   }
-}
-
-.icon-bg {
-  display: inline-flex;
-  flex-wrap: nowrap;
-  align-items: center;
-  justify-content: center;
-  width: 4rem;
-  height: 4rem;
-  border-radius: 1rem;
-  //transition: transform ease-in-out 0.2s;
-}
-
-.icon-bg:hover {
-  background: #dedede7c;
-  border-radius: 1rem;
-}
-
-.icon-bg:active {
-  background-color: #cecececb;
-  border-radius: 1rem;
-}
-
-.icon-scale {
-  transition: transform cubic-bezier(0.4, 0, 0.2, 1) 0.15s;
-}
-
-.icon-scale:active {
-  transform: scale(0.8, 0.8);
 }
 
 // 背景渐变动画
