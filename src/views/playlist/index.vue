@@ -4,7 +4,7 @@ import MenuFill from "@iconify-icons/mingcute/menu-fill";
 import { clone, storageLocal, storageSession, useDark } from "@pureadmin/utils";
 import { ElTable } from "element-plus";
 import { CellStyle } from "element-plus/es";
-import { onMounted, reactive, ref, watch } from "vue";
+import { nextTick, onMounted, reactive, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router"; //1.先在需要跳转的页面引入useRouter
 import { MusicSearchReq } from "@/api/model/common";
 import {
@@ -206,7 +206,11 @@ const createPlayListButton = () => {
         addPlayListDialogVisible.value = false;
         if (res.code === "200") {
           message("创建成功", { type: "success" });
-          initRouter().then(() => router.push(String(res.data.id)));
+          initRouter().then(() => {
+            nextTick().then(() => {
+              router.push(`/playlist/${res.data.id}`);
+            });
+          });
         } else {
           message(`创建失败${res.message}`, { type: "error" });
         }
