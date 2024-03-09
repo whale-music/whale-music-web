@@ -35,8 +35,8 @@ export interface PlayListRes extends PicUrl {
   timeLength: number;
   updateTime: string;
   createTime: string;
-  album: Album;
-  artists: Artist[];
+  album: { id: number; albumName: string };
+  artists: Array<{ id: number; artistName: string; aliasName: string }>;
 }
 
 /** 获取全部歌曲信息 */
@@ -51,11 +51,12 @@ export interface PlayInfoRes {
   playListName: string;
   picId: number;
   picUrl: string;
-  collectTag: string;
+  collectTag: string[];
   type: number;
   description?: any;
   userId: number;
   sort: number;
+  nickname: string;
   subscribed: boolean;
   createTime: string;
   updateTime: string;
@@ -70,8 +71,16 @@ export const createPlayList = (name: string) => {
   return http.request<R<PlayInfoRes>>("put", `/admin/playlist/${name}`);
 };
 
+export interface UpdatePlayListReq {
+  collectTag: string[];
+  id: number;
+  playListName: string;
+  type: number;
+  description: string;
+}
+
 /** 修改歌单信息 */
-export const updatePlayListInfo = (data: PlayInfoRes) => {
+export const updatePlayListInfo = (data: UpdatePlayListReq) => {
   return http.request<R<PlayInfoRes>>("post", `/admin/playlist/info`, { data });
 };
 

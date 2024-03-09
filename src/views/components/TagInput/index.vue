@@ -45,6 +45,10 @@ const randomType = (): msgType => {
         >{{ item }}
       </el-tag>
     </div>
-    <el-input v-model="tag" @keyup.enter="selectTag" />
+    <el-input
+      v-model="tag"
+      placeholder="请输入，如果需要多个，可用英文逗号分割"
+      @keyup.enter="selectTag"
+    />
   </div>
 </template>

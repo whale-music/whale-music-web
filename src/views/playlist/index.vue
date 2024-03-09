@@ -6,10 +6,7 @@ import { ElTable } from "element-plus";
 import { CellStyle } from "element-plus/es";
 import { onMounted, reactive, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router"; //1.先在需要跳转的页面引入useRouter
-
 import { MusicSearchReq } from "@/api/model/common";
-import { UserConverter } from "@/api/model/User";
-import { getMusicUrl } from "@/api/music";
 import {
   createPlayList,
   deletePlayList,
@@ -17,11 +14,8 @@ import {
   getPlayListInfo,
   PlayInfoRes,
   PlayListRes,
-  tracksMusicToPlayList,
-  updatePlayListInfo
+  tracksMusicToPlayList
 } from "@/api/playlist";
-import { getUserInfo } from "@/api/user";
-import Wbutton from "@/components/button/index.vue";
 import DownloadIcon from "@/components/DownloadIcon/download.vue";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import Segmented, { type OptionsType } from "@/components/ReSegmented";
@@ -30,6 +24,8 @@ import { initRouter } from "@/router/utils";
 import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
 import { dateFormater } from "@/utils/dateUtil";
 import { message } from "@/utils/message";
+import DialogEditPlayList from "@/views/components/PlayList/Dialog/DialogEditPlayList/index.vue";
+import DialogAbout from "@/views/components/PlayList/Dialog/DialogAbout/index.vue";
 
 const { onPlayMusic } = useNav();
 const route = useRoute();
@@ -44,7 +40,7 @@ const state = reactive<{
   };
   table: {
     optionSwitch: Array<OptionsType>;
-    optionSwitchValue: string;
+    optionSwitchValue: number;
   };
 }>({
   search: {
@@ -54,18 +50,18 @@ const state = reactive<{
   },
   table: {
     optionSwitch: undefined,
-    optionSwitchValue: storageLocal().getItem("layoutSwitch")
+    optionSwitchValue: storageLocal().getItem<number>("layoutSwitch")
   }
 });
 
 /** 只设置图标 */
 state.table.optionSwitch = [
   {
-    value: "radio",
+    value: 0,
     icon: MenuFill
   },
   {
-    value: "multiple",
+    value: 1,
     icon: ListCheckFill
   }
 ];
@@ -137,13 +133,6 @@ const tableHeaderCellStyle = ({ columnIndex }): CellStyle<any> => {
   }
 };
 
-const musicPlayConfig = reactive({
-  url: "",
-  totalTime: 0,
-  isPlay: true,
-  isDisplay: false
-});
-
 const getPlay = (id: string) => {
   state.search.req.musicName = state.search.name;
   state.search.req.artistName = state.search.name;
@@ -184,29 +173,13 @@ const playlistInfo = ref<PlayInfoRes>({
   sort: 0,
   subscribed: false,
   type: 0,
-  collectTag: null,
+  collectTag: [],
   updateTime: "",
   userId: 0
 });
 
 const modifyPlayListInfo = ref<PlayInfoRes>();
 
-const userInfo = ref<UserConverter>({
-  accountType: null,
-  avatarUrl: "",
-  backgroundPicUrl: "",
-  lastLoginIp: "",
-  roleName: "",
-  signature: "",
-  status: false,
-  createTime: "",
-  id: null,
-  lastLoginTime: "",
-  nickname: "",
-  password: "",
-  updateTime: "",
-  username: ""
-});
 const playListInfoFlag = ref(true);
 // 生命周期挂载
 onMounted(async () => {
@@ -216,9 +189,6 @@ onMounted(async () => {
     const playInfoResR = await getPlayListInfo(route.name.toString());
     playlistInfo.value = playInfoResR.data;
     modifyPlayListInfo.value = clone(playlistInfo.value);
-    // 查询用户信息
-    const userInfoResR = await getUserInfo(playInfoResR.data.userId);
-    userInfo.value = userInfoResR.data;
   } catch (e) {
     message(`请求出错${e}`, { type: "error" });
   }
@@ -263,34 +233,7 @@ const deletePlayListButton = () => {
   });
 };
 
-// 播放音乐
-const rowDoubleClick = (data: any) => {
-  console.log(data);
-  musicPlayConfig.isDisplay = false;
-  getMusicUrl(data.id).then(res => {
-    musicPlayConfig.url = res.data[0].rawUrl;
-    console.log(musicPlayConfig);
-    musicPlayConfig.isDisplay = true;
-  });
-  musicPlayConfig.totalTime = data.timeLength;
-  musicPlayConfig.isPlay = true;
-};
-
 const editPlayInfoFlag = ref<boolean>(false);
-const updatePlayInfo = async () => {
-  try {
-    const res = await updatePlayListInfo(modifyPlayListInfo.value);
-    if (res.code === "200") {
-      message("修改成功", { type: "success" });
-      editPlayInfoFlag.value = false;
-    } else {
-      message(`修改失败: ${res.message}`, { type: "error" });
-      modifyPlayListInfo.value = clone(playlistInfo.value);
-    }
-  } catch (e) {
-    message(`请求失败: ${e}`, { type: "error" });
-  }
-};
 
 const aboutFlag = ref<boolean>(false);
 
@@ -303,21 +246,6 @@ const handleCurrentChange = val => {
   state.search.req.page.pageIndex = val;
   onSubmit();
 };
-
-const playListStatusOptions = [
-  {
-    value: 0,
-    label: "普通歌单"
-  },
-  {
-    value: 1,
-    label: "喜爱歌单"
-  },
-  {
-    value: 2,
-    label: "推荐歌单"
-  }
-];
 
 const deletePlayListMusicMethod = async () => {
   const map = multipleSelection.value.map(value => value.id);
@@ -344,7 +272,7 @@ const onChangeOptionSwitch = ({ option }) => {
   const { value } = option;
   state.table.optionSwitchValue = value;
   multipleSelection.value = [];
-  storageLocal().setItem("layoutSwitch", state.table.optionSwitchValue);
+  storageLocal().setItem<number>("layoutSwitch", state.table.optionSwitchValue);
 };
 
 const toMusicInfo = id => {
@@ -395,7 +323,16 @@ const deleteDialogVisible = ref(false);
 const throttle = ref(0);
 </script>
 <template>
-  <div ref="divRef">
+  <div>
+    <DialogEditPlayList
+      v-model="editPlayInfoFlag"
+      v-model:play-list-info="playlistInfo"
+    />
+    <DialogAbout v-model="aboutFlag" :play-list-info="playlistInfo" />
+    <el-empty
+      v-if="emptyFlag"
+      description="这里没有歌曲，请在歌单界面添加歌曲到歌单"
+    />
     <!--歌单操作面板-->
     <div
       v-show="multipleSelection.length > 0 && !emptyFlag"
@@ -404,9 +341,9 @@ const throttle = ref(0);
       <div class="operation-panel">
         <div class="flex items-center rounded">
           <span class="p-4">
-            <span class="text-sm" style="color: var(--el-text-color-regular)"
-              >已选择</span
-            >
+            <span class="text-sm" style="color: var(--el-text-color-regular)">
+              已选择
+            </span>
             {{ multipleSelection.length }}
           </span>
           <IconifyIconOnline
@@ -450,82 +387,6 @@ const throttle = ref(0);
         </div>
       </div>
     </div>
-    <el-dialog
-      v-model="editPlayInfoFlag"
-      title="歌单信息"
-      width="45%"
-      :show-close="false"
-    >
-      <el-form label-position="top" :model="modifyPlayListInfo">
-        <el-form-item label="歌单名">
-          <el-input
-            v-model="modifyPlayListInfo.playListName"
-            placeholder="歌单名"
-          />
-        </el-form-item>
-        <el-form-item label="封面">
-          <el-input
-            v-model="modifyPlayListInfo.picUrl"
-            placeholder="https://"
-          />
-        </el-form-item>
-        <el-form-item label="歌单Tag">
-          <span
-            class="text-xs font-bold"
-            style="color: var(--el-text-color-placeholder)"
-            >多个可以使用英文逗号隔开</span
-          >
-          <el-input v-model="modifyPlayListInfo.collectTag" />
-        </el-form-item>
-        <el-form-item label="歌单状态">
-          <el-select v-model="modifyPlayListInfo.type" placeholder="">
-            <el-option
-              v-for="item in playListStatusOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="歌单描述" prop="desc">
-          <el-input v-model="playlistInfo.description" type="textarea" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="editPlayInfoFlag = false">取消</el-button>
-          <el-button type="primary" @click="updatePlayInfo"> 更新 </el-button>
-        </span>
-      </template>
-    </el-dialog>
-    <el-dialog v-model="aboutFlag" width="30%" :show-close="false">
-      <div>
-        <div class="mb-4">
-          <h2>歌单名</h2>
-          <span>{{ playlistInfo.playListName }}</span>
-        </div>
-        <div class="mb-4">
-          <h2>封面</h2>
-          <span class="block truncate w-[23rem]">{{
-            playlistInfo.picUrl
-          }}</span>
-        </div>
-        <div class="mb-4">
-          <h2>歌单描述</h2>
-          <span class="block truncate w-[23rem]">{{
-            playlistInfo.description
-          }}</span>
-        </div>
-      </div>
-      <template #header="{ titleId, titleClass }">
-        <div class="flex justify-between">
-          <h4 :id="titleId" :class="titleClass">关于</h4>
-          <Wbutton @click="message('功能正在开发中', { type: 'info' })"
-            >导出歌单</Wbutton
-          >
-        </div>
-      </template>
-    </el-dialog>
     <div>
       <div class="layout-container">
         <el-skeleton
@@ -581,8 +442,8 @@ const throttle = ref(0);
                   class="mr-8 mt-2"
                   type="primary"
                   @click="addPlayListDialogVisible = true"
-                  >新建歌单</el-button
-                >
+                  >新建歌单
+                </el-button>
                 <el-dialog
                   v-model="addPlayListDialogVisible"
                   width="30%"
@@ -603,7 +464,7 @@ const throttle = ref(0);
                 </el-dialog>
               </div>
               <div class="mt-2 mb-2">
-                <span class="mr-4">{{ userInfo.nickname }}</span>
+                <span class="mr-4">{{ playlistInfo.nickname }}</span>
                 <span class="text-sm text-[var(--el-color-info-light-3)]"
                   >{{
                     dateFormater(
@@ -637,8 +498,8 @@ const throttle = ref(0);
                   type="danger"
                   round
                   @click="deleteDialogVisible = true"
-                  >删除歌单</el-button
-                >
+                  >删除歌单
+                </el-button>
                 <el-dialog
                   v-model="deleteDialogVisible"
                   title="确定删除歌单吗? "
@@ -680,8 +541,8 @@ const throttle = ref(0);
                     :underline="false"
                     type="primary"
                     @click="editPlayInfoFlag = true"
-                    >添加简介</el-link
-                  >
+                    >添加简介
+                  </el-link>
                 </div>
 
                 <!--显示专辑详细信息-->
@@ -694,14 +555,14 @@ const throttle = ref(0);
                   <template #header>
                     <h2>{{ playlistInfo.playListName }}</h2>
                     <span class="font-bold text-sm text-neutral-400">{{
-                      userInfo.nickname
+                      playlistInfo.nickname
                     }}</span>
                     <span class="text-sm text-neutral-400">&#32;·&#32;</span>
                     <span class="text-sm text-neutral-400">
-                      {{ dateFormater("YYYY", playlistInfo.createTime) }}</span
-                    >
+                      {{ dateFormater("YYYY", playlistInfo.createTime) }}
+                    </span>
                   </template>
-                  <el-scrollbar class="show-desc">
+                  <el-scrollbar height="20rem">
                     <span>{{ playlistInfo.description }}</span>
                   </el-scrollbar>
                 </el-dialog>
@@ -722,12 +583,8 @@ const throttle = ref(0);
               @keydown.enter="onSubmit"
             />
             <Segmented
+              v-model="state.table.optionSwitchValue"
               :options="state.table.optionSwitch"
-              :defaultValue="
-                state.table.optionSwitch.findIndex(
-                  value => value.value === state.table.optionSwitchValue
-                )
-              "
               @change="onChangeOptionSwitch"
             />
           </div>
@@ -735,7 +592,7 @@ const throttle = ref(0);
       </div>
       <div v-show="!emptyFlag" class="mt-6">
         <el-skeleton
-          v-if="state.table.optionSwitchValue === 'multiple'"
+          v-if="state.table.optionSwitchValue === 1"
           animated
           :loading="playListInfoFlag"
           :throttle="throttle"
@@ -759,7 +616,6 @@ const throttle = ref(0);
               :cell-style="cellStyle"
               :header-cell-style="tableHeaderCellStyle"
               @selection-change="handleSelectionChange"
-              @row-dblclick="rowDoubleClick"
             >
               <el-table-column type="selection" width="55" />
               <el-table-column fixed type="index" width="60" />
@@ -776,9 +632,9 @@ const throttle = ref(0);
                 width="450"
               >
                 <template #default="scope">
-                  <span class="font-sans subpixel-antialiased">{{
-                    scope.row.musicName
-                  }}</span>
+                  <span class="font-sans subpixel-antialiased">
+                    {{ scope.row.musicName }}
+                  </span>
                   <span class="font">&emsp;{{ scope.row.aliasName }}</span>
                 </template>
               </el-table-column>
@@ -789,14 +645,15 @@ const throttle = ref(0);
                     v-for="item in scope.row.artists"
                     :key="item.id"
                     disable-transitions
-                    >{{ item.artistName }}</el-tag
                   >
+                    {{ item.artistName }}
+                  </el-tag>
                 </template>
               </el-table-column>
               <el-table-column label="专辑" :show-overflow-tooltip="true">
                 <template #default="scope">
-                  <el-tag>
-                    {{ scope.row.album.albumName }}
+                  <el-tag v-if="scope.row.album?.albumName">
+                    {{ scope.row.album?.albumName }}
                   </el-tag>
                 </template>
               </el-table-column>
@@ -806,9 +663,9 @@ const throttle = ref(0);
                 :show-overflow-tooltip="true"
               >
                 <template #default="scope">
-                  <span class="font-light">{{
-                    dateFormater("mm:ss", scope.row.timeLength)
-                  }}</span>
+                  <span class="font-light">
+                    {{ dateFormater("mm:ss", scope.row.timeLength) }}
+                  </span>
                 </template>
               </el-table-column>
               <el-table-column
@@ -817,9 +674,11 @@ const throttle = ref(0);
                 :show-overflow-tooltip="true"
               >
                 <template #default="scope">
-                  <span>{{
-                    dateFormater("YYYY-MM-dd HH:mm:ss", scope.row.createTime)
-                  }}</span>
+                  <span>
+                    {{
+                      dateFormater("YYYY-MM-dd HH:mm:ss", scope.row.createTime)
+                    }}
+                  </span>
                 </template>
               </el-table-column>
             </el-table>
@@ -862,7 +721,7 @@ const throttle = ref(0);
                 </p>
                 <el-link :underline="false" @click="toAlbum(item.album.id)">
                   <p class="truncate w-40 font-bold text-sm">
-                    {{ item.album.albumName }}
+                    {{ item.album?.albumName }}
                   </p>
                 </el-link>
               </div>
@@ -885,10 +744,6 @@ const throttle = ref(0);
         />
       </div>
     </div>
-    <el-empty
-      v-if="emptyFlag"
-      description="这里没有歌曲，请在歌单界面添加歌曲到歌单"
-    />
   </div>
 </template>
 <style lang="scss" scoped>
@@ -910,12 +765,6 @@ const throttle = ref(0);
 
 .table-data {
   border-radius: 1rem;
-}
-
-:deep(.el-input__wrapper) {
-  border: 1px solid var(--el-color-primary-light-8);
-  border-radius: 5px;
-  box-shadow: 0 0 0 !important;
 }
 
 .list-grid {
@@ -993,15 +842,6 @@ const throttle = ref(0);
   color: var(--el-color-info-light-3);
   text-overflow: ellipsis;
   white-space: pre-line;
-}
-
-.show-desc {
-  height: 20rem;
-  overflow-y: auto;
-}
-
-:deep(.el-dialog) {
-  border-radius: 1rem;
 }
 
 .desc {
