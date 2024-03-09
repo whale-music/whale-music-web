@@ -103,7 +103,6 @@ const cellStyle = ({ row, columnIndex }): CellStyle<any> => {
 
 <template>
   <RePageTable
-    ref="multipleTableRef"
     v-model:select-count="selectCount"
     :page="page"
     :style="cellStyle"
