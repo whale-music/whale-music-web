@@ -1,6 +1,10 @@
 <script lang="ts" setup>
 import Loading3Fill from "@iconify-icons/mingcute/loading-3-fill";
 
+defineOptions({
+  name: "WButton"
+});
+
 const pros = defineProps({
   color: String,
   width: {
