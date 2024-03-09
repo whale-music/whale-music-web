@@ -53,3 +53,7 @@ addIcon("ri:ubuntu-fill", UbuntuFill);
 addIcon("ri:information-line", InformationLine);
 addIcon("ri:terminal-window-line", TerminalWindowLine);
 addIcon("ri:checkbox-circle-line", CheckboxCircleLine);
+
+// @iconify-icons/solar
+import Playlist2Bold from "@iconify-icons/solar/playlist-2-bold";
+addIcon("solar:playlist-2-bold", Playlist2Bold);
