@@ -95,7 +95,7 @@ export interface ArtistInfoRes {
   artistName: string;
   aliasName: string;
   artistNames: string[];
-  sex?: any;
+  sex?: string;
   picId: number;
   picUrl: string;
   birth?: any;

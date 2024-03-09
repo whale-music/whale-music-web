@@ -1,26 +1,18 @@
 <script lang="ts" setup>
-import { clone } from "@pureadmin/utils";
-import {
-  genFileId,
-  UploadInstance,
-  UploadProps,
-  UploadRawFile
-} from "element-plus";
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-
-import { Artist } from "@/api/model/Artist";
 import {
   ArtistInfoRes,
   ArtistMvListRes,
   getArtistInfo,
-  getMvList,
-  saveOrUpdateArtist
+  getMvList
 } from "@/api/singer";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { dateFormater } from "@/utils/dateUtil";
-import { message } from "@/utils/message";
 import VideoCard from "@/views/components/videoCard/index.vue";
+import DialogEditArtistInfo from "@/views/info/artistInfo/components/DialogEditArtistInfo/index.vue";
+import DisPlayDefault from "@/views/info/musicInfo/components/DescriptionMusic/components/DisPlayDefault/index.vue";
+
 const router = useRouter();
 
 const idValue = ref();
@@ -52,7 +44,6 @@ async function initInfo() {
     skeletonLoadingFlag.value = true;
     const res = await getArtistInfo(idValue.value);
     artistInfo.value = res.data;
-    modifyArtistInfo.value = clone(artistInfo.value, true);
 
     const resMvList = await getMvList(idValue.value);
     mvList.value = resMvList.data;
@@ -70,56 +61,9 @@ onMounted(() => {
   initInfo();
 });
 
-const modifyArtistInfo = ref<ArtistInfoRes>();
 const editArtistInfoFlag = ref<boolean>(false);
 
 const centerDialogVisible = ref<boolean>();
-
-const editArtistInfo = async () => {
-  const data: Artist = {
-    aliasName: modifyArtistInfo.value.aliasName,
-    artistName: modifyArtistInfo.value.artistName,
-    birth: modifyArtistInfo.value.birth,
-    createTime: modifyArtistInfo.value.createTime,
-    id: modifyArtistInfo.value.id,
-    introduction: modifyArtistInfo.value.introduction,
-    location: modifyArtistInfo.value.location,
-    pic: modifyArtistInfo.value.picUrl,
-    sex: modifyArtistInfo.value.sex,
-    updateTime: modifyArtistInfo.value.updateTime
-  };
-  const r = await saveOrUpdateArtist(data);
-  if (r.code == "200") {
-    message("更新成功", { type: "success" });
-    editArtistInfoFlag.value = false;
-    artistInfo.value = modifyArtistInfo.value;
-  } else {
-    message(`更新失败: ${r.message}`, { type: "error" });
-    modifyArtistInfo.value = artistInfo.value;
-  }
-};
-
-const { VITE_PROXY_HOST } = import.meta.env;
-const proxyHost = VITE_PROXY_HOST == null ? "" : VITE_PROXY_HOST;
-const uploadPicAction = ref(`${proxyHost}/admin/pic/upload`);
-
-const picUpload = ref<UploadInstance>();
-// 上传封面
-const handleExceed: UploadProps["onExceed"] = files => {
-  picUpload.value!.clearFiles();
-  const file = files[0] as UploadRawFile;
-  file.uid = genFileId();
-  picUpload.value!.handleStart(file);
-};
-
-const handleSuccess = (response: any) => {
-  if (response.code == 200) {
-    initInfo();
-    message("封面更新成功", { type: "success" });
-  } else {
-    message("封面更新失败", { type: "error" });
-  }
-};
 
 const toAlbum = res => {
   router.push({
@@ -130,61 +74,11 @@ const toAlbum = res => {
 </script>
 <template>
   <div>
-    <el-dialog v-model="editArtistInfoFlag" :show-close="false">
-      <div>
-        <el-scrollbar height="20rem">
-          <el-form label-position="top">
-            <el-form-item label="歌手名">
-              <el-input v-model="modifyArtistInfo.artistName" />
-            </el-form-item>
-            <el-form-item label="歌手名别名(请用英文,逗号分割)">
-              <el-input v-model="modifyArtistInfo.aliasName" />
-            </el-form-item>
-            <el-form-item label="封面">
-              <div class="flex items-center justify-center w-full gap-4">
-                <el-input v-model="modifyArtistInfo.picUrl" disabled />
-                <el-upload
-                  ref="picUpload"
-                  class="flex justify-center items-center"
-                  :data="{ id: modifyArtistInfo.id, type: 'artist' }"
-                  :action="uploadPicAction"
-                  :limit="1"
-                  :on-exceed="handleExceed"
-                  :on-success="handleSuccess"
-                  :auto-upload="true"
-                >
-                  <template #trigger>
-                    <el-button type="primary"> 上传封面 </el-button>
-                  </template>
-                </el-upload>
-              </div>
-            </el-form-item>
-            <el-form-item label="出生日期">
-              <el-date-picker
-                v-model="modifyArtistInfo.birth"
-                type="date"
-                value-format="YYYY-MM-DDT00:00:00"
-                size="default"
-              />
-            </el-form-item>
-            <el-form-item label="居住地">
-              <el-input v-model="modifyArtistInfo.location" />
-            </el-form-item>
-            <el-form-item label="介绍">
-              <el-input
-                v-model="modifyArtistInfo.introduction"
-                type="textarea"
-                :autosize="{ maxRows: 10, minRows: 4 }"
-              />
-            </el-form-item>
-          </el-form>
-        </el-scrollbar>
-      </div>
-      <template #footer>
-        <el-button @click="editArtistInfoFlag = false">取消</el-button>
-        <el-button type="primary" @click="editArtistInfo">更新</el-button>
-      </template>
-    </el-dialog>
+    <DialogEditArtistInfo
+      v-model="editArtistInfoFlag"
+      :artist-info="artistInfo"
+      @onSubmit="initInfo"
+    />
     <el-skeleton :loading="skeletonLoadingFlag" animated>
       <template #template>
         <div class="show-artist-data">
@@ -221,38 +115,48 @@ const toAlbum = res => {
           <div class="info">
             <div class="flex flex-nowrap items-center justify-between">
               <p class="title">{{ artistInfo.artistName }}</p>
-              <el-button type="primary" round @click="editArtistInfoFlag = true"
-                >编辑信息
+              <el-button
+                type="primary"
+                round
+                @click="editArtistInfoFlag = true"
+              >
+                编辑信息
               </el-button>
             </div>
             <div class="flex flex-nowrap gap-2">
-              <el-link
+              <h3
                 v-for="(item, index) in artistInfo.artistNames"
                 :key="index"
-                :underline="false"
-                ><span class="align-middle font-semibold">{{
-                  item
-                }}</span></el-link
+                class="align-middle font-semibold opacity-50"
               >
+                {{ item }}
+              </h3>
             </div>
-            <span
-              v-show="artistInfo.birth !== '' && artistInfo.birth !== null"
-              class="show-font"
-              >出生年月:<span>{{ artistInfo.birth }}</span>
-            </span>
-            <p
-              v-show="artistInfo.sex !== null && artistInfo.sex !== ''"
-              class="show-font"
-            >
-              性别: {{ artistInfo.sex }}
-            </p>
             <div>
-              <h2 class="mt-4" style="color: var(--el-color-info-light-3)">
-                介绍:
-              </h2>
+              <p class="font-bold">
+                性别:
+                <DisPlayDefault :value="artistInfo.birth">
+                  {{ artistInfo.sex ?? "unknown" }}
+                </DisPlayDefault>
+              </p>
+              <p class="font-bold">
+                出生日期:
+                <DisPlayDefault :value="artistInfo.birth">
+                  <span>{{ artistInfo.birth }}</span>
+                </DisPlayDefault>
+              </p>
+              <p class="font-bold">
+                居住地:
+                <DisPlayDefault :value="artistInfo.location">
+                  {{ artistInfo.location ?? "unknown" }}
+                </DisPlayDefault>
+              </p>
+            </div>
+            <div>
+              <h2 class="mt-4">介绍:</h2>
               <p class="content">
-                <span class="text-desc font-bold"
-                  >{{ artistInfo.introduction }}
+                <span class="text-desc font-bold">
+                  {{ artistInfo.introduction }}
                 </span>
               </p>
               <el-link
@@ -265,6 +169,7 @@ const toAlbum = res => {
                 @click="centerDialogVisible = !centerDialogVisible"
                 >[详情]
               </el-link>
+              <p v-else class="opacity-50">unknown</p>
 
               <!--显示专辑详细信息-->
               <el-dialog
@@ -402,11 +307,6 @@ const toAlbum = res => {
 
 .title {
   font-size: 3rem;
-}
-
-.show-font {
-  font-size: 1rem;
-  color: var(--el-color-info-light-3);
 }
 
 .content {
