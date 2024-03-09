@@ -61,6 +61,17 @@ const handleClickChange = (row: any) => {
 const handleSelectionChange = (val: []) => {
   selectCount.value = val;
 };
+
+const headerCellClassName = (data: {
+  row: any;
+  column: any;
+  rowIndex: number;
+  columnIndex: number;
+}): string => {
+  if (data.rowIndex === 0 && data.columnIndex === 0) {
+    return "flex justify-center";
+  }
+};
 </script>
 
 <template>
@@ -72,6 +83,7 @@ const handleSelectionChange = (val: []) => {
       v-loading="loading"
       class="table-container"
       :data="props.page.content"
+      :header-cell-class-name="headerCellClassName"
       @row-click="handleClickChange"
       @selection-change="handleSelectionChange"
     >
