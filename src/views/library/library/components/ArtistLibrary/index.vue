@@ -69,8 +69,6 @@ const cellStyle = ({ columnIndex }): CellStyle<any> => {
     style="width: 100%"
     :cell-style="cellStyle"
     :loading="loading"
-    @size-change="init()"
-    @current-change="init()"
   >
     <el-table-column type="selection" width="55" />
     <el-table-column width="110" :show-overflow-tooltip="false">

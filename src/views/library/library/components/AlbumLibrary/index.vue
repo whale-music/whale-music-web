@@ -59,13 +59,7 @@ const cellStyle = ({ columnIndex }): CellStyle<any> => {
 </script>
 
 <template>
-  <RePageTable
-    :page="page"
-    :cell-style="cellStyle"
-    :loading="loading"
-    @current-change="init()"
-    @size-change="init()"
-  >
+  <RePageTable :page="page" :cell-style="cellStyle" :loading="loading">
     <el-table-column type="selection" width="55" />
     <el-table-column width="110" :show-overflow-tooltip="false">
       <template #default="scope">
