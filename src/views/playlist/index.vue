@@ -329,10 +329,6 @@ const throttle = ref(0);
       v-model:play-list-info="playlistInfo"
     />
     <DialogAbout v-model="aboutFlag" :play-list-info="playlistInfo" />
-    <el-empty
-      v-if="emptyFlag"
-      description="这里没有歌曲，请在歌单界面添加歌曲到歌单"
-    />
     <!--歌单操作面板-->
     <div
       v-show="multipleSelection.length > 0 && !emptyFlag"
@@ -744,6 +740,10 @@ const throttle = ref(0);
         />
       </div>
     </div>
+    <el-empty
+      v-if="emptyFlag"
+      description="这里没有歌曲，请在歌单界面添加歌曲到歌单"
+    />
   </div>
 </template>
 <style lang="scss" scoped>
