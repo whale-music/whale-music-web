@@ -91,7 +91,7 @@ const transitionMain = defineComponent({
     <router-view>
       <template #default="{ Component, route }">
         <KeepAliveFrame :currComp="Component" :currRoute="route">
-          <template #default="{ Comp, path, frameInfo }">
+          <template #default="{ Comp, fullPath, frameInfo }">
             <el-scrollbar
               v-if="props.fixedHeader"
               :wrap-style="{
@@ -119,7 +119,7 @@ const transitionMain = defineComponent({
                   >
                     <component
                       :is="Comp"
-                      :key="path"
+                      :key="fullPath"
                       :frameInfo="frameInfo"
                       class="main-content"
                     />
@@ -127,7 +127,7 @@ const transitionMain = defineComponent({
                   <component
                     :is="Comp"
                     v-else
-                    :key="path"
+                    :key="fullPath"
                     :frameInfo="frameInfo"
                     class="main-content"
                   />
@@ -143,7 +143,7 @@ const transitionMain = defineComponent({
                 >
                   <component
                     :is="Comp"
-                    :key="path"
+                    :key="fullPath"
                     :frameInfo="frameInfo"
                     class="main-content"
                   />
@@ -151,7 +151,7 @@ const transitionMain = defineComponent({
                 <component
                   :is="Comp"
                   v-else
-                  :key="path"
+                  :key="fullPath"
                   :frameInfo="frameInfo"
                   class="main-content"
                 />
