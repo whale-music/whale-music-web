@@ -64,7 +64,7 @@ const removeMusic = async (musicId: number) => {
               radius="10px"
               :src="item.picUrl"
             />
-            <span class="font-bold lg:w-full w-40 truncate">
+            <span class="font-bold max-w-40 truncate">
               {{ item.musicName }}
             </span>
             <span class="opacity-50">{{ item.aliasName }}</span>
