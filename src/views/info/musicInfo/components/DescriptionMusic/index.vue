@@ -12,10 +12,10 @@ import { getUserPlayList, UserPlayListRes } from "@/api/playlist";
 import { isAllEmpty, useResizeObserver } from "@pureadmin/utils";
 import AddMusicToPlayList from "@/components/addMusicToPlayList/addMusicToPlayList.vue";
 import { getUserData } from "@/utils/auth";
-import DisPlayDefault from "@/views/info/musicInfo/components/DescriptionMusic/components/DisPlayDefault/index.vue";
 import SyncMusic from "@/views/info/musicInfo/components/Dialog/DialogEditMusicInfo/components/SyncMusic/index.vue";
 import DialogEditMusicInfo from "@/views/info/musicInfo/components/Dialog/DialogEditMusicInfo/index.vue";
 import DialogUploadMusic from "@/views/info/musicInfo/components/Dialog/DialogUploadMusic/index.vue";
+import DisPlayDefault from "@/views/components/DisPlayDefault/index.vue";
 
 defineOptions({
   name: "DescriptionMusic"
