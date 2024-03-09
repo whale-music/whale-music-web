@@ -335,12 +335,8 @@ const deletePlayListMusicMethod = async () => {
 };
 
 const addPlaySongList = async () => {
-  console.log("添加到播放歌单");
-  for (const valueElement of multipleSelection.value) {
-    await usePlaySongListStoreHook().addMusicToNextPlaySongList(
-      valueElement.id
-    );
-  }
+  const ids = multipleSelection.value.map(value => value.id);
+  await usePlaySongListStoreHook().setPlaySongListByMusicIds(ids);
   message("成功添加音乐到歌单", { type: "success" });
 };
 
