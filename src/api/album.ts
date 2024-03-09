@@ -21,7 +21,7 @@ export const getSelectAlbumList = (name: string) => {
   );
 };
 
-export const getAlbumDataInfo = (id: string) => {
+export const getAlbumDataInfo = (id: number) => {
   return http.request<R<AlbumInfo>>("get", `/admin/album/${id}`);
 };
 

@@ -17,6 +17,9 @@ import { getSelectSingerList } from "@/api/singer";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { dateFormater } from "@/utils/dateUtil";
 import { message } from "@/utils/message";
+import DialogEditAlbum from "@/views/info/albumInfo/components/DialogEditAlbum/index.vue";
+import DisPlayDefault from "@/views/components/DisPlayDefault/index.vue";
+import AlbumDetail from "@/views/info/albumInfo/components/AlbumDetail/index.vue";
 
 const router = useRouter();
 
@@ -24,11 +27,7 @@ const state = reactive({
   loading: {
     skeletonLoadingFlag: false
   },
-  input: {
-    musicArtistSearch: ""
-  },
-  albumInfo: {} as AlbumInfo,
-  modifyAlbumInfo: { artistIds: [] } as SaveOrUpdateAlbum
+  albumInfo: {} as AlbumInfo
 });
 
 onMounted(() => {
@@ -38,91 +37,17 @@ onMounted(() => {
 
 function initAlbumInfo() {
   state.loading.skeletonLoadingFlag = true;
-  getAlbumDataInfo(String(state.albumInfo.id)).then(res => {
-    state.albumInfo = res.data;
-    state.modifyAlbumInfo = clone(state.albumInfo, true);
-    state.modifyAlbumInfo.albumGenre = state.albumInfo.albumGenre;
-    state.modifyAlbumInfo.artistIds = state.modifyAlbumInfo.artistList.map(
-      value => value.id
-    );
-    // publishTime.value = clone(state.modifyAlbumInfo.publishTime, true);
-    state.loading.skeletonLoadingFlag = false;
-  });
+  getAlbumDataInfo(state.albumInfo.id)
+    .then(res => {
+      state.albumInfo = res.data;
+    })
+    .finally(() => {
+      state.loading.skeletonLoadingFlag = false;
+    });
 }
 
 const editAlbumInfoFlag = ref<boolean>(false);
 const centerDialogVisible = ref(false);
-
-const saveOrUpdate = async () => {
-  const r = await saveOrUpdateAlbum(state.modifyAlbumInfo);
-  if (r.code === "200") {
-    message("更新成功", { type: "success" });
-    initAlbumInfo();
-    editAlbumInfoFlag.value = false;
-  } else {
-    message(`更新失败${r.message}`, { type: "error" });
-    state.modifyAlbumInfo = {} as SaveOrUpdateAlbum;
-  }
-};
-
-// 删除歌手数据
-const albumArtistHandleClose = index => {
-  state.modifyAlbumInfo.artistIds =
-    state.modifyAlbumInfo.artistIds == undefined
-      ? []
-      : state.modifyAlbumInfo.artistIds;
-  state.modifyAlbumInfo.artistIds.splice(index, 1);
-  state.modifyAlbumInfo.artistList.splice(index, 1);
-};
-
-// 获取专辑歌手数据
-const albumArtistQuerySearchAsync = async (
-  queryString: string,
-  cb: (arg: any) => void
-) => {
-  const selectAlbumR = await getSelectSingerList(queryString);
-  if (selectAlbumR.code === "200" && selectAlbumR.data.length !== 0) {
-    cb(selectAlbumR.data);
-  }
-};
-
-// 歌手添加到保存数据中
-const albumArtistHandleSelect = (item: SelectArtist) => {
-  state.modifyAlbumInfo.artistIds =
-    state.modifyAlbumInfo.artistIds == undefined
-      ? []
-      : state.modifyAlbumInfo.artistIds;
-  const filter = state.modifyAlbumInfo.artistList.findIndex(
-    value => value.id === item.id
-  );
-  if (filter === -1) {
-    state.modifyAlbumInfo.artistList.push(item);
-    state.modifyAlbumInfo.artistIds.push(item.link);
-  }
-  state.input.musicArtistSearch = "";
-};
-
-const { VITE_PROXY_HOST } = import.meta.env;
-const proxyHost = VITE_PROXY_HOST == null ? "" : VITE_PROXY_HOST;
-const uploadPicAction = ref(`${proxyHost}/admin/pic/upload`);
-
-const picUpload = ref<UploadInstance>();
-// 上传封面
-const handleExceed: UploadProps["onExceed"] = files => {
-  picUpload.value!.clearFiles();
-  const file = files[0] as UploadRawFile;
-  file.uid = genFileId();
-  picUpload.value!.handleStart(file);
-};
-
-const handleSuccess = (response: any) => {
-  if (response.code == 200) {
-    initAlbumInfo();
-    message("封面更新成功", { type: "success" });
-  } else {
-    message("封面更新失败", { type: "error" });
-  }
-};
 
 const toMusicInfo = id => {
   router.push({
@@ -130,93 +55,16 @@ const toMusicInfo = id => {
     query: { id: id }
   });
 };
-
-const toArtist = id => {
-  router.push({
-    name: "ArtistInfo",
-    query: { id: id }
-  });
-};
 </script>
 <template>
   <div>
-    <!--编辑专辑信息-->
-    <el-dialog v-model="editAlbumInfoFlag" :show-close="false">
-      <el-scrollbar height="20rem">
-        <el-form label-position="top">
-          <el-form-item label="专辑名">
-            <el-input v-model="state.modifyAlbumInfo.albumName" />
-          </el-form-item>
-          <el-form-item label="封面">
-            <div class="flex items-center justify-center w-full gap-4">
-              <el-input v-model="state.modifyAlbumInfo.picUrl" disabled />
-              <el-upload
-                ref="picUpload"
-                class="flex justify-center items-center"
-                :data="{ id: state.modifyAlbumInfo.id, type: 'album' }"
-                :action="uploadPicAction"
-                :limit="1"
-                :show-file-list="false"
-                :on-exceed="handleExceed"
-                :on-success="handleSuccess"
-                :auto-upload="true"
-              >
-                <template #trigger>
-                  <el-button type="primary"> 上传封面 </el-button>
-                </template>
-              </el-upload>
-            </div>
-          </el-form-item>
-          <div class="flex flex-nowrap items-end">
-            <h1>专辑艺术家</h1>
-          </div>
-          <el-tag
-            v-for="(item, index) in state.modifyAlbumInfo.artistList"
-            :key="item"
-            effect="dark"
-            closable
-            round
-            @close="albumArtistHandleClose(index)"
-            >{{ item.artistName }}</el-tag
-          >
-          <el-autocomplete
-            v-model="state.input.musicArtistSearch"
-            class="w-full mt-1"
-            :fetch-suggestions="albumArtistQuerySearchAsync"
-            placeholder="请输入歌手名"
-            @select="albumArtistHandleSelect"
-          />
-          <el-form-item label="专辑流派">
-            <el-input v-model="state.modifyAlbumInfo.albumGenre" />
-          </el-form-item>
-          <el-form-item label="专辑版本">
-            <el-input v-model="state.modifyAlbumInfo.subType" />
-          </el-form-item>
-          <el-form-item label="唱片公司">
-            <el-input v-model="state.modifyAlbumInfo.company" />
-          </el-form-item>
-          <el-form-item label="发布时间">
-            <el-date-picker
-              v-model="state.modifyAlbumInfo.publishTime"
-              type="date"
-              value-format="YYYY-MM-DDT00:00:00"
-              size="default"
-            />
-          </el-form-item>
-          <el-form-item label="专辑描述">
-            <el-input
-              v-model="state.modifyAlbumInfo.description"
-              type="textarea"
-              :autosize="{ maxRows: 10, minRows: 4 }"
-            />
-          </el-form-item>
-        </el-form>
-      </el-scrollbar>
-      <template #footer>
-        <el-button @click="editAlbumInfoFlag = false">取消</el-button>
-        <el-button type="primary" @click="saveOrUpdate">更新</el-button>
-      </template>
-    </el-dialog>
+    <DialogEditAlbum
+      v-model="editAlbumInfoFlag"
+      :album-info="state.albumInfo"
+      @onSubmit="initAlbumInfo"
+    />
+    <!--显示专辑详细信息-->
+    <AlbumDetail v-model="centerDialogVisible" :album-info="state.albumInfo" />
     <!--专辑信息-->
     <el-skeleton :loading="state.loading.skeletonLoadingFlag" animated>
       <template #template>
@@ -255,50 +103,70 @@ const toArtist = id => {
       <template #default>
         <div class="layout-container">
           <LoadImg :src="state.albumInfo.picUrl" />
-          <div class="show-artist-data">
-            <div>
-              <span class="name">{{ state.albumInfo.albumName }}</span>
-              <br />
+          <div class="flex flex-col justify-between gap-2">
+            <div class="space-y-2">
               <div>
-                流派:
-                <el-link>
-                  {{ state.albumInfo.albumGenre }}
-                </el-link>
+                <h1 class="font-medium text-5xl mb-1">
+                  {{ state.albumInfo.albumName }}
+                </h1>
+                <div class="space-x-2">
+                  <span class="opacity-50 font-bold">流派:</span>
+                  <DisPlayDefault :value="state.albumInfo.albumGenre">
+                    <el-link
+                      v-for="item in state.albumInfo.albumGenre"
+                      :key="item"
+                      :underline="false"
+                    >
+                      <span class="font-bold">
+                        {{ item }}
+                      </span>
+                    </el-link>
+                  </DisPlayDefault>
+                </div>
+                <div class="space-x-2">
+                  <span class="opacity-50 font-bold">艺术家:</span>
+                  <DisPlayDefault :value="state.albumInfo.artistList">
+                    <el-link
+                      v-for="(item, index) in state.albumInfo.artistList"
+                      :key="index"
+                      :underline="false"
+                    >
+                      <router-link
+                        :to="{
+                          name: 'ArtistInfo',
+                          query: { id: item.id }
+                        }"
+                      >
+                        <span class="font-bold">
+                          {{ item.artistName }}
+                        </span>
+                      </router-link>
+                    </el-link>
+                  </DisPlayDefault>
+                </div>
+                <div class="space-x-2">
+                  <span class="opacity-50 font-bold">类型: </span>
+                  <DisPlayDefault :value="state.albumInfo.subType">
+                    <span class="font-bold">{{ state.albumInfo.subType }}</span>
+                  </DisPlayDefault>
+                </div>
+                <div class="space-x-2">
+                  <span class="opacity-50 font-bold">唱片公司: </span>
+                  <DisPlayDefault :value="state.albumInfo.company">
+                    <span class="font-bold">{{ state.albumInfo.company }}</span>
+                  </DisPlayDefault>
+                </div>
+                <div class="space-x-2">
+                  <span class="opacity-50 font-bold">发布时间:</span>
+                  <DisPlayDefault :value="state.albumInfo.publishTime">
+                    <span class="font-bold">
+                      {{
+                        dateFormater("YYYY-MM-dd", state.albumInfo.publishTime)
+                      }}
+                    </span>
+                  </DisPlayDefault>
+                </div>
               </div>
-              <div class="flex items-center">
-                <span>艺术家:&#32;</span>
-                <el-link
-                  v-for="(item, index) in state.albumInfo.artistList"
-                  :key="index"
-                  :underline="false"
-                  @click="toArtist(item.id)"
-                  ><span
-                    class="font-semibold"
-                    v-html="item.artistName + '\u00a0'"
-                /></el-link>
-              </div>
-              <span>类型: </span>
-              <span>{{ state.albumInfo.subType }}</span>
-              <br />
-              <div
-                v-if="
-                  state.albumInfo.company !== '' &&
-                  state.albumInfo.company !== null &&
-                  state.albumInfo.company !== undefined
-                "
-              >
-                <span>唱片公司: </span>
-                <span>{{ state.albumInfo.company }}</span>
-              </div>
-              <div>
-                <span
-                  >发布时间:
-                  {{
-                    dateFormater("YYYY-MM-dd", state.albumInfo.publishTime)
-                  }}</span
-                >
-              </div>
-              <br />
               <div>
                 <p class="content">
                   <span class="font-bold"
@@ -311,41 +179,12 @@ const toArtist = id => {
                   @click="centerDialogVisible = !centerDialogVisible"
                   >[详情]
                 </el-link>
-
-                <!--显示专辑详细信息-->
-                <el-dialog
-                  v-model="centerDialogVisible"
-                  class="showDialog"
-                  width="45%"
-                  :show-close="false"
-                >
-                  <template #header>
-                    <h2>{{ state.albumInfo.albumName }}</h2>
-                    <span
-                      v-for="(item, index) in state.albumInfo.artistList"
-                      :key="index"
-                      class="text-sm text-neutral-400"
-                      >{{ item.artistName }}</span
-                    >
-                    <span class="text-sm text-neutral-400">&#32;·&#32;</span>
-                    <span class="text-sm text-neutral-400">
-                      {{
-                        dateFormater("YYYY", state.albumInfo.publishTime)
-                      }}</span
-                    >
-                  </template>
-                  <el-scrollbar class="show-desc">
-                    <span class="whitespace-pre-wrap">{{
-                      state.albumInfo.description
-                    }}</span>
-                  </el-scrollbar>
-                </el-dialog>
               </div>
             </div>
-            <div class="mt-2">
-              <el-button type="primary" round @click="editAlbumInfoFlag = true"
-                >编辑专辑</el-button
-              >
+            <div>
+              <el-button type="primary" round @click="editAlbumInfoFlag = true">
+                编辑专辑
+              </el-button>
             </div>
           </div>
         </div>
@@ -365,7 +204,7 @@ const toArtist = id => {
         />
       </template>
       <template #default>
-        <div class="item">
+        <div class="mt-8">
           <div
             v-for="(item, index) in state.albumInfo.musicList"
             :key="index"
@@ -383,22 +222,25 @@ const toArtist = id => {
             }"
           >
             <div
-              class="h-full flex items-center cursor-pointer"
+              class="h-full flex items-center space-x-4 cursor-pointer"
               @click="toMusicInfo(item.id)"
             >
-              <span class="music index">{{ index + 1 }}</span>
-              <span class="music">
+              <span class="ml-4 opacity-40">{{ index + 1 }}</span>
+              <span class="md:min-w-80 w-32 truncate">
                 {{ item.musicName }}
+              </span>
+              <span class="font-bold opacity-50 md:w-1/2 w-10 truncate">
+                {{ item.aliasName }}
               </span>
             </div>
             <div
               class="h-full grow cursor-pointer"
               @click="toMusicInfo(item.id)"
             />
-            <div>
-              <span class="mr-4">{{
-                dateFormater("mm:ss", item.timeLength)
-              }}</span>
+            <div class="flex">
+              <span class="mr-4">
+                {{ dateFormater("mm:ss", item.timeLength) }}
+              </span>
               <el-link :underline="false" class="mr-8">
                 <el-dropdown>
                   <el-icon :size="20" class="cursor-pointer">
@@ -444,16 +286,6 @@ const toArtist = id => {
   box-shadow: #c9c9c7 1px 1px 10px;
 }
 
-.show-artist-data {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.name {
-  font-size: 3rem;
-}
-
 .content {
   position: relative;
   max-width: 40rem;
@@ -464,18 +296,9 @@ const toArtist = id => {
   white-space: pre-line;
 }
 
-.show-desc {
-  height: 20rem;
-  overflow-y: auto;
-}
-
 .tail {
   position: relative;
   left: 0;
-}
-
-.item {
-  margin-top: 2rem;
 }
 
 .music-item1 {
@@ -524,13 +347,5 @@ const toArtist = id => {
   width: 100%;
   height: 3.6rem;
   background-color: #eee;
-}
-
-.music {
-  margin-left: 1rem;
-}
-
-.index {
-  color: var(--el-color-info-light-3);
 }
 </style>
