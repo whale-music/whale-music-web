@@ -11,7 +11,7 @@ import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { dateFormater } from "@/utils/dateUtil";
 import VideoCard from "@/views/components/videoCard/index.vue";
 import DialogEditArtistInfo from "@/views/info/artistInfo/components/DialogEditArtistInfo/index.vue";
-import DisPlayDefault from "@/views/info/musicInfo/components/DescriptionMusic/components/DisPlayDefault/index.vue";
+import DisPlayDefault from "@/views/components/DisPlayDefault/index.vue";
 
 const router = useRouter();
 
