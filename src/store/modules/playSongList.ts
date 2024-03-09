@@ -63,7 +63,8 @@ export const userPlaySongList = defineStore({
       }
     },
     removeMusicByMusicId(musicId: number) {
-      const index = this.getPlayListMusic.findIndex(v => v.musicId === musicId);
+      if (isAllEmpty(musicId)) return;
+      const index = this.getPlayListMusic.findIndex(v => v.id === musicId);
       this.removeMusicByIndex(index);
     },
     setPlaySongListByMusicDetail(musicList: MusicPlayInfo[], index?: number) {

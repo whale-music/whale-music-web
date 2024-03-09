@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { useDialog } from "@/layout/hooks/useDialog";
-import { computed } from "vue";
+import { computed, nextTick } from "vue";
 import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
+import CloseCircleLinear from "@iconify-icons/solar/close-circle-linear";
+import IconButton from "@/layout/components/musicPlay/components/IconButton/index.vue";
+import { useNav } from "@/layout/hooks/useNav";
 
 defineOptions({
   name: "DialogPlayList"
@@ -23,6 +26,17 @@ const jumpMusic = (index: number) => {
   emits("init");
   value.value = false;
 };
+
+// 移除歌曲
+const { closePlayMusic } = useNav();
+const removeMusic = async (musicId: number) => {
+  value.value = false;
+  await nextTick();
+  storeHook.removeMusicByMusicId(musicId);
+  if (storeHook.isEmpty) {
+    closePlayMusic();
+  }
+};
 </script>
 
 <template>
@@ -38,19 +52,33 @@ const jumpMusic = (index: number) => {
         <div
           v-for="(item, index) in playingNowList"
           :key="item.id"
-          class="dialog-play-song-list space-x-4"
-          @click="jumpMusic(index)"
+          class="dialog-play-song-list"
         >
-          <LoadImg
-            height="3rem"
-            width="3rem"
-            radius="10px"
-            :src="item.picUrl"
-          />
-          <span class="font-bold">
-            {{ item.musicName }}
-          </span>
-          <span class="opacity-50">{{ item.aliasName }}</span>
+          <div
+            class="flex items-center space-x-4 cursor-pointer"
+            @click="jumpMusic(index)"
+          >
+            <LoadImg
+              height="3rem"
+              width="3rem"
+              radius="10px"
+              :src="item.picUrl"
+            />
+            <span class="font-bold lg:w-full w-40 truncate">
+              {{ item.musicName }}
+            </span>
+            <span class="opacity-50">{{ item.aliasName }}</span>
+          </div>
+          <div class="remove-music">
+            <IconButton
+              :icon="CloseCircleLinear"
+              width="1.5rem"
+              height="1.5rem"
+              bg-height="2.5rem"
+              bg-width="2.5rem"
+              @click="removeMusic(item.id)"
+            />
+          </div>
         </div>
       </el-scrollbar>
     </div>
@@ -62,6 +90,7 @@ const jumpMusic = (index: number) => {
   z-index: 100;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 0.8rem;
   border-radius: 1rem;
 }

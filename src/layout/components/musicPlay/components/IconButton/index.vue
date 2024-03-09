@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { IconifyIcon } from "@iconify/types";
+import { computed } from "vue";
 
 defineOptions({
   name: "IconButton"
@@ -7,12 +8,34 @@ defineOptions({
 const props = defineProps({
   icon: Object as PropType<IconifyIcon>,
   width: String,
-  height: String
+  height: String,
+  bgHeight: {
+    type: String,
+    default: "4rem"
+  },
+  bgWidth: {
+    type: String,
+    default: "4rem"
+  },
+  BgBorderRadius: {
+    type: String,
+    default: "1rem"
+  }
 });
+const bgHeight = computed(() => props.bgHeight);
+const bgWidth = computed(() => props.bgWidth);
+const BgBorderRadius = computed(() => props.BgBorderRadius);
 </script>
 
 <template>
-  <div class="icon-bg cursor-pointer">
+  <div
+    class="icon-bg cursor-pointer"
+    :style="{
+      width: bgWidth,
+      height: bgHeight,
+      'border-radius': BgBorderRadius
+    }"
+  >
     <IconifyIconOffline
       class="icon-scale"
       :icon="props.icon"
@@ -37,10 +60,6 @@ const props = defineProps({
   flex-wrap: nowrap;
   align-items: center;
   justify-content: center;
-  width: 4rem;
-  height: 4rem;
-  border-radius: 1rem;
-  //transition: transform ease-in-out 0.2s;
 }
 
 .icon-bg:hover {
