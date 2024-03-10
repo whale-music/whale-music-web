@@ -1,10 +1,6 @@
 import { defineStore } from "pinia";
 
-import type {
-  MusicPlayInfo,
-  MusicPlayLyrics,
-  MusicPlaySources
-} from "@/api/model/Music";
+import type { MusicPlayInfo, MusicPlayLyrics } from "@/api/model/Music";
 import { getMusicPlayInfo } from "@/api/music";
 import { store } from "@/store";
 import { isAllEmpty, isArray } from "@pureadmin/utils";
@@ -98,11 +94,6 @@ export const userPlaySongList = defineStore({
     },
     async playSongList(musicId: number | number[], index?: number) {
       this.setPlaySongListByMusicIds(musicId, index);
-    },
-    // todo remove this method
-    // 获取音乐的所有音源
-    async getMusicSources(musicId: number): Promise<MusicPlaySources[]> {
-      return this.getMusicById(musicId).sources;
     },
     getMusicById(musicId: number): MusicPlayInfo {
       const index = this.getPlayListMusic.findIndex(
