@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { noticesData } from "./data";
 import NoticeList from "./noticeList.vue";
-import Bell from "@iconify-icons/ep/bell";
+import BellLineDuotone from "@iconify-icons/solar/bell-line-duotone";
 
 const noticesNum = ref(0);
 const notices = ref(noticesData);
@@ -14,9 +14,9 @@ notices.value.map(v => (noticesNum.value += v.list.length));
 <template>
   <el-dropdown trigger="click" placement="bottom-end">
     <span class="dropdown-badge navbar-bg-hover select-none">
-      <el-badge :value="noticesNum" :max="99">
-        <span class="header-notice-icon">
-          <IconifyIconOffline :icon="Bell" />
+      <el-badge :value="noticesNum" :max="99" :hidden="noticesNum == 0">
+        <span class="text-2xl font-bold">
+          <IconifyIconOffline :icon="BellLineDuotone" />
         </span>
       </el-badge>
     </span>
@@ -63,9 +63,9 @@ notices.value.map(v => (noticesNum.value += v.list.length));
   margin-right: 10px;
   cursor: pointer;
 
-  .header-notice-icon {
-    font-size: 18px;
-  }
+  //.header-notice-icon {
+  //  font-size: 18px;
+  //}
 }
 
 .dropdown-tabs {
