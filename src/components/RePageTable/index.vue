@@ -15,6 +15,9 @@ defineOptions({
 
 const emit = defineEmits<{
   (e: "update:selectCount", value: number): boolean;
+  (e: "update:page", value: void): void;
+  (e: "handleSizeChange", value: number): void;
+  (e: "handleCurrentChange", value: number): void;
 }>();
 
 const props = defineProps({
@@ -24,6 +27,10 @@ const props = defineProps({
     required: true
   },
   selectCount: Array,
+  isRouter: {
+    type: Boolean,
+    default: true
+  },
   page: {
     type: Object as PropType<{
       total: number;
@@ -35,18 +42,25 @@ const props = defineProps({
   }
 });
 const selectCount = useVModel(props, "selectCount", emit);
+const page = useVModel(props, "page", emit);
 
 const router = useRouter();
 const route = useRoute();
 const handleSizeChange = (val: number) => {
-  const query = cloneDeep(route.query);
-  query[pageNumKey] = `${val}`;
-  router.push({ query: query, replace: true });
+  if (props.isRouter) {
+    const query = cloneDeep(route.query);
+    query[pageNumKey] = `${val}`;
+    router.push({ query: query, replace: true });
+  }
+  emit("handleSizeChange");
 };
 const handleCurrentChange = (val: number) => {
-  const query = cloneDeep(route.query);
-  query[pageIndexKey] = `${val}`;
-  router.push({ query: query, replace: true });
+  if (props.isRouter) {
+    const query = cloneDeep(route.query);
+    query[pageIndexKey] = `${val}`;
+    router.push({ query: query, replace: true });
+  }
+  emit("handleCurrentChange");
 };
 
 const tableRef = ref<InstanceType<typeof ElTable>>();
@@ -82,7 +96,7 @@ const headerCellClassName = (data: {
       ref="tableRef"
       v-loading="loading"
       class="table-container"
-      :data="props.page.content"
+      :data="page.content"
       :header-cell-class-name="headerCellClassName"
       @row-click="handleClickChange"
       @selection-change="handleSelectionChange"
@@ -93,14 +107,14 @@ const headerCellClassName = (data: {
     </ElTable>
     <div class="relative">
       <ElPagination
+        v-model:current-page="page.current"
+        v-model:page-size="page.size"
         class="mt-4 pb-4 ml-auto w-min"
         background
-        :hide-on-single-page="props.page.total === 0"
+        :hide-on-single-page="page.total === 0"
         :default-current-page="1"
-        :default-page-size="props.page.size"
-        :current-page="props.page.current"
-        :page-size="props.page.size"
-        :total="props.page.total"
+        :default-page-size="page.size"
+        :total="page.total"
         :page-sizes="selectPageSize"
         layout="total, sizes, prev, pager, next, jumper"
         @size-change="handleSizeChange"
