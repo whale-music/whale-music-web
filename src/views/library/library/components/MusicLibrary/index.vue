@@ -130,7 +130,7 @@ const cellStyle = ({ row, columnIndex }): CellStyle<any> => {
 
     <el-table-column label="名称" :show-overflow-tooltip="true">
       <template #default="scope">
-        <div class="flex gap-2">
+        <div class="flex gap-2 truncate">
           <el-link :underline="false">
             <router-link
               class="font-bold"
