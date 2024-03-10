@@ -59,9 +59,7 @@ const showPlayMusic = () => {
     </div>
     <el-drawer
       v-model="isShowPlayMusic"
-      style="
-
---el-drawer-padding-primary: 0"
+      class="drawer"
       direction="btt"
       modal-class="drawer-music-play"
       :with-header="false"
@@ -72,3 +70,9 @@ const showPlayMusic = () => {
     </el-drawer>
   </div>
 </template>
+
+<style lang="css" scoped>
+.drawer {
+  --el-drawer-padding-primary: 0;
+}
+</style>
