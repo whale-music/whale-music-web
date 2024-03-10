@@ -10,7 +10,7 @@ const props = defineProps({
   collapse: Boolean
 });
 
-const { title } = useNav();
+const { title, getLogo } = useNav();
 
 const toLast = () => {
   router.go(-1);
@@ -31,8 +31,7 @@ const toNext = () => {
         class="sidebar-logo-link"
         :to="getTopMenu()?.path ?? '/'"
       >
-        <!-- todo logo.svg -->
-        <img src="/logo.svg" alt="logo" class="ml-4" />
+        <img :src="getLogo()" alt="logo" class="ml-4" />
         <span class="sidebar-title">{{ title }}</span>
       </router-link>
       <router-link
@@ -42,7 +41,7 @@ const toNext = () => {
         class="sidebar-logo-link"
         :to="getTopMenu()?.path ?? '/'"
       >
-        <img src="/logo.svg" alt="logo" class="ml-4" />
+        <img :src="getLogo()" alt="logo" class="ml-4" />
         <span class="sidebar-title">{{ title }}</span>
       </router-link>
     </transition>
