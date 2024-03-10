@@ -47,7 +47,7 @@ export default {
     },
     {
       path: "/userInfo",
-      name: "userInfo",
+      name: "UserInfo",
       component: () => import("@/views/welcome/userInfo.vue"),
       meta: {
         icon: "ep:user-filled",

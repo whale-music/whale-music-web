@@ -109,8 +109,7 @@ nextTick(() => {
         </span>
         <template #dropdown>
           <el-dropdown-menu class="logout">
-            <!--todo 重构 -->
-            <router-link to="/userInfo">
+            <router-link :to="{ name: 'UserInfo' }">
               <el-dropdown-item>
                 <IconifyIconOffline
                   :icon="ShieldUserLine"

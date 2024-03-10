@@ -142,8 +142,7 @@ watch(
         </span>
         <template #dropdown>
           <el-dropdown-menu class="logout">
-            <!-- todo router -->
-            <router-link to="/userInfo">
+            <router-link :to="{ name: 'UserInfo' }">
               <el-dropdown-item>
                 <IconifyIconOffline
                   :icon="ShieldUserLine"
