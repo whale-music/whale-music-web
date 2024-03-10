@@ -3,8 +3,14 @@ import { getPackageSize } from "./utils";
 import dayjs, { type Dayjs } from "dayjs";
 import duration from "dayjs/plugin/duration";
 import gradientString from "gradient-string";
-import boxen, { type Options } from "boxen";
+import boxen, { type Options as BoxenOptions } from "boxen";
 dayjs.extend(duration);
+
+const boxenOptions: BoxenOptions = {
+  padding: 0.5,
+  borderColor: "cyan",
+  borderStyle: "round"
+};
 
 export function viteBuildInfo(): Plugin {
   let config: { command: string };
@@ -31,11 +37,11 @@ export function viteBuildInfo(): Plugin {
             console.log(
               boxen(
                 gradientString("cyan", "magenta").multiline(
-                  `🎉恭喜打包完成（总用时${dayjs
+                  `🎉 恭喜打包完成（总用时${dayjs
                     .duration(endTime.diff(startTime))
                     .format("mm分ss秒")}，打包后的大小为${size}）`
                 ),
-                Options
+                boxenOptions
               )
             );
           }
