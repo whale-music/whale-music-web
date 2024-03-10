@@ -12,7 +12,8 @@ import MvFloatingOperatingPanel from "@/views/library/mv/components/mvFloatingOp
 import SelectVideoCard from "@/views/library/mv/components/selectedVideoCard/index.vue";
 
 import Options from "./components/options/index.vue";
-export default {
+import { defineComponent } from "vue";
+export default defineComponent({
   components: {
     MvFloatingOperatingPanel,
     SelectVideoCard,
@@ -140,7 +141,7 @@ export default {
       this.onSubmit();
     }
   }
-};
+});
 </script>
 <template>
   <div>
