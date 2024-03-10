@@ -11,7 +11,7 @@ import { message } from "@/utils/message";
 import { loginRules } from "./utils/rule";
 
 defineComponent({
-  name: "userInfo"
+  name: "userManagementInfo"
 });
 
 const { VITE_PROXY_HOST } = import.meta.env;
