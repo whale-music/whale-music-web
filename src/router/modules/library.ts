@@ -58,6 +58,15 @@ export default {
       }
     },
     {
+      path: "/library/history",
+      name: "History",
+      component: () => import("@/views/library/history/index.vue"),
+      meta: {
+        icon: "solar:history-bold",
+        title: $t("list.history")
+      }
+    },
+    {
       path: "/library/mv",
       name: "Mv",
       component: () => import("@/views/library/mv/index.vue"),
