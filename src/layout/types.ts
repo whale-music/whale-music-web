@@ -1,6 +1,6 @@
 import type { IconifyIcon } from "@iconify/vue";
 const { VITE_HIDE_HOME } = import.meta.env;
-// todo icon
+
 export const routerArrays: Array<RouteConfigs> =
   VITE_HIDE_HOME === "false"
     ? [

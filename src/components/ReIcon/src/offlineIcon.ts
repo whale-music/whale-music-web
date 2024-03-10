@@ -12,6 +12,7 @@ import Monitor from "@iconify-icons/ep/monitor";
 import Lollipop from "@iconify-icons/ep/lollipop";
 import Histogram from "@iconify-icons/ep/histogram";
 import HomeFilled from "@iconify-icons/ep/home-filled";
+import UserFilled from "@iconify-icons/ep/user-filled";
 addIcon("ep:menu", Menu);
 addIcon("ep:edit", Edit);
 addIcon("ep:set-up", SetUp);
@@ -20,6 +21,9 @@ addIcon("ep:monitor", Monitor);
 addIcon("ep:lollipop", Lollipop);
 addIcon("ep:histogram", Histogram);
 addIcon("ep:home-filled", HomeFilled);
+
+addIcon("ep:user-filled", UserFilled);
+
 // @iconify-icons/ri
 import Tag from "@iconify-icons/ri/bookmark-2-line";
 import Ppt from "@iconify-icons/ri/file-ppt-2-line";
@@ -56,4 +60,40 @@ addIcon("ri:checkbox-circle-line", CheckboxCircleLine);
 
 // @iconify-icons/solar
 import Playlist2Bold from "@iconify-icons/solar/playlist-2-bold";
+import MusicLibrary2BoldDuotone from "@iconify-icons/solar/music-library-2-bold-duotone";
+import BoxMinimalisticBold from "@iconify-icons/solar/box-minimalistic-bold";
+import UserBoldDuotone from "@iconify-icons/solar/user-bold-duotone";
+import PlaylistMinimalistic2BoldDuotone from "@iconify-icons/solar/playlist-minimalistic-2-bold-duotone";
+import HistoryBold from "@iconify-icons/solar/history-bold";
+import VideocameraRecordBoldDuotone from "@iconify-icons/solar/videocamera-record-bold-duotone";
+import FolderWithFilesBold from "@iconify-icons/solar/folder-with-files-bold";
+import TestTubeMinimalisticBoldDuotone from "@iconify-icons/solar/test-tube-minimalistic-bold-duotone";
+import CalendarMarkBoldDuotone from "@iconify-icons/solar/calendar-mark-bold-duotone";
+import AlarmBoldDuotone from "@iconify-icons/solar/alarm-bold-duotone";
 addIcon("solar:playlist-2-bold", Playlist2Bold);
+addIcon("solar:music-library-2-bold-duotone", MusicLibrary2BoldDuotone);
+addIcon("solar:box-minimalistic-bold", BoxMinimalisticBold);
+addIcon("solar:user-bold-duotone", UserBoldDuotone);
+addIcon(
+  "solar:playlist-minimalistic-2-bold-duotone",
+  PlaylistMinimalistic2BoldDuotone
+);
+addIcon("solar:history-bold", HistoryBold);
+addIcon("solar:videocamera-record-bold-duotone", VideocameraRecordBoldDuotone);
+addIcon("solar:folder-with-files-bold", FolderWithFilesBold);
+addIcon(
+  "solar:test-tube-minimalistic-bold-duotone",
+  TestTubeMinimalisticBoldDuotone
+);
+addIcon("solar:calendar-mark-bold-duotone", CalendarMarkBoldDuotone);
+addIcon("solar:alarm-bold-duotone", AlarmBoldDuotone);
+
+// @iconify-icons/mingcute
+import Home3Fill from "@iconify-icons/mingcute/home-3-fill";
+import AlbumLine from "@iconify-icons/mingcute/album-line";
+import Plugin2Fill from "@iconify-icons/mingcute/plugin-2-fill";
+import Alarm2Fill from "@iconify-icons/mingcute/alarm-2-fill";
+addIcon("mingcute:home-3-fill", Home3Fill);
+addIcon("mingcute:album-line", AlbumLine);
+addIcon("mingcute:plugin-2-fill", Plugin2Fill);
+addIcon("mingcute:alarm-2-fill", Alarm2Fill);
