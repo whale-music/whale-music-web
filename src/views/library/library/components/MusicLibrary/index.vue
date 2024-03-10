@@ -9,7 +9,7 @@ import { useRoute } from "vue-router";
 import { getMusicTabsPage } from "@/api/music";
 import { musicLike } from "@/api/playlist";
 import DownloadIcon from "@/components/DownloadIcon/download.vue";
-import RePageTable from "@/components/LibPage/components/RePageTable/index.vue";
+import RePageTable from "@/components/RePageTable/index.vue";
 import { FriendlyTime } from "@/utils/DateFormat";
 import { dateFormater } from "@/utils/dateUtil";
 import { message } from "@/utils/message";

@@ -5,7 +5,7 @@ import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 
 import { getAlbumPage } from "@/api/album";
-import RePageTable from "@/components/LibPage/components/RePageTable/index.vue";
+import RePageTable from "@/components/RePageTable/index.vue";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { dateFormater } from "@/utils/dateUtil";
 import { paramsQueryToPageReq } from "@/utils/SearchParse";

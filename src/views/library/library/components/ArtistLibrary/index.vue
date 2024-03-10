@@ -5,10 +5,10 @@ import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 
 import { getArtistPage } from "@/api/singer";
-import RePageTable from "@/components/LibPage/components/RePageTable/index.vue";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { dateFormater } from "@/utils/dateUtil";
 import { paramsQueryToPageReq } from "@/utils/SearchParse";
+import RePageTable from "@/components/RePageTable/index.vue";
 
 defineOptions({
   name: "ArtistLibrary"
