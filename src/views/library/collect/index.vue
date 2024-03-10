@@ -192,7 +192,7 @@ state.config.playListType = new Map([
 ]);
 
 state.config.playListTypeTag = new Map([
-  [0, ""],
+  [0, "primary"],
   [1, "danger"],
   [2, "success"]
 ]);
