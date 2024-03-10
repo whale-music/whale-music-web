@@ -2,12 +2,19 @@
 import TagInput from "@/views/components/TagInput/index.vue";
 import { PlayInfoRes, updatePlayListInfo } from "@/api/playlist";
 import { message } from "@/utils/message";
+import UploadButton from "@/views/components/UploadButton/index.vue";
 
 defineOptions({
   name: "DialogEditPlayList"
 });
 const value = defineModel<boolean>();
 const playListInfo = defineModel<PlayInfoRes>("playListInfo");
+
+const emits = defineEmits(["init"]);
+
+const init = () => {
+  emits("init");
+};
 
 const playListStatusOptions = [
   {
@@ -52,7 +59,10 @@ const updatePlayInfo = async () => {
         <el-input v-model="playListInfo.playListName" placeholder="歌单名" />
       </el-form-item>
       <el-form-item label="封面">
-        <el-input v-model="playListInfo.picUrl" disabled />
+        <div class="flex items-center justify-center w-full gap-4">
+          <el-input v-model="playListInfo.picUrl" disabled />
+          <UploadButton :id="playListInfo.id" type="playList" @init="init" />
+        </div>
       </el-form-item>
       <el-form-item label="歌单Tag">
         <template #label="{ label }">

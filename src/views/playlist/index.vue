@@ -183,6 +183,9 @@ const modifyPlayListInfo = ref<PlayInfoRes>();
 const playListInfoFlag = ref(true);
 // 生命周期挂载
 onMounted(async () => {
+  await init();
+});
+async function init() {
   playListInfoFlag.value = true;
   try {
     // 查询歌单信息
@@ -195,7 +198,7 @@ onMounted(async () => {
   // 查询表格
   onSubmit();
   playListInfoFlag.value = false;
-});
+}
 
 const playListInput = ref("");
 
@@ -331,6 +334,7 @@ const throttle = ref(0);
     <DialogEditPlayList
       v-model="editPlayInfoFlag"
       v-model:play-list-info="playlistInfo"
+      @init="init"
     />
     <DialogAbout v-model="aboutFlag" :play-list-info="playlistInfo" />
     <!--歌单操作面板-->
