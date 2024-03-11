@@ -14,7 +14,7 @@
       window.process = {};
       let htmlStyle = document.getElementsByTagName("html")[0].style;
       const item = JSON.parse(
-        localStorage.getItem("responsive-layout")
+        localStorage.getItem("responsive-layout") ?? "{}"
       ).darkMode;
       if (item) {
         htmlStyle.backgroundColor = "#212121";
