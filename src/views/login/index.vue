@@ -24,26 +24,30 @@ import { message } from "@/utils/message";
 import Motion from "./utils/motion";
 import { loginRules } from "./utils/rule";
 import { avatar } from "./utils/static";
+import { useEventListener } from "@vueuse/core";
 
 defineOptions({
   name: "Login"
 });
 const router = useRouter();
 const loading = ref(false);
+const disabled = ref(false);
 const ruleFormRef = ref<FormInstance>();
 
 const { initStorage } = useLayout();
 initStorage();
 
 const { t } = useI18n();
-const { dataTheme, dataThemeChange } = useDataThemeChange();
-dataThemeChange();
+const { dataTheme, overallStyle, dataThemeChange } = useDataThemeChange();
+dataThemeChange(overallStyle.value);
 const { title, getDropdownItemStyle, getDropdownItemClass } = useNav();
 const { locale, translationCh, translationEn } = useTranslationLang();
 
+const isProduction = import.meta.env.MODE === "production";
+
 const ruleForm = reactive({
-  username: "admin",
-  password: "PeZUX5Mkc1vm"
+  username: isProduction ? "" : "admin",
+  password: isProduction ? "" : "PeZUX5Mkc1vm"
 });
 
 const onLogin = async (formEl: FormInstance | undefined) => {
@@ -56,35 +60,29 @@ const onLogin = async (formEl: FormInstance | undefined) => {
           username: ruleForm.username,
           password: ruleForm.password
         })
-        .then(res => {
+        .then(async res => {
           if (res.code === "200") {
             // 获取后端路由
-            initRouter().then(() => {
-              const redirect = router.currentRoute.value.query["redirect"];
-              const to = isAllEmpty(redirect)
-                ? getTopMenu(true).path
-                : redirect;
-              router.push(to).then(() => {
-                message(t("msg.loginSuccess"), { type: "success" });
-              });
-            });
+            await initRouter();
+            disabled.value = true;
+            const redirect = router.currentRoute.value.query["redirect"];
+            const to = isAllEmpty(redirect) ? getTopMenu(true).path : redirect;
+            try {
+              await router.push(to);
+              message(t("msg.loginSuccess"), { type: "success" });
+            } finally {
+              disabled.value = false;
+            }
           } else {
-            loading.value = false;
             message(res.message, { type: "error" });
           }
         })
-        .catch(error => {
-          console.log(error);
-          if (error.response.status === 500) {
-            message(t("msg.serverError"), { type: "error" });
-          }
+        .finally(() => {
+          loading.value = false;
         });
     } else {
-      loading.value = false;
       return fields;
     }
-    loading.value = false;
-    return fields;
   });
 };
 
@@ -96,6 +94,11 @@ function onkeypress({ code }: KeyboardEvent) {
     onLogin(ruleFormRef.value);
   }
 }
+useEventListener(document, "keypress", ({ code }) => {
+  if (code === "Enter" && !disabled.value && !loading.value)
+    immediateDebounceParams(ruleFormRef.value);
+});
+
 const rules = [
   {
     required: true,
@@ -204,6 +207,7 @@ onBeforeUnmount(() => {
                 size="large"
                 type="primary"
                 :loading="loading"
+                :disabled="disabled"
                 @click="immediateDebounceParams(ruleFormRef)"
               >
                 {{ t("login.login") }}

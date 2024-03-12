@@ -20,12 +20,34 @@ export const useUserStore = defineStore({
     /** 存储用户名 */
     SET_USERNAME(username: string) {
       this.username = username;
-      setUserData(this);
+      const userData = getUserData();
+      if (userData) {
+        const { roles, expires, id, accessToken, refreshToken } = userData;
+        setUserData({
+          accessToken,
+          roles,
+          refreshToken,
+          id,
+          username,
+          expires
+        });
+      }
     },
     /** 存储角色 */
     SET_ROLES(roles: Array<string>) {
       this.roles = roles;
-      setUserData(this);
+      const userData = getUserData();
+      if (userData) {
+        const { username, expires, id, accessToken, refreshToken } = userData;
+        setUserData({
+          accessToken,
+          roles,
+          refreshToken,
+          id,
+          username,
+          expires
+        });
+      }
     },
     /** 登入 */
     async loginByUsername(data) {

@@ -82,6 +82,13 @@ const intBgColor = async (picUrl?: string) => {
     format: "hex",
     group: 30
   });
+  const color1 = colors[2] as string;
+  if (color1) {
+    const color = darken(color1, 1 / 5);
+    state.style.bgColor = {
+      backgroundColor: `${color}`
+    };
+  }
 
   // TODO 渐变动画，暂时不能实现
   // const newColor: Number[][] = [hexToRgb(colors[1]), hexToRgb(colors[0])];
@@ -91,11 +98,6 @@ const intBgColor = async (picUrl?: string) => {
   //   background: `linear-gradient(312deg, ${colors[0]} 0%, ${colors[1]} 50%, ${colors[2]} 100%)`
   // };
   // console.log(colors);
-  const color1 = colors[2] as string;
-  const color = darken(color1, 1 / 5);
-  state.style.bgColor = {
-    backgroundColor: `${color}`
-  };
 };
 </script>
 
