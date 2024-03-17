@@ -67,6 +67,15 @@ export default {
       }
     },
     {
+      path: "/library/tags",
+      name: "Tags",
+      component: () => import("@/views/library/tags/index.vue"),
+      meta: {
+        icon: "solar:hashtag-square-bold",
+        title: $t("list.tags")
+      }
+    },
+    {
       path: "/library/mv",
       name: "Mv",
       component: () => import("@/views/library/mv/index.vue"),

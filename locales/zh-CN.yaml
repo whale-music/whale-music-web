@@ -183,6 +183,7 @@ list:
   allSinger: 歌手
   mv: MV
   history: 播放历史
+  tags: 标签
   storeFile: 存储文件
   addPlugin: 添加插件
   runPlugin: 运行插件

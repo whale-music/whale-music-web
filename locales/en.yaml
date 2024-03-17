@@ -183,6 +183,7 @@ list:
   allSinger: Artist
   mv: MV
   history: Play history
+  tags: Tags
   storeFile: Store File
   addPlugin: Add Plugin
   runPlugin: Run Plugin
