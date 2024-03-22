@@ -188,10 +188,7 @@ const showFilterText = () => {
       <div class="mt-2 absolute top-0 right-0 flex gap-2 items-center">
         <div
           v-show="selectCount.length !== 0"
-          class="flex flex-row items-center animate__animated animate__fadeInUp"
-          style="
-
---animate-duration: 400ms"
+          class="flex flex-row items-center animate__animated animate__fadeIn animate_duration"
         >
           <span class="text-[var(--el-text-color-regular)] mr-4">
             选中 {{ selectCount.length }} 项
@@ -233,5 +230,9 @@ const showFilterText = () => {
 
 .tabs-container {
   position: relative;
+}
+
+.animate_duration {
+  --animate-duration: 400ms;
 }
 </style>
