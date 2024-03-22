@@ -23,7 +23,7 @@ export function parseSearchToQuery(str: string) {
       obj[albumKey] = part.substring(1); // 去除 # 后将字符串添加到数组中
     } else if (part.startsWith("$")) {
       // 如果没有特殊符号，则将 key 设置为 'music'
-      part !== "" && (obj[musicKey] = part); // 直接将字符串赋给对象的属性
+      obj[musicKey] = part.substring(1); // 去除 $ 后将字符串添加到数组中
     } else {
       part !== "" && (obj[nameKey] = part); // 直接将字符串赋给对象的属性
     }
