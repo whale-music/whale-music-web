@@ -75,8 +75,8 @@ export default defineComponent({
         isIndeterminate: false,
         value: "type",
         chooses: [
-          { label: "类型", value: "type" },
-          { label: "格式", value: "format" }
+          { name: "类型", value: "type" },
+          { name: "格式", value: "format" }
         ]
       },
       search: {
@@ -151,10 +151,12 @@ export default defineComponent({
     //   }).classify;
     // },
     drawerClose() {},
-    fileTypeTag(type: string) {
+    fileTypeTag(
+      type: string
+    ): "primary" | "success" | "info" | "warning" | "danger" {
       switch (type) {
         case "audio":
-          return "";
+          return "primary";
         case "video":
           return "success";
         case "image":
@@ -282,7 +284,7 @@ export default defineComponent({
           <div class="flex flex-col gap-2">
             <a
               v-for="item in list"
-              :key="item"
+              :key="item.md5"
               class="a-item h-50"
               :class="item.status ? '' : 'grayscale'"
               @click="openFileInfoDrawer(item.path, item.type)"
