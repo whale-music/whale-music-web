@@ -3,7 +3,6 @@ import { saveOrUpdateAlbum } from "@/api/album";
 import { message } from "@/utils/message";
 import { AlbumInfo } from "@/api/model/Album";
 import {
-  AutocompleteFetchSuggestionsCallback,
   genFileId,
   UploadInstance,
   UploadProps,
@@ -11,9 +10,6 @@ import {
 } from "element-plus";
 import { ref } from "vue";
 import { UPLOAD_PIC_URL } from "@/utils/UploadProxyUrl";
-import { getSelectSingerList } from "@/api/singer";
-import { SelectArtist } from "@/api/model/Artist";
-import { isAllEmpty } from "@pureadmin/utils";
 import TagInput from "@/views/components/TagInput/index.vue";
 
 defineOptions({
@@ -68,44 +64,6 @@ const handleSuccess = (response: any) => {
     message("封面更新失败", { type: "error" });
   }
 };
-
-// 删除歌手数据
-const albumArtistHandleClose = (index: number) => {
-  if (isAllEmpty(albumInfo.value.artistList)) {
-    albumInfo.value.artistList = [];
-  }
-  albumInfo.value.artistList.splice(index, 1);
-};
-
-// 获取专辑歌手数据
-const albumArtistQuerySearchAsync: (
-  queryString: string,
-  cb: AutocompleteFetchSuggestionsCallback
-) => void = (queryString: string, cb: (arg: any) => void): void => {
-  getSelectSingerList(queryString).then(r => {
-    if (r.code === "200" && r.data.length !== 0) {
-      cb(r.data);
-    } else {
-      cb([]);
-    }
-  });
-};
-
-const musicArtistSearch = ref<string>("");
-
-// 歌手添加到保存数据中
-const albumArtistHandleSelect = (item: SelectArtist) => {
-  if (isAllEmpty(albumInfo.value.artistList)) {
-    albumInfo.value.artistList = [];
-  }
-  const filter = albumInfo.value.artistList.findIndex(
-    value => value.id === item.id
-  );
-  if (filter === -1) {
-    albumInfo.value.artistList.push(item);
-  }
-  musicArtistSearch.value = "";
-};
 </script>
 
 <template>
@@ -136,25 +94,6 @@ const albumArtistHandleSelect = (item: SelectArtist) => {
             </el-upload>
           </div>
         </el-form-item>
-        <div class="flex flex-nowrap items-end">
-          <h1>专辑艺术家</h1>
-        </div>
-        <el-tag
-          v-for="(item, index) in albumInfo.artistList"
-          :key="item.id"
-          effect="dark"
-          closable
-          round
-          @close="albumArtistHandleClose(index)"
-          >{{ item.artistName }}</el-tag
-        >
-        <el-autocomplete
-          v-model="musicArtistSearch"
-          class="w-full mt-1"
-          :fetch-suggestions="albumArtistQuerySearchAsync"
-          placeholder="请输入歌手名"
-          @select="albumArtistHandleSelect"
-        />
         <el-form-item label="专辑流派">
           <TagInput v-model="albumInfo.albumGenre" />
         </el-form-item>
