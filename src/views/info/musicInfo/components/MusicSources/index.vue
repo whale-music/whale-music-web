@@ -3,13 +3,14 @@ import { Icon } from "@iconify/vue";
 import { message } from "@/utils/message";
 import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
 import axios from "axios";
-import { downloadByData, isEmpty, useCopyToClipboard } from "@pureadmin/utils";
+import { downloadByData, useCopyToClipboard } from "@pureadmin/utils";
 import { deleteSourceMusic, MusicDetailInfo, MusicSources } from "@/api/music";
 import PlayStreamBold from "@iconify-icons/solar/play-stream-bold";
 import { useNav } from "@/layout/hooks/useNav";
 import { ref, unref } from "vue";
 import DialogEditSource from "@/views/info/musicInfo/components/Dialog/DialogEditSource/index.vue";
 import { ElMessageBox } from "element-plus";
+import { StringUtils } from "@/utils/ObjectsUtil";
 
 defineOptions({
   name: "MusicSources"
@@ -25,7 +26,7 @@ const onSubmit = () => {
 };
 
 const toMusicPlay = async res => {
-  if (isEmpty(res.url)) {
+  if (StringUtils.isBlank(res.url)) {
     message(`该音源无效`, { type: "error" });
     return;
   }
@@ -38,17 +39,17 @@ const toMusicPlay = async res => {
   onPlayMusic();
 };
 
-const iconColor = val => {
-  return isEmpty(val) ? "#7d7d7d" : "#626aef";
+const iconColor = (val: string) => {
+  return StringUtils.isBlank(val) ? "#7d7d7d" : "#626aef";
 };
 
-const iconTip = val => {
-  return isEmpty(val) ? "不可播放" : "可播放";
+const iconTip = (val: string) => {
+  return StringUtils.isBlank(val) ? "不可播放" : "可播放";
 };
 
 function copy(value: string) {
   const { clipboardValue, copied } = useCopyToClipboard();
-  if (isEmpty(value)) {
+  if (StringUtils.isBlank(value)) {
     message("空地址", { type: "error" });
     return;
   }
@@ -142,6 +143,7 @@ const { deleteSource, editSource, editSourceValue, editSourceFlag } =
         <!-- 占位元素 -->
         <div class="grow h-full cursor-pointer" @click="toMusicPlay(item)" />
         <div class="flex items-center justify-center mr-8 gap-2">
+          <span class="font-medium text-[#a2a2a2]">{{ item.level }}</span>
           <el-tooltip
             class="box-item"
             effect="dark"
@@ -154,7 +156,6 @@ const { deleteSource, editSource, editSourceValue, editSourceFlag } =
               height="2rem"
             />
           </el-tooltip>
-          <span class="font-medium text-[#a2a2a2]">{{ item.level }}</span>
           <div class="flex items-center">
             <el-button round class="mr-4" @click="copy(item.url)">
               复制
