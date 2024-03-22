@@ -7,6 +7,9 @@ const supportLookbehind = (() => {
   }
 })();
 
+/**
+ * 匹配高亮字符串, 匹配成功添加对应类名
+ */
 export const tweet = [
   {
     pattern: supportLookbehind
@@ -19,6 +22,12 @@ export const tweet = [
       ? new RegExp("(?<=^|\\s)#([^#^\\s]+?)+", "gi")
       : /#([^#^\s]+?)+/gi,
     class: "album"
+  },
+  {
+    pattern: supportLookbehind
+      ? new RegExp("(?<=^|\\s)\\$([^$^\\s]+?)+", "gi")
+      : /\\$([^\\$^\s]+?)+/gi,
+    class: "music"
   }
 ];
 

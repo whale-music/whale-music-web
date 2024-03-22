@@ -58,8 +58,9 @@ highlightable-input[aria-disabled] mark {
 }
 
 highlightable-input {
-  --album-color-rgb: 98, 0, 234;
+  --album-color-rgb: 0, 109, 234;
   --artist-color-rgb: 255, 109, 0;
+  --music-color-rgb: 98, 0, 234;
 
   .album {
     padding: 4px;
@@ -92,6 +93,23 @@ highlightable-input {
   }
 
   &[aria-disabled="true"] .artist {
+    pointer-events: none;
+  }
+
+  .music {
+    padding: 4px;
+    font-weight: 400;
+    color: rgb(var(--music-color-rgb));
+    cursor: pointer;
+    background-color: rgb(var(--music-color-rgb) 0.2);
+    border-radius: 10px;
+  }
+
+  .music:hover {
+    text-decoration: underline;
+  }
+
+  &[aria-disabled="true"] .music {
     pointer-events: none;
   }
 }
