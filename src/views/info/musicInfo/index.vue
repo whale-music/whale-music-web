@@ -91,7 +91,7 @@ onMounted(async () => {
         </div>
       </template>
       <template #default>
-        <MusicSources v-model="musicInfo" />
+        <MusicSources v-model="musicInfo" @onSubmit="initInfo" />
       </template>
     </el-skeleton>
   </div>
