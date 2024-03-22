@@ -2,7 +2,7 @@
 import { cloneDeep } from "@pureadmin/utils";
 import { useVModel } from "@vueuse/core";
 import { ElTable } from "element-plus";
-import { defineExpose, ref } from "vue";
+import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import ShowLoading from "@/components/ShowLoading/ShowLoading.vue";
@@ -16,8 +16,8 @@ defineOptions({
 const emit = defineEmits<{
   (e: "update:selectCount", value: number): boolean;
   (e: "update:page", value: void): void;
-  (e: "handleSizeChange", value: number): void;
-  (e: "handleCurrentChange", value: number): void;
+  (e: "handleSizeChange", value: void): void;
+  (e: "handleCurrentChange", value: void): void;
 }>();
 
 const props = defineProps({
