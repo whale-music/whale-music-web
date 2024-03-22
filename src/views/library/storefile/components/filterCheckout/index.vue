@@ -64,7 +64,7 @@ const handleCheckedCitiesChange = (value: string[]) => {
     class="flex flex-col"
     @change="handleCheckedCitiesChange"
   >
-    <el-checkbox v-for="city in cities" :key="city.name" :label="city.name">
+    <el-checkbox v-for="city in cities" :key="city.name" :value="city.name">
       <div class="w-full flex justify-between">
         <span>{{ city.name }}</span>
         <span>{{ city.count }}</span>
