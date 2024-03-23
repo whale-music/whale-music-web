@@ -24,10 +24,12 @@ import { DynamicScroller, DynamicScrollerItem } from "vue-virtual-scroller";
 import "vue-virtual-scroller/dist/vue-virtual-scroller.css";
 import { StringUtils } from "@/utils/ObjectsUtil";
 import WButton from "@/components/button/index.vue";
+import PreviewFile from "@/views/library/storefile/components/previewFile/index.vue";
 
 export default defineComponent({
   name: "StoreFile",
   components: {
+    PreviewFile,
     WButton,
     WSegmented,
     PicFileInfo,
@@ -49,6 +51,12 @@ export default defineComponent({
         isShow: false,
         fileInfoComponent: null,
         name: ""
+      },
+      previewFile: {
+        isShow: false,
+        src: "",
+        type: "",
+        title: ""
       },
       displayResource: {
         display: "all",
@@ -280,6 +288,12 @@ export default defineComponent({
       } finally {
         this.search.refresh = false;
       }
+    },
+    previewBtn(item) {
+      this.previewFile.isShow = true;
+      this.previewFile.src = item.url;
+      this.previewFile.type = item.type;
+      this.previewFile.title = item.name;
     }
   }
 });
@@ -287,6 +301,12 @@ export default defineComponent({
 
 <template>
   <div>
+    <PreviewFile
+      v-model="previewFile.isShow"
+      :src="previewFile.src"
+      :type="previewFile.type"
+      :title="previewFile.title"
+    />
     <component
       :is="previewData.fileInfoComponent"
       :key="previewData.name"
@@ -300,7 +320,12 @@ export default defineComponent({
         <ElScrollbar :always="true">
           <div class="ml-4 mr-4 m-4">
             <div class="flex justify-between">
-              <h3>搜索</h3>
+              <div class="flex-c space-x-2">
+                <h3>搜索</h3>
+                <span class="opacity-50 text-sm">
+                  {{ searchFilter.length }} 总数
+                </span>
+              </div>
               <WButton type="danger" @click="onSubmitReFresh">刷新缓存</WButton>
             </div>
             <div class="mt-2">
@@ -403,6 +428,7 @@ export default defineComponent({
                       <div>
                         <div class="flex justify-between pr-4">
                           <p
+                            class="w-96 truncate"
                             :class="
                               item.status
                                 ? ''
@@ -411,18 +437,27 @@ export default defineComponent({
                           >
                             {{ item.name }}
                           </p>
-                          <p>
-                            {{ formatBytes(item.size) }}
-                          </p>
+                          <div class="flex space-x-2">
+                            <p>
+                              {{ formatBytes(item.size) }}
+                            </p>
+                            <WButton
+                              type="primary"
+                              size="small"
+                              @click.stop="previewBtn(item)"
+                            >
+                              预览
+                            </WButton>
+                          </div>
                         </div>
                       </div>
-                      <span class="opacity-50 text-sm w-40 truncate">
+                      <p class="opacity-50 text-sm w-80 truncate">
                         {{ item.path }}
-                      </span>
+                      </p>
                       <div class="flex justify-between mt-1 pr-4">
-                        <el-tag :type="fileTypeTag(item.type)" round>{{
-                          item.type
-                        }}</el-tag>
+                        <el-tag :type="fileTypeTag(item.type)" round>
+                          {{ item.type }}
+                        </el-tag>
                         <p class="text-[var(--el-text-color-secondary)]">
                           {{ item.modificationTime }}
                         </p>
