@@ -52,7 +52,7 @@ export default defineComponent({
         :class="{ selected: selectedIndex === index }"
         @click="selectSegment(index)"
       >
-        {{ item.label }}
+        {{ item.name }}
       </div>
       <div class="indicator" :style="{ left: indicatorPosition }" />
     </div>
