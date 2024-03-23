@@ -25,6 +25,7 @@ export interface StoreFileInfoReq {
   orderBy: string;
   filterType: boolean;
   filter: string[];
+  refresh: boolean;
 }
 
 export const getStoreFileInfoList = (data: StoreFileInfoReq) => {

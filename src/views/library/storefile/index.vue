@@ -113,7 +113,8 @@ export default defineComponent({
         orderBy: "updateTime",
         filter: [] as string[],
         filterType: true,
-        order: "asc"
+        order: "asc",
+        refresh: false
       } as StoreFileInfoReq,
       classify: [] as FilterTermsRes[],
       list: [] as ResourcePageRes[]
@@ -179,9 +180,8 @@ export default defineComponent({
         background: "rgba(0, 0, 0, 0.7)"
       });
       try {
-        await this.initFilter(this.filter.value);
-        // 初始化时不用, filter自动更新时会自动请求
         await this.initStoreFileList();
+        await this.initFilter(this.filter.value);
       } finally {
         loading.close();
       }
@@ -225,7 +225,7 @@ export default defineComponent({
           return FileBoldDuotone;
       }
     },
-    formatBytes(bytes, decimals = 2) {
+    formatBytes(bytes: number, decimals = 2) {
       if (bytes === 0) return "0 Bytes";
       const k = 1024;
       const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
@@ -272,6 +272,14 @@ export default defineComponent({
         default:
           return "unknown";
       }
+    },
+    async onSubmitReFresh() {
+      try {
+        this.search.refresh = true;
+        await this.init();
+      } finally {
+        this.search.refresh = false;
+      }
     }
   }
 });
@@ -293,7 +301,7 @@ export default defineComponent({
           <div class="ml-4 mr-4 m-4">
             <div class="flex justify-between">
               <h3>搜索</h3>
-              <WButton type="danger">刷新缓存</WButton>
+              <WButton type="danger" @click="onSubmitReFresh">刷新缓存</WButton>
             </div>
             <div class="mt-2">
               <el-input v-model="search.select" size="large" clearable />
