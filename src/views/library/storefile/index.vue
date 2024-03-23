@@ -20,9 +20,21 @@ import VideoFileInfo from "@/views/library/storefile/components/videoFileInfo/in
 
 import FilterCheckout from "./components/filterCheckout/index.vue";
 
+import { DynamicScroller, DynamicScrollerItem } from "vue-virtual-scroller";
+import "vue-virtual-scroller/dist/vue-virtual-scroller.css";
+import { StringUtils } from "@/utils/ObjectsUtil";
+import WButton from "@/components/button/index.vue";
+
 export default defineComponent({
   name: "StoreFile",
-  components: { WSegmented, PicFileInfo, FilterCheckout },
+  components: {
+    WButton,
+    WSegmented,
+    PicFileInfo,
+    FilterCheckout,
+    DynamicScroller,
+    DynamicScrollerItem
+  },
   setup() {
     return {
       GalleryMinimalisticBold,
@@ -37,6 +49,23 @@ export default defineComponent({
         isShow: false,
         fileInfoComponent: null,
         name: ""
+      },
+      displayResource: {
+        display: "all",
+        options: [
+          {
+            value: "all",
+            label: "显示全部"
+          },
+          {
+            value: "bind",
+            label: "显示绑定数据"
+          },
+          {
+            value: "noBind",
+            label: "显示无绑定数据"
+          }
+        ]
       },
       order: {
         options: [
@@ -77,11 +106,11 @@ export default defineComponent({
         chooses: [
           { name: "类型", value: "type" },
           { name: "格式", value: "format" }
-        ]
+        ] as Array<{ name: string; value: string }>
       },
       search: {
         select: "",
-        orderBy: "createTime",
+        orderBy: "updateTime",
         filter: [] as string[],
         filterType: true,
         order: "asc"
@@ -90,7 +119,54 @@ export default defineComponent({
       list: [] as ResourcePageRes[]
     };
   },
-  computed: {},
+  computed: {
+    searchFilter() {
+      const filter = this.search.filter;
+      const filterTypeFlag = this.filter.value === "type";
+      const resourcePageRes = this.list
+        .filter((value: ResourcePageRes) => {
+          // 过滤搜索值
+          const b =
+            StringUtils.isBlank(this.search.select) ||
+            value.name.includes(this.search.select);
+          // 判断是否包含需要过滤的值
+          const filterTypeCondition = filterTypeFlag
+            ? filter.findIndex(
+                (v: string) =>
+                  v === this.filterTypeCondition(value.fileExtension)
+              ) !== -1
+            : filter.findIndex((v: string) => v === value.fileExtension) !== -1;
+          // 判断音源显示
+          const display = this.displayResource.display;
+          const displayFlag =
+            display === "all" ||
+            (display === "bind" ? value.status : !value.status);
+          return b && filterTypeCondition && displayFlag;
+        })
+        .sort((a: ResourcePageRes, b: ResourcePageRes) => {
+          switch (this.search.orderBy) {
+            case "createTime":
+              return (
+                new Date(a.creationTime).getTime() -
+                new Date(b.creationTime).getTime()
+              );
+            case "name":
+              return a.name.localeCompare(b.name);
+            case "size":
+              return a.size - b.size;
+            case "updateTime":
+            default:
+              return (
+                new Date(a.modificationTime).getTime() -
+                new Date(b.lastAccessTime).getTime()
+              );
+          }
+        });
+      return this.search.order === "asc"
+        ? resourcePageRes
+        : resourcePageRes.reverse();
+    }
+  },
   watch: {},
   mounted() {
     this.init();
@@ -122,34 +198,6 @@ export default defineComponent({
       this.search.filter = filterRes.data.map(value => value.name);
       this.search.filterType = val === "type";
     },
-    // _init() {
-    //   // Define the mock data template
-    //   const dataTemplate = {
-    //     "url|1": "@url",
-    //     "name|1": "@title",
-    //     "creationTime|1": "@datetime",
-    //     "modificationTime|1": "@datetime",
-    //     "path|1": "@url",
-    //     "size|1": "@integer(1024, 11120480)",
-    //     "type|1": "@pick(['audio', 'image', 'video'])"
-    //   };
-    //
-    //   // Generate an array of 100 mock data using the template
-    //   this.list = Mock.mock({
-    //     "list|10": [dataTemplate]
-    //   }).list;
-    //
-    //   // 生成分类假数据
-    //   const classifyTemplate = {
-    //     name: "@cname",
-    //     "count|1-1000": 100,
-    //     "value|1": [true, false]
-    //   };
-    //
-    //   this.classify = Mock.mock({
-    //     "classify|3-10": [classifyTemplate]
-    //   }).classify;
-    // },
     drawerClose() {},
     fileTypeTag(
       type: string
@@ -204,8 +252,26 @@ export default defineComponent({
       this.previewData.name = name;
       this.previewData.isShow = true;
     },
-    handelCheckbox(): void {
-      this.initStoreFileList();
+    filterTypeCondition(val: string) {
+      switch (val) {
+        case "jpg":
+        case "jpeg":
+        case "png":
+          return "image";
+        case "mp4":
+        case "avi":
+        case "mkv":
+        case "mov":
+          return "video";
+        case "mp3":
+        case "wav":
+        case "aac":
+        case "ogg":
+        case "flac":
+          return "audio";
+        default:
+          return "unknown";
+      }
     }
   }
 });
@@ -221,119 +287,155 @@ export default defineComponent({
       @handleClose="drawerClose"
       @updatePage="initStoreFileList"
     />
-    <div class="table-container">
+    <div class="table-container container-height">
       <div class="panel">
-        <div class="ml-4 mr-4 m-4">
-          <h3>搜索</h3>
-          <div class="flex mt-2 gap-4">
-            <el-input v-model="search.name" size="large" clearable />
-            <el-button type="primary" size="large"> 查询 </el-button>
-          </div>
-          <h3 class="mt-2 mb-2">排序</h3>
-          <el-select
-            v-model="search.order"
-            class="w-full"
-            placeholder="Select"
-            size="large"
-            @change="initStoreFileList()"
-          >
-            <el-option
-              v-for="item in order.options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-          <h3 class="mt-2 mb-2">排序字段</h3>
-          <el-select
-            v-model="search.orderBy"
-            class="w-full"
-            placeholder="Select"
-            size="large"
-            @change="initStoreFileList()"
-          >
-            <el-option
-              v-for="item in orderBy.options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </div>
-        <el-divider />
-        <div class="flex justify-between pl-2 pr-2">
-          <h3>过滤</h3>
-          <w-segmented
-            v-model="filter.value"
-            :options="filter.chooses"
-            @updateSelection="handelSegment"
-          />
-        </div>
-        <div class="flex flex-col">
-          <div class="flex flex-col pr-8 pl-8">
-            <filter-checkout
-              v-model="search.filter"
-              :cities="classify"
-              @update-checkout="handelCheckbox"
-            />
-          </div>
-        </div>
-      </div>
-      <div v-if="list.length !== 0" class="grow" style="height: 85vh">
-        <el-scrollbar height="100%">
-          <div class="flex flex-col gap-2">
-            <a
-              v-for="item in list"
-              :key="item.md5"
-              class="a-item h-50"
-              :class="item.status ? '' : 'grayscale'"
-              @click="openFileInfoDrawer(item.path, item.type)"
+        <ElScrollbar :always="true">
+          <div class="ml-4 mr-4 m-4">
+            <div class="flex justify-between">
+              <h3>搜索</h3>
+              <WButton type="danger">刷新缓存</WButton>
+            </div>
+            <div class="mt-2">
+              <el-input v-model="search.select" size="large" clearable />
+            </div>
+            <h3 class="mt-2 mb-2">显示绑定数据</h3>
+            <el-select
+              v-model="displayResource.display"
+              class="w-full"
+              placeholder="Select"
+              size="large"
             >
-              <div class="flex">
-                <IconifyIconOffline
-                  width="4rem"
-                  height="4rem"
-                  class="mr-2 text-[var(--el-color-primary)]"
-                  :class="item.status ? '' : 'text-[var(--el-color-info)]'"
-                  :icon="fileTypeIcon(item.type)"
-                />
-                <div class="w-full">
-                  <div>
-                    <div class="flex justify-between pr-4">
-                      <p
-                        :class="
-                          item.status
-                            ? ''
-                            : 'text-[var(--el-text-color-secondary)]'
-                        "
-                      >
-                        {{ item.name }}
-                      </p>
-                      <p>
-                        {{ formatBytes(item.size) }}
-                      </p>
+              <el-option
+                v-for="item in displayResource.options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+            <h3 class="mt-2 mb-2">排序</h3>
+            <el-select
+              v-model="search.order"
+              class="w-full"
+              placeholder="Select"
+              size="large"
+            >
+              <el-option
+                v-for="item in order.options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+            <h3 class="mt-2 mb-2">排序字段</h3>
+            <el-select
+              v-model="search.orderBy"
+              class="w-full"
+              placeholder="Select"
+              size="large"
+              @change="initStoreFileList()"
+            >
+              <el-option
+                v-for="item in orderBy.options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </div>
+          <el-divider />
+          <div class="flex justify-between pl-2 pr-2">
+            <h3>过滤</h3>
+            <w-segmented
+              v-model="filter.value"
+              :options="filter.chooses"
+              @updateSelection="handelSegment"
+            />
+          </div>
+          <div class="flex flex-col">
+            <div class="flex flex-col pr-8 pl-8">
+              <filter-checkout v-model="search.filter" :cities="classify" />
+            </div>
+          </div>
+        </ElScrollbar>
+      </div>
+      <el-empty v-if="list.length === 0" class="w-full" />
+      <div v-else class="grow">
+        <div class="flex flex-col overflow-y-hidden container-height">
+          <DynamicScroller
+            v-slot="{ item, index, active }"
+            class="h-screen"
+            :items="searchFilter"
+            :min-item-size="54"
+            key-field="path"
+          >
+            <DynamicScrollerItem
+              :item="item"
+              :active="active"
+              :size-dependencies="[item.path]"
+              :data-index="index"
+              :data-active="active"
+              :title="`${item.name}`"
+            >
+              <div class="flex flex-col gap-2">
+                <a
+                  :key="item.md5"
+                  class="a-item"
+                  :class="item.status ? '' : 'grayscale'"
+                  @click="openFileInfoDrawer(item.path, item.type)"
+                >
+                  <div class="flex">
+                    <IconifyIconOffline
+                      width="4rem"
+                      height="4rem"
+                      class="mr-2 text-[var(--el-color-primary)]"
+                      :class="item.status ? '' : 'text-[var(--el-color-info)]'"
+                      :icon="fileTypeIcon(item.type)"
+                    />
+                    <div class="w-full">
+                      <div>
+                        <div class="flex justify-between pr-4">
+                          <p
+                            :class="
+                              item.status
+                                ? ''
+                                : 'text-[var(--el-text-color-secondary)]'
+                            "
+                          >
+                            {{ item.name }}
+                          </p>
+                          <p>
+                            {{ formatBytes(item.size) }}
+                          </p>
+                        </div>
+                      </div>
+                      <span class="opacity-50 text-sm w-40 truncate">
+                        {{ item.path }}
+                      </span>
+                      <div class="flex justify-between mt-1 pr-4">
+                        <el-tag :type="fileTypeTag(item.type)" round>{{
+                          item.type
+                        }}</el-tag>
+                        <p class="text-[var(--el-text-color-secondary)]">
+                          {{ item.modificationTime }}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                  <div class="flex justify-between mt-1 pr-4">
-                    <el-tag :type="fileTypeTag(item.type)" round>{{
-                      item.type
-                    }}</el-tag>
-                    <p class="text-[var(--el-text-color-secondary)]">
-                      {{ item.modificationTime }}
-                    </p>
-                  </div>
-                </div>
+                </a>
               </div>
-            </a>
-          </div>
-        </el-scrollbar>
+            </DynamicScrollerItem>
+          </DynamicScroller>
+        </div>
       </div>
-      <el-empty v-else class="w-full" />
     </div>
   </div>
 </template>
 
 <style scoped lang="scss">
+.container-height {
+  height: 79vh;
+}
+
 .table-container {
   position: relative;
   display: flex;
@@ -345,8 +447,8 @@ export default defineComponent({
 .a-item {
   padding: 0.5rem;
   border-radius: 0.4rem;
-  box-shadow: 0 0 0 1px var(--el-input-border-color, var(--el-border-color))
-    inset;
+  //box-shadow: 0 0 0 1px var(--el-input-border-color, var(--el-border-color))
+  //  inset;
   transition: transform ease 200ms;
 }
 
@@ -357,7 +459,6 @@ export default defineComponent({
 
 .panel {
   width: 25%;
-  height: 85vh;
   margin-right: 0;
   margin-left: 0;
   overflow-y: auto;
