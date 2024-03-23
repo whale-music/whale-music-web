@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import WButton from "@/components/button/index.vue";
 import RePageTable from "@/components/RePageTable/index.vue";
 import { deleteHistory, getPageHistory, MusicHistoryRes } from "@/api/history";
 import { PageResCommon } from "@/api/model/common";
 import { message } from "@/utils/message";
-import { useRouter } from "vue-router";
+import { RouteLocation, RouteLocationRaw, useRouter } from "vue-router";
 import { isAllEmpty } from "@pureadmin/utils";
+import UserSelect from "@/components/UserSelect/index.vue";
 
 function PageTable() {
   const search = ref("");
@@ -35,6 +36,9 @@ function PageTable() {
       message("删除成功", { type: "error" });
     }
   };
+  const userId = ref<number>();
+  const selectType = ref<number>(0);
+
   const page = ref<PageResCommon<MusicHistoryRes>>({
     total: 0,
     size: 10,
@@ -46,7 +50,8 @@ function PageTable() {
     loading.value = true;
     try {
       const r = await getPageHistory(
-        search.value,
+        userId.value,
+        selectType.value,
         page.value.current,
         page.value.size
       );
@@ -56,8 +61,12 @@ function PageTable() {
     }
   }
 
+  watch([userId, selectType], () => {
+    init();
+  });
+
   const router = useRouter();
-  const link = new Map([
+  const link = new Map<string, (id: number) => RouteLocationRaw>([
     ["music", (id: number) => ({ name: "MusicInfo", query: { id: id } })],
     ["album", (id: number) => ({ name: "AlbumInfo", query: { id: id } })],
     ["artist", (id: number) => ({ name: "ArtistInfo", query: { id: id } })],
@@ -83,7 +92,33 @@ function PageTable() {
     ["mv", "info"],
     ["playlist", "danger"]
   ]);
+
+  const optionsType = [
+    {
+      value: 0,
+      label: "音乐"
+    },
+    {
+      value: 1,
+      label: "专辑"
+    },
+    {
+      value: 2,
+      label: "歌手"
+    },
+    {
+      value: 3,
+      label: "歌单"
+    },
+    {
+      value: 4,
+      label: "MV"
+    }
+  ];
+
   return {
+    selectType,
+    optionsType,
     search,
     loading,
     page,
@@ -91,19 +126,22 @@ function PageTable() {
     init,
     deleteHistoryButton,
     tagType,
-    toLink
+    toLink,
+    userId
   };
 }
 
 const {
-  search,
   loading,
   page,
   selectCount,
   init,
   deleteHistoryButton,
   tagType,
-  toLink
+  toLink,
+  userId,
+  selectType,
+  optionsType
 } = PageTable();
 
 onMounted(() => {
@@ -113,8 +151,21 @@ onMounted(() => {
 
 <template>
   <div class="space-y-2">
-    <div class="flex">
-      <ElInput v-model="search" size="large" class="transition-all" />
+    <div class="flex gap-2">
+      <ElSelect
+        v-model="selectType"
+        placeholder="Select"
+        size="large"
+        style="width: 240px"
+      >
+        <el-option
+          v-for="item in optionsType"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        />
+      </ElSelect>
+      <UserSelect v-model="userId" />
       <WButton size="large" type="primary" class="ml-2">
         <span class="font-bold"> 搜索 </span>
       </WButton>

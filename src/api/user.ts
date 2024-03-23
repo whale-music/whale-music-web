@@ -73,3 +73,16 @@ export const deleteUser = (id: number) => {
 export const getConfig = () => {
   return http.request<R<Config>>("get", "/admin/config/");
 };
+
+export interface SelectUserRes {
+  value: number;
+  label: string;
+}
+/**
+ * 获取用户数据, 用于选择用户
+ */
+export const getSelectUser = (username: string) => {
+  return http.request<R<SelectUserRes[]>>("get", "/admin/user/select/list", {
+    params: { username }
+  });
+};

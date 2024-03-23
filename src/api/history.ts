@@ -11,13 +11,19 @@ export interface MusicHistoryRes {
   updateTime: string;
 }
 
-export const getPageHistory = (name: string, current: number, size: number) => {
+export const getPageHistory = (
+  userId: number,
+  type: number,
+  current: number,
+  size: number
+) => {
   return http.request<R<PageResCommon<MusicHistoryRes>>>(
     "get",
     "/admin/history/page",
     {
       params: {
-        name: name,
+        userId: userId,
+        type: type,
         current: current,
         size: size
       }
