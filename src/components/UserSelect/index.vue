@@ -15,7 +15,6 @@ onMounted(() => {
   loading.value = true;
   getSelectUser("")
     .then(v => {
-      userValue.value = v.data[0].value;
       userOptions.value = v.data;
       loading.value = false;
     })

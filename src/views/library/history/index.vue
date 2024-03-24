@@ -5,9 +5,10 @@ import RePageTable from "@/components/RePageTable/index.vue";
 import { deleteHistory, getPageHistory, MusicHistoryRes } from "@/api/history";
 import { PageResCommon } from "@/api/model/common";
 import { message } from "@/utils/message";
-import { RouteLocation, RouteLocationRaw, useRouter } from "vue-router";
+import { RouteLocationRaw, useRouter } from "vue-router";
 import { isAllEmpty } from "@pureadmin/utils";
 import UserSelect from "@/components/UserSelect/index.vue";
+import { getUserData } from "@/utils/auth";
 
 function PageTable() {
   const search = ref("");
@@ -36,7 +37,7 @@ function PageTable() {
       message("删除成功", { type: "error" });
     }
   };
-  const userId = ref<number>();
+  const userId = ref<number>(getUserData().id);
   const selectType = ref<number>(0);
 
   const page = ref<PageResCommon<MusicHistoryRes>>({
