@@ -39,12 +39,15 @@ const getPageUserMethod = async () => {
   const r = await getUserPage(state.pageReq);
   state.pageRes = r.data;
 };
-const updateUserInfo = async (user: SaveOrUpdateUserReq) => {
-  const r = await saveOrUpdateUser(user);
-  if (r?.code === "200") {
+const updateUserInfo = async (user: SaveOrUpdateUserReq, status) => {
+  try {
+    const r = await saveOrUpdateUser(user);
     message(`${r.data.status ? "启用" : "禁用"}成功`, { type: "success" });
+  } catch (e) {
+    status = !status;
+  } finally {
+    initInfo();
   }
-  initInfo();
 };
 
 const deleteUserButton = async (id: number) => {
@@ -64,7 +67,7 @@ const deleteUserButton = async (id: number) => {
         <el-button type="primary"> 添加用户 </el-button>
       </router-link>
     </div>
-    <el-table :key="state.pageRes.records" :data="state.pageRes.records">
+    <el-table :data="state.pageRes.records">
       <el-table-column prop="username" label="用户名" />
       <el-table-column prop="nickname" label="用户昵称" />
       <el-table-column prop="roleName" label="角色">
@@ -77,7 +80,7 @@ const deleteUserButton = async (id: number) => {
         <template #default="scope">
           <el-switch
             v-model="scope.row.status"
-            @change="updateUserInfo(scope.row)"
+            @change="updateUserInfo(scope.row, scope.row.status)"
           />
         </template>
       </el-table-column>
