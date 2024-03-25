@@ -34,6 +34,17 @@ export default {
       }
     },
     {
+      path: "/onlineDevices",
+      name: "Devices",
+      component: () => import("@/views/welcome/onlineDevices/index.vue"),
+      meta: {
+        icon: "solar:devices-bold",
+        title: $t("menus.onlineDevices"),
+        auths: ["admin"],
+        roles: ["admin"]
+      }
+    },
+    {
       path: "/userManagement/:id(.*)",
       name: "UserManagement",
       component: () => import("@/views/welcome/userManagementInfo.vue"),

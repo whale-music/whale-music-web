@@ -27,6 +27,7 @@ buttons:
 menus:
   hshome: Home
   userManagement: User
+  onlineDevices: Online Devices
   hslogin: Login
   playList: PlayList
   hsempty: Empty Page
