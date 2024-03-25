@@ -39,11 +39,11 @@ const removeCache = async (cacheId: string) => {
       <ElTableColumn>
         <template #default="{ row }">
           <el-popconfirm
-            title="确认下载该设备吗?"
+            title="删除缓存会可能导致设置下线, 确认删除吗?(refresh除外)"
             @confirm="removeCache(row.cacheId)"
           >
             <template #reference>
-              <ElButton type="danger"> 强制下线 </ElButton>
+              <ElButton type="danger"> 删除缓存 </ElButton>
             </template>
           </el-popconfirm>
         </template>
