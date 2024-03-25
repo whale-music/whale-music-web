@@ -31,7 +31,8 @@ onMounted(() => {
   <div>
     <h1 class="">{{ transformI18n("menus.onlineDevices") }}</h1>
     <el-alert
-      title="目前只实现了admin与nMusic"
+      title="目前只实现了admin与NMusic"
+      description="带有refresh是刷新token缓存"
       type="warning"
       :closable="false"
       show-icon
