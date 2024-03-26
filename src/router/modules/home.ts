@@ -45,6 +45,17 @@ export default {
       }
     },
     {
+      path: "/systemLog",
+      name: "SystemLog",
+      component: () => import("@/views/welcome/systemLog/index.vue"),
+      meta: {
+        icon: "solar:clipboard-bold",
+        title: $t("menus.systemLog"),
+        auths: ["admin"],
+        roles: ["admin"]
+      }
+    },
+    {
       path: "/userManagement/:id(.*)",
       name: "UserManagement",
       component: () => import("@/views/welcome/userManagementInfo.vue"),

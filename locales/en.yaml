@@ -28,6 +28,7 @@ menus:
   hshome: Home
   userManagement: User
   onlineDevices: Online Devices
+  systemLog: System Log
   hslogin: Login
   playList: PlayList
   hsempty: Empty Page

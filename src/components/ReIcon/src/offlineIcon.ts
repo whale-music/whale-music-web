@@ -71,6 +71,7 @@ import TestTubeMinimalisticBoldDuotone from "@iconify-icons/solar/test-tube-mini
 import CalendarMarkBoldDuotone from "@iconify-icons/solar/calendar-mark-bold-duotone";
 import AlarmBoldDuotone from "@iconify-icons/solar/alarm-bold-duotone";
 import DevicesBold from "@iconify-icons/solar/devices-bold";
+import ClipboardBold from "@iconify-icons/solar/clipboard-bold";
 addIcon("solar:playlist-2-bold", Playlist2Bold);
 addIcon("solar:music-library-2-bold-duotone", MusicLibrary2BoldDuotone);
 addIcon("solar:box-minimalistic-bold", BoxMinimalisticBold);
@@ -89,6 +90,7 @@ addIcon(
 addIcon("solar:calendar-mark-bold-duotone", CalendarMarkBoldDuotone);
 addIcon("solar:alarm-bold-duotone", AlarmBoldDuotone);
 addIcon("solar:devices-bold", DevicesBold);
+addIcon("solar:clipboard-bold", ClipboardBold);
 
 // @iconify-icons/mingcute
 import Home3Fill from "@iconify-icons/mingcute/home-3-fill";

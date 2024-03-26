@@ -28,6 +28,7 @@ menus:
   hshome: 首页
   userManagement: 用户
   onlineDevices: 在线设备
+  systemLog: 系统日志
   hslogin: 登录
   playList: 歌单
   hsempty: 无Layout页
