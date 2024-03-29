@@ -2,9 +2,9 @@
 import BScroll from "@better-scroll/core";
 import MouseWheel from "@better-scroll/mouse-wheel";
 import DownFill from "@iconify-icons/mingcute/down-fill";
-import { darken, isAllEmpty } from "@pureadmin/utils";
+import { darken } from "@pureadmin/utils";
 import { Lrc } from "lrc-kit";
-import { computed, onMounted, reactive, ref, watch } from "vue";
+import { computed, nextTick, onMounted, reactive, ref, watch } from "vue";
 import { useNav } from "@/layout/hooks/useNav";
 import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
 import { prominent } from "@/utils/color/color";
@@ -12,6 +12,7 @@ import { emitter } from "@/utils/mitt";
 import Lyrics from "@/layout/components/musicPlay/components/lyrics/index.vue";
 import IconButton from "@/layout/components/musicPlay/components/IconButton/index.vue";
 import MusicPlayerInterface from "@/layout/components/musicPlay/components/MusicPlayerInterface/index.vue";
+import { StringUtils } from "@/utils/ObjectsUtil";
 
 const { closePlayMusic } = useNav();
 
@@ -67,7 +68,8 @@ async function initPlaySong() {
   // 初始歌曲时重新初始化歌词数组
   state.audio.lyricIndex = 0;
   state.audio.lyricsArr = [];
-  if (!isAllEmpty(currentLyric.value)) {
+
+  if (StringUtils.isNotBlank(currentLyric.value)) {
     const lrc = Lrc.parse(currentLyric.value);
     state.audio.lyricsArr = lrc.lyrics;
     state.audio.lyricsArr.sort((a, b) => a.timestamp - b.timestamp);
@@ -76,15 +78,34 @@ async function initPlaySong() {
   document.title = `${musicInfo.value?.musicName} - ${musicInfo.value?.album?.albumName}`;
 }
 
-const intBgColor = async (picUrl?: string) => {
-  const url = picUrl ?? musicInfo.value?.picUrl;
-  const colors = await prominent(url, {
+watch(
+  () => musicInfo.value.picUrl,
+  () => {
+    intBgColor();
+  }
+);
+
+const bgImgRef = ref();
+const bgDark = ref<string[]>();
+const intBgColor = async () => {
+  if (StringUtils.isBlank(musicInfo?.value?.picUrl)) {
+    return;
+  }
+  await nextTick();
+  // 使用img element 不使用url, 防止axios图片请求跨域问题
+  const colors = await prominent(bgImgRef.value, {
     format: "hex",
     group: 30
   });
+  console.log("bg color init");
   const color1 = colors[2] as string;
+  bgDark.value = Array.from({ length: 5 })
+    .map((_, index) => {
+      return darken(colors[2] as string, index * 0.1);
+    })
+    .reverse();
   if (color1) {
-    const color = darken(color1, 1 / 5);
+    const color = darken(color1, 0.2);
     state.style.bgColor = {
       backgroundColor: `${color}`
     };
@@ -103,6 +124,12 @@ const intBgColor = async (picUrl?: string) => {
 
 <template>
   <div class="main-box" :style="state.style.bgColor">
+    <img
+      ref="bgImgRef"
+      :src="musicInfo?.picUrl"
+      :alt="musicInfo?.picUrl"
+      class="hidden"
+    />
     <div class="toBack">
       <IconButton
         :icon="DownFill"
@@ -111,7 +138,10 @@ const intBgColor = async (picUrl?: string) => {
         @click="closePlayMusic"
       />
     </div>
-    <div class="shadowMask">
+    <div v-if="storeHook.isEmpty" class="w-full h-full flex-c">
+      <span class="font-bold text-4xl">没有正在播放音乐</span>
+    </div>
+    <div v-else class="shadowMask">
       <div class="container-box">
         <MusicPlayerInterface
           v-model:audio-ref="audioRef"
@@ -177,7 +207,9 @@ $lyricPadding: 0.8rem;
 
 .shadowMask {
   height: 100%;
-  background-color: rgb(118 118 122 / 47%);
+  /* stylelint-disable */
+  background-image: linear-gradient(to top, v-bind(bgDark));
+  /* stylelint-enable */
   backdrop-filter: blur(50px);
 }
 
