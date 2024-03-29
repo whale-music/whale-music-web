@@ -80,14 +80,16 @@ export const userPlaySongList = defineStore({
       }
     },
     async addMusicToPlayByMusicInfo(musicList: MusicPlayInfo[]) {
-      this.playListMusicArr.push(musicList);
+      this.playListMusicArr.push(...musicList);
     },
     // 添加歌曲到下一个播放
     async addMusicToNextPlaySongList(musicId: number | number[]) {
+      debugger;
       if (isAllEmpty(musicId)) return;
       const addIds: number[] = isArray(musicId) ? musicId : [musicId];
-      // 筛选重复数据
-      const ids = this.playListMusicArr.filter(v => !addIds.includes(v.id));
+      // 筛选重复数据， 取并集
+      const oldIds = this.playListMusicArr.map(v => v.id);
+      const ids = addIds.filter(v => !oldIds.includes(v));
       if (isAllEmpty(ids)) return;
       const r = await getMusicPlayInfo(ids);
       this.addMusicToPlayByMusicInfo(r.data);
