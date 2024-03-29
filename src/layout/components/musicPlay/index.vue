@@ -79,14 +79,13 @@ async function initPlaySong() {
 }
 
 watch(
-  () => musicInfo.value.picUrl,
+  () => musicInfo?.value?.picUrl,
   () => {
     intBgColor();
   }
 );
 
-const bgImgRef = ref();
-const bgDark = ref<string[]>();
+const bgImgRef = ref(null);
 const intBgColor = async () => {
   if (StringUtils.isBlank(musicInfo?.value?.picUrl)) {
     return;
@@ -97,28 +96,13 @@ const intBgColor = async () => {
     format: "hex",
     group: 30
   });
-  console.log("bg color init");
-  const color1 = colors[2] as string;
-  bgDark.value = Array.from({ length: 5 })
-    .map((_, index) => {
-      return darken(colors[0] as string, index * 0.1);
-    })
-    .reverse();
-  if (color1) {
-    const color = darken(color1, 0.2);
+  const color = colors[2] as string;
+  if (color) {
+    const darkColor = darken(color, 0.2);
     state.style.bgColor = {
-      backgroundColor: `${color}`
+      backgroundColor: `${darkColor}`
     };
   }
-
-  // TODO 渐变动画，暂时不能实现
-  // const newColor: Number[][] = [hexToRgb(colors[1]), hexToRgb(colors[0])];
-  // switchColor(newColor);
-  // colors[1] = darken(colors[1], 1 / 5);
-  // imgColorStyle.value = {
-  //   background: `linear-gradient(312deg, ${colors[0]} 0%, ${colors[1]} 50%, ${colors[2]} 100%)`
-  // };
-  // console.log(colors);
 };
 </script>
 
@@ -207,9 +191,7 @@ $lyricPadding: 0.8rem;
 
 .shadowMask {
   height: 100%;
-  /* stylelint-disable */
-  background-image: linear-gradient(to top, v-bind(bgDark));
-  /* stylelint-enable */
+  // background-color: rgba(0, 0, 0, 0.08);
   backdrop-filter: blur(50px);
 }
 
