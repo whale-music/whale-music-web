@@ -101,7 +101,7 @@ const intBgColor = async () => {
   const color1 = colors[2] as string;
   bgDark.value = Array.from({ length: 5 })
     .map((_, index) => {
-      return darken(colors[2] as string, index * 0.1);
+      return darken(colors[0] as string, index * 0.1);
     })
     .reverse();
   if (color1) {
