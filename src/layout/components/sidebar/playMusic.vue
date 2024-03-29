@@ -17,7 +17,11 @@ const storeHook = usePlaySongListStoreHook();
 
 const isShow = ref<boolean>(storageLocal().getItem<boolean>(k));
 const isShowPlayMusic = computed<boolean>({
-  get: () => storeHook.isNotEmpty && isShow.value,
+  get: () => {
+    // 移除歌单没有音乐不能打开播放器
+    // storeHook.isNotEmpty &&
+    return isShow.value;
+  },
   set: val => {
     isShow.value = val;
     storageLocal().setItem<boolean>(k, val);
@@ -33,10 +37,6 @@ emitter.on("closePlayMusic", () => {
 });
 
 const showPlayMusic = () => {
-  if (storeHook.isEmpty) {
-    message("播放列表中无音乐");
-    return;
-  }
   isShowPlayMusic.value = true;
 };
 </script>
