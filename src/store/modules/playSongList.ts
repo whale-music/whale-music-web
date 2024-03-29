@@ -84,7 +84,6 @@ export const userPlaySongList = defineStore({
     },
     // 添加歌曲到下一个播放
     async addMusicToNextPlaySongList(musicId: number | number[]) {
-      debugger;
       if (isAllEmpty(musicId)) return;
       const addIds: number[] = isArray(musicId) ? musicId : [musicId];
       // 筛选重复数据， 取并集
