@@ -65,17 +65,25 @@ async function initPlaySong() {
   intBgColor();
   // 重新播放
   audioRef.value?.load();
-  // 初始歌曲时重新初始化歌词数组
+  // 初始化歌词
+  initLyrics();
+  // 修改Title
+  document.title = `${musicInfo.value?.musicName} - ${musicInfo.value?.album?.albumName}`;
+}
+
+watch(currentLyric, val => {
+  initLyrics(val);
+});
+
+// 初始歌曲时重新初始化歌词数组
+function initLyrics(val: string = currentLyric.value) {
   state.audio.lyricIndex = 0;
   state.audio.lyricsArr = [];
-
-  if (StringUtils.isNotBlank(currentLyric.value)) {
-    const lrc = Lrc.parse(currentLyric.value);
+  if (StringUtils.isNotBlank(val)) {
+    const lrc = Lrc.parse(val);
     state.audio.lyricsArr = lrc.lyrics;
     state.audio.lyricsArr.sort((a, b) => a.timestamp - b.timestamp);
   }
-  // 修改Title
-  document.title = `${musicInfo.value?.musicName} - ${musicInfo.value?.album?.albumName}`;
 }
 
 watch(
@@ -131,15 +139,15 @@ const intBgColor = async () => {
           v-model:audio-ref="audioRef"
           v-model:is-move="state.scroll.isChange"
           v-model:lyric-index="state.audio.lyricIndex"
-          v-model:lyrics-arr="state.audio.lyricsArr"
+          :lyrics-arr="state.audio.lyricsArr"
           :music-info="musicInfo"
           @init-audio="initAudio"
         />
         <Lyrics
-          v-model:lyrics-list="state.audio.lyricsArr"
           v-model:current-lyrics-index="state.audio.lyricIndex"
           v-model:audio-ref="audioRef"
           v-model:is-change="state.scroll.isChange"
+          :lyrics-list="state.audio.lyricsArr"
         />
       </div>
     </div>
