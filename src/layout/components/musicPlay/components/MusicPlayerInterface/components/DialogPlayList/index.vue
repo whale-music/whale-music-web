@@ -29,12 +29,16 @@ const jumpMusic = (index: number) => {
 
 // 移除歌曲
 const { closePlayMusic } = useNav();
-const removeMusic = async (musicId: number) => {
+const removeMusic = async (index: number) => {
   value.value = false;
   await nextTick();
-  storeHook.removeMusicByMusicId(musicId);
+  storeHook.removeMusicByIndex(index);
   if (storeHook.isEmpty) {
     closePlayMusic();
+    storeHook.currentIndex = 0;
+  } else {
+    //重新设置歌曲游标， 防止游标大于歌单长度
+    storeHook.currentIndex = Math.max(index - 1, 0);
   }
 };
 </script>
@@ -76,7 +80,7 @@ const removeMusic = async (musicId: number) => {
               height="1.5rem"
               bg-height="2.5rem"
               bg-width="2.5rem"
-              @click="removeMusic(item.id)"
+              @click="removeMusic(index)"
             />
           </div>
         </div>

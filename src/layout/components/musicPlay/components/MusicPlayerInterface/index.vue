@@ -22,6 +22,8 @@ import IconPlayButton from "@/layout/components/musicPlay/components/MusicPlayer
 import { getActualWidthOfChars } from "@/utils/textWidthUtil";
 import { useRouter } from "vue-router";
 import { useNav } from "@/layout/hooks/useNav";
+import { message } from "@/utils/message";
+import { ObjectsUtils } from "@/utils/ObjectsUtil";
 
 defineOptions({
   name: "MusicPlayerInterface"
@@ -135,11 +137,19 @@ const musicLoopType = () => {
 
 // 开始播放
 const onPlay = () => {
+  if (ObjectsUtils.isObjectEmpty(audioRef.value)) {
+    message("音乐未初始化，请刷新", { type: "error" });
+  }
   audioRef.value.play();
+  storeHook.isPlay = true;
 };
 // 暂停播放
 const onPause = () => {
+  if (ObjectsUtils.isObjectEmpty(audioRef.value)) {
+    message("音乐未初始化，请刷新", { type: "error" });
+  }
   audioRef.value.pause();
+  storeHook.isPlay = false;
 };
 const storeHook = usePlaySongListStoreHook();
 
@@ -148,21 +158,19 @@ const lastMusic = async () => {
   if (storeHook.isLastMusic) {
     storeHook.lastMusic();
   } else {
-    // 跳转到播放列表最后一个
-    storeHook.currentIndex = storeHook.playListMusicArr.length - 1;
+    message("该音乐是第一首", { type: "success" });
+    return;
   }
   await initAudio();
   onPlay();
 };
 
 const nextMusic = async () => {
-  // 如果歌单列表中只有一首音乐则不切换
-  // if (storeHook.getPlayMusicLength === 1) return;
   if (storeHook.isNextMusic) {
     storeHook.nextMusic();
   } else {
-    // 跳转到播放列表第一个
-    storeHook.currentIndex = 0;
+    message("已播放到最后一首", { type: "success" });
+    return;
   }
   await initAudio();
   onPlay();
@@ -255,7 +263,7 @@ const toArtist = (id: number) => {
           />
           <IconPlayButton
             :loading="audio.loading"
-            :is-play="storeHook.isPlay"
+            :is-play="storeHook.isAudioPlay"
             @onPause="onPause"
             @onPlay="onPlay"
           />
@@ -288,13 +296,12 @@ const toArtist = (id: number) => {
       v-model:loading="audio.loading"
       :src="currentSources.url"
       @onSubmit="initAudio"
+      @onPause="onPause"
     />
   </div>
 </template>
 
 <style lang="scss" scoped>
-
-
 @keyframes scroll-animate {
   80%,
   100% {

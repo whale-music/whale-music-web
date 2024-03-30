@@ -44,7 +44,7 @@ const showPlayMusic = () => {
 <template>
   <div>
     <div class="cursor-pointer" @click="showPlayMusic">
-      <div :class="{ 'animate-spin': storeHook.isPlay }">
+      <div :class="{ 'animate-spin': storeHook.isAudioPlay }">
         <IconifyIconOffline
           :style="{
             color: storeHook.isEmpty

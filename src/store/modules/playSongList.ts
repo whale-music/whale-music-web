@@ -25,14 +25,16 @@ export const userPlaySongList = defineStore({
     getPlayMusicLength: state => state.playListMusicArr.length,
     getCurrentIndex: state => state.currentIndex,
     // 是否有上一首音乐
-    isLastMusic: state => state.currentIndex > 0,
+    isLastMusic: (state): boolean => state.currentIndex > 0,
     // 是否有下一首音乐
     isNextMusic: (state): boolean => {
-      return state.currentIndex + 1 > state.playListMusicArr.length;
+      return state.currentIndex + 1 < state.playListMusicArr.length;
     },
     // 歌单是否为空
     isEmpty: state => isAllEmpty(state.playListMusicArr),
-    isNotEmpty: state => !isAllEmpty(state.playListMusicArr)
+    isNotEmpty: state => !isAllEmpty(state.playListMusicArr),
+    isAudioPlay: (state): boolean =>
+      !isAllEmpty(state.playListMusicArr) && state.isPlay
   },
   actions: {
     clearPlaySong() {
@@ -105,14 +107,16 @@ export const userPlaySongList = defineStore({
     // 重新设置当前歌单播放音乐
     seekMusicById(musicId: number): MusicPlayInfo {
       if (this.getPlayMusicLength > 0) {
-        this.currentMusic = this.getMusicById(musicId);
+        this.currentIndex = this.getPlayListMusic.findIndex(
+          value => value.id === musicId
+        );
         return this.getCurrentMusic;
       }
     },
     // 重新设置当前歌单播放音乐
     seekMusicByIndex(index: number): MusicPlayInfo {
       if (this.getPlayMusicLength > 0) {
-        this.currentMusic = index;
+        this.currentIndex = index;
         return this.getCurrentMusic;
       }
     },
@@ -126,8 +130,10 @@ export const userPlaySongList = defineStore({
     },
     randomMusic() {
       // 生成一个随机索引
+      const start = 0;
+      const end = this.getPlayMusicLength - 1;
       // 获取随机选择的元素
-      this.currentIndex = Math.floor(Math.random() * this.playListMusicArr);
+      this.currentIndex = Math.floor(Math.random() * (end - start + 1)) + start;
     }
   },
   persist: {

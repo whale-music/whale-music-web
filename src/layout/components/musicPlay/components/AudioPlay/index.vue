@@ -2,7 +2,7 @@
 import { useEventListener } from "@vueuse/core";
 import { Lyric } from "lrc-kit/src/lrc";
 import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
-import { ref, watch } from "vue";
+import { nextTick, ref, watch } from "vue";
 
 defineOptions({
   name: "AudioPlay"
@@ -41,11 +41,9 @@ watch(currentProgress, val => {
 const storeHook = usePlaySongListStoreHook();
 
 const onPlay = () => {
-  storeHook.isPlay = true;
   emits("onPlay");
 };
 const onPause = () => {
-  storeHook.isPlay = false;
   emits("onPause");
 };
 const onSubmit = () => {
@@ -108,18 +106,23 @@ const onTimeupdate = (event: any) => {
 
 // 歌曲循环状态
 const onEnded = async () => {
-  onPause();
   // 切换歌曲时重新初始化歌词数组
   lyricsIndex.value = 0;
+  // 播放进度条归零
+  currentProgress.value = 0;
   // 根据当前选项选择下一首音乐
+  await nextTick();
   switch (loopType.value) {
     // 自动完播放音乐，关闭
     case 0:
       if (storeHook.isNextMusic) {
         storeHook.nextMusic();
-        break;
+        onSubmit();
+      } else {
+        onSubmit();
+        onPause();
       }
-      return;
+      break;
     // 循环播放歌单音乐
     case 1:
       if (storeHook.isNextMusic) {
@@ -127,33 +130,36 @@ const onEnded = async () => {
       } else {
         storeHook.seekMusicByIndex(0);
       }
+      onSubmit();
       break;
     // 循环播放当前音乐
     case 2:
       isLoop.value = true;
+      onSubmit();
       break;
     // 随机当前歌单音乐
     case 3:
       storeHook.randomMusic();
+      onSubmit();
       break;
   }
-  onPlay();
-  onSubmit();
   emits("onEnded");
 };
 </script>
 
 <template>
+  <!-- 必须添加autoplay 否则播放下一首浏览器会自动禁用播放  -->
   <audio
     ref="audioRef"
     :src="src"
     autofocus
+    :loop="isLoop"
+    autoplay
     @timeupdate="onTimeupdate"
     @play="onPlay"
     @pause="onPause"
     @ended="onEnded"
     @canplay="canplay"
-    @loop="isLoop"
     @loadeddata="onLoadStart"
   >
     您的浏览器不支持 audio 元素。
