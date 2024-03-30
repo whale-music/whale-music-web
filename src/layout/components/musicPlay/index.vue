@@ -40,10 +40,13 @@ const state = reactive({
     isScrollRolling: true
   }
 });
+const storeHook = usePlaySongListStoreHook();
 
 onMounted(async () => {
   BScroll.use(MouseWheel);
   await initAudio();
+  // 页面刷新时自动获取音频是否在播放
+  storeHook.isPlay = !audioRef.value.paused;
 });
 
 const musicInfo = computed(() => {
@@ -53,8 +56,6 @@ const musicInfo = computed(() => {
 const currentLyric = computed(() => {
   return musicInfo.value?.lyrics?.lyrics?.lyric;
 });
-
-const storeHook = usePlaySongListStoreHook();
 
 async function initAudio() {
   await initPlaySong();
