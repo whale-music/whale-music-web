@@ -118,7 +118,7 @@ const cellStyle = ({ row, columnIndex }): CellStyle<any> => {
           icon="solar:heart-bold"
           width="1.3rem"
           height="1.3rem"
-          @click="like(scope.row.id, !scope.row.isLike)"
+          @click.stop="like(scope.row.id, !scope.row.isLike)"
         />
       </template>
     </el-table-column>
@@ -135,6 +135,7 @@ const cellStyle = ({ row, columnIndex }): CellStyle<any> => {
             <router-link
               class="font-bold"
               :to="{ name: 'MusicInfo', query: { id: scope.row.id } }"
+              @click.stop=""
             >
               {{ scope.row.musicName }}
             </router-link>
@@ -157,6 +158,7 @@ const cellStyle = ({ row, columnIndex }): CellStyle<any> => {
             name: 'AlbumInfo',
             query: { id: scope.row.albumId }
           }"
+          @click.stop=""
         >
           <el-link :underline="false">{{ scope.row.albumName }}</el-link>
         </router-link>
@@ -177,6 +179,7 @@ const cellStyle = ({ row, columnIndex }): CellStyle<any> => {
               name: 'ArtistInfo',
               query: { id: scope.row.artistIds[index] }
             }"
+            @click.stop=""
           >
             <span>{{ item }}</span>
           </router-link>
