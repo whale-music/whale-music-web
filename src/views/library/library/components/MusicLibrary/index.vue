@@ -59,18 +59,11 @@ watchEffect(() => {
 const like = async (id: number, status: boolean) => {
   const r = await musicLike(id, status);
   if (r.code === "200") {
-    const index = page.content.findIndex(value => value.id === id);
-    if (index !== -1) {
-      message(`${status === true ? "添加成功" : "删除成功"}`, {
-        type: "success"
-      });
-      page.content[index].isLike = status;
-    } else {
-      await init();
-    }
-  } else {
-    message(`添加错误${r.message}`, { type: "error" });
+    message(`添加成功`, {
+      type: "success"
+    });
   }
+  await init();
 };
 
 const { isDark } = useDark();
