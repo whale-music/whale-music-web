@@ -106,7 +106,7 @@ const cellStyle = ({ row, columnIndex }): CellStyle<any> => {
     :loading="loading"
   >
     <el-table-column type="selection" width="40" />
-    <el-table-column width="40" :show-overflow-tooltip="true">
+    <el-table-column v-if="userId" width="40" :show-overflow-tooltip="true">
       <template #default="scope">
         <IconifyIconOnline
           class="cursor-pointer"
