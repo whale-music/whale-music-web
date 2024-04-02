@@ -32,7 +32,7 @@ const tabs = reactive([
   }
 ]);
 
-const userId = ref<number>(getUserData().id);
+const userId = ref<number>();
 
 const route = useRoute();
 
