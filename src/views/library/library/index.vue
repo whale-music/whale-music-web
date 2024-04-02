@@ -12,7 +12,6 @@ import { randomKey } from "@/utils/SearchParse";
 import AlbumLibrary from "@/views/library/library/components/AlbumLibrary/index.vue";
 import ArtistLibrary from "@/views/library/library/components/ArtistLibrary/index.vue";
 import MusicLibrary from "@/views/library/library/components/MusicLibrary/index.vue";
-import { getUserData } from "@/utils/auth";
 
 const tabs = reactive([
   {
