@@ -35,11 +35,14 @@ const emit = defineEmits<{
 }>();
 
 const selectCount = useVModel(props, "selectCount", emit);
+const userId = defineModel<number>("userId");
 
 const init = async () => {
   try {
     loading.value = true;
-    const r = await getMusicTabsPage(paramsQueryToPageReq(route.query));
+    const r = await getMusicTabsPage(
+      paramsQueryToPageReq(route.query, userId.value)
+    );
     const data = r.data;
     page.content = data.content;
     page.current = data.current;

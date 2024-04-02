@@ -30,6 +30,7 @@ onMounted(() => {
     size="large"
     :loading="loading"
     style="width: 240px"
+    clearable
   >
     <el-option
       v-for="item in userOptions"

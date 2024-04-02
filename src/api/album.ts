@@ -47,6 +47,7 @@ export interface AlbumPageReq extends PageReqCommon {
   musicName: string;
   artistName: string;
   albumName: string;
+  userId: number;
 }
 
 export interface AlbumPageRes {

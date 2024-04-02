@@ -339,6 +339,7 @@ export interface MusicTabsPageReq {
   artistName: string;
   albumName: string;
   refresh: boolean;
+  userId: number;
   isShowSource: boolean;
   pageIndex: number;
   pageNum: number;

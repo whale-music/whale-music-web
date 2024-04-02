@@ -15,6 +15,7 @@ defineOptions({
 });
 const route = useRoute();
 const { t } = useI18n();
+const userId = defineModel<number>("userId");
 
 const typeName = "album";
 
@@ -23,7 +24,9 @@ const page = reactive({ content: [], total: 0, size: 50, current: 1 });
 const init = async () => {
   try {
     loading.value = true;
-    const r = await getAlbumPage(paramsQueryToPageReq(route.query));
+    const r = await getAlbumPage(
+      paramsQueryToPageReq(route.query, userId.value)
+    );
     const data = r.data;
     page.content = data.content;
     page.current = data.current;

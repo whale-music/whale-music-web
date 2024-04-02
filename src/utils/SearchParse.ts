@@ -31,7 +31,10 @@ export function parseSearchToQuery(str: string) {
   return obj;
 }
 
-export function paramsQueryToPageReq(query: LocationQuery): MusicTabsPageReq {
+export function paramsQueryToPageReq(
+  query: LocationQuery,
+  userId?: number
+): MusicTabsPageReq {
   // const route = useRoute();
   // const query = route.query;
   const name = query[nameKey];
@@ -48,6 +51,7 @@ export function paramsQueryToPageReq(query: LocationQuery): MusicTabsPageReq {
     artistName: String(artist ?? ""),
     albumName: String(album ?? ""),
     refresh: Boolean(refresh),
+    userId: userId,
     isShowSource: Boolean(isShowSource),
     pageIndex: Number(pageIndex ?? 1),
     pageNum: Number(pageNum ?? 50)

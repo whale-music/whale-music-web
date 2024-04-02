@@ -12,6 +12,7 @@ import { randomKey } from "@/utils/SearchParse";
 import AlbumLibrary from "@/views/library/library/components/AlbumLibrary/index.vue";
 import ArtistLibrary from "@/views/library/library/components/ArtistLibrary/index.vue";
 import MusicLibrary from "@/views/library/library/components/MusicLibrary/index.vue";
+import { getUserData } from "@/utils/auth";
 
 const tabs = reactive([
   {
@@ -30,6 +31,8 @@ const tabs = reactive([
     comp: markRaw(ArtistLibrary)
   }
 ]);
+
+const userId = ref<number>(getUserData().id);
 
 const route = useRoute();
 
@@ -87,6 +90,7 @@ const drawerClick = () => {
     <LibPage
       v-model:activeTabName="activeName"
       v-model:selectCount="selectCount"
+      v-model:userId="userId"
       :tabs="tabs"
       @drawerClick="drawerClick"
     >
@@ -97,7 +101,11 @@ const drawerClick = () => {
         :name="item.name"
         :lazy="true"
       >
-        <component :is="item.comp" v-model:selectCount="selectCount" />
+        <component
+          :is="item.comp"
+          v-model:selectCount="selectCount"
+          v-model:userId="userId"
+        />
       </el-tab-pane>
     </LibPage>
   </div>

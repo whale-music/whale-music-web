@@ -23,10 +23,14 @@ import {
   parseSearchToQuery,
   randomKey
 } from "@/utils/SearchParse";
+import UserSelect from "@/components/UserSelect/index.vue";
 
 defineOptions({
   name: "LibPage"
 });
+
+const userId = defineModel<number>("userId");
+
 const emit = defineEmits<{
   (e: "update:selectCount", val: number): void;
   (e: "update:activeTabName", value: string): void;
@@ -145,6 +149,7 @@ const showFilterText = () => {
       @closeDialog="() => (addMusicDialogFlag = false)"
     />
     <div class="flex gap-2 justify-between mb-4">
+      <UserSelect v-model="userId" />
       <HighlightInput v-model="value" @keyup.enter="onSubmit" />
       <div class="flex gap-2">
         <div>
