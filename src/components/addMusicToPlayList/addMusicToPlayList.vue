@@ -10,7 +10,8 @@ import {
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import { getUserData } from "@/utils/auth";
 import { message } from "@/utils/message";
-import { isArray } from "@pureadmin/utils";
+import { isAllEmpty, isArray } from "@pureadmin/utils";
+import UserSelect from "@/components/UserSelect/index.vue";
 
 const props = defineProps<{
   modelValue: boolean;
@@ -22,10 +23,11 @@ const playItem = ref<UserPlayListRes[]>([]);
 
 const emit = defineEmits(["closeDialog", "update:modelValue"]);
 const playItemDialogVisible = useVModel(props, "modelValue", emit);
+const userId = ref<number>(userInfo.id);
 
-watch(playItemDialogVisible, async val => {
-  if (val) {
-    const r = await getUserPlayList(userInfo.id);
+watch([playItemDialogVisible, userId], async ([s1, s2]) => {
+  if (s1 && !isAllEmpty(s2)) {
+    const r = await getUserPlayList(userId.value);
     playItem.value = r.data;
   }
 });
@@ -76,8 +78,11 @@ const closeDialog = () => {
       center
       @close="closeDialog"
     >
-      <h1>收藏歌单</h1>
-      <el-scrollbar height="400px">
+      <div class="flex justify-between">
+        <h1>收藏歌单</h1>
+        <UserSelect v-model="userId" />
+      </div>
+      <el-scrollbar v-if="userId" height="400px">
         <div>
           <ul v-for="(item, index) in playItem" :key="index">
             <li
@@ -101,6 +106,9 @@ const closeDialog = () => {
           </ul>
         </div>
       </el-scrollbar>
+      <div v-else class="h-[400px] w-full flex-c">
+        <span class="font-bold text-2xl"> 请选择需要添加歌曲用户 </span>
+      </div>
     </el-dialog>
   </div>
 </template>

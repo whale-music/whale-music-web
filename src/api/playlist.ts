@@ -96,7 +96,7 @@ export interface UserPlayListRes extends PlayInfoRes {
   count: number;
 }
 /** 获取用户歌单 */
-export const getUserPlayList = (userId: string) => {
+export const getUserPlayList = (userId: number) => {
   return http.request<R<UserPlayListRes[]>>(
     "get",
     `/admin/playlist/user/${userId}`
