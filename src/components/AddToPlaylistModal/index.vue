@@ -13,6 +13,10 @@ import { message } from "@/utils/message";
 import { isAllEmpty, isArray } from "@pureadmin/utils";
 import UserSelect from "@/components/UserSelect/index.vue";
 
+defineOptions({
+  name: "AddToPlaylistModal"
+});
+
 const props = defineProps<{
   modelValue: boolean;
   musicId: number | number[] | undefined;

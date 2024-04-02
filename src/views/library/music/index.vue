@@ -23,7 +23,7 @@ import { deleteMusic, getAllMusicList, MusicSearchRes } from "@/api/music";
 import { musicLike } from "@/api/playlist";
 import RefreshIcon from "@/assets/svg/refresh.svg?component";
 import DrawerMusic from "@/components/AddData/DrawerMusic/index.vue";
-import AddMusicToPlayList from "@/components/addMusicToPlayList/addMusicToPlayList.vue";
+import AddToPlaylistModal from "@/components/AddToPlaylistModal/index.vue";
 import DownloadIcon from "@/components/DownloadIcon/download.vue";
 import LoadImg from "@/components/LoadImg/LoadImg.vue";
 import NameSearch from "@/components/nameSearch/index.vue";
@@ -588,7 +588,7 @@ const toMusicInfo = id => {
   <div class="absolute-container">
     <DrawerMusic v-model="uploadMusicFlag" @change="init()" />
     <!--添加歌曲到歌单-->
-    <AddMusicToPlayList
+    <AddToPlaylistModal
       v-model="state.dialog.playItemDialogVisible"
       :music-id="state.addMusicId"
       :width="state.dialog.width"

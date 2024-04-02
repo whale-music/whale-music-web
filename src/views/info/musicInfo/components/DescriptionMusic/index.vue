@@ -8,9 +8,8 @@ import { usePlaySongListStoreHook } from "@/store/modules/playSongList";
 import AddFill from "@iconify-icons/mingcute/add-fill";
 import PlayBold from "@iconify-icons/solar/play-bold";
 import { useNav } from "@/layout/hooks/useNav";
-import { getUserPlayList, UserPlayListRes } from "@/api/playlist";
 import { isAllEmpty, useResizeObserver } from "@pureadmin/utils";
-import AddMusicToPlayList from "@/components/addMusicToPlayList/addMusicToPlayList.vue";
+import AddToPlaylistModal from "@/components/AddToPlaylistModal/index.vue";
 import { getUserData } from "@/utils/auth";
 import SyncMusic from "@/views/info/musicInfo/components/Dialog/DialogEditMusicInfo/components/SyncMusic/index.vue";
 import DialogEditMusicInfo from "@/views/info/musicInfo/components/Dialog/DialogEditMusicInfo/index.vue";
@@ -29,8 +28,6 @@ const musicUrls = computed(() => musicDetail.value.sources);
 const playItemDialogVisible = ref(false);
 const containerRef = ref();
 const addMusicId = ref<number>();
-const userPlayItem = ref<UserPlayListRes[]>();
-const userInfo = getUserData();
 const editMusicInfoFlag = ref<boolean>(false);
 const syncMusicMetaDataFlag = ref<boolean>(false);
 const addSoundSourceFlag = ref<boolean>(false);
@@ -79,10 +76,7 @@ function PlayMusic() {
 function OperatingMusic() {
   const getUserPlayInfo = (id: number) => {
     addMusicId.value = id;
-    getUserPlayList(userInfo.id).then(res => {
-      playItemDialogVisible.value = true;
-      userPlayItem.value = res.data;
-    });
+    playItemDialogVisible.value = true;
   };
   const addPlaySongList = async () => {
     console.log("添加到播放歌单");
@@ -111,7 +105,7 @@ const { playMusic } = PlayMusic();
     @onSubmit="onSubmit"
   />
   <!--添加歌曲到歌单-->
-  <AddMusicToPlayList v-model="playItemDialogVisible" :music-id="addMusicId" />
+  <AddToPlaylistModal v-model="playItemDialogVisible" :music-id="addMusicId" />
   <DialogUploadMusic
     v-model="addSoundSourceFlag"
     :music-info="musicDetail"

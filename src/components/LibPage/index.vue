@@ -7,7 +7,7 @@ import { TabsPaneContext } from "element-plus";
 import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
-import AddMusicToPlayList from "@/components/addMusicToPlayList/addMusicToPlayList.vue";
+import AddToPlaylistModal from "@/components/AddToPlaylistModal/index.vue";
 import { showAddFilterDialogText } from "@/components/LibPage/components/AddFilterDialog";
 import HighlightInput from "@/components/LibPage/components/HighlightInput/index.vue";
 import {
@@ -143,7 +143,7 @@ const showFilterText = () => {
 
 <template>
   <div class="page-content">
-    <AddMusicToPlayList
+    <AddToPlaylistModal
       v-model="addMusicDialogFlag"
       :music-id="selectIds"
       @closeDialog="() => (addMusicDialogFlag = false)"
