@@ -66,7 +66,12 @@ const onLogin = async (formEl: FormInstance | undefined) => {
             await initRouter();
             disabled.value = true;
             const redirect = router.currentRoute.value.query["redirect"];
-            const to = isAllEmpty(redirect) ? getTopMenu(true).path : redirect;
+            const to =
+              isAllEmpty(redirect) ||
+              Array.isArray(redirect) ||
+              redirect === "/login"
+                ? getTopMenu(true).path
+                : redirect;
             try {
               await router.push(to);
               message(t("msg.loginSuccess"), { type: "success" });
