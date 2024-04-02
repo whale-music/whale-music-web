@@ -15,8 +15,8 @@ import { Count } from "@/api/hone";
 import { AlbumConvert, SelectAlbum } from "@/api/model/Album";
 import { ArtistConvert, SelectArtist } from "@/api/model/Artist";
 import { R } from "@/api/model/common";
-import { AudioInfoRes, SaveOrUpdateMusic } from "@/api/model/Music";
-import { saveOrUpdateMusic } from "@/api/music";
+import { AudioInfoRes } from "@/api/model/Music";
+import { SaveMusic, saveMusic } from "@/api/music";
 import { getSelectSingerList } from "@/api/singer";
 import { message } from "@/utils/message";
 
@@ -38,7 +38,7 @@ const state = reactive({
     musicSelectAlbum: {} as SelectAlbum
   },
   form: {
-    uploadMusicInfo: { artistIds: [], resource: {} } as SaveOrUpdateMusic
+    uploadMusicInfo: { artistIds: [], resource: {} } as SaveMusic
   },
   list: {
     artist: {} as ArtistConvert[],
@@ -80,7 +80,7 @@ const handleClose = (done: () => void) => {
 };
 
 const updateMusicButton = async () => {
-  const r = await saveOrUpdateMusic(state.form.uploadMusicInfo);
+  const r = await saveMusic(state.form.uploadMusicInfo);
   if (r.code === "200") {
     message("上传成功", { type: "success" });
     cleanUploadMusicInfo();

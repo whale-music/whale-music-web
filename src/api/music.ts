@@ -152,6 +152,29 @@ export const saveOrUpdateMusic = (data: SaveOrUpdateMusic) => {
   });
 };
 
+export interface SaveMusic {
+  id: number;
+  musicName: string;
+  aliasName: string;
+  albumId: number;
+  artistIds: number[];
+  userId: number;
+  timeLength: number;
+  comment: string;
+  language: string;
+  publishTime: string;
+  musicTag: string[];
+  musicGenre: string[];
+  resource: Resource;
+  tempMusicFile: string;
+  tempPicFile: string;
+}
+export const saveMusic = (data: SaveMusic) => {
+  return http.request<R<any>>("post", `/admin/music/save`, {
+    data: data
+  });
+};
+
 export interface Singer {
   orderBy: string;
   order: boolean;
