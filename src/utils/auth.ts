@@ -1,6 +1,5 @@
 import Cookies from "js-cookie";
 
-import { userLogout } from "@/api/user";
 import { storageLocal } from "@pureadmin/utils";
 import { useUserStoreHook } from "@/store/modules/user";
 
@@ -102,10 +101,10 @@ export function setToken(data: DataInfo<Date>) {
 
 /** 删除`token`以及key值为`user-info`的localStorage信息 */
 export async function removeToken() {
+  // await userLogout();
   Cookies.remove(TokenKey);
   Cookies.remove(multipleTabsKey);
   clearUserData();
-  await userLogout();
 }
 
 /** 格式化token（jwt格式） */
