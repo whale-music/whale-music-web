@@ -42,6 +42,21 @@ export const saveOrUpdateAlbum = (data: SaveOrUpdateAlbum) => {
   });
 };
 
+export interface SaveAlbumReq {
+  albumName: string;
+  subType: string;
+  description: string;
+  company: string;
+  publishTime: string;
+  userId: number;
+  tempFile: string;
+}
+export const saveAlbum = (data: SaveAlbumReq) => {
+  return http.request<R<any>>("post", "/admin/album/save", {
+    data
+  });
+};
+
 export interface AlbumPageReq extends PageReqCommon {
   name: string;
   musicName: string;

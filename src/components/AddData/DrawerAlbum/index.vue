@@ -8,7 +8,7 @@ import {
 } from "element-plus";
 import { defineComponent, reactive, ref } from "vue";
 
-import { saveOrUpdateAlbum } from "@/api/album";
+import { saveAlbum, SaveAlbumReq } from "@/api/album";
 import { Count, PluginTaskRes } from "@/api/hone";
 import { AlbumConvert, SaveOrUpdateAlbum } from "@/api/model/Album";
 import { ArtistConvert } from "@/api/model/Artist";
@@ -31,7 +31,7 @@ const state = reactive({
     albumPreviewPic: false
   },
   form: {
-    uploadAlbum: { artistIds: [], link: [] } as AlbumReq
+    uploadAlbum: {} as SaveAlbumReq
   },
   list: {
     artist: {} as ArtistConvert[],
@@ -73,10 +73,9 @@ const albumHandleSuccess = (response: any) => {
 };
 
 const albumSaveOrUpdate = async () => {
-  const r = await saveOrUpdateAlbum(state.form.uploadAlbum);
+  const r = await saveAlbum(state.form.uploadAlbum);
   if (r.code === "200") {
     message("更新成功", { type: "success" });
-    state.form.uploadAlbum = {} as AlbumReq;
 
     emit("change");
   } else {
