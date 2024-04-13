@@ -13,7 +13,6 @@ import { Count, PluginTaskRes } from "@/api/hone";
 import { AlbumConvert, SaveOrUpdateAlbum } from "@/api/model/Album";
 import { ArtistConvert } from "@/api/model/Artist";
 import { LinkItem } from "@/api/model/common";
-import { getSelectSingerList } from "@/api/singer";
 import { message } from "@/utils/message";
 
 defineComponent({
@@ -43,10 +42,7 @@ const state = reactive({
     album: {} as Count,
     artist: {} as Count
   },
-  pluginTask: {} as PluginTaskRes[],
-  autocomplete: {
-    albumArtistInputValue: ""
-  }
+  pluginTask: {} as PluginTaskRes[]
 });
 
 const { VITE_PROXY_HOST } = import.meta.env;
@@ -81,38 +77,11 @@ const albumSaveOrUpdate = async () => {
   if (r.code === "200") {
     message("更新成功", { type: "success" });
     state.form.uploadAlbum = {} as AlbumReq;
-    state.autocomplete.albumArtistInputValue = "";
 
     emit("change");
   } else {
     message(`更新失败${r.message}`, { type: "error" });
   }
-};
-
-// 歌手添加到保存数据中
-const albumArtistHandleSelect = (item: LinkItem) => {
-  state.form.uploadAlbum.link.push(item);
-  state.form.uploadAlbum.artistIds.push(item.link);
-  state.autocomplete.albumArtistInputValue = "";
-};
-
-// 获取专辑歌手数据
-const albumArtistQuerySearchAsync = async (
-  queryString: string,
-  cb: (arg: any) => void
-): Promise<any> => {
-  const selectAlbumR = await getSelectSingerList(queryString);
-  if (selectAlbumR.code === "200" && selectAlbumR.data.length !== 0) {
-    cb(selectAlbumR.data);
-  } else {
-    setTimeout(() => cb([]), 200);
-  }
-};
-
-// 删除歌手数据
-const albumArtistHandleClose = index => {
-  state.form.uploadAlbum.link.splice(index, 1);
-  state.form.uploadAlbum.artistIds.splice(index, 1);
 };
 
 const handleClose = (done: () => void) => {
@@ -180,24 +149,6 @@ const handleClose = (done: () => void) => {
             </template>
           </el-upload>
         </div>
-      </el-form-item>
-      <el-form-item label="专辑歌手(艺术家)">
-        <el-tag
-          v-for="(item, index) in state.form.uploadAlbum.link"
-          :key="item.link"
-          effect="dark"
-          closable
-          round
-          @close="albumArtistHandleClose(index)"
-          >{{ item.value }}
-        </el-tag>
-        <el-autocomplete
-          v-model="state.autocomplete.albumArtistInputValue"
-          class="w-full mt-1"
-          :fetch-suggestions="albumArtistQuerySearchAsync"
-          placeholder="请输入歌手名"
-          @select="albumArtistHandleSelect"
-        />
       </el-form-item>
       <el-form-item label="发布时间">
         <el-date-picker
