@@ -35,9 +35,9 @@ export const refreshTokenApi = (data?: object) => {
 };
 
 /** 登出*/
-export const userLogout = () => {
-  return http.request<UserResult>("get", "/admin/user/logout");
-};
+// export const userLogout = () => {
+//   return http.request<UserResult>("get", "/admin/user/logout");
+// };
 
 /** 获取用户信息 */
 export const getUserInfo = (id: number) => {
